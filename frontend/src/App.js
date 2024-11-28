@@ -1,23 +1,30 @@
+import logo from './logo.svg';
+import React from 'react';
+import { AuthProvider } from './context/AuthContext';
 import './App.css';
-import React, {useState} from 'react';
-import MainPage from './components/page/MainPage';
-import {
-  BrowserRouter,  
-  Routes,
-  Route
-} from "react-router-dom";
-import Navigation from './components/navigation/Navigation';
-
+import Toolbar from './components/Toolbar';
+import { AuthContext } from './context/AuthContext';
 
 function App() {
 
   return (
-    <BrowserRouter>
-    <Navigation />
-    <Routes>
-      <Route index element={<MainPage />} />
-    </Routes>
-    </BrowserRouter>
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        {Toolbar}
+        <p>
+          dddddddfff
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
   );
 }
 
