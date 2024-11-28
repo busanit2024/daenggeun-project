@@ -29,6 +29,6 @@ function App() {
             </div>
     </AuthContext.Provider>
   );
-}
+};
 
 export default App;
