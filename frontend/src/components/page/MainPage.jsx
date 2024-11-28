@@ -5,7 +5,7 @@ import Navigation from "../navigation/Navigation";
 const Wrapper = styled.div`
     max-width: 1400px;
     min-width: 768px; 
-    margin: 0 auto; 
+    margin: 70px auto; 
     padding: 0 16px;
     
     @media (max-width: 768px) {
