@@ -1,10 +1,10 @@
 package com.busanit.daenggeunbackend.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.busanit.daenggeunbackend.constant.GroupRange;
+import com.busanit.daenggeunbackend.domain.GroupDTO;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -13,37 +13,55 @@ import java.util.List;
 @Document(collection = "group")
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Group {
   @Id
   private String id;
-  private String name;
+  private String title;
   private List<Image> images;
   private String description;
   private String Location;
+  private GroupRange groupRange; // 그룹 회원 거리 제한
   private String category;
   @CreatedDate
   private LocalDateTime createdDate;
-  private Boolean requireVerification; // 본인인증 필요 여부
+  private Boolean requireIdCheck; // 본인인증 필요 여부
+  private Boolean requireApproval; //가입 승인 필요 여부
   private String ageRange; // 나이제한
-  private int maxPeople; //최대 인원수
+  private int maxMember; //최대 인원수
+  private Boolean useNickname; // 별명 사용 여부
   private List<String> favoriteUsers; // 관심 등록 유저 id
-  private List<Member> members; //멤버 클래스 리스트
+  private List<GroupMember> members; //멤버 클래스 리스트
   private List<String> posts; //게시글 id
   private List<String> schedules; // 일정 id
 
-}
 
-@Getter
-@Setter
-class Member {
-  private String memberId;
-  private String position;
-  private String groupUserName; // 모임 닉네임
-  private String groupNickName; // 모임 별명
-  private LocalDateTime registeredDate;
-  private List<String> posts; //작성한 글 id
-  private List<String> comments; //작성한 댓글 id
-  private List<String> assigns; //참여한 일정 id
+  public static Group toEntity(GroupDTO groupDTO) {
+    GroupBuilder builder = Group.builder()
+            .title(groupDTO.getTitle())
+            .description(groupDTO.getDescription())
+            .Location(groupDTO.getLocation())
+            .groupRange(groupDTO.getGroupRange())
+            .category(groupDTO.getCategory())
+            .createdDate(groupDTO.getCreatedDate())
+            .requireIdCheck(groupDTO.getRequireIdCheck())
+            .requireApproval(groupDTO.getRequireApproval())
+            .ageRange(groupDTO.getAgeRange())
+            .maxMember(groupDTO.getMaxMember())
+            .useNickname(groupDTO.getUseNickname())
+            .favoriteUsers(groupDTO.getFavoriteUsers())
+            .members(groupDTO.getMembers())
+            .posts(groupDTO.getPosts())
+            .schedules(groupDTO.getSchedules())
+            .favoriteUsers(groupDTO.getFavoriteUsers())
+            .schedules(groupDTO.getSchedules());
+    if (groupDTO.getId() != null) {
+      builder.id(groupDTO.getId());
+    }
+    return builder.build();
+  }
 }
 
 

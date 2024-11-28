@@ -15,6 +15,7 @@ import java.util.List;
 public class Schedule {
   @Id
   private String id;
+  private String groupId; //모임 id
   private String userId; //주최(작성자) 아이디
   private String title;
   private String content;
@@ -22,7 +23,7 @@ public class Schedule {
   private LocalDateTime createdTime;
   private List<Image> images;
   private LocalDateTime date; //일정 날짜 시간
-  private int maxPeople; //최대 인원수
+  private int maxMember; //최대 인원수
   private boolean isClosed; //종료 여부
   private String location;
   private int views; //조회수
