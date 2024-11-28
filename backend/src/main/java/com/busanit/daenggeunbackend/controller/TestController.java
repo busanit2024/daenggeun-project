@@ -19,7 +19,7 @@ public class TestController {
   @GetMapping("/test/save")
           public void save(@RequestParam String id, @RequestParam String username) {
     TestUser testUser = new TestUser();
-    testUser.setId(id);
+    testUser.setUserId(id);
     testUser.setUsername(username);
     testUserService.save(testUser);
   }
