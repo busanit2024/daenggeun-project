@@ -5,26 +5,24 @@ import styled from "styled-components";
 const NavBar = styled.nav`
     position: fixed;
     width:calc(100% - 10px);
+    max-width: 1140px;
     top: 0;
     left: 0;
     right: 0;
     background-color: white;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 1rem 1.5rem;
     z-index: 1000;
+    margin : 0 auto;
 `;
 
 const NavItems = styled.div`
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 1rem;
     flex-grow: 1;
-    justify-content: flex-start; 
-    max-width: 720px;
-    margin: 0 auto; 
-    justify-content: space-between; 
+    justify-content: flex-start;
 `;
 
 const Logo = styled.img`
