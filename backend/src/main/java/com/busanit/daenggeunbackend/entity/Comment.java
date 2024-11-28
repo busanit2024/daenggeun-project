@@ -16,6 +16,7 @@ import java.util.List;
 public class Comment {
   @Id
   private String id;
+  private String postId; //게시글 id
   private String userId;
   @CreatedDate
   private LocalDateTime createdTime;

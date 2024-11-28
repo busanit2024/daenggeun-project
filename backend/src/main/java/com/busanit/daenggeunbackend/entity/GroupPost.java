@@ -15,6 +15,7 @@ import java.util.List;
 public class GroupPost {
   @Id
   private String id;
+  private String GroupId; //모임 id
   private String userId; //작성자 id
   private String content;
   private String board; //게시판 종류
