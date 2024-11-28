@@ -1,0 +1,84 @@
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+  }
+  
+  .toolbar .logo {
+    height: 40px;
+  }
+  
+  .toolbar nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .toolbar nav ul li {
+    display: inline;
+  }
+  
+  .nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .nav-links .dropdown {
+    cursor: pointer;
+  }
+  
+  .nav-links .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .nav-links .dropdown-menu li {
+    padding: 5px 10px;
+  }
+  
+  .nav-links .dropdown-menu a {
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  .nav-links .dropdown-menu a:hover {
+    color: #007bff;
+  }
+  
+  .auth-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .auth-links a,
+  .auth-links button {
+    text-decoration: none;
+    color: #333;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .auth-links a:hover,
+  .auth-links button:hover {
+    color: #007bff;
+  }

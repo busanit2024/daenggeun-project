@@ -1,13 +1,18 @@
 import logo from './logo.svg';
+import React from 'react';
+import { AuthProvider } from './context/AuthContext';
 import './App.css';
+import Toolbar from './components/Toolbar';
+import { AuthContext } from './context/AuthContext';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
+        {Toolbar}
         <p>
-          new
+          dddddddfff
         </p>
         <a
           className="App-link"
