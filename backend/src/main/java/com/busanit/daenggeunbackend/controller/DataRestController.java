@@ -19,5 +19,4 @@ public class DataRestController {
   private FilterDataDTO getFilterData(@RequestParam(value = "name") String name) {
     return filterDataService.findByName(name);
   }
-
 }
