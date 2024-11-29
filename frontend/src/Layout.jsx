@@ -12,7 +12,7 @@ const Container = styled.div`
 const Main = styled.div`
   width: 1024px;
   padding: 0 128px;
-  margin: 80px auto 0 auto;
+  margin: 80px auto;
 `;
 
 export default function Layout() {
