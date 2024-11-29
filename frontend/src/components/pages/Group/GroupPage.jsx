@@ -59,6 +59,7 @@ export default function GroupPage(props) {
   const [groupList, setGroupList] = useState([]);
   const [location, setLocation] = useState({"si": "부산광역시", "gu": "해운대구", "dong" : ""});
   const [categoryData, setCategoryData] = useState([]);
+  const [category, setCategory] = useState("all");
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -80,7 +81,7 @@ export default function GroupPage(props) {
   return(
   <Container>
     <HeadContainer>
-      <h2>{`${location.si} ${location.gu} ${location.dong} 모임`}</h2>
+      <h2>{`${location.si} ${location.gu} ${location.dong} ${category === 'all' ? "" : category} 모임`}</h2>
       <Button title="모임 만들기" width onClick={() => navigate("/group/create")}/>
     </HeadContainer>
         <InnerContainer>
@@ -93,12 +94,12 @@ export default function GroupPage(props) {
         <h4 className="title">카테고리</h4>
         <div className="filterList">
           <div>
-            <input type="radio" id="all" defaultChecked name="catetgory" value="all" />
+            <input type="radio" id="all" defaultChecked name="catetgory" value="all" onChange={(e) => setCategory(e.target.value)} />
             <label htmlFor="all">전체</label>
           </div>
           {categoryData.map((item) => (
             <div key={item.name}>
-              <input type="radio" id={item.name} name="catetgory" value={item.name} />
+              <input type="radio" id={item.name} name="catetgory" value={item.name} onChange={(e) => setCategory(e.target.value)} />
               <label htmlFor={item.name}>{item.name}</label>
             </div>
           ))}
