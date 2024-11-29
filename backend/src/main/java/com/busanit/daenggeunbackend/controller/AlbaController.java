@@ -16,7 +16,7 @@ public class AlbaController {
 
     @GetMapping
     public List<Alba> getAllAlba() {
-        return albaService.getAllAlbas();
+        return albaService.getAllAlba();
     }
 
     @GetMapping("/{id}")
