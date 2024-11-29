@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "user")
+@Document(collection = "test_user")
 @Getter
 @Setter
 public class TestUser {
@@ -17,5 +17,19 @@ public class TestUser {
   //@Indexed 어노테이션으로 유니크 제약조건 걸 수 있는 것 확인함!
   @Indexed(unique = true)
   private String userId;
-  private String username;
+  private UserName username;
+
+  public void setUsername(String firstName, String lastName) {
+    UserName userName = new UserName();
+    userName.setFirstName(firstName);
+    userName.setLastName(lastName);
+    this.username = userName;
+  }
+}
+
+@Setter
+@Getter
+class UserName {
+  private String firstName;
+  private String lastName;
 }
