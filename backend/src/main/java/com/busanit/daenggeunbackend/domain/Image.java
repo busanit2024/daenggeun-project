@@ -1,4 +1,4 @@
-package com.busanit.daenggeunbackend.entity;
+package com.busanit.daenggeunbackend.domain;
 
 import lombok.Getter;
 import lombok.Setter;
