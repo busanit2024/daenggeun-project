@@ -3,13 +3,9 @@ package com.busanit.daenggeunbackend.domain;
 import com.busanit.daenggeunbackend.constant.GroupRange;
 import com.busanit.daenggeunbackend.entity.Group;
 import com.busanit.daenggeunbackend.entity.GroupMember;
-import com.busanit.daenggeunbackend.entity.Image;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

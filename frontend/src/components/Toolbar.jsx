@@ -12,7 +12,7 @@ const Toolbar = () => {
 
     return (
         <div className="toolbar">
-            <img src="./images/logo.png" alt="로고" className="logo" />
+            <img src="/images/logo.png" alt="로고" className="logo" />
                 <nav>
                     <ul className="nav-links">
                         <li>
@@ -48,7 +48,7 @@ const Toolbar = () => {
                             <a href="/community">동네생활</a>
                         </li>
                         <li>
-                            <a href="/groups">모임</a>
+                            <a href="/group">모임</a>
                         </li>
                         </ul>
                 </nav>
