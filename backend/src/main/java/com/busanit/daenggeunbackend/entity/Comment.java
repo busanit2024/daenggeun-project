@@ -1,6 +1,7 @@
 package com.busanit.daenggeunbackend.entity;
 
 import com.busanit.daenggeunbackend.constant.CommentType;
+import com.busanit.daenggeunbackend.domain.Image;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -10,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Document(collection = "comment")
+@Document
 @Getter
 @Setter
 public class Comment {

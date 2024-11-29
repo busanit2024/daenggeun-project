@@ -2,6 +2,7 @@ package com.busanit.daenggeunbackend.entity;
 
 import com.busanit.daenggeunbackend.constant.GroupRange;
 import com.busanit.daenggeunbackend.domain.GroupDTO;
+import com.busanit.daenggeunbackend.domain.Image;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -10,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Document(collection = "group")
+@Document
 @Getter
 @Setter
 @Builder

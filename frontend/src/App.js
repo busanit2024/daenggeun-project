@@ -21,7 +21,7 @@ function App() {
             <Route path="group" element={<GroupPage />} />
             <Route path="group/view/:groupId" element={<GroupViewPage />} />
             <Route path="group/create" element={<GroupCreatePage />} />
-            </Route>
+          </Route>
         </Routes>
       </BrowserRouter>
 
