@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../ui/Button";
 
@@ -43,6 +43,16 @@ const ProductInfo = styled.div`
   flex: 1;
 `;
 
+const ButtonWrapper = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    
+    &:hover {
+        background-color: #e55a13;
+    }
+`;
+
 const Title = styled.h1`
   font-size: 24px;
   margin-bottom: 10px;
@@ -78,6 +88,17 @@ const ProductCard = styled.div`
 const UsedTradeView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const product = location.state || { title: "상품 정보가 없습니다", price: "가격 정보가 없습니다"};
+
+  if (!product) {
+    return (
+        <div>
+            <p>상품 정보가 없습니다.</p>
+            <button onClick={() => navigate(-1)}>뒤로 가기</button>
+        </div>
+    );
+  }
 
   return (
     <Container>
@@ -89,14 +110,23 @@ const UsedTradeView = () => {
         <ProductImage>상품 사진</ProductImage>
 
         <ProductInfo>
-          <Title>제목: 상품 {id}</Title>
-          <Price>가격: 50,000원</Price>
+          <Title>{product.title}</Title>
+          <Price>{product.price}</Price>
 
           <Description>
             상세 설명: 이 상품은 {id}번 상품으로 상세 내용은 여기에 표시됩니다.
+            안녕하세요 감사해요 잘 있어요 다시 만나요 
+            안녕하세요 감사해요 잘 있어요 다시 만나요 
+            안녕하세요 감사해요 잘 있어요 다시 만나요 
+            안녕하세요 감사해요 잘 있어요 다시 만나요 
           </Description>
 
-          <Button title="거래하기" variant="primary" onClick={() => alert("거래를 시작합니다!")} />
+          <ButtonWrapper>
+            <Button 
+              title="거래하기" 
+              variant="primary" 
+              onClick={() => alert("거래를 시작합니다!")} />
+          </ButtonWrapper>
         </ProductInfo>
 
       </ProductDetail>
