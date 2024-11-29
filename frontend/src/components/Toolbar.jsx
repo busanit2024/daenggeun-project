@@ -30,7 +30,7 @@ const Toolbar = () => {
                         onMouseEnter={toggleDropdown}
                         onMouseLeave={toggleDropdown}
                         >
-                        <a href="/">알바</a>
+                        <a href="/alba">알바</a>
                         {isDropdownOpen && (
                         <ul className="dropdown-menu">
                             <li>
