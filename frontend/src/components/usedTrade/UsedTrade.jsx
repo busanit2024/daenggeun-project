@@ -54,8 +54,20 @@ const CardGrid = styled.div`
   width: 100%;
 `;
 
+// 숫자에 쉼표 추가하기
+const formatPrice = (price) => {
+    return new Intl.NumberFormat("ko-KR").format(price);
+};
+
 const UsedTrade = () => {
-    const navigate = useNavigate();  // useNavigate 훅 사용
+    const navigate = useNavigate();
+
+    const products = Array.from({ length: 20 }).map((_, index) => ({
+        id: index + 1,
+        title: `쓸모가 없어진 물건 팝니다 ${index + 1}`,
+        location: "동래구",
+        price: `${formatPrice((index + 1) * 10000)} 원`,  // 가격 나중에 수정
+    }));
 
     return (
         <Container>
@@ -66,13 +78,15 @@ const UsedTrade = () => {
                 <Main>
                     <Title>부산광역시 동래구 중고거래</Title>
                     <CardGrid>
-                        {Array.from({ length: 20 }).map((_, index) => (
-                            <Card 
-                                key={index} 
-                                title={`상품 ${index + 1}`} 
-                                location="동래구"
-                                onClick={() => navigate(`/pages/used-trade-view/${index + 1}`)}  // 클릭 시 해당 상세페이지로 이동
-                                style={{ cursor: "pointer" }}
+                        {products.map((product) => (
+                            <Card
+                                key={product.id}
+                                title={product.title}
+                                location={product.location}
+                                price={product.price}
+                                onClick={() => navigate(`/usedTrade/used-trade-view/${product.id}`, {
+                                    state: product, // 상품 정보를 state로 넘기기
+                                })}
                             />
                         ))}
                     </CardGrid>
