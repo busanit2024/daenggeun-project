@@ -12,7 +12,7 @@ public class AlbaService {
     @Autowired
     private AlbaRepository albaRepository;
 
-    public List<Alba> getAllAlbas() {
+    public List<Alba> getAllAlba() {
         return albaRepository.findAll();
     }
 
