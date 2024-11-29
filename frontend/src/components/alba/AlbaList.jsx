@@ -2,15 +2,17 @@ import React, { useState } from "react";
 import "../../styles/AlbaList.css";
 
 const AlbaList = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
   const [selectedRegion, setSelectedRegion] = useState(""); // 지역 선택 상태
 
+  // 검색어 입력 핸들러
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+    setSearchTerm(e.target.value); // 검색어 상태 업데이트
   };
 
+  // 지역 선택 핸들러
   const handleRegionChange = (e) => {
-    setSelectedRegion(e.target.value);
+    setSelectedRegion(e.target.value); // 지역 선택 상태 업데이트
   };
 
   return (
@@ -39,13 +41,14 @@ const AlbaList = () => {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        <button>검색</button>
+        <button>검색</button> {/* TODO: 검색 기능 구현 필요 */}
       </div>
 
       <div className="alba-content">
         {/* 필터 섹션 */}
         <aside className="filter-section">
           <h3>필터</h3>
+          {/* TODO: 필터 상태 관리 추가 */}
           <label>
             <input type="checkbox" name="type" value="단기" />
             단기
@@ -68,6 +71,7 @@ const AlbaList = () => {
         {/* 게시글 리스트 */}
         <div className="alba-list">
           <h3>게시글 리스트</h3>
+          {/* TODO: 게시글 데이터를 동적으로 렌더링 */}
           <div className="alba-item">
             <h4>서빙 알바 모집</h4>
             <p>위치: 서울 강남구</p>
@@ -80,6 +84,7 @@ const AlbaList = () => {
             <p>시급: 15,000원</p>
             <p>근무 시간: 14:00 ~ 20:00</p>
           </div>
+          {/* TODO: 게시글 데이터가 없을 때 '결과 없음' 메시지 표시 */}
         </div>
       </div>
     </div>

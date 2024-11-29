@@ -6,6 +6,9 @@ import GroupPage from './components/page/Group/GroupPage';
 import GroupViewPage from './components/page/Group/GroupViewPage';
 import GroupCreatePage from './components/page/Group/GroupCreatePage';
 import Layout from './Layout';
+import UsedTrade from './components/pages/UsedTrade';
+import UsedTradeView from './components/pages/UsedTradeView';
+import AlbaList from './components/alba/AlbaList';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -19,6 +22,7 @@ function App() {
             <Route path="group" element={<GroupPage />} />
             <Route path="group/view/:groupId" element={<GroupViewPage />} />
             <Route path="group/create" element={<GroupCreatePage />} />
+            <Route path="alba" element={<AlbaList />} />
             <Route path="pages/used-trade" element={<UsedTrade />} />
             <Route path="pages/used-trade-view/:id" element={<UsedTradeView />} />
           </Route>
