@@ -1,32 +1,28 @@
-import logo from './logo.svg';
 import React, { useState } from 'react';
-import { AuthProvider } from './context/AuthContext';
 import './App.css';
-import Toolbar from './components/Toolbar';
 import { AuthContext } from './context/AuthContext';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import GroupPage from './components/page/Group/GroupPage';
+import GroupViewPage from './components/page/Group/GroupViewPage';
+import GroupCreatePage from './components/page/Group/GroupCreatePage';
+import Layout from './Layout';
 
 function App() {
-  const [ isLoggedIn, setIsLoggedIn ] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
-      <Toolbar />
-        <div className="App">
-              <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                  dddddddfff
-                </p>
-                <a
-                  className="App-link"
-                  href="https://reactjs.org"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Learn React
-                </a>
-              </header>
-            </div>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<h1>메인 페이지입니다</h1>} />
+            <Route path="group" element={<GroupPage />} />
+            <Route path="group/view/:groupId" element={<GroupViewPage />} />
+            <Route path="group/create" element={<GroupCreatePage />} />
+            </Route>
+        </Routes>
+      </BrowserRouter>
+
     </AuthContext.Provider>
   );
 };
