@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import Navigation from "../navigation/Navigation";
 
 const Wrapper = styled.div`
     max-width: 1400px;

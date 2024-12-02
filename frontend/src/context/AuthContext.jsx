@@ -2,7 +2,7 @@ import { Children, createContext, useState } from "react";
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ Children }) => {
+export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);    // 기본적으로 로그인 상태는 false로 지정
 
     const login = () => setIsLoggedIn(true);
@@ -10,7 +10,7 @@ export const AuthProvider = ({ Children }) => {
 
     return (
         <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
-            {Children}
+            {children}
         </AuthContext.Provider>
     );
 };
