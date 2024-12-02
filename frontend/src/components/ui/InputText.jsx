@@ -6,6 +6,18 @@ const StyledInput = styled.input`
     border : 1px solid #ccc;
     border-radius : 5px;
     font-size : 16px;
+
+    ${props => {
+        if (props.underline) {
+            return `
+                border : none;
+                border-bottom : 1px solid #ccc;
+                border-radius : 0px;
+            `;
+        }
+    }
+
+    }
     
     &:focus {
         border : 1px solid #000000;
@@ -14,13 +26,15 @@ const StyledInput = styled.input`
 `;
 
 function InputText(props) {
-    const { value, onChange, placeholder} = props;
+    const { value, onChange, placeholder, underline, grow } = props;
     return (
-        <StyledInput 
-        type="text" 
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder} />
+        <StyledInput
+            type="text"
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            underline={underline}
+            grow={grow} />
     );
 }
 

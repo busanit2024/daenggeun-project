@@ -8,4 +8,5 @@ import lombok.Setter;
 public class Filter {
   private String name;
   private String value;
+  private String label;
 }

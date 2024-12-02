@@ -87,6 +87,58 @@ const SelectBox = styled.label`
     
 `;
 
+const FileInputContainer = styled.div` 
+  display: flex;
+  justify-content: start;
+  gap: 16px;
+`;
+
+const CustomFileInput = styled.div`
+  display: flex;
+  width: 160px;
+  height: 160px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  .camera-icon {
+    width: 50%;
+    height: 50%;
+  }
+`;
+
+const ImagePreview = styled.div`
+  width: 160px;
+  height: 160px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  position: relative;
+  
+  .preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .delete-button {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: -8px;
+    right: -8px;
+    background-color: black;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+`;
+
 const ageData = [
   "누구나", "20대", "30대", "40대", "50대", "60대", "직접 입력",
 ]
@@ -110,7 +162,7 @@ export default function GroupCreatePage(props) {
   const [description, setDescription] = useState("");
   const [range, setRange] = useState("0");
   const [requireApproval, setRequireApproval] = useState(false);
-  const [age, setAge] = useState("");
+  const [age, setAge] = useState('누구나');
   const [ageInput, setAgeInput] = useState(false);
   const [ageInputValue, setAgeInputValue] = useState({ min: 0, max: 0 });
   const [maxMember, setMaxMember] = useState(0);
@@ -142,12 +194,16 @@ export default function GroupCreatePage(props) {
     setImage(e.target.files[0]);
   }
 
+  const handleCustomFileInputClick = () => {
+    document.querySelector('input[type="file"]').click();
+  }
+
   const createGroup = async () => {
     let imageInfo = null;
     try {
       if (image !== null) {
-      imageInfo = await singleFileUpload(image);
-      console.log(imageInfo);
+        imageInfo = await singleFileUpload(image);
+        console.log(imageInfo);
       }
 
       const response = await axios.post("/api/group/save", {
@@ -160,7 +216,8 @@ export default function GroupCreatePage(props) {
         ageRange: age,
         maxMember: maxMember,
         useNickname: useNickname,
-        image: imageInfo
+        image: imageInfo,
+        boards: ["자유 게시판"],
       });
       alert("모임이 생성되었습니다.");
       navigate("/group");
@@ -189,8 +246,8 @@ export default function GroupCreatePage(props) {
         <h4>카테고리</h4>
         <RadioContainer>
           {categoryData.map((item) => (<>
-            <RoundFilter key={item.name} title={item.name} variant={category === item.name ? 'selected' : 'category'} value={item.name} onClick={() => setCategory(item.name)} />
-            </>
+            <RoundFilter key={item.name} title={item.name} variant={category === item.name ? 'selected' : 'category'} value={item.name} onClick={() => {setCategory(item.name)}} />
+          </>
           ))}
         </RadioContainer>
       </Item>
@@ -245,10 +302,14 @@ export default function GroupCreatePage(props) {
         <p>연령대</p>
         <RadioContainer>
           {ageData.map((item) => (
-            <label>
-              {item}
-              <input type="radio" defaultChecked={item === '누구나'} name="age" value={item} onChange={(e) => { item === '직접 입력' ? setAgeInput(true) : setAge(e.target.value) }} />
-            </label>
+              <RoundFilter title={item} variant={((ageInput && item === '직접 입력') ||  (item === age)) ? 'selected' : 'category' } value={item} onClick={() => {
+                if (item === '직접 입력') {
+                  setAgeInput(true);
+                  setAge('직접 입력');
+                } else {
+                  setAgeInput(false);
+                  setAge(item);
+              }}} />
           ))}
           {ageInput && (
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
@@ -273,10 +334,15 @@ export default function GroupCreatePage(props) {
         <RadioContainer>
           {maxMemberData.map((item) => (
             <>
-              <label>
-                {item === 0 ? "제한없음" : item === -1 ? "직접 입력" : item}
-                <input type="radio" defaultChecked={item === 0} name="maxMember" value={item} onChange={(e) => { item === -1 ? setMaxMemberInput(true) : setMaxMember(e.target.value) }} />
-              </label>
+            <RoundFilter title={item === 0 ? "제한없음" : item === -1 ? "직접 입력" : item} variant={item === maxMember ? 'selected' : 'category'} value={item} onClick={() => { 
+              if (item === -1) {
+                setMaxMemberInput(true);
+                setMaxMember(-1);
+              } else {
+                setMaxMemberInput(false);
+                setMaxMember(item);
+              } 
+            }} />
             </>
           ))}
           {maxMemberInput && (
@@ -325,7 +391,18 @@ export default function GroupCreatePage(props) {
       <Item>
         <h2>대표사진을 등록해주세요</h2>
         <p>전체 모임 목록에서 보이는 대표 이미지에요.</p>
-        <input type="file" onChange={handleImageChange} />
+        <FileInputContainer>
+          <input style={{ display: "none" }} type="file" onChange={handleImageChange} />
+          <CustomFileInput onClick={handleCustomFileInputClick}>
+            <img className="camera-icon" src="/images/icon/camera.svg" alt="대표 이미지 등록" />
+          </CustomFileInput>
+          {image && <ImagePreview>
+            <img className="preview" src={URL.createObjectURL(image)} alt="대표 이미지" />
+            <button className="delete-button" onClick={() => setImage(null)}>
+              <img src="/images/icon/cancel.svg" alt="삭제" />
+            </button>
+          </ImagePreview>}
+        </FileInputContainer>
       </Item>
 
       <ButtonContainer>

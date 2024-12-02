@@ -126,7 +126,7 @@ export default function GroupPageLayout(props) {
           </div>
           <Button title="입장하기" variant="primary" />
           <ButtonGroup>
-            <Button title="모임 수정" grow />
+            <Button title="모임 수정" grow onClick={() => navigate(`/group/edit/${group.id}`)} />
             <Button title="모임 삭제" grow onClick={() => setModalOpen(true)} />
           </ButtonGroup>
         </GroupDescContainer>

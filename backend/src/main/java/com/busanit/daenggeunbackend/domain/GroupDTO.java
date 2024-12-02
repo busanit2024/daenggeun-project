@@ -22,6 +22,7 @@ public class GroupDTO {
     private Location location;
     private GroupRange groupRange; // 그룹 회원 거리 제한
     private String category;
+    private List<String> boards;
     private LocalDateTime createdDate;
     private Boolean requireIdCheck; // 본인인증 필요 여부
     private Boolean requireApproval; //가입 승인 필요 여부
@@ -42,6 +43,7 @@ public class GroupDTO {
     builder.location(group.getLocation());
     builder.groupRange(group.getGroupRange());
     builder.category(group.getCategory());
+    builder.boards(group.getBoards());
     builder.createdDate(group.getCreatedDate());
     builder.requireIdCheck(group.getRequireIdCheck());
     builder.requireApproval(group.getRequireApproval());
