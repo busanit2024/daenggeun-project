@@ -1,8 +1,9 @@
-import { Children, createContext, useState } from "react";
+import { createContext, useState } from "react";
+import Toolbar from "../components/Toolbar";
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+export const AuthProvider = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);    // 기본적으로 로그인 상태는 false로 지정
 
     const login = () => setIsLoggedIn(true);
@@ -10,7 +11,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
-            {children}
+            <Toolbar />
         </AuthContext.Provider>
     );
 };

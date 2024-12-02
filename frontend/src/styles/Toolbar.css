@@ -82,3 +82,11 @@
   .auth-links button:hover {
     color: #007bff;
   }
+
+  a {
+    margin-right: 20px;
+  }
+
+  .logo {
+    margin-inline-start: 20px;
+  }
