@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import Card from "../../ui/Card";
 import { useNavigate } from "react-router-dom";
-
 import FilterBar from "../../ui/FilterBar";
 
 const Container = styled.div`
@@ -61,7 +60,6 @@ const UsedTrade = () => {
         <Container>
             <Content>
                 <Sidebar>
-                    <FilterBar />
                 </Sidebar>
                 <Main>
                     <Title>부산광역시 동래구 중고거래</Title>
@@ -71,7 +69,7 @@ const UsedTrade = () => {
                                 key={index} 
                                 title={`상품 ${index + 1}`} 
                                 location="동래구"
-                                onClick={() => navigate(`/pages/used-trade-view/${index + 1}`)}  // 클릭 시 해당 상세페이지로 이동
+                                onClick={() => navigate(`/UsedTrade/used-trade-view/${index + 1}`)}  // 클릭 시 해당 상세페이지로 이동
                                 style={{ cursor: "pointer" }}
                             />
                         ))}

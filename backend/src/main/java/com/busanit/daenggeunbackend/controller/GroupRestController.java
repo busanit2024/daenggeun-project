@@ -19,6 +19,11 @@ public class GroupRestController {
     return groupService.findAll();
   }
 
+  @GetMapping("/search")
+  private List<GroupDTO> searchGroups(@RequestParam String gu, @RequestParam String dong, @RequestParam String category, @RequestParam String sort) {
+    return groupService.search(gu, dong, category, sort);
+  }
+
   @GetMapping("/view/{groupId}")
   private GroupDTO getGroup(@PathVariable String groupId) {
     return groupService.findById(groupId);
@@ -27,5 +32,10 @@ public class GroupRestController {
   @PostMapping("/save")
   private void saveGroup(@RequestBody GroupDTO groupDTO) {
     groupService.save(groupDTO);
+  }
+
+  @DeleteMapping("/delete/{groupId}")
+  private void deleteGroup(@PathVariable String groupId) {
+    groupService.delete(groupId);
   }
 }

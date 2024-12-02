@@ -24,9 +24,8 @@ function App() {
             <Route path="group/view/:groupId" element={<GroupViewPage />} />
             <Route path="group/create" element={<GroupCreatePage />} />
             <Route path="alba" element={<AlbaList />} />
-            <Route path="pages/used-trade" element={<UsedTrade />} />
-            <Route path="pages/used-trade-view/:id" element={<UsedTradeView />} />
-            <Route path="login" element={<LoginPage />}  />
+            <Route path="usedTrade/used-trade" element={<UsedTrade />} />
+            <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
           </Route>
         </Routes>
       </BrowserRouter>
