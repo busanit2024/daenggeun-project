@@ -9,6 +9,7 @@ import Layout from './Layout';
 import UsedTrade from './components/pages/UsedTrade/UsedTrade';
 import UsedTradeView from './components/pages/UsedTrade/UsedTradeView';
 import AlbaList from './components/alba/AlbaList';
+import LoginPage from './components/pages/Login/LoginPage';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,6 +26,7 @@ function App() {
             <Route path="alba" element={<AlbaList />} />
             <Route path="pages/used-trade" element={<UsedTrade />} />
             <Route path="pages/used-trade-view/:id" element={<UsedTradeView />} />
+            <Route path="login" element={<LoginPage />}  />
           </Route>
         </Routes>
       </BrowserRouter>
