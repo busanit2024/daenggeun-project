@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import GroupPage from './components/pages/Group/GroupPage';
 import GroupViewPage from './components/pages/Group/GroupViewPage';
 import GroupCreatePage from './components/pages/Group/GroupCreatePage';
+import Layout from './Layout';
 import UsedTrade from './components/pages/UsedTrade/UsedTrade';
 import UsedTradeView from './components/pages/UsedTrade/UsedTradeView';
 
@@ -28,14 +29,9 @@ function App() {
             <Route path="group" element={<GroupPage />} />
             <Route path="group/view/:groupId" element={<GroupViewPage />} />
             <Route path="group/create" element={<GroupCreatePage />} />
-
             <Route path="alba" element={<AlbaList />} />
-            <Route path="/alba/create" element={<AlbaCreate />} />
-            <Route path="/alba/:id" element={<AlbaDetail />} />
-            <Route path="/alba/:id/edit" element={<AlbaEdit />} />
-
-            <Route path="pages/used-trade" element={<UsedTrade />} />
-            <Route path="pages/used-trade-view/:id" element={<UsedTradeView />} />
+            <Route path="usedTrade/used-trade" element={<UsedTrade />} />
+            <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
           </Route>
         </Routes>
       </BrowserRouter>
