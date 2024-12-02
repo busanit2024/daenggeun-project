@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import Button from "../ui/Button";
+import Button from "../../ui/Button";
 
 const Container = styled.div`
   width: 90%;

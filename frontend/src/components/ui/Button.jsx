@@ -7,6 +7,9 @@ const StyledButton = styled.button`
     border-width: 0px;
     border-radius: 5px;
     cursor:pointer;
+    height : 40px;
+    width: ${props => props.width ? props.width : "auto"};
+    flex-grow: ${props => props.grow ? 1 : 0};
     
     ${props => {
         switch(props.variant){
@@ -41,8 +44,8 @@ const StyledButton = styled.button`
 
 
 function Button(props) {
-    const { title, onClick, variant } = props;
-    return <StyledButton title={title} onClick={onClick} variant={variant}>{title || "button"}</StyledButton>;
+    const { title, onClick, variant, width, grow  } = props;
+    return <StyledButton onClick={onClick} variant={variant} width={width} grow={grow}>{title || "button"}</StyledButton>;
 }
 
 
