@@ -20,7 +20,7 @@ public class Comment {
   private String postId; //게시글 id
   private String userId;
   @CreatedDate
-  private LocalDateTime createdTime;
+  private LocalDateTime createdDate;
   private String content;
   private List<String> likeUsers; //공감 누른 유저 id
   private List<Image> images;
