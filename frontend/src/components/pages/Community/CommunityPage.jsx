@@ -4,6 +4,8 @@ import FilterBar from "../../ui/FilterBar";
 import Button from "../../ui/Button";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import RoundFilter from "../../ui/RoundFilter";
+import CommunityListItem from "./CommunityListItem";
 
 const Container = styled.div`
   display: flex;
@@ -28,25 +30,31 @@ const InnerContainer = styled.div`
 const ListContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 28px;
   width: 100%;
+  padding: 0 16px;
 `;
 
-const FilterBarHeader = styled.div`
+const FilterContainer = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: end;
-  
-  & .title {
-    font-size: 18px;
-    font-weight: bold;
+  gap: 8px;
+`;
+
+const NoSearchResult = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 88px 0;
+  & h3 {
     margin: 0;
   }
 
-  & .reset {
+  & p {
+    margin: 0;
     color: #666666;
-    cursor: pointer;
-    text-decoration: underline;
   }
 `;
 
@@ -56,6 +64,7 @@ export default function CommunityPage(props) {
   const [location, setLocation] = useState({"si": "부산광역시", "gu": "해운대구", "dong" : ""});
   const [categoryData, setCategoryData] = useState([]);
   const [category, setCategory] = useState("all");
+  const [sort, setSort] = useState(""); // sort 상태 변수 추가
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -77,7 +86,7 @@ export default function CommunityPage(props) {
     <Container>
         <HeadContainer>
         <h2>{`${location.si} ${location.gu} ${location.dong} ${category === 'all' ? "" : category} 동네생활`}</h2>
-        <Button title="글 작성하기" width onClick={() => navigate("/community/write")}/>
+        <Button title="+ 글쓰기" width onClick={() => navigate("/community/write")} />
         </HeadContainer>
         <InnerContainer>
             <FilterBar>
@@ -105,12 +114,20 @@ export default function CommunityPage(props) {
                 </div>
             </FilterBar>
             <ListContainer>
-              {communityList.map((community) => ( // {{ edit_3 }} communityList 사용
-                <div key={community.id} style={{border: "1px solid gray"}} onClick={() => navigate(`/community/view/${community.id}`)}>
-                  <h2>{community.title}</h2>
-                  <h3>{community.content}</h3>
-                </div>
-              ))}
+              { (category !== 'all' || sort !== "") &&
+                <FilterContainer>
+                  {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
+                  {sort !== "" && <RoundFilter title={sort === 'recent' ? '최신순' : '이름순'} variant='search' cancelIcon onClick={() => setSort("")} />}
+                </FilterContainer>
+              }
+            {communityList.length === 0 && <NoSearchResult>
+              <h3>{`${location.dong ? location.dong : location.gu} 작성된 글이 없어요.`}</h3>
+              <p>다른 조건으로 검색하거나 글을 써보세요.</p>
+              </NoSearchResult>}
+            {communityList?.map((community) => (
+              <CommunityListItem key={community.id} community={community} />
+            ))}
+            <Button title="더보기" />
             </ListContainer>
         </InnerContainer>
     </Container>

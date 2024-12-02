@@ -12,8 +12,8 @@ import UsedTrade from './components/pages/UsedTrade/UsedTrade';
 import UsedTradeView from './components/pages/UsedTrade/UsedTradeView';
 import AlbaList from './components/alba/AlbaList';
 import CommunityPage from './components/pages/Community/CommunityPage';
-// import CommunityViewPage from '.components/pages/Community/CommunityViewPage';
-// import CommunityWritePage from '.components/pages/Community/CommunityWritePage';
+// import CommunityViewPage from './components/pages/Community/CommunityViewPage';
+import CommunityWritePage from './components/pages/Community/CommunityWritePage'; // 수정된 경로
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -31,8 +31,8 @@ function App() {
             <Route path="usedTrade/used-trade" element={<UsedTrade />} />
             <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
             <Route path="community" element={<CommunityPage />} />
-            {/* <Route path="community/view/:communityId" element={<CommunityViewPage />} />
-            <Route pate="community/write" element={<CommunityWritePage />} /> */}
+            {/* <Route path="community/view/:communityId" element={<CommunityViewPage />} /> */}
+            <Route path="community/write" element={<CommunityWritePage />} />
           </Route>
         </Routes>
       </BrowserRouter>
