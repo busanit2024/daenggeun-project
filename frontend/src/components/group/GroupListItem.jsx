@@ -54,7 +54,7 @@ export default function GroupListItem({ group }) {
         <Title>{group.title}</Title>
         <Description>{group.description}</Description>
         <TagContainer>
-          <span>{group.location ?? '지역'}</span>
+          <span>{group.location.dong ?? group.location.gu}</span>
           <span> · </span>
           <span>{group.members?.length ?? 0}</span>
           <span> · </span>
