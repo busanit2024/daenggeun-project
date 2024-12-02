@@ -68,7 +68,6 @@ const UsedTrade = () => {
         <Container>
             <Content>
                 <Sidebar>
-                    <FilterBar />
                 </Sidebar>
                 <Main>
                   <Header>

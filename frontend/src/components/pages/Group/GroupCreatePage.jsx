@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
+import RoundFilter from "../../ui/RoundFilter";
+import { singleFileUpload } from "../../../firebase";
 
 
 const Container = styled.div`
@@ -115,6 +117,7 @@ export default function GroupCreatePage(props) {
   const [maxMemberInput, setMaxMemberInput] = useState(false);
   const [requireIdCheck, setRequireIdCheck] = useState(false);
   const [useNickname, setUseNickname] = useState(false);
+  const [image, setImage] = useState(null);
 
 
   useEffect(() => {
@@ -135,26 +138,38 @@ export default function GroupCreatePage(props) {
     setAge(`${ageInputValue.min}세~${ageInputValue.max}세`);
   }, [ageInputValue]);
 
-  const createGroup = () => {
-    axios.post("/api/group/save", {
-      title: title,
-      description: description,
-      groupRange: range,
-      category: category,
-      requireIdCheck: requireIdCheck,
-      requireApproval: requireApproval,
-      ageRange: age,
-      maxMember: maxMember,
-      useNickname: useNickname,
-    }).then(() => {
-      alert("모임이 생성되었습니다.");
-      navigate("/group");
-    }).catch((error) => {
-      alert("모임 생성에 실패했습니다.");
-      console.error(error);
-    });
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
   }
 
+  const createGroup = async () => {
+    let imageInfo = null;
+    try {
+      if (image !== null) {
+      imageInfo = await singleFileUpload(image);
+      console.log(imageInfo);
+      }
+
+      const response = await axios.post("/api/group/save", {
+        title: title,
+        description: description,
+        groupRange: range,
+        category: category,
+        requireIdCheck: requireIdCheck,
+        requireApproval: requireApproval,
+        ageRange: age,
+        maxMember: maxMember,
+        useNickname: useNickname,
+        image: imageInfo
+      });
+      alert("모임이 생성되었습니다.");
+      navigate("/group");
+
+    } catch (error) {
+      alert("모임 생성에 실패했습니다.");
+      console.error(error);
+    };
+  }
 
 
 
@@ -173,11 +188,9 @@ export default function GroupCreatePage(props) {
       <Item>
         <h4>카테고리</h4>
         <RadioContainer>
-          {categoryData.map((item) => (
-            <label>
-              {item.name}
-              <input type="radio" name="category" value={item.value ?? item.name} onChange={(e) => setCategory(e.target.value)} />
-            </label>
+          {categoryData.map((item) => (<>
+            <RoundFilter key={item.name} title={item.name} variant={category === item.name ? 'selected' : 'category'} value={item.name} onClick={() => setCategory(item.name)} />
+            </>
           ))}
         </RadioContainer>
       </Item>
@@ -312,7 +325,7 @@ export default function GroupCreatePage(props) {
       <Item>
         <h2>대표사진을 등록해주세요</h2>
         <p>전체 모임 목록에서 보이는 대표 이미지에요.</p>
-        <input type="file" />
+        <input type="file" onChange={handleImageChange} />
       </Item>
 
       <ButtonContainer>
