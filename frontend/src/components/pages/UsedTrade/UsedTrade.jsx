@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Button from "../../ui/Button";
 import Card from "../../ui/Card";
 import { useNavigate } from "react-router-dom";
+import FilterBar from "../../ui/FilterBar";
 
 const Container = styled.div`
   display: flex;
@@ -60,7 +61,7 @@ const UsedTrade = () => {
         <Container>
             <Content>
                 <Sidebar>
-                    <Filter />
+                    <FilterBar />
                 </Sidebar>
                 <Main>
                     <Title>부산광역시 동래구 중고거래</Title>
