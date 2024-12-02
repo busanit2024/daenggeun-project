@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
-import Filter from "../../ui/Filter";
+
 
 const Container = styled.div`
   display: flex;
