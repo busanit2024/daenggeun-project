@@ -21,20 +21,6 @@ const Container = styled.div`
   padding: 16px;
 `;
 
-const TitleInput = styled.input`
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 8px; /* 제목과 내용 사이의 간격 조정 */
-  font-size: 18px; /* 제목 크기 조정 */
-  font-weight: bold; /* 제목 볼드체 */
-`;
-
-const ContentInput = styled.textarea`
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 16px;
-`;
-
 const CategorySelect = styled.select`
   width: 100%;
   padding: 8px;
@@ -47,6 +33,22 @@ const ImageInput = styled.input`
 
 const LocationButton = styled.button`
   margin-bottom: 16px;
+`;
+
+const TitleInput = styled.input`
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px; /* 제목과 내용 사이의 간격 조정 */
+  font-size: 20px; /* 제목 크기 조정 */
+  font-weight: bold; /* 제목 볼드체 */
+`;
+
+const CombinedInput = styled.textarea`
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 16px;
+  font-size: 16px; /* 내용 크기 조정 */
+  resize: none; /* 크기 조절 비활성화 */
 `;
 
 export default function CommunityWritePage() {
@@ -89,24 +91,29 @@ export default function CommunityWritePage() {
 
   return (
     <Container>
-      <h2>동네생활 글쓰기</h2>
+      <h2 style={{ textAlign: 'center' }}>동네생활 글쓰기</h2>
       <CategorySelect onChange={(e) => setSelectedCategory(e.target.value)} value={selectedCategory}>
-        <option value="">카테고리 선택</option>
+        <option value="">게시글의 주제를 선택해주세요.</option>
         {categories.map((category) => (
           <option key={category.name} value={category.name}>{category.name}</option>
         ))}
       </CategorySelect>
+      
+      {/* 제목 입력 필드 */}
       <TitleInput 
-        type="text" 
         placeholder="제목을 입력하세요" 
         value={title} 
         onChange={(e) => setTitle(e.target.value)} 
       />
-      <ContentInput 
-        placeholder="ㅇㅇ동 이웃과 이야기를 나눠보세요." 
+      
+      {/* 내용 입력 필드 */}
+      <CombinedInput 
+        placeholder="내용을 입력하세요" 
         value={content} 
         onChange={(e) => setContent(e.target.value)} 
+        rows={5} // CombinedInput의 세로 길이 조정
       />
+      
       <ImageInput 
         type="file" 
         accept="image/*" 

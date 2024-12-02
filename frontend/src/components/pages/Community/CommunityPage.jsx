@@ -90,41 +90,26 @@ export default function CommunityPage(props) {
         </HeadContainer>
         <InnerContainer>
             <FilterBar>
-                <div className="filterBarHeader">
-                    <h3 className="title">필터</h3>
-                    <div className="reset">초기화</div>
-                </div>
-                <div className="filterItem">
-                    <h4 className="title">카테고리</h4>
+                <div className="filterItem">                    
                     <div className="filterList">
-                        <div>
-                            <input type="radio" id="all" defaultChecked name="catetgory" value="all" onChange={(e) => setCategory(e.target.value)} />
-                            <label htmlFor="all">전체</label>
+                        <div onClick={() => setCategory('all')} style={{ cursor: 'pointer', fontWeight: category === 'all' ? 'bold' : 'normal' }}>                            
+                            <img src="/images/favorite.png" alt="인기글" />
+                            인기글
                         </div>
-                        {categoryData.map((item) => (
-                            <div key={item.name}>
-                            <input type="radio" id={item.name} name="catetgory" value={item.name} onChange={(e) => setCategory(e.target.value)} />
-                            <label htmlFor={item.name}>{item.name}</label>
+                        {["맛집", "반려동물", "운동", "생활/편의", "분실/실종", "병원/약국", "고민/사연", "동네친구", "이사/시공", "주거/부동산", "교육", "취미", "동네사건사고", "동네풍경", "미용", "임신/육아", "일반"].map((item) => (
+                            <div key={item} onClick={() => setCategory(item)} style={{ cursor: 'pointer', fontWeight: category === item ? 'bold' : 'normal' }}>
+                                {item}
                             </div>
                         ))}
                     </div>
                 </div>
-                <div className="filterItem">
-                    <h4 className="title">정렬</h4>
-                </div>
             </FilterBar>
             <ListContainer>
-              { (category !== 'all' || sort !== "") &&
-                <FilterContainer>
-                  {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
-                  {sort !== "" && <RoundFilter title={sort === 'recent' ? '최신순' : '이름순'} variant='search' cancelIcon onClick={() => setSort("")} />}
-                </FilterContainer>
-              }
             {communityList.length === 0 && <NoSearchResult>
               <h3>{`${location.dong ? location.dong : location.gu} 작성된 글이 없어요.`}</h3>
               <p>다른 조건으로 검색하거나 글을 써보세요.</p>
               </NoSearchResult>}
-            {communityList?.map((community) => (
+            {communityList?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((community) => ( // 최신순 정렬
               <CommunityListItem key={community.id} community={community} />
             ))}
             <Button title="더보기" />
