@@ -21,12 +21,26 @@ const Container = styled.div`
     }
 `;
 
+//ImageSlider
+const ImageSlider = styled(Slider)`
+    margin-top :20px;
+    img{
+        width:100%;
+        height:100%;    
+    }
+`;
+
 function MainPage(props) {
 
     return (
         <Wrapper>
             <Container>
                 <h1>메인 페이지</h1>
+                <ImageSlider {...settings}>
+                    <div><img src="" alt="이미지1" /></div>
+                    <div><img src="" alt="이미지2" /></div>
+                    <div><img src="" alt="이미지3" /></div>
+                </ImageSlider>
             </Container>
         </Wrapper>
     );

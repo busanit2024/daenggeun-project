@@ -22,6 +22,12 @@ const LoginBox = styled.div`
     padding : 20px;
 `;
 
+const PhoneErrorMsg = styled.div`
+    color : red;
+    font-size: 14px;
+    margin-top: 3px;
+`;
+
 const Spacing = styled.div`
     margin: 5px 0;
 `;
@@ -32,6 +38,12 @@ const StyledMsg = styled.div`
     margin:0 ;
 `;
 
+const StyledNoti = styled.div`
+    font-size : 13px;
+    margin : 3px 10px;
+    color : gray;
+`;
+
 const StyledLink = styled.a`
     color :black;
     font-weight: bold;
@@ -39,10 +51,21 @@ const StyledLink = styled.a`
 
 function LoginPage() {
     const [phone, setPhone] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
-    const onChange = (e) => {
-        setPhone(e.target.value);
+    const onChangePhone = (e) => {
+        const inputPhone = e.target.value;
+        setPhone(inputPhone);
+
+        if(inputPhone.length !== 11){
+            setErrorMessage("휴대폰 번호를 확인해주세요.");
+            return;
+        } else {
+            setErrorMessage("");
+        }
+
     };
+
 
     return (
         <>
@@ -52,11 +75,15 @@ function LoginPage() {
                     <h3>로그인 / 회원가입</h3>
                     <InputText 
                         value={phone}
-                        onChange={onChange}
+                        onChange={onChangePhone}
                         placeholder="휴대폰 번호('-' 없이 숫자만 입력)"/>
                     <Spacing />
-                    <Button title="인증문자 받기" variant="white" />
+                    {errorMessage && <PhoneErrorMsg>{errorMessage}</PhoneErrorMsg>}
+                    <Button title="인증문자 받기" variant="white"  />
                     <Spacing />
+                    
+                    
+                   
                     <StyledMsg >
                         휴대폰 번호가 변경되었나요? 
                         <StyledLink
