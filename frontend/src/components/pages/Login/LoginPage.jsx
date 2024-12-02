@@ -14,6 +14,7 @@ function LoginPage {
                             onChange={onChange}
                             placeholder="휴대폰 번호('-' 없이 숫자만 입력)"/>
                         <Button title="인증문자 받기" 
+                            variant="white"
                         />        
 
                 </LoginBox>
