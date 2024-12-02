@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class GroupDTO {
     private String id;
     private String title;
-    private List<Image> images;
+    private Image image;
     private String description;
     private String Location;
     private GroupRange groupRange; // 그룹 회원 거리 제한
@@ -37,6 +37,7 @@ public class GroupDTO {
     GroupDTOBuilder builder = GroupDTO.builder();
     builder.id(group.getId());
     builder.title(group.getTitle());
+    builder.image(group.getImage());
     builder.description(group.getDescription());
     builder.Location(group.getLocation());
     builder.groupRange(group.getGroupRange());

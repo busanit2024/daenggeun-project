@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
+import RoundFilter from "../../ui/RoundFilter";
 
 
 const Container = styled.div`
@@ -173,11 +174,9 @@ export default function GroupCreatePage(props) {
       <Item>
         <h4>카테고리</h4>
         <RadioContainer>
-          {categoryData.map((item) => (
-            <label>
-              {item.name}
-              <input type="radio" name="category" value={item.value ?? item.name} onChange={(e) => setCategory(e.target.value)} />
-            </label>
+          {categoryData.map((item) => (<>
+            <RoundFilter key={item.name} title={item.name} variant={category === item.name ? 'selected' : 'category'} value={item.name} onClick={() => setCategory(item.name)} />
+            </>
           ))}
         </RadioContainer>
       </Item>

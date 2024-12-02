@@ -22,7 +22,7 @@ public class Group {
   private String id;
   private String userId;
   private String title;
-  private List<Image> images;
+  private Image image;
   private String description;
   private String Location;
   private GroupRange groupRange; // 그룹 회원 거리 제한
@@ -43,6 +43,7 @@ public class Group {
   public static Group toEntity(GroupDTO groupDTO) {
     GroupBuilder builder = Group.builder()
             .title(groupDTO.getTitle())
+            .image(groupDTO.getImage())
             .description(groupDTO.getDescription())
             .Location(groupDTO.getLocation())
             .groupRange(groupDTO.getGroupRange())
