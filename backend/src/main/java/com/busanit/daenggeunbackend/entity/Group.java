@@ -3,6 +3,7 @@ package com.busanit.daenggeunbackend.entity;
 import com.busanit.daenggeunbackend.constant.GroupRange;
 import com.busanit.daenggeunbackend.domain.GroupDTO;
 import com.busanit.daenggeunbackend.domain.Image;
+import com.busanit.daenggeunbackend.domain.Location;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -22,9 +23,9 @@ public class Group {
   private String id;
   private String userId;
   private String title;
-  private List<Image> images;
+  private Image image;
   private String description;
-  private String Location;
+  private Location location;
   private GroupRange groupRange; // 그룹 회원 거리 제한
   private String category;
   @CreatedDate
@@ -43,8 +44,9 @@ public class Group {
   public static Group toEntity(GroupDTO groupDTO) {
     GroupBuilder builder = Group.builder()
             .title(groupDTO.getTitle())
+            .image(groupDTO.getImage())
             .description(groupDTO.getDescription())
-            .Location(groupDTO.getLocation())
+            .location(groupDTO.getLocation())
             .groupRange(groupDTO.getGroupRange())
             .category(groupDTO.getCategory())
             .createdDate(groupDTO.getCreatedDate())
