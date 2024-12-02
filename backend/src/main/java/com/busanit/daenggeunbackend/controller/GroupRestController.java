@@ -19,6 +19,11 @@ public class GroupRestController {
     return groupService.findAll();
   }
 
+  @GetMapping("/search")
+  private List<GroupDTO> searchGroups(@RequestParam String location, @RequestParam String category, @RequestParam String sort) {
+    return groupService.search(location, category, sort);
+  }
+
   @GetMapping("/view/{groupId}")
   private GroupDTO getGroup(@PathVariable String groupId) {
     return groupService.findById(groupId);

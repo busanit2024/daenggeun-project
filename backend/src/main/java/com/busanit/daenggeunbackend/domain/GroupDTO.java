@@ -19,7 +19,7 @@ public class GroupDTO {
     private String title;
     private Image image;
     private String description;
-    private String Location;
+    private String location;
     private GroupRange groupRange; // 그룹 회원 거리 제한
     private String category;
     private LocalDateTime createdDate;
@@ -39,7 +39,7 @@ public class GroupDTO {
     builder.title(group.getTitle());
     builder.image(group.getImage());
     builder.description(group.getDescription());
-    builder.Location(group.getLocation());
+    builder.location(group.getLocation());
     builder.groupRange(group.getGroupRange());
     builder.category(group.getCategory());
     builder.createdDate(group.getCreatedDate());

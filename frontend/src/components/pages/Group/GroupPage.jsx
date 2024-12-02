@@ -74,14 +74,16 @@ export default function GroupPage(props) {
       .catch((error) => {
         console.error("카테고리를 불러오는데 실패했습니다." + error);
       });
+  }, []);
 
-    axios.get("/api/group/list").then((response) => {
+  useEffect(() => {
+    axios.get(`api/group/search?location=${location.gu} ${location.dong}&category=${category}&sort=${sort}`).then((response) => {
       setGroupList(response.data);
     })
       .catch((error) => {
         console.error("모임 리스트를 불러오는데 실패했습니다." + error);
       });
-  }, []);
+  }, [location, category, sort]);
 
   const resetFilter = () => {
     setLocation({ "si": "부산광역시", "gu": "해운대구", "dong": "" });
@@ -106,7 +108,7 @@ export default function GroupPage(props) {
             <h4 className="title">카테고리</h4>
             <div className="filterList">
               <div>
-                <input type="radio" id="all" defaultChecked name="catetgory" value="all" onChange={(e) => setCategory(e.target.value)} checked={category === 'all'}/>
+                <input type="radio" id="all" name="catetgory" value="all" onChange={(e) => setCategory(e.target.value)} checked={category === 'all'}/>
                 <label htmlFor="all">전체</label>
               </div>
               {categoryData.map((item) => (
@@ -120,12 +122,12 @@ export default function GroupPage(props) {
           <div className="filterItem">
             <h4 className="title">정렬</h4>
             <div>
-              <input type="radio" id="recommended" name="sort" value="recommended" onChange={(e) => setSort(e.target.value)} checked={sort === 'recommended'} />
-              <label htmlFor="recommended">추천순</label>
+              <input type="radio" id="recent" name="sort" value="recent" onChange={(e) => setSort(e.target.value)} checked={sort === 'recent'} />
+              <label htmlFor="recent">최신순</label>
             </div>
             <div>
-              <input type="radio" id="popular" name="sort" value="popular" onChange={(e) => setSort(e.target.value)} checked={sort === 'popular'} />
-              <label htmlFor="popular">인기순</label>
+              <input type="radio" id="name" name="sort" value="name" onChange={(e) => setSort(e.target.value)} checked={sort === 'name'} />
+              <label htmlFor="name">이름순</label>
             </div>
 
           </div>
@@ -135,7 +137,7 @@ export default function GroupPage(props) {
           { (category !== 'all' || sort !== "") &&
             <FilterContainer>
               {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
-              {sort !== "" && <RoundFilter title={sort === 'recommended' ? '추천순' : '인기순'} variant='search' cancelIcon onClick={() => setSort()} />}
+              {sort !== "" && <RoundFilter title={sort === 'recent' ? '최신순' : '이름순'} variant='search' cancelIcon onClick={() => setSort()} />}
             </FilterContainer>
           }
           {groupList.length === 0 && <NoSearchResult>
