@@ -10,6 +10,7 @@ import GroupCreatePage from './components/pages/Group/GroupCreatePage';
 import UsedTrade from './components/pages/UsedTrade/UsedTrade';
 import UsedTradeView from './components/pages/UsedTrade/UsedTradeView';
 
+import AlbaPage from './components/alba/AlbaPage';
 import AlbaList from './components/alba/AlbaList';
 import AlbaCreate from "./components/alba/AlbaCreate";
 import AlbaDetail from "./components/alba/AlbaDetail";
@@ -29,7 +30,7 @@ function App() {
             <Route path="group/view/:groupId" element={<GroupViewPage />} />
             <Route path="group/create" element={<GroupCreatePage />} />
             
-            <Route path="alba" element={<AlbaList />} />
+            <Route path="alba" element={<AlbaPage />} />
             <Route path="alba/create" element={<AlbaCreate />} />
             <Route path="alba/:id" element={<AlbaDetail />} />
             <Route path="alba/:id/edit" element={<AlbaEdit />} />

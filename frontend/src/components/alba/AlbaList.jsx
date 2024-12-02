@@ -93,8 +93,8 @@ const AlbaList = () => {
         <button>검색</button>
       </div>
 
-      <div className="alba-content">
-        {/* 필터 섹션 */}
+      {/* 리스트 섹션 */}
+      <div className="alba-content-list">
         <aside className="filter-section">
           <h3>필터</h3>
           <h4>근무 유형</h4>
@@ -142,21 +142,21 @@ const AlbaList = () => {
         </aside>
 
         {/* 게시글 리스트 */}
-        <div className="alba-list">
+        <div className="alba-list-container">
           {filteredData.length > 0 ? (
             filteredData.map((item) => (
               <div
-                className="alba-item"
                 key={item._id}
+                className="alba-item"
                 onClick={() => handleClick(item.id)}
               >
                 <h4>{item.title}</h4>
                 <p>위치: {item.location}</p>
                 <p>시급: {item.wage}</p>
                 <p>
-                  근무 시간: {item.workTime.start} ~ {item.workTime.end}
+                  근무 시간: {item.workTime?.start} ~ {item.workTime?.end}
                 </p>
-                <p>근무 요일: {item.workDays.join(", ")}</p>
+                <p>근무 요일: {item.workDays?.join(", ")}</p>
               </div>
             ))
           ) : (
