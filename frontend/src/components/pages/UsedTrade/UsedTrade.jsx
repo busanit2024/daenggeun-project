@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import Button from "../ui/Button";
-import Filter from "../ui/Filter";
-import Card from "../ui/Card";
+import Button from "../../ui/Button";
+import Filter from "../../ui/Filter";
+import Card from "../../ui/Card";
 import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
