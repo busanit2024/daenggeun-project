@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "../../styles/AlbaEdit.css";
 import axios from "axios";
+import "../../styles/AlbaStyled.css";
 
 const AlbaEdit = () => {
   const { id } = useParams();
@@ -33,11 +33,14 @@ const AlbaEdit = () => {
     e.preventDefault();
     try {
       await axios.put(`/api/alba/${id}`, form);
+      alert("수정이 완료되었습니다.");
       navigate(`/alba/${id}`);
     } catch (error) {
       console.error("수정 중 오류 발생:", error);
+      alert("수정 중 문제가 발생했습니다. 다시 시도해주세요.");
     }
   };
+
 
   return (
     <div className="container">

@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/AlbaCreate.css";
+import Button from "../ui/Button";
+import InputText from "../ui/InputText";
+import "../../styles/AlbaStyled.css"; // 올바른 CSS 파일 경로
 import axios from "axios";
+import { LOCATIONS, DAYS } from "../../constants"; // 상수 가져오기
 
 const AlbaCreate = () => {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    location: "강서구", // 기본값 설정
+    location: "",
     wage: "",
     workDays: [],
     startTime: "",
@@ -17,12 +20,12 @@ const AlbaCreate = () => {
 
   const navigate = useNavigate();
 
-  // 입력값 변화 핸들러
+  // 입력값 변경 핸들러
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 체크박스 선택 핸들러 (근무 요일)
+  // 체크박스 변경 핸들러
   const handleCheckboxChange = (e) => {
     const { value, checked } = e.target;
     setForm((prev) => ({
@@ -33,12 +36,12 @@ const AlbaCreate = () => {
     }));
   };
 
-  // 이미지 업로드 핸들러
+  // 이미지 변경 핸들러
   const handleImageChange = (e) => {
     setForm({ ...form, image: e.target.files[0] });
   };
 
-  // 제출 핸들러
+  // 폼 제출 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -55,7 +58,8 @@ const AlbaCreate = () => {
       await axios.post("/api/alba", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      navigate("/");
+      alert("글이 성공적으로 작성되었습니다!");
+      navigate("/alba");
     } catch (error) {
       console.error("글 작성 중 오류 발생:", error);
     }
@@ -65,93 +69,81 @@ const AlbaCreate = () => {
     <div className="container">
       <h1 className="title">알바 글 작성</h1>
       <form className="form" onSubmit={handleSubmit}>
-        <input
-          className="input"
+        <InputText
           name="title"
           placeholder="제목"
           value={form.title}
           onChange={handleChange}
         />
         <textarea
-          className="textarea"
           name="description"
           placeholder="상세 내용"
           value={form.description}
           onChange={handleChange}
+          className="textarea"
         ></textarea>
 
-        {/* 위치 선택 드롭다운 */}
-        <div className="location-section">
-          <label htmlFor="location">위치</label>
-          <select
-            id="location"
-            name="location"
-            value={form.location}
-            onChange={handleChange}
-            className="dropdown"
-          >
-            <option value="강서구">강서구</option>
-            <option value="금정구">금정구</option>
-            <option value="기장군">기장군</option>
-            <option value="남구">남구</option>
-            <option value="동구">동구</option>
-            <option value="동래구">동래구</option>
-            <option value="부산진구">부산진구</option>
-            <option value="북구">북구</option>
-            <option value="사상구">사상구</option>
-            <option value="사하구">사하구</option>
-            <option value="서구">서구</option>
-            <option value="수영구">수영구</option>
-            <option value="연제구">연제구</option>
-            <option value="영도구">영도구</option>
-            <option value="중구">중구</option>
-            <option value="해운대구">해운대구</option>
-          </select>
-        </div>
+        <label htmlFor="location">위치</label>
+        <select
+          id="location"
+          name="location"
+          value={form.location}
+          onChange={handleChange}
+          className="dropdown"
+        >
+          <option value="">선택</option>
+          {LOCATIONS.map((location) => (
+            <option key={location} value={location}>
+              {location}
+            </option>
+          ))}
+        </select>
 
-        <input
-          className="input"
+        <InputText
           name="wage"
           placeholder="시급"
           value={form.wage}
           onChange={handleChange}
         />
+
         <div className="work-days">
-          <h3>근무 요일</h3>
-          {["월", "화", "수", "목", "금", "토", "일"].map((day) => (
-            <label key={day}>
+          <h3 className="section-title">근무 요일</h3>
+          {DAYS.map((day) => (
+            <label key={day} className="checkbox-label">
               <input
                 type="checkbox"
                 value={day}
+                checked={form.workDays.includes(day)}
                 onChange={handleCheckboxChange}
               />
               {day}
             </label>
           ))}
         </div>
+
         <div className="work-time">
-          <h3>근무 시간</h3>
-          <input
+          <h3 className="section-title">근무 시간</h3>
+          <InputText
             type="time"
             name="startTime"
             value={form.startTime}
             onChange={handleChange}
           />
           ~
-          <input
+          <InputText
             type="time"
             name="endTime"
             value={form.endTime}
             onChange={handleChange}
           />
         </div>
+
         <div className="image-upload">
-          <h3>이미지 업로드</h3>
+          <h3 className="section-title">이미지 업로드</h3>
           <input type="file" name="image" onChange={handleImageChange} />
         </div>
-        <button className="button" type="submit">
-          작성 완료
-        </button>
+
+        <Button type="submit" title="작성 완료" variant="primary" />
       </form>
     </div>
   );
