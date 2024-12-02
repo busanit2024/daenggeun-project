@@ -1,28 +1,35 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import "./ui/Button";
+import { useNavigate } from "react-router-dom";
 import "../styles/Toolbar.css";
 
 const Toolbar = () => {
     const { isLoggedIn, logout } = useContext(AuthContext);
     const [ isDropdownOpen, setIsDropdownOpen ] = useState(false);
+    const navigate = useNavigate();
     
     const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
 
     return (
         <div className="toolbar">
-            <img src="./images/logo.png" alt="로고" className="logo" />
+            <img 
+                src="/images/logo.png" 
+                alt="로고" 
+                className="logo"
+                onClick={() => navigate("/")} 
+                style={{ cursor: "pointer" }}/>
                 <nav>
                     <ul className="nav-links">
                         <li>
-                            <a href="/market">중고거래</a>
+                            <a href="/pages/used-trade">중고거래</a>
                         </li>
                         <li
                         className="dropdown"
                         onMouseEnter={toggleDropdown}
                         onMouseLeave={toggleDropdown}
                         >
-                        <a href="/">알바</a>
+                        <a href="/alba">알바</a>
                         {isDropdownOpen && (
                         <ul className="dropdown-menu">
                             <li>
@@ -41,13 +48,10 @@ const Toolbar = () => {
                         )}
                         </li>
                         <li>
-                            <a href="/business">동네업체</a>
-                        </li>
-                        <li>
                             <a href="/community">동네생활</a>
                         </li>
                         <li>
-                            <a href="/groups">모임</a>
+                            <a href="/group">모임</a>
                         </li>
                         </ul>
                 </nav>

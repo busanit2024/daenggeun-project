@@ -17,10 +17,10 @@ public class TestController {
   }
 
   @GetMapping("/test/save")
-          public void save(@RequestParam String id, @RequestParam String username) {
+          public void save(@RequestParam String id, @RequestParam String firstName, @RequestParam String lastName) {
     TestUser testUser = new TestUser();
     testUser.setUserId(id);
-    testUser.setUsername(username);
+    testUser.setUsername(firstName, lastName);
     testUserService.save(testUser);
   }
 }
