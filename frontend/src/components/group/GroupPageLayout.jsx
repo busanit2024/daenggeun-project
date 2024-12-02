@@ -68,6 +68,10 @@ const GroupDescContainer = styled.div`
     flex-wrap: wrap;
     margin-bottom: 8px;
   }
+
+  & .group-desc {
+    white-space: pre-wrap;
+  }
 `;
 
 const ButtonGroup = styled.div`
@@ -134,13 +138,13 @@ export default function GroupPageLayout(props) {
       <Modal title="모임 삭제" isOpen={modalOpen} onClose={() => setModalOpen(false)}>
         {deleted && <>
           <h2 style={{ margin: 0 }}>{group.title} 모임이 삭제되었습니다.</h2>
-          <Button title="모임 리스트로 돌아가기" onClick={() => {setModalOpen(false); setDeleted(false); navigate("/group") }} />
+          <Button title="모임 리스트로 돌아가기" onClick={() => { setModalOpen(false); setDeleted(false); navigate("/group") }} />
         </>}
         {!deleted && <>
           <h2 style={{ margin: 0 }}>{group.title} 모임을 삭제하시겠어요?</h2>
           <p style={{ margin: 0 }}>모임을 삭제하면 되돌릴 수 없어요.</p>
           <ButtonGroup>
-            <Button title="삭제" grow variant="danger" onClick={handleDeleteGroup}/>
+            <Button title="삭제" grow variant="danger" onClick={handleDeleteGroup} />
             <Button title="취소" grow onClick={() => setModalOpen(false)} />
           </ButtonGroup>
         </>}
