@@ -61,7 +61,6 @@ const UsedTrade = () => {
         <Container>
             <Content>
                 <Sidebar>
-                    <FilterBar />
                 </Sidebar>
                 <Main>
                     <Title>부산광역시 동래구 중고거래</Title>
