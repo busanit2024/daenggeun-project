@@ -1,24 +1,35 @@
+/* 페이지 전체 스타일 */
 .alba-page {
   font-family: Arial, sans-serif;
   padding: 20px;
 }
 
-.alba-header {
+/* 제목 스타일 */
+.alba-title-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   margin-bottom: 20px;
 }
 
-.alba-header h2 {
-  font-size: 24px;
+.alba-title-container h5 {
+  font-size: 14px;
+  color: gray;
   margin: 0;
+  padding: 0;
 }
 
+.alba-title-container h2 {
+  font-size: 24px;
+  margin: 0;
+  padding: 0;
+}
+
+/* 검색창 스타일 */
 .search-bar {
   display: flex;
   gap: 10px;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .region-filter {
@@ -47,11 +58,14 @@
   background-color: #0056b3;
 }
 
+/* 콘텐츠 섹션 레이아웃 */
 .alba-content {
   display: flex;
   gap: 20px;
+  align-items: flex-start;
 }
 
+/* 필터 스타일 */
 .filter-section {
   flex: 1;
   background: #f9f9f9;
@@ -70,6 +84,7 @@
   margin-bottom: 5px;
 }
 
+/* 게시글 리스트 스타일 */
 .alba-list {
   flex: 3;
   display: flex;
