@@ -9,16 +9,16 @@ import java.util.List;
 @Repository
 public interface GroupRepository extends MongoRepository<Group, String> {
 
-  List<Group> findAllByLocationContaining(String location);
+  List<Group> findAllByLocationGuContainingOrLocationDongContaining(String locationSi, String locationDong);
 
-  List<Group> findAllByLocationContainingOrderByTitleAsc(String location);
+  List<Group> findAllByLocationGuContainingOrLocationDongContainingOrderByTitleAsc(String locationSi, String locationDong);
 
-  List<Group> findAllByLocationContainingOrderByCreatedDateDesc(String location);
+  List<Group> findAllByLocationGuContainingOrLocationDongContainingOrderByCreatedDateDesc(String locationSi, String locationDong);
 
-  List<Group> findAllByLocationContainingAndCategory(String location, String category);
+  List<Group> findAllByLocationGuContainingOrLocationDongContainingAndCategory(String locationSi, String locationDong, String category);
 
-  List<Group> findAllByLocationContainingAndCategoryOrderByCreatedDateDesc(String location, String category);
+  List<Group> findAllByLocationGuContainingOrLocationDongContainingAndCategoryOrderByCreatedDateDesc(String locationSi, String locationDong, String category);
 
-  List<Group> findAllByLocationContainingAndCategoryOrderByTitleAsc(String location, String category);
+  List<Group> findAllByLocationGuContainingOrLocationDongContainingAndCategoryOrderByTitleAsc(String locationSi, String locationDong, String category);
 }
 

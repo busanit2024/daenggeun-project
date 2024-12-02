@@ -3,6 +3,7 @@ package com.busanit.daenggeunbackend.entity;
 import com.busanit.daenggeunbackend.constant.GroupRange;
 import com.busanit.daenggeunbackend.domain.GroupDTO;
 import com.busanit.daenggeunbackend.domain.Image;
+import com.busanit.daenggeunbackend.domain.Location;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -24,7 +25,7 @@ public class Group {
   private String title;
   private Image image;
   private String description;
-  private String location;
+  private Location location;
   private GroupRange groupRange; // 그룹 회원 거리 제한
   private String category;
   @CreatedDate

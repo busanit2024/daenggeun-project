@@ -19,7 +19,7 @@ public class GroupDTO {
     private String title;
     private Image image;
     private String description;
-    private String location;
+    private Location location;
     private GroupRange groupRange; // 그룹 회원 거리 제한
     private String category;
     private LocalDateTime createdDate;

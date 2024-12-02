@@ -32,20 +32,24 @@ public class GroupService {
     groupRepository.save(Group.toEntity(groupDTO));
   }
 
-  public List<GroupDTO> search(String location, String category, String sort) {
+  public void delete(String id) {
+    groupRepository.deleteById(id);
+  }
+
+  public List<GroupDTO> search(String gu, String dong, String category, String sort) {
     if (Objects.equals(category, "all")) {
       List<Group> groups = switch (sort) {
-        case "name" -> groupRepository.findAllByLocationContainingOrderByTitleAsc(location);
-        case "recent" -> groupRepository.findAllByLocationContainingOrderByCreatedDateDesc(location);
-        default -> groupRepository.findAllByLocationContaining(location);
+        case "name" -> groupRepository.findAllByLocationGuContainingOrLocationDongContainingOrderByTitleAsc(gu, dong);
+        case "recent" -> groupRepository.findAllByLocationGuContainingOrLocationDongContainingOrderByCreatedDateDesc(gu, dong);
+        default -> groupRepository.findAllByLocationGuContainingOrLocationDongContaining(gu, dong);
       };
       return GroupDTO.toDTO(groups);
     }
 
     List<Group> groups = switch (sort) {
-      case "name" -> groupRepository.findAllByLocationContainingAndCategoryOrderByTitleAsc(location, category);
-      case "recent" -> groupRepository.findAllByLocationContainingAndCategoryOrderByCreatedDateDesc(location, category);
-      default -> groupRepository.findAllByLocationContainingAndCategory(location, category);
+      case "name" -> groupRepository.findAllByLocationGuContainingOrLocationDongContainingAndCategoryOrderByTitleAsc(gu, dong, category);
+      case "recent" -> groupRepository.findAllByLocationGuContainingOrLocationDongContainingAndCategoryOrderByCreatedDateDesc(gu, dong, category);
+      default -> groupRepository.findAllByLocationGuContainingOrLocationDongContainingAndCategory(gu, dong, category);
     };
     return GroupDTO.toDTO(groups);
   }

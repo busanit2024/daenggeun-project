@@ -77,7 +77,7 @@ export default function GroupPage(props) {
   }, []);
 
   useEffect(() => {
-    axios.get(`api/group/search?location=${location.gu} ${location.dong}&category=${category}&sort=${sort}`).then((response) => {
+    axios.get(`api/group/search?gu=${location.gu}&dong=${location.dong}&category=${category}&sort=${sort}`).then((response) => {
       setGroupList(response.data);
     })
       .catch((error) => {
@@ -137,7 +137,7 @@ export default function GroupPage(props) {
           { (category !== 'all' || sort !== "") &&
             <FilterContainer>
               {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
-              {sort !== "" && <RoundFilter title={sort === 'recent' ? '최신순' : '이름순'} variant='search' cancelIcon onClick={() => setSort()} />}
+              {sort !== "" && <RoundFilter title={sort === 'recent' ? '최신순' : '이름순'} variant='search' cancelIcon onClick={() => setSort("")} />}
             </FilterContainer>
           }
           {groupList.length === 0 && <NoSearchResult>
