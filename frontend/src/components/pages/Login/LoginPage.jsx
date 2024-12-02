@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import InputText from "../../ui/InputText";
 import Button from "../../ui/Button";
-import Toolbar from "../../Toolbar";
 import Logo from "../../ui/Logo";
 import styled from "styled-components";
 
