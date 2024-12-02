@@ -24,7 +24,7 @@ public class Group {
   private String title;
   private Image image;
   private String description;
-  private String Location;
+  private String location;
   private GroupRange groupRange; // 그룹 회원 거리 제한
   private String category;
   @CreatedDate
@@ -45,7 +45,7 @@ public class Group {
             .title(groupDTO.getTitle())
             .image(groupDTO.getImage())
             .description(groupDTO.getDescription())
-            .Location(groupDTO.getLocation())
+            .location(groupDTO.getLocation())
             .groupRange(groupDTO.getGroupRange())
             .category(groupDTO.getCategory())
             .createdDate(groupDTO.getCreatedDate())
