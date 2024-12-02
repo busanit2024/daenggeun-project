@@ -22,7 +22,7 @@ const Toolbar = () => {
                 <nav>
                     <ul className="nav-links">
                         <li>
-                            <a href="/pages/used-trade">중고거래</a>
+                            <a href="/usedTrade/used-trade">중고거래</a>
                         </li>
                         <li
                         className="dropdown"

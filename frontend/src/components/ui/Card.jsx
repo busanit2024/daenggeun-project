@@ -20,6 +20,11 @@ const Info = styled.div`
 const Title = styled.h3`
     font-size: 16px;
     margin: 0;
+`;
+
+const Price = styled.div`
+    font-size: 16px;
+    margin: 0;
     font-weight: bold;
 `;
 
@@ -29,12 +34,13 @@ const Location = styled.p`
     margin: 4px 0 0;
 `
 
-const Card = ({ title, location, onClick }) => {
+const Card = ({ title, price, location, onClick }) => {
     return (
         <CardContainer onClick={onClick} style={{cursor: "pointer"}}>
             <ImagePlaceholder />
             <Info>
                 <Title>{title}</Title>
+                <Price>{price}</Price>
                 <Location>{location}</Location>
             </Info>
         </CardContainer>
