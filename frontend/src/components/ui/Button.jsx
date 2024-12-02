@@ -5,7 +5,7 @@ const StyledButton = styled.button`
     padding : 8px 16px ;
     font-size : 16px;
     border-width: 0px;
-    border-radius: 8px;
+    border-radius: 5px;
     cursor:pointer;
     height : 40px;
     width: ${props => props.width ? props.width : "auto"};
@@ -18,7 +18,8 @@ const StyledButton = styled.button`
                   background-color : #dcdcdc;
                   color : black;
                 `;
-
+            
+            // carrot colored button
             case 'primary' :
                 return `
                     background-color : #ff4500;
@@ -32,6 +33,11 @@ const StyledButton = styled.button`
                     border-width:1px;
                 `;
 
+            case 'login' :
+                return `
+                    background-color : rgba(255, 69, 0, 0.3);
+                    color : rgba(255, 69, 0);
+                `;
         };
     }}
 `;
@@ -39,7 +45,7 @@ const StyledButton = styled.button`
 
 function Button(props) {
     const { title, onClick, variant, width, grow  } = props;
-    return <StyledButton onClick={onClick} variant={variant} width={width} grow={grow}>{title || "button"}</StyledButton>;
+    return <StyledButton title={title} onClick={onClick} variant={variant} width={width} grow={grow}>{title || "button"}</StyledButton>;
 }
 
 
