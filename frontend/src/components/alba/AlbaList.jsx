@@ -1,34 +1,28 @@
-import React, { useState } from "react";
-import "../../styles/AlbaList.css";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import "../../styles/AlbaStyled.css";
 
 const AlbaList = () => {
   const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
   const [selectedRegion, setSelectedRegion] = useState(""); // 지역 선택 상태
+  const [selectedType, setSelectedType] = useState([]); // 근무 유형 필터
+  const [selectedCategory, setSelectedCategory] = useState([]); // 카테고리 필터
+  const [data, setData] = useState([]); // 게시글 데이터 상태
+  const navigate = useNavigate();
 
-  // 가상 데이터
-  const data = [
-    {
-      id: 1,
-      title: "서빙 알바 모집",
-      location: "서울 강남구",
-      wage: "12,000원",
-      workTime: "10:00 ~ 18:00",
-    },
-    {
-      id: 2,
-      title: "청소 알바 모집",
-      location: "부산 해운대구",
-      wage: "15,000원",
-      workTime: "14:00 ~ 20:00",
-    },
-    {
-      id: 3,
-      title: "배달 알바 모집",
-      location: "부산 동래구",
-      wage: "13,000원",
-      workTime: "09:00 ~ 17:00",
-    },
-  ];
+  // 데이터 불러오기
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/api/alba"); // API 호출
+        setData(response.data);
+      } catch (error) {
+        console.error("데이터 불러오기 실패:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   // 검색 및 필터링된 데이터 계산
   const filteredData = data.filter((item) => {
@@ -36,8 +30,14 @@ const AlbaList = () => {
       item.title.includes(searchTerm) || item.location.includes(searchTerm);
     const matchesRegion =
       selectedRegion === "" || item.location.includes(selectedRegion);
+    const matchesType =
+      selectedType.length === 0 || selectedType.includes(item.type);
+    const matchesCategory =
+      selectedCategory.length === 0 || selectedCategory.includes(item.category);
 
-    return matchesSearchTerm && matchesRegion;
+    return (
+      matchesSearchTerm && matchesRegion && matchesType && matchesCategory
+    );
   });
 
   // 검색어 입력 핸들러
@@ -50,6 +50,27 @@ const AlbaList = () => {
     setSelectedRegion(e.target.value);
   };
 
+  // 필터 핸들러
+  const handleFilterChange = (e, filterType) => {
+    const value = e.target.value;
+    const checked = e.target.checked;
+
+    if (filterType === "type") {
+      setSelectedType((prev) =>
+        checked ? [...prev, value] : prev.filter((item) => item !== value)
+      );
+    } else if (filterType === "category") {
+      setSelectedCategory((prev) =>
+        checked ? [...prev, value] : prev.filter((item) => item !== value)
+      );
+    }
+  };
+
+  // 상세 페이지 이동 핸들러
+  const handleClick = (id) => {
+    navigate(`/alba/${id}`);
+  };
+
   return (
     <div className="alba-page">
       {/* 검색창 */}
@@ -60,21 +81,7 @@ const AlbaList = () => {
           className="region-filter"
         >
           <option value="">전체 지역</option>
-          <option value="강서구">강서구</option>
-          <option value="금정구">금정구</option>
-          <option value="기장군">기장군</option>
-          <option value="남구">남구</option>
-          <option value="동구">동구</option>
-          <option value="동래구">동래구</option>
-          <option value="부산진구">부산진구</option>
-          <option value="북구">북구</option>
-          <option value="사상구">사상구</option>
-          <option value="사하구">사하구</option>
-          <option value="서구">서구</option>
-          <option value="수영구">수영구</option>
-          <option value="연제구">연제구</option>
-          <option value="영도구">영도구</option>
-          <option value="중구">중구</option>
+          <option value="강남구">강남구</option>
           <option value="해운대구">해운대구</option>
         </select>
         <input
@@ -86,32 +93,51 @@ const AlbaList = () => {
         <button>검색</button>
       </div>
 
-      {/* 제목 */}
-      <div className="alba-title-container">
-        <h5>홈 {'>'} 알바</h5>
-        <h2 className="alba-title">부산광역시 동래구 알바</h2>
-      </div>
-
       <div className="alba-content">
         {/* 필터 섹션 */}
         <aside className="filter-section">
           <h3>필터</h3>
+          <h4>근무 유형</h4>
           <label>
-            <input type="checkbox" name="type" value="단기" />
+            <input
+              type="checkbox"
+              value="단기"
+              onChange={(e) => handleFilterChange(e, "type")}
+            />
             단기
           </label>
           <label>
-            <input type="checkbox" name="type" value="장기" />
+            <input
+              type="checkbox"
+              value="장기"
+              onChange={(e) => handleFilterChange(e, "type")}
+            />
             장기
           </label>
-          <h4>하는일</h4>
+          <h4>하는 일</h4>
           <label>
-            <input type="checkbox" name="category" value="서빙" />
+            <input
+              type="checkbox"
+              value="서빙"
+              onChange={(e) => handleFilterChange(e, "category")}
+            />
             서빙
           </label>
           <label>
-            <input type="checkbox" name="category" value="매장관리" />
-            매장관리
+            <input
+              type="checkbox"
+              value="청소"
+              onChange={(e) => handleFilterChange(e, "category")}
+            />
+            청소
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              value="배달"
+              onChange={(e) => handleFilterChange(e, "category")}
+            />
+            배달
           </label>
         </aside>
 
@@ -119,11 +145,18 @@ const AlbaList = () => {
         <div className="alba-list">
           {filteredData.length > 0 ? (
             filteredData.map((item) => (
-              <div className="alba-item" key={item.id}>
+              <div
+                className="alba-item"
+                key={item._id}
+                onClick={() => handleClick(item.id)}
+              >
                 <h4>{item.title}</h4>
-                <p>{item.location} </p>
-                <p>{item.wage}·{item.workTime}</p>
-                <p></p>
+                <p>위치: {item.location}</p>
+                <p>시급: {item.wage}</p>
+                <p>
+                  근무 시간: {item.workTime.start} ~ {item.workTime.end}
+                </p>
+                <p>근무 요일: {item.workDays.join(", ")}</p>
               </div>
             ))
           ) : (

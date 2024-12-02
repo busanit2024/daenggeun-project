@@ -1,0 +1,257 @@
+
+
+/* styled-components.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+}
+
+/* 컨테이너 스타일 */
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  
+  /* 제목 스타일 */
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  /* 폼 스타일 */
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .input,
+  .textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .textarea {
+    height: 120px;
+    resize: none;
+  }
+  
+  .button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* 위치 드롭다운 */
+  .location-section {
+    margin-top: 15px;
+  }
+  
+  .location-section label {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  .dropdown {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  /* 근무 요일 */
+  .work-days {
+    margin-top: 15px;
+  }
+  
+  .work-days label {
+    margin-right: 10px;
+  }
+  
+  /* 근무 시간 */
+  .work-time {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* 이미지 업로드 */
+  .image-upload {
+    margin-top: 15px;
+  }
+  .alba-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer; /* 클릭 가능 표시 */
+    transition: background-color 0.3s;
+  }
+  
+  .alba-item:hover {
+    background-color: #f0f0f0;
+  }
+  .filter-section {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    width: 300px;
+    background-color: #f9f9f9;
+    margin-bottom: 20px;
+  }
+  
+  .filter-section h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #333;
+  }
+  
+  .filter-section select,
+  .filter-section input[type="checkbox"] {
+    margin-right: 10px;
+  }
+  
+  .filter-section button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #ff7e36;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .filter-section button:hover {
+    background-color: #ff5500;
+  }
+  /* 페이지 전체 스타일 */
+.alba-page {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  /* 제목 스타일 */
+  .alba-title-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+  
+  .alba-title-container h5 {
+    font-size: 14px;
+    color: gray;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .alba-title-container h2 {
+    font-size: 24px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* 검색창 스타일 */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .region-filter {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .search-bar input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .search-bar button {
+    padding: 8px 16px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .search-bar button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* 콘텐츠 섹션 레이아웃 */
+  .alba-content {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  
+  /* 필터 스타일 */
+  .filter-section {
+    flex: 1;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  
+  .filter-section h3,
+  .filter-section h4 {
+    margin-bottom: 10px;
+  }
+  
+  .filter-section label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  /* 게시글 리스트 스타일 */
+  .alba-list {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .alba-item {
+    padding: 15px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 4px;
+  }
+  
+  .alba-item h4 {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .alba-item p {
+    margin: 5px 0;
+    color: #555;
+  }
+  
