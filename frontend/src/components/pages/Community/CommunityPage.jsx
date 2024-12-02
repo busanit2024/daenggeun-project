@@ -52,7 +52,7 @@ const FilterBarHeader = styled.div`
 
 export default function CommunityPage(props) {
   const navigate = useNavigate();
-  const [groupList, setGroupList] = useState([]);
+  const [communityList, setCommunityList] = useState([]); // 상태 변수 정의
   const [location, setLocation] = useState({"si": "부산광역시", "gu": "해운대구", "dong" : ""});
   const [categoryData, setCategoryData] = useState([]);
   const [category, setCategory] = useState("all");
@@ -65,8 +65,8 @@ export default function CommunityPage(props) {
       console.error("카테고리를 불러오는데 실패했습니다." + error);
     });
 
-    axios.get("/api/group/list").then((response) => {
-      setGroupList(response.data);
+    axios.get("/api/community").then((response) => { // {{ edit_2 }} API 호출
+      setCommunityList(response.data); // 커뮤니티 리스트 설정
     })
     .catch((error) => {
       console.error("동네생활 리스트를 불러오는데 실패했습니다." + error);
@@ -76,8 +76,8 @@ export default function CommunityPage(props) {
   return(
     <Container>
         <HeadContainer>
-        <h2>{`${location.si} ${location.gu} ${location.dong} ${category === 'all' ? "" : category} 모임`}</h2>
-        <Button title="모임 만들기" width onClick={() => navigate("/group/create")}/>
+        <h2>{`${location.si} ${location.gu} ${location.dong} ${category === 'all' ? "" : category} 동네생활`}</h2>
+        <Button title="글 작성하기" width onClick={() => navigate("/community/write")}/>
         </HeadContainer>
         <InnerContainer>
             <FilterBar>
@@ -104,7 +104,15 @@ export default function CommunityPage(props) {
                     <h4 className="title">정렬</h4>
                 </div>
             </FilterBar>
+            <ListContainer>
+              {communityList.map((community) => ( // {{ edit_3 }} communityList 사용
+                <div key={community.id} style={{border: "1px solid gray"}} onClick={() => navigate(`/community/view/${community.id}`)}>
+                  <h2>{community.title}</h2>
+                  <h3>{community.content}</h3>
+                </div>
+              ))}
+            </ListContainer>
         </InnerContainer>
     </Container>
-  )
+  );
 }
