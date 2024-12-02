@@ -45,7 +45,7 @@ const StyledButton = styled.button`
 
 function Button(props) {
     const { title, onClick, variant, width, grow  } = props;
-    return <StyledButton onClick={onClick} variant={variant} width={width} grow={grow}>{title || "button"}</StyledButton>;
+    return <StyledButton title={title} onClick={onClick} variant={variant} width={width} grow={grow}>{title || "button"}</StyledButton>;
 }
 
 
