@@ -38,6 +38,12 @@ const StyledButton = styled.button`
                     background-color : rgba(255, 69, 0, 0.3);
                     color : rgba(255, 69, 0);
                 `;
+
+            case 'danger' :
+                return `
+                    background-color : #a50000;
+                    color : white;
+                `;
             default:
                 return ``;
         };
