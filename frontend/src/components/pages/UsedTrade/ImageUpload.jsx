@@ -29,6 +29,11 @@ const UploadedImage = styled.img`
   border-radius: 8px;
 `;
 
+const CameraIcon = styled.img`
+  width: 50px;  /* 원하는 크기로 조정 */
+  height: 50px; /* 원하는 크기로 조정 */
+`;
+
 const ImageUpload = () => {
   const [images, setImages] = useState([]);
 
@@ -46,7 +51,7 @@ const ImageUpload = () => {
         <ImagePlaceholder>
           <label htmlFor="image-upload">
             <span role="img" aria-label="upload" style={{ alignItems: "center" }}>
-              📷
+              <CameraIcon src="/images/camera.png" alt="카메라 아이콘" />
               <br/>
               {images.length} / 10
             </span>

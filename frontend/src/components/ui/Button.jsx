@@ -12,6 +12,13 @@ const StyledButton = styled.button`
     flex-grow: ${props => props.grow ? 1 : 0};
     
     ${props => {
+        if (props.active) {
+            return `
+                background-color: #000000;
+                color: #ffffff;
+            `
+        }
+
         switch(props.variant){
             case 'gray' : 
                 return `
@@ -52,13 +59,15 @@ const StyledButton = styled.button`
 
 
 function Button(props) {
-    const { title, onClick, variant, width, grow, borderRadius } = props;
+    const { title, onClick, variant, width, grow, borderRadius, active } = props;
     return <StyledButton 
             title={title} 
             onClick={onClick} 
-            variant={variant} width={width} 
+            variant={variant} 
+            width={width} 
             grow={grow}
             borderRadius={borderRadius}
+            active={active}
         >
             {title || "button"}
         </StyledButton>;
