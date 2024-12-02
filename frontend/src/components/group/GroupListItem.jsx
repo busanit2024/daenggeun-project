@@ -8,6 +8,8 @@ const Container = styled.div`
   cursor: pointer;
 
   &:hover img {
+    transform: scale(1.1);
+    transition: transform 0.3s;
   }
 `;
 
@@ -16,6 +18,13 @@ const ImageContainer = styled.div`
   height: 86px;
   background-color: #f0f0f0;
   border-radius: 8px;
+  overflow: hidden;
+
+  & img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const TextContainer = styled.div`
@@ -48,7 +57,7 @@ export default function GroupListItem({ group }) {
   return (
     <Container key={group.id} onClick={() => navigate(`/group/view/${group.id}`)}>
       <ImageContainer>
-        <img src={group.image} alt={group.title} />
+        <img src={group.image?.url} alt={group.title} />
       </ImageContainer>
       <TextContainer>
         <Title>{group.title}</Title>
