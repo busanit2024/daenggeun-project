@@ -4,12 +4,11 @@ import React, { useState } from 'react';
 import { AuthContext } from './context/AuthContext';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import GroupPage from './components/page/Group/GroupPage';
-import GroupViewPage from './components/page/Group/GroupViewPage';
-import GroupCreatePage from './components/page/Group/GroupCreatePage';
-
-import UsedTrade from './components/pages/UsedTrade';
-import UsedTradeView from './components/pages/UsedTradeView';
+import GroupPage from './components/pages/Group/GroupPage';
+import GroupViewPage from './components/pages/Group/GroupViewPage';
+import GroupCreatePage from './components/pages/Group/GroupCreatePage';
+import UsedTrade from './components/pages/UsedTrade/UsedTrade';
+import UsedTradeView from './components/pages/UsedTrade/UsedTradeView';
 
 import AlbaList from './components/alba/AlbaList';
 import AlbaCreate from "./components/alba/AlbaCreate";

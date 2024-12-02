@@ -21,10 +21,10 @@ public class GroupPost {
   private String content;
   private String board; //게시판 종류
   @CreatedDate
-  private LocalDateTime createdTime;
+  private LocalDateTime createdDate;
   private boolean isPrivate;
   private int view; // 조회수
   private List<Image> images;
   private List<String> likeUsers; //공감 누른 유저 id
-  private List<String> replies; //댓글 id
+  private List<String> comments; //댓글 id
 }
