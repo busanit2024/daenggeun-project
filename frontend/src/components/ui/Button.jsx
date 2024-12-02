@@ -5,7 +5,7 @@ const StyledButton = styled.button`
     padding : 8px 16px ;
     font-size : 16px;
     border-width: 0px;
-    border-radius: 5px;
+    border-radius: ${props => props.borderRadius || "5px"};
     cursor:pointer;
     height : 40px;
     width: ${props => props.width ? props.width : "auto"};
@@ -38,14 +38,24 @@ const StyledButton = styled.button`
                     background-color : rgba(255, 69, 0, 0.3);
                     color : rgba(255, 69, 0);
                 `;
+            default:
+                return ``;
         };
     }}
 `;
 
 
 function Button(props) {
-    const { title, onClick, variant, width, grow  } = props;
-    return <StyledButton title={title} onClick={onClick} variant={variant} width={width} grow={grow}>{title || "button"}</StyledButton>;
+    const { title, onClick, variant, width, grow, borderRadius } = props;
+    return <StyledButton 
+            title={title} 
+            onClick={onClick} 
+            variant={variant} width={width} 
+            grow={grow}
+            borderRadius={borderRadius}
+        >
+            {title || "button"}
+        </StyledButton>;
 }
 
 
