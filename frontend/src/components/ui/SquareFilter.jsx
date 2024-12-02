@@ -8,6 +8,15 @@ const StyledFilter = styled.span`
     border-radius: 10px;
     background-color : rgba(245, 245, 245);
     color : black;
+
+    ${props => {
+        switch (props.variant) {
+            case 'tag' :
+                return `
+                    font-size: 14px;
+                `;
+        }
+    }}
 `;
 
 function SquareFilter(props) {
