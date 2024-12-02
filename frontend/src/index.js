@@ -3,9 +3,6 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import Toolbar from './components/Toolbar';
-import UsedTrade from './components/pages/UsedTrade';
-import UsedTradeView from './components/pages/UsedTradeView';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

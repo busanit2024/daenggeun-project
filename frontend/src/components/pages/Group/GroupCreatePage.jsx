@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
-import Filter from "../../ui/Filter";
+
 
 const Container = styled.div`
   display: flex;
@@ -14,8 +14,9 @@ const Container = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
+  gap: 16px;
+  width: 640px;
+  margin: 24px auto;
 `;
 
 const Item = styled.div`
@@ -23,6 +24,7 @@ const Item = styled.div`
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
+  width: 100%;
 `;
 
 const InputContainer = styled.div`
@@ -191,7 +193,7 @@ export default function GroupCreatePage(props) {
 
 
       <ButtonContainer>
-        <Button title="다음" variant="primary" onClick={() => setStep(2)}></Button>
+        <Button title="다음" variant="primary" grow onClick={() => setStep(2)}></Button>
       </ButtonContainer>
 
     </Container>
@@ -299,7 +301,7 @@ export default function GroupCreatePage(props) {
 
       <ButtonContainer>
         <Button title="이전" variant="gray" onClick={() => setStep(1)} />
-        <Button title="다음" variant="primary" onClick={() => setStep(3)} />
+        <Button title="다음" variant="primary" grow onClick={() => setStep(3)} />
       </ButtonContainer>
 
     </Container>
@@ -315,7 +317,7 @@ export default function GroupCreatePage(props) {
 
       <ButtonContainer>
         <Button title="이전" variant="gray" onClick={() => setStep(2)} />
-        <Button title="모임 만들기" variant="primary" onClick={createGroup} />
+        <Button title="모임 만들기" variant="primary" grow onClick={createGroup} />
       </ButtonContainer>
 
     </Container>
