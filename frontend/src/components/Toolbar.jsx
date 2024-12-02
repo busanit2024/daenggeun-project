@@ -1,6 +1,5 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import styled from "styled-components";
 import "./ui/Button";
 import "../styles/Toolbar.css";
 
