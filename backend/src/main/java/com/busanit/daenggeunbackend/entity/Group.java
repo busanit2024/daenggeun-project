@@ -20,6 +20,7 @@ import java.util.List;
 public class Group {
   @Id
   private String id;
+  private String userId;
   private String title;
   private List<Image> images;
   private String description;
