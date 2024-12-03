@@ -10,6 +10,8 @@ import GroupCreatePage from './components/pages/Group/GroupCreatePage';
 import Layout from './Layout';
 import UsedTrade from './components/pages/UsedTrade/UsedTrade';
 import UsedTradeView from './components/pages/UsedTrade/UsedTradeView';
+import UsedTradeWrite from './components/pages/UsedTrade/UsedTradeWrite';
+import UsedTradeUpdate from './components/pages/UsedTrade/UsedTradeUpdate';
 import AlbaList from './components/alba/AlbaList';
 import CommunityPage from './components/pages/Community/CommunityPage';
 // import CommunityViewPage from './components/pages/Community/CommunityViewPage';
@@ -33,6 +35,8 @@ function App() {
             <Route path="community" element={<CommunityPage />} />
             {/* <Route path="community/view/:communityId" element={<CommunityViewPage />} /> */}
             <Route path="community/write" element={<CommunityWritePage />} />
+            <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
+            <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
           </Route>
         </Routes>
       </BrowserRouter>
