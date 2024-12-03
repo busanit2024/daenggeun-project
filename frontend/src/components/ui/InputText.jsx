@@ -22,6 +22,15 @@ const StyledInput = styled.input`
     &:focus {
         border : 1px solid #000000;
         outline : none;
+
+        ${props => {
+        if (props.underline) {
+            return `
+                border : none;
+                border-bottom : 1px solid #000000;
+            `;
+        }}}
+        
     }
 `;
 
