@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import Button from "../../ui/Button";
 import Card from "../../ui/Card";
 import { useNavigate } from "react-router-dom";
-import FilterBar from "../../ui/FilterBar";
+import Button from "../../ui/Button";
 
 const Container = styled.div`
   display: flex;

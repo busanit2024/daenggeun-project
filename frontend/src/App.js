@@ -11,6 +11,8 @@ import UsedTradeView from './components/pages/UsedTrade/UsedTradeView';
 import UsedTradeWrite from './components/pages/UsedTrade/UsedTradeWrite';
 import UsedTradeUpdate from './components/pages/UsedTrade/UsedTradeUpdate';
 import AlbaList from './components/alba/AlbaList';
+import LoginPage from './components/pages/Login/LoginPage';
+import MainPage from './components/pages/MainPage';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -20,7 +22,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>
-            <Route index element={<h1>메인 페이지입니다</h1>} />
+            <Route path="/" element={<MainPage />} />
             <Route path="group" element={<GroupPage />} />
             <Route path="group/view/:groupId" element={<GroupViewPage />} />
             <Route path="group/create" element={<GroupCreatePage />} />
@@ -29,6 +31,7 @@ function App() {
             <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
             <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
             <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
+            <Route path="Login" element={<LoginPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
