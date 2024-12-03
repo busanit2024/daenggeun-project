@@ -73,7 +73,7 @@ export default function CommunityPage(props) {
       .catch((error) => {
         console.error("카테고리를 불러오는데 실패했습니다." + error);
       });
-  }, []);
+  }, [location, category, sort]);
   
 // {{ edit_2 }}
 useEffect(() => { // useEffect 괄호 수정
@@ -112,13 +112,13 @@ useEffect(() => { // useEffect 괄호 수정
             </FilterBar>
             <ListContainer>
             {communityList.length === 0 && <NoSearchResult>
-              <h3>{`${location.dong ? location.dong : location.gu} 작성된 글이 없어요.`}</h3>
-              <p>다른 조건으로 검색하거나 글을 써보세요.</p>
+              <h3>{`${location.dong ? location.dong : location.gu}에 작성된 글이 없어요.`}</h3>
+              <p style={{ marginBottom: '30px' }}>다른 조건으로 검색하거나 글을 써보세요.</p>
+              <Button title="첫 글 써보기" onClick={() => navigate("/community/write")} /> {/* 글쓰기 페이지로 이동하는 버튼 추가 */}
               </NoSearchResult>}
             {communityList?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((community) => ( // 최신순 정렬
               <CommunityListItem key={community.id} community={community} />
-            ))}
-            <Button title="더보기" />
+            ))}            
             </ListContainer>
         </InnerContainer>
     </Container>
