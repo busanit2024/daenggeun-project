@@ -165,7 +165,7 @@ export default function AlbaPage(props) {
             </div>
           </div>
           <div className="filterItem">
-            <h4 className="title">카테고리</h4>
+            <h4 className="title">하는일</h4>
             <div className="filterList">
               {categoryData.map((item) => (
                 <div key={item.name}>
@@ -182,6 +182,13 @@ export default function AlbaPage(props) {
               ))}
             </div>
           </div>
+          <div className="filterItem">
+            <h4 className="title">근무 요일</h4>
+          </div>
+          <div className="filterItem">
+            <h4 className="title">근무 시간</h4>
+          </div>
+
         </FilterBar>
 
         <ListContainer>
