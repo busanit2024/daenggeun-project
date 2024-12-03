@@ -3,8 +3,7 @@ import './App.css';
 import axios from "axios";
 import Toolbar from './components/Toolbar';
 import { AuthContext } from './context/AuthContext';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import GroupPage from './components/pages/Group/GroupPage';
 import GroupViewPage from './components/pages/Group/GroupViewPage';
 import GroupCreatePage from './components/pages/Group/GroupCreatePage';
@@ -32,7 +31,7 @@ function App() {
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
-      <BrowserRouter>
+      <Router>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<MainPage />} />
@@ -40,7 +39,6 @@ function App() {
             <Route path="group/view/:groupId" element={<GroupViewPage />} />
             <Route path="group/create" element={<GroupCreatePage />} />
             <Route path="group/edit/:groupId" element={<GroupEditPage />} />
-            <Route path="alba" element={<AlbaList />} />
 
             <Route path="alba" element={<AlbaPage />} />
             <Route path="alba/create" element={<AlbaCreate />} />
@@ -57,7 +55,7 @@ function App() {
             <Route path="Login" element={<LoginPage />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </Router>
 
     </AuthContext.Provider>
   );
