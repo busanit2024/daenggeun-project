@@ -93,7 +93,7 @@ export default function CommunityPage(props) {
                 <div className="filterItem">                    
                     <div className="filterList">
                         <div onClick={() => setCategory('all')} style={{ cursor: 'pointer', fontWeight: category === 'all' ? 'bold' : 'normal' }}>                            
-                            <img src="/images/favorite.png" alt="인기글" />
+                            <img src="/images/favorite.png" alt="인기글" style={{ width: '20px', height: '20px', marginTop: '2px', verticalAlign: 'middle' }}/>
                             인기글
                         </div>
                         {["맛집", "반려동물", "운동", "생활/편의", "분실/실종", "병원/약국", "고민/사연", "동네친구", "이사/시공", "주거/부동산", "교육", "취미", "동네사건사고", "동네풍경", "미용", "임신/육아", "일반"].map((item) => (
