@@ -6,6 +6,7 @@ import FilterBar from "../../ui/FilterBar";
 import Button from "../../ui/Button";
 import GroupListItem from "../../group/GroupListItem";
 import RoundFilter from "../../ui/RoundFilter";
+import Radio from "../../ui/Radio";
 
 const Container = styled.div`
   display: flex;
@@ -107,28 +108,28 @@ export default function GroupPage(props) {
           <div className="filterItem">
             <h4 className="title">카테고리</h4>
             <div className="filterList">
-              <div>
-                <input type="radio" id="all" name="catetgory" value="all" onChange={(e) => setCategory(e.target.value)} checked={category === 'all'}/>
-                <label htmlFor="all">전체</label>
-              </div>
+              <label className="radioWrap">
+                <Radio name="category" value="all" checked={category === 'all'} onChange={(e) => setCategory(e.target.value)} />
+                전체
+              </label>
               {categoryData.map((item) => (
-                <div key={item.name}>
-                  <input type="radio" id={item.name} name="catetgory" value={item.name} onChange={(e) => setCategory(e.target.value)} checked={item.name === category} />
-                  <label htmlFor={item.name}>{item.name}</label>
-                </div>
+                <label key={item.name} className="radioWrap">
+                  <Radio name="category" value={item.name} checked={item.name === category} onChange={(e) => setCategory(e.target.value)} />
+                  {item.name}
+                </label>
               ))}
             </div>
           </div>
           <div className="filterItem">
             <h4 className="title">정렬</h4>
-            <div>
-              <input type="radio" id="recent" name="sort" value="recent" onChange={(e) => setSort(e.target.value)} checked={sort === 'recent'} />
-              <label htmlFor="recent">최신순</label>
-            </div>
-            <div>
-              <input type="radio" id="name" name="sort" value="name" onChange={(e) => setSort(e.target.value)} checked={sort === 'name'} />
-              <label htmlFor="name">이름순</label>
-            </div>
+            <label className="radioWrap">
+              <Radio name="sort" value="recent" checked={sort === 'recent'} onChange={(e) => setSort(e.target.value)} />
+              최신순
+            </label>
+            <label className="radioWrap">
+              <Radio name="sort" value="name" checked={sort === 'name'} onChange={(e) => setSort(e.target.value)} />
+              이름순
+            </label>
 
           </div>
         </FilterBar>

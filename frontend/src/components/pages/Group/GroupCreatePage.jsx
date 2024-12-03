@@ -5,6 +5,8 @@ import styled from "styled-components";
 import Button from "../../ui/Button";
 import RoundFilter from "../../ui/RoundFilter";
 import { singleFileUpload } from "../../../firebase";
+import Radio from "../../ui/Radio";
+import Switch from "../../ui/Switch";
 
 
 const Container = styled.div`
@@ -27,6 +29,12 @@ const Item = styled.div`
   gap: 8px;
   margin-bottom: 16px;
   width: 100%;
+  
+  .checkbox-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
 `;
 
 const InputContainer = styled.div`
@@ -81,10 +89,13 @@ const SelectBox = styled.label`
   padding: 24px;
   border-width: 1px;
   border-style: solid;
-  border-color: ${props => props.selected ? "#666666" : "#cccccc"};
+  border-color: ${props => props.selected ? "#999999" : "#cccccc"};
   border-radius: 8px;
-  background-color: ${props => props.selected ? "#dddddd" : "white"};
-    
+  background-color: ${props => props.selected ? "#ebebeb" : "white"};
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const FileInputContainer = styled.div` 
@@ -162,7 +173,7 @@ export default function GroupCreatePage(props) {
   const [description, setDescription] = useState("");
   const [range, setRange] = useState("0");
   const [requireApproval, setRequireApproval] = useState(false);
-  const [age, setAge] = useState('누구나');
+  const [age, setAge] = useState(ageData[0]);
   const [ageInput, setAgeInput] = useState(false);
   const [ageInputValue, setAgeInputValue] = useState({ min: 0, max: 0 });
   const [maxMember, setMaxMember] = useState(0);
@@ -277,7 +288,7 @@ export default function GroupCreatePage(props) {
           {rangeData.map((item) => (
             <SelectBox key={item.value} selected={item.value === range}>
               {item.name}
-              <input type="radio" defaultChecked={item.value === "0"} name="range" value={item.value} onChange={(e) => setRange(e.target.value)} />
+              <Radio big checked={range === item.value} name="range" value={item.value} onChange={(e) => setRange(e.target.value)} />
             </SelectBox>
           ))}
         </SelectBoxContainer>
@@ -288,11 +299,11 @@ export default function GroupCreatePage(props) {
         <SelectBoxContainer>
           <SelectBox selected={requireApproval === false}>
             바로 가입
-            <input type="radio" defaultChecked name="requireApproval" value={false} onChange={(e) => setRequireApproval(e.target.value === 'true')} />
+            <Radio big checked={requireApproval === false} name="requireApproval" value={false} onChange={(e) => setRequireApproval(e.target.value === 'true')} />
           </SelectBox>
           <SelectBox selected={requireApproval === true}>
             승인 후 가입
-            <input type="radio" name="requireApproval" value={true} onChange={(e) => setRequireApproval(e.target.value === 'true')} />
+            <Radio big checked={requireApproval === true} name="requireApproval" value={true} onChange={(e) => setRequireApproval(e.target.value === 'true')} />
           </SelectBox>
         </SelectBoxContainer>
       </Item>
@@ -362,18 +373,18 @@ export default function GroupCreatePage(props) {
       <Item>
         <h2>본인인증이 필요한 모임인가요?</h2>
         <p>본인인증을 완료한 이웃만 모임에 가입할 수 있어요.</p>
-        <label>
+        <label className="checkbox-wrap">
           본인인증 사용
-          <input type="checkbox" value={requireIdCheck} onChange={(e) => setRequireIdCheck(e.target.checked)} />
+          <Switch value={requireIdCheck} checked={requireIdCheck} onChange={(e) => setRequireIdCheck(e.target.checked)} />
         </label>
       </Item>
 
       <Item>
         <h2>별명을 사용할까요?</h2>
         <p>별명은 이 모임에서만 닉네임 옆에 함께 표시돼요.</p>
-        <label>
+        <label className="checkbox-wrap">
           별명 사용
-          <input type="checkbox" value={useNickname} onChange={(e) => setUseNickname(e.target.checked)} />
+          <Switch value={useNickname} checked={useNickname} onChange={(e) => setUseNickname(e.target.checked)} />
         </label>
       </Item>
 
