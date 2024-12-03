@@ -1,3 +1,4 @@
+import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -7,7 +8,7 @@ const Container = styled.div`
   gap: 16px;
   cursor: pointer;
 
-  &:hover img {
+  &:hover .group-image {
     transform: scale(1.1);
     transition: transform 0.3s;
   }
@@ -16,11 +17,12 @@ const Container = styled.div`
 const ImageContainer = styled.div`
   width: 86px;
   height: 86px;
+  flex-shrink: 0;
   background-color: #f0f0f0;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
 
-  & img {
+  & .group-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -36,9 +38,17 @@ const TextContainer = styled.div`
 `;
 
 const TagContainer = styled.div`
+  font-size: 14px;
   display: flex;
+  align-items: center;
   gap: 4px;
   color: #666666;
+
+  & span {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
 `;
 
 const Title = styled.h2`
@@ -48,8 +58,15 @@ const Title = styled.h2`
 `;
 
 const Description = styled.p`
+  font-size: 15px;
   margin: 0;
-  color: #333333;
+  color: #555555;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export default function GroupListItem({ group }) {
@@ -57,21 +74,27 @@ export default function GroupListItem({ group }) {
   return (
     <Container key={group.id} onClick={() => navigate(`/group/view/${group.id}`)}>
       <ImageContainer>
-        <img src={group.image?.url} alt={group.title} />
+        {group.image?.url &&
+          <img className="group-image" src={group.image?.url} alt={group.title} />
+        }
       </ImageContainer>
       <TextContainer>
         <Title>{group.title}</Title>
         <Description>{group.description}</Description>
         <TagContainer>
-          <span>{group.location.emd ?? group.location.sigungu}</span>
+          <span>
+            <img height={16} src="/images/icon/location_gray.svg" alt="location" />
+            {group.location.emd ?? group.location.sigungu}</span>
           <span> · </span>
-          <span>{group.members?.length ?? 0}</span>
+          <span>
+            <FaUser size={14} color="#999999" />
+            {group.members?.length ?? 0}</span>
           <span> · </span>
           <span>{group.category}</span>
 
         </TagContainer>
       </TextContainer>
-      </Container>
+    </Container>
   );
 
 }
