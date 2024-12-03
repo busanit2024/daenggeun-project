@@ -141,16 +141,6 @@ const UsedTradeWrite = () => {
         setIsCategoryOpen(false);   // 선택 후 드롭다운 닫기
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault(); // 기본 제출 이벤트 방지
-        alert(
-            `등록 완료\n가격 제안 가능 여부: ${
-                isPriceNegotiable ? "가능" : "불가능"
-            }`
-        );
-        navigate("/usedTrade/used-trade");
-    };
-
     return (
         <Container>
             <h1>중고거래 등록</h1>
@@ -178,6 +168,12 @@ const UsedTradeWrite = () => {
                         {selectedCategory ? selectedCategory : (isCategoryOpen ? "카테고리 -" : "카테고리 +")}
                     </span>
                     <CategoryList show={isCategoryOpen}>
+                        <CategoryItem onClick={() => {
+                            setSelectedCategory(null);
+                            setIsCategoryOpen(false);
+                        }}>
+                            None
+                        </CategoryItem>
                         <CategoryItem onClick={() => selectCategory("여성의류")}>
                             여성의류
                         </CategoryItem>
@@ -186,6 +182,9 @@ const UsedTradeWrite = () => {
                         </CategoryItem>
                         <CategoryItem onClick={() => selectCategory("생활가전")}>
                             생활가전
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("기타")}>
+                            기타
                         </CategoryItem>
                     </CategoryList>
                     </CategoryToggle>
@@ -234,9 +233,11 @@ const UsedTradeWrite = () => {
                             checked={isPriceNegotiable}
                             onChange={handleCheckboxChange}
                         />
-                        {selectedTradeType === "판매하기"
-                            ? "가격 제안 받기"
-                            : "나눔 신청 받기"}
+                        {selectedTradeType
+                            ? (selectedTradeType === "판매하기"
+                                ? "가격 제안 받기"
+                                : "나눔 신청 받기")
+                            : "판매 / 나눔 중 하나를 선택해 주세요"}
                     </Label>
                 </div>
                 </InputContainer>
@@ -258,7 +259,11 @@ const UsedTradeWrite = () => {
                 </InputContainer>
             </Form>
 
-            <Form style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "10px" }} onSubmit={handleSubmit}>
+            <Form 
+                style={{ display: "flex", 
+                justifyContent: "space-between", 
+                alignItems: "center", 
+                marginTop: "10px" }}>
                 <Button
                     title="자주 쓰는 문구"
                 />
@@ -267,11 +272,22 @@ const UsedTradeWrite = () => {
                         title="등록하기"
                         variant="primary"
                         type="submit"
+                        onClick={() => {
+                            alert(
+                                `등록 완료\n가격 제안 가능 여부: ${
+                                    isPriceNegotiable ? "가능" : "불가능"
+                                }`
+                            );
+                            navigate("/usedTrade/used-trade");
+                        }}
                     />
                     <Button
                         title="취소하기"
                         variant="gray"
-                        onClick={() => alert("취소")}
+                        onClick={() => {
+                            alert("취소")
+                            navigate("/usedTrade/used-trade");
+                        }}
                     />
                 </div>
             </Form>

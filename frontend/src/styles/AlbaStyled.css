@@ -1,0 +1,643 @@
+
+
+/* styled-components.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+}
+
+/* 컨테이너 스타일 */
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  
+  /* 제목 스타일 */
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  /* 폼 스타일 */
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .input,
+  .textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .textarea {
+    height: 120px;
+    resize: none;
+  }
+  
+  .button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* 위치 드롭다운 */
+  .location-section {
+    margin-top: 15px;
+  }
+  
+  .location-section label {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  .dropdown {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  /* 근무 요일 */
+  .work-days {
+    margin-top: 15px;
+  }
+  
+  .work-days label {
+    margin-right: 10px;
+  }
+  
+  /* 근무 시간 */
+  .work-time {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* 이미지 업로드 */
+  .image-upload {
+    margin-top: 15px;
+  }
+  .alba-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer; /* 클릭 가능 표시 */
+    transition: background-color 0.3s;
+  }
+  
+  .alba-item:hover {
+    background-color: #f0f0f0;
+  }
+  .filter-section {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    width: 300px;
+    background-color: #f9f9f9;
+    margin-bottom: 20px;
+  }
+  
+  .filter-section h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #333;
+  }
+  
+  .filter-section select,
+  .filter-section input[type="checkbox"] {
+    margin-right: 10px;
+  }
+  
+  .filter-section button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #ff7e36;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .filter-section button:hover {
+    background-color: #ff5500;
+  }
+  /* 페이지 전체 스타일 */
+.alba-page {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  /* 제목 스타일 */
+  .alba-title-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+  
+  .alba-title-container h5 {
+    font-size: 14px;
+    color: gray;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .alba-title-container h2 {
+    font-size: 24px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* 검색창 스타일 */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .region-filter {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .search-bar input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .search-bar button {
+    padding: 8px 16px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .search-bar button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* 콘텐츠 섹션 레이아웃 */
+  .alba-content {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  
+  /* 필터 스타일 */
+  .filter-section {
+    flex: 1;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  
+  .filter-section h3,
+  .filter-section h4 {
+    margin-bottom: 10px;
+  }
+  
+  .filter-section label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  /* 게시글 리스트 스타일 */
+  .alba-list {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .alba-item {
+    padding: 15px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 4px;
+  }
+  
+  .alba-item h4 {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .alba-item p {
+    margin: 5px 0;
+    color: #555;
+  }
+
+
+
+
+
+  .alba-detail-page {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .detail-header {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .detail-image {
+    width: 40%;
+    height: auto;
+    border-radius: 8px;
+  }
+  
+  .detail-header-info {
+    flex: 1;
+  }
+  
+  .detail-title {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .detail-subinfo {
+    font-size: 16px;
+    margin: 10px 0;
+  }
+  
+  .detail-date,
+  .detail-time {
+    font-size: 14px;
+    color: #777;
+  }
+  
+  .detail-body {
+    margin-top: 30px;
+  }
+  
+  .detail-body h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+  
+  .detail-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .detail-list li {
+    margin-bottom: 10px;
+  }
+  
+  .detail-map {
+    margin-top: 30px;
+  }
+  
+  .map-frame {
+    width: 100%;
+    height: 300px;
+    border: none;
+    border-radius: 8px;
+  }
+  
+  .detail-footer {
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  
+  .btn-primary {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .btn-secondary {
+    background-color: #28a745;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #218838;
+  }
+  .alba-detail-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .detail-left {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .detail-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .profile-info {
+    text-align: center;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    width: 100%;
+  }
+  
+  .profile-info h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+
+.profile-info p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.detail-right {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-body {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.detail-body h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.detail-body p {
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.detail-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.detail-list li {
+  margin-bottom: 10px;
+}
+
+.detail-map {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.map-frame {
+  width: 100%;
+  height: 300px;
+  border: none;
+}
+
+.alba-detail-page {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.alba-detail-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.detail-left {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.detail-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.profile-info {
+  text-align: center;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 100%;
+}
+
+.profile-info h2 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.detail-right {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-body {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.detail-map {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.map-frame {
+  width: 100%;
+  height: 300px;
+  border: none;
+}
+
+.related-jobs {
+  margin-top: 40px;
+}
+
+.related-jobs h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.alba-list-full {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+.alba-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.alba-item {
+  width: calc(33.333% - 20px);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.alba-item:hover {
+  background-color: #f0f0f0;
+}
+
+.alba-item h4 {
+  margin: 0;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.alba-item p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.alba-item-full {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.alba-item-full:hover {
+  background-color: #f0f0f0;
+}
+
+.alba-item-full h4 {
+  margin: 0;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.alba-item-full p {
+  margin: 5px 0;
+  color: #555;
+}
+
+
+/* 알바 리스트 페이지 */
+.alba-page {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.region-filter {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.alba-content-list {
+  display: flex;
+  gap: 20px;
+}
+
+.filter-section {
+  width: 20%;
+  background: #f9f9f9;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.alba-list-container {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alba-item {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.alba-item:hover {
+  background-color: #f0f0f0;
+}
+
+.alba-item h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.alba-item p {
+  margin: 5px 0;
+  color: #555;
+}
