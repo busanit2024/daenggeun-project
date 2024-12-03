@@ -51,7 +51,7 @@ const ImageUpload = () => {
         <ImagePlaceholder>
           <label htmlFor="image-upload">
             <span role="img" aria-label="upload" style={{ alignItems: "center" }}>
-              <CameraIcon src="/images/camera.png" alt="카메라 아이콘" />
+              <CameraIcon src="/images/icon/camera.svg" alt="카메라 아이콘" />
               <br/>
               {images.length} / 10
             </span>
