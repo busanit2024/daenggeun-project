@@ -35,7 +35,6 @@ function App() {
             <Route path="group/view/:groupId" element={<GroupViewPage />} />
             <Route path="group/create" element={<GroupCreatePage />} />
             <Route path="group/edit/:groupId" element={<GroupEditPage />} />
-            <Route path="alba" element={<AlbaList />} />
 
             <Route path="alba" element={<AlbaPage />} />
             <Route path="alba/create" element={<AlbaCreate />} />

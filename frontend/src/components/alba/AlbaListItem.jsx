@@ -44,7 +44,15 @@ const WorkType = styled.span`
   font-size: 0.9rem;
   align-self: flex-start;
 `;
-
+const WorkTime = styled.span`
+  margin-top: 8px;
+  background-color: #e6f7ff;
+  color: #007bff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  align-self: flex-start;
+`;
 export default function AlbaListItem({ alba }) {
   const navigate = useNavigate();
 
@@ -55,8 +63,9 @@ export default function AlbaListItem({ alba }) {
   return (
     <ListItemContainer onClick={handleClick}>
       <Title>{alba.title}</Title>
-      <Location>{`${alba.location.si} ${alba.location.gu} ${alba.location.dong}`}</Location>
-      <Category>{alba.category}</Category>
+      <Location>{`${alba.location}`}</Location>
+      <Category>{alba.wage}</Category>
+      <WorkTime>{alba.workTime.start} ~ {alba.workTime.end}</WorkTime>
       {alba.workType && <WorkType>{alba.workType}</WorkType>}
     </ListItemContainer>
   );
