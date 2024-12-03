@@ -181,6 +181,7 @@ export default function GroupCreatePage(props) {
   const [requireIdCheck, setRequireIdCheck] = useState(false);
   const [useNickname, setUseNickname] = useState(false);
   const [image, setImage] = useState(null);
+  const [location, setLocation] = useState({ sido: "부산광역시", sigungu: "해운대구", emd: "반송동" }); // 로그인 구현 될때까지 기본 위치
 
 
   useEffect(() => {
@@ -229,6 +230,7 @@ export default function GroupCreatePage(props) {
         useNickname: useNickname,
         image: imageInfo,
         boards: ["자유 게시판"],
+        location: location,
       });
       alert("모임이 생성되었습니다.");
       navigate("/group");

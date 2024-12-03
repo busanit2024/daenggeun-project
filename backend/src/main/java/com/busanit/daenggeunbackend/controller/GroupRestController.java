@@ -20,8 +20,8 @@ public class GroupRestController {
   }
 
   @GetMapping("/search")
-  private List<GroupDTO> searchGroups(@RequestParam String gu, @RequestParam String dong, @RequestParam String category, @RequestParam String sort) {
-    return groupService.search(gu, dong, category, sort);
+  private List<GroupDTO> searchGroups(@RequestParam String sigungu, @RequestParam String emd, @RequestParam String category, @RequestParam String sort) {
+    return groupService.search(sigungu, emd, category, sort);
   }
 
   @GetMapping("/view/{groupId}")
