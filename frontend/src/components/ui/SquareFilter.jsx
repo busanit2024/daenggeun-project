@@ -2,6 +2,9 @@ import React from "react";
 import styled from "styled-components";
 
 const StyledFilter = styled.span`
+    display: flex;
+    align-items: center;
+    gap: 4px;
     font-size : 16px;
     padding : 8px 16px ;
     border-width:0px;
@@ -20,9 +23,9 @@ const StyledFilter = styled.span`
 `;
 
 function SquareFilter(props) {
-    const {title, variant, onClick} = props;
+    const {children, title, variant, onClick} = props;
     return (
-        <StyledFilter title={title} onClick={onClick} variant={variant}>{title || "filter"}</StyledFilter>
+        <StyledFilter title={title} onClick={onClick} variant={variant}>{children}{title || "filter"}</StyledFilter>
     );
 }
 

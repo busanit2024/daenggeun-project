@@ -59,6 +59,24 @@ const NoSearchResult = styled.div`
   }
 `;
 
+const LoadingText = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 88px 0;
+  & h3 {
+    margin: 0;
+  }
+
+  & p {
+    margin: 0;
+    color: #666666;
+  }
+`;
+
 
 export default function GroupPage(props) {
   const navigate = useNavigate();
@@ -69,6 +87,9 @@ export default function GroupPage(props) {
   const [sort, setSort] = useState("");
   const [busanJuso, setBusanJuso] = useState([]);
   const [emdList, setEmdList] = useState([]);
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -86,13 +107,7 @@ export default function GroupPage(props) {
   }, []);
 
   useEffect(() => {
-    axios.get(`api/group/search?sigungu=${location.sigungu}&emd=${location.emd}&category=${category}&sort=${sort}`).then((response) => {
-      setGroupList(response.data);
-    })
-      .catch((error) => {
-        console.error("모임 리스트를 불러오는데 실패했습니다." + error);
-      });
-
+    fetchGroupList(0).then(() => setLoading(false));
   }, [location, category, sort]);
 
   useEffect(() => {
@@ -105,13 +120,38 @@ export default function GroupPage(props) {
     setSort("");
   }
 
+  const fetchGroupList = async (page) => {
+    try {
+      const response = await axios.get(`api/group/search`, {
+        params: {
+          sigungu: location.sigungu,
+          emd: location.emd,
+          category: category,
+          sort: sort,
+          page: page,
+          size: 10,
+        }
+      });
+      const newGroupList = response.data.content;
+      setGroupList((prevGroups) => (page === 0 ? newGroupList : [...prevGroups, ...newGroupList]));
+      setHasNext(!response.data.last);
+    } catch (error) {
+      console.error("모임 리스트를 불러오는데 실패했습니다." + error);
+    }
+  };
+
   const getEmdList = (gu) => {
     if (busanJuso && gu) {
-    const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
-    const emdNameList = emdList?.map((item) => item.emd);
-    setEmdList(emdNameList);
+      const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
+      const emdNameList = emdList?.map((item) => item.emd);
+      setEmdList(emdNameList);
     }
   }
+
+  const handleMoreButton = () => {
+    fetchGroupList(page + 1);
+    setPage(page + 1);
+  };
 
   return (
     <Container>
@@ -186,14 +226,23 @@ export default function GroupPage(props) {
               {sort !== "" && <RoundFilter title={sort === 'recent' ? '최신순' : '이름순'} variant='search' cancelIcon onClick={() => setSort("")} />}
             </FilterContainer>
           }
-          {groupList.length === 0 && <NoSearchResult>
+
+
+          {(!loading && groupList.length === 0) && <NoSearchResult>
             <h3>{`${location.emd ? location.emd : location.sigungu} 근처에 모임이 없어요.`}</h3>
             <p>다른 조건으로 검색해주세요.</p>
           </NoSearchResult>}
+          {loading && 
+          <LoadingText>
+            <h3>모임을 찾는 중이에요.</h3>
+          </LoadingText>
+          
+          }
+
           {groupList?.map((group) => (
             <GroupListItem key={group.id} group={group} />
           ))}
-          <Button title="더보기" />
+          {(!loading && hasNext) && <Button title="더보기" onClick={handleMoreButton} />}
         </ListContainer>
 
       </InnerContainer>
