@@ -15,4 +15,5 @@ public class FilterDataService {
     FilterData filterData = filterDataRepository.findByName(name);
     return FilterDataDTO.toDTO(filterData);
   }
+
 }

@@ -63,7 +63,7 @@ export default function GroupListItem({ group }) {
         <Title>{group.title}</Title>
         <Description>{group.description}</Description>
         <TagContainer>
-          <span>{group.location.dong ?? group.location.gu}</span>
+          <span>{group.location.emd ?? group.location.sigungu}</span>
           <span> · </span>
           <span>{group.members?.length ?? 0}</span>
           <span> · </span>

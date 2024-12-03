@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import "./ui/Button";
 import { useNavigate } from "react-router-dom";
 import "../styles/Toolbar.css";
+import Logo from "./ui/Logo";
 
 const Toolbar = () => {
     const { isLoggedIn, logout } = useContext(AuthContext);
@@ -13,9 +14,8 @@ const Toolbar = () => {
 
     return (
         <div className="toolbar">
-            <img 
-                src="/images/logo.png" 
-                alt="로고" 
+            <Logo 
+                variant="logoWithText" 
                 className="logo"
                 onClick={() => navigate("/")} 
                 style={{ cursor: "pointer" }}/>
@@ -24,28 +24,8 @@ const Toolbar = () => {
                         <li>
                             <a href="/usedTrade/used-trade">중고거래</a>
                         </li>
-                        <li
-                        className="dropdown"
-                        onMouseEnter={toggleDropdown}
-                        onMouseLeave={toggleDropdown}
-                        >
-                        <a href="/alba">알바</a>
-                        {isDropdownOpen && (
-                        <ul className="dropdown-menu">
-                            <li>
-                            <a href="/">알바 검색</a>
-                            </li>
-                            <li>
-                            <a href="/">당근알바 소개</a>
-                            </li>
-                            <li>
-                            <a href="/">기업형 서비스</a>
-                            </li>
-                            <li>
-                            <a href="/">신뢰와 안전</a>
-                            </li>
-                        </ul>
-                        )}
+                        <li>
+                            <a href="/alba">알바</a>
                         </li>
                         <li>
                             <a href="/community">동네생활</a>
@@ -62,7 +42,7 @@ const Toolbar = () => {
                         <a href="/mypage">마이페이지</a>
                     </>
                     ) : (
-                    <a href="/login">로그인 / 회원가입</a>
+                        <button onClick={() => navigate("/login")}>로그인 / 회원가입</button>
                     )}
                 </div>
         </div>
