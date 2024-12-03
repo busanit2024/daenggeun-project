@@ -32,6 +32,7 @@ const SideBar = styled.div`
     overflow: hidden;
     border-radius: 8px;
     background-color: #dcdcdc;
+    flex-shrink: 0;
     img {
       width: 100%;
       height: 100%;
@@ -120,7 +121,9 @@ export default function GroupPageLayout(props) {
             {group.description}
           </div>
           <div className="tags">
-            <SquareFilter title={group.location?.emd ?? group.location?.sigungu} variant="tag" />
+            <SquareFilter title={group.location?.emd ?? group.location?.sigungu} variant="tag">
+              <img height={16} src="/images/icon/location_black.svg" alt="location" />
+            </SquareFilter>
             <SquareFilter title={group.category} variant="tag" />
             {group.ageRange && <SquareFilter title={group.ageRange} variant="tag" />}
           </div>
