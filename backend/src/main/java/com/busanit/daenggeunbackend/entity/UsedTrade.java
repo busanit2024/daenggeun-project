@@ -1,7 +1,12 @@
 package com.busanit.daenggeunbackend.entity;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Document(collection = "trades")
 @Getter
@@ -9,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class UsedTrade {
     @Id
     private String id;  // 중고거래 id
-    private String userId;  // 사용자 id
+    private String userId;  // 판매자 id
     private String name;    // 상품명
     private int price;  // 가격
     private String location;    // 거래 위치

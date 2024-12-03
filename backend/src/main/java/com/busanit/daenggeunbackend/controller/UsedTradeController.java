@@ -16,4 +16,6 @@ public class UsedTradeController {
         UsedTrade createdUsedTrade = usedTradeService.createUsedTrade(usedTrade);
         return ResponseEntity.ok(createdUsedTrade);
     }
+
+    // 나중에 추가하기
 }
