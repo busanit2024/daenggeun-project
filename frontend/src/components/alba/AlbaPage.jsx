@@ -134,6 +134,7 @@ export default function AlbaPage(props) {
     setWorkDays([]);
     setWorkTime({ start: "", end: "" });
     setSearchTerm("");
+    fetchData(); // 추가하여 필터 초기화 후 데이터도 갱신되도록 함
   };
 
   const handleWorkTypeChange = (workTypeId) => {
@@ -168,6 +169,10 @@ export default function AlbaPage(props) {
 
   const handleDongChange = (e) => {
     setSelectedDong(e.target.value);
+  };
+
+  const handleCategoryChange = (e) => {
+    setCategory(e.target.value);
   };
 
   return (
@@ -231,6 +236,25 @@ export default function AlbaPage(props) {
                     checked={workType.includes(item.id)}
                   />
                   <label htmlFor={item.id}>{item.name}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="filterItem">
+            <h4 className="title">하는 일</h4>
+            <div className="filterList">
+              {categoryData.map((item) => (
+                <div key={item.name}>
+                  <input
+                    type="radio"
+                    id={item.name}
+                    name="category"
+                    value={item.name}
+                    onChange={handleCategoryChange}
+                    checked={item.name === category}
+                  />
+                  <label htmlFor={item.name}>{item.name}</label>
                 </div>
               ))}
             </div>
