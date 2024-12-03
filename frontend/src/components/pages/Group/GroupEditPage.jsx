@@ -141,6 +141,12 @@ const ImagePreview = styled.div`
   }
 `;
 
+
+const InputCheckMessage = styled.span`
+  color: red;
+  font-size: 14px;
+`;
+
 const ageData = [
   "누구나", "20대", "30대", "40대", "50대", "60대", "직접 입력",
 ]
@@ -166,6 +172,7 @@ export default function GroupEditPage(props) {
   const [maxMemberInput, setMaxMemberInput] = useState(false);
   const [prevFile, setPrevFile] = useState("");
   const [image, setImage] = useState(null);
+  const [inputCheck, setInputCheck] = useState({ title: false, description: false, category: false, maxMember: false, age: false });
 
 
   useEffect(() => {
@@ -190,7 +197,14 @@ export default function GroupEditPage(props) {
   }, []);
 
   useEffect(() => {
+      const check = validateInput();
+      setInputCheck(check);
+  }, [group]);
+
+  useEffect(() => {
+    if (ageInput) {
     setGroup({...group , ageRange: `${ageInputValue.min}세~${ageInputValue.max}세`});
+    }
   }, [ageInputValue]);
 
   const handleImageChange = (e) => {
@@ -215,6 +229,34 @@ export default function GroupEditPage(props) {
       return 'category';
     }
   }
+
+  const validateInput = () => {
+    const newCheck = { title: false, description: false, category: false, maxMember: false, age: false };
+    if (group.title?.length < titleInputConstraint.minLength) {
+      newCheck.title = true;
+    }
+    if (group.description?.length < descriptionInputConstraint.minLength) {
+      newCheck.description = true;
+    }
+    if (group.category === "") {
+      newCheck.category = true;
+    }
+
+    if (maxMemberInput) {
+      if (group.maxMember < 1) {
+        newCheck.maxMember = true;
+      }
+    }
+
+    if (ageInput) {
+      if (ageInputValue.min < 1 || ageInputValue.max < 1 || ageInputValue.min > ageInputValue.max) {
+        newCheck.age = true;
+      }
+    }
+
+    return newCheck;
+  }
+
 
   const updateGroup = async () => {
     let imageInfo = prevFile;
@@ -266,7 +308,10 @@ export default function GroupEditPage(props) {
         <InputContainer full>
           <Input type="text" placeholder="모임명이 짧을수록 이해하기 쉬워요." value={group.title} onChange={(e) => setGroup({ ...group, title: e.target.value })} />
         </InputContainer>
+        <div style={{display: 'flex'}}>
+        <InputCheckMessage>{inputCheck.title && "모임명을 3자 이상 입력해주세요."}</InputCheckMessage>
         <TextLength>{`${group.title?.length}/${titleInputConstraint.maxLength}`}</TextLength>
+        </div>
       </Item>
 
       <Item>
@@ -275,7 +320,10 @@ export default function GroupEditPage(props) {
           <Textarea placeholder="활동 중심으로 모임을 소개해주세요. 모임 설정에서 언제든지 바꿀 수 있어요." onChange={(e) => setGroup({ ...group, description: e.target.value })} value={group.description}>
           </Textarea>
         </InputContainer>
+        <div style={{display: 'flex'}}>
+        <InputCheckMessage>{inputCheck.description && "모임 소개를 8자 이상 입력해주세요."}</InputCheckMessage>
         <TextLength>{`${group.description?.length}/${descriptionInputConstraint.maxLength}`}</TextLength>
+        </div>
       </Item>
 
       <Item>
@@ -312,18 +360,19 @@ export default function GroupEditPage(props) {
           {((!ageData.includes(group.ageRange)) || ageInput) && (
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
               <InputContainer>
-                <Input type="number" value={ageInputValue.min} onChange={(e) => setAgeInputValue({ ...ageInputValue, min: e.target.value })} />
+                <Input type="number" value={ageInputValue.min} onChange={(e) => e.target.value > 0 && setAgeInputValue({ ...ageInputValue, min: e.target.value })} />
                 <span>세</span>
               </InputContainer>
               <span> ~ </span>
               <InputContainer>
-                <Input type="number" value={ageInputValue.max} onChange={(e) => setAgeInputValue({ ...ageInputValue, max: e.target.value })} />
+                <Input type="number" value={ageInputValue.max} onChange={(e) => e.target.value > 0 && setAgeInputValue({ ...ageInputValue, max: e.target.value })} />
                 <span> 세</span>
               </InputContainer>
 
             </div>
           )}
         </RadioContainer>
+        <InputCheckMessage>{inputCheck.age && '연령대를 입력해 주세요.'}</InputCheckMessage>
 
       </Item>
 
@@ -414,7 +463,7 @@ export default function GroupEditPage(props) {
           {(!maxMemberData.includes(group.maxMember) || maxMemberInput) && (
             <div>
               <InputContainer>
-                <Input type="number" value={group.maxMember} onChange={(e) => setGroup({...group, maxMember: e.target.value})} />
+                <Input type="number" value={group.maxMember === 1 ? 0 : group.maxMember} onChange={(e) => e.target.value > 0 && setGroup({...group, maxMember: e.target.value})} />
                 <span>명</span>
               </InputContainer>
 
@@ -422,7 +471,7 @@ export default function GroupEditPage(props) {
           )}
         </RadioContainer>
 
-
+        <InputCheckMessage>{inputCheck.maxMember && '최대 인원을 입력해 주세요.'}</InputCheckMessage>
       </Item>
 
       <ButtonContainer>
