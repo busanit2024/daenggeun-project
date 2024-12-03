@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 public class UsedTrade {
-    @id
+    @Id
     private String id;  // 중고거래 id
     private String userId;  // 사용자 id
     private String name;    // 상품명
