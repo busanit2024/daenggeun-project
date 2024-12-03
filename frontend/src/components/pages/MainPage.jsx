@@ -1,33 +1,104 @@
 import React from "react";
 import styled from "styled-components";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { Carousel } from "react-responsive-carousel";
+import imageData from "../../asset/imageData";
+import "../../styles/carouselOverrides.css"
+
 
 const Wrapper = styled.div`
-    max-width: 1400px;
-    min-width: 768px; 
-    margin: 70px auto; 
-    padding: 0 16px;
-    
-    @media (max-width: 768px) {
-        padding: 0 8px; 
+    max-width: 100%; 
+    margin: 0 auto; 
+    padding: 0; 
+`;
+
+const FullWidthBackground = styled.div`
+    width: 100vw; 
+    position: relative; 
+    left: 50%;
+    right: 50%; 
+    margin-left: -50vw; 
+    margin-right: -50vw; 
+`;
+
+const StyledCarousel = styled(Carousel)`
+    width: 100%;
+    margin: 0;
+
+    .carousel .control-arrow {
+        background-color:transparent;
+        border : none;
+        font-size:30px;
+        z-index :10;
+    }
+
+    .carousel .control-arrow:hover {
+        background-color: transparent;
+    }
+
+    .carousel .control-arrow::before {
+        color: black !important;
+        font-size: 30px !important;
+    }
+
+    .carousel .control-arrow.control-prev {
+        left : 10px;
+    }
+
+    .carousel .control-arrow.control-next {
+        right : 10px;
+    }
+
+    .carousel .control-arrow svg {
+        fill: black !important;
     }
 `;
 
-const Container = styled.div`
-    width:100%;
-    max-width:720px;
+const Slide = styled.div`
+    width: 100%; 
+    height: 400px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+`;
 
-    :not(:last-child){
-        margin-bottom : 16px;
-    }
+const SlideImage = styled.img`
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover;
+`;
+
+const SlideText = styled.h2`
+    position: absolute; 
+    color: black;
+    font-size: 1.5rem;
+    text-align: left ;
+    left: 25%;
+    transform: translateX(-50%);
+    top : 50px;
+    font-family : SBAggroB;
 `;
 
 function MainPage(props) {
-
     return (
         <Wrapper>
-            <Container>
-                <h1>메인 페이지</h1>
-            </Container>
+            <h1>메인 페이지</h1>
+            <FullWidthBackground>
+                <StyledCarousel
+                    showArrows={true}
+                    autoPlay={true}
+                    infiniteLoop={true}
+                    showThumbs={false}
+                    >
+                    {imageData.map(image => (
+                        <Slide key={image.alt}>
+                            <SlideImage src={image.src} alt={image.alt} />
+                            <SlideText>{image.text}</SlideText>
+                        </Slide>
+                    ))}
+                </StyledCarousel>
+            </FullWidthBackground>
         </Wrapper>
     );
 }

@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import "./ui/Button";
 import { useNavigate } from "react-router-dom";
 import "../styles/Toolbar.css";
+import Logo from "./ui/Logo";
 
 const Toolbar = () => {
     const { isLoggedIn, logout } = useContext(AuthContext);
@@ -13,9 +14,8 @@ const Toolbar = () => {
 
     return (
         <div className="toolbar">
-            <img 
-                src="/images/logo.png" 
-                alt="로고" 
+            <Logo 
+                variant="logoWithText" 
                 className="logo"
                 onClick={() => navigate("/")} 
                 style={{ cursor: "pointer" }}/>
@@ -62,7 +62,7 @@ const Toolbar = () => {
                         <a href="/mypage">마이페이지</a>
                     </>
                     ) : (
-                    <a href="/login">로그인 / 회원가입</a>
+                        <button onClick={() => navigate("/login")}>로그인 / 회원가입</button>
                     )}
                 </div>
         </div>
