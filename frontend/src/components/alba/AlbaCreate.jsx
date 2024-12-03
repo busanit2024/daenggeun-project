@@ -140,20 +140,13 @@ const AlbaCreate = () => {
           value={form.title}
           onChange={handleChange}
         />
-
-<div className="category-selection">
-          <h3 className="section-title">하는 일</h3>
-          <HorizontalContainer>
-            {categoryData.map((item) => (
-              <StyledRoundFilter
-                key={item.name}
-                title={item.name}
-                variant={form.category.includes(item.name) ? "selected" : "category"}
-                onClick={() => handleCategoryChange(item.name)}
-              />
-            ))}
-          </HorizontalContainer>
-        </div>
+        <textarea
+          name="description"
+          placeholder="상세 내용"
+          value={form.description}
+          onChange={handleChange}
+          className="textarea"
+        ></textarea>
 
         <div className="location-selection">
           <div className="dropdown-container">
@@ -195,15 +188,12 @@ const AlbaCreate = () => {
           </div>
         </div>
 
-        <div>
-          <label>급여</label>
         <InputText
           name="wage"
-          placeholder="9,860"
+          placeholder="시급"
           value={form.wage}
           onChange={handleChange}
         />
-        </div>
 
         <div className="work-days">
           <h3 className="section-title">근무 요일</h3>
@@ -219,7 +209,19 @@ const AlbaCreate = () => {
           </HorizontalContainer>
         </div>
 
-        
+        <div className="category-selection">
+          <h3 className="section-title">하는 일</h3>
+          <HorizontalContainer>
+            {categoryData.map((item) => (
+              <StyledRoundFilter
+                key={item.name}
+                title={item.name}
+                variant={form.category.includes(item.name) ? "selected" : "category"}
+                onClick={() => handleCategoryChange(item.name)}
+              />
+            ))}
+          </HorizontalContainer>
+        </div>
 
         <div className="work-time">
           <h3 className="section-title">근무 시간</h3>
@@ -237,14 +239,6 @@ const AlbaCreate = () => {
             onChange={handleChange}
           />
         </div>
-
-        <textarea
-          name="description"
-          placeholder="상세 내용"
-          value={form.description}
-          onChange={handleChange}
-          className="textarea"
-        ></textarea>
 
         <div className="image-upload">
           <h3 className="section-title">이미지 업로드</h3>
