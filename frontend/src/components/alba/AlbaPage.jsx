@@ -92,9 +92,9 @@ export default function AlbaPage(props) {
 
   // 지역 데이터를 가져오기 위한 useEffect
   useEffect(() => {
-    axios.get(`/api/data/filter?name=region-filter`)
+    axios.get(`/api/data/filter?name=busanJuso`)
       .then((response) => {
-        setRegionData(response.data.filters);
+        setRegionData(response.data.locationFilters);
       })
       .catch((error) => {
         console.error("지역 필터 데이터를 불러오는데 실패했습니다." + error);
@@ -113,16 +113,26 @@ export default function AlbaPage(props) {
   }, []);
 
   // 알바 리스트 데이터를 가져오기 위한 useEffect
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(`/api/alba?gu=${selectedRegion}&dong=${selectedDong}&category=${category}&workType=${workType.join(",")}&workDays=${workDays.join(",")}&workTimeStart=${workTime.start}&workTimeEnd=${workTime.end}&searchTerm=${searchTerm}`);
-      setAlbaList(response.data);
-    } catch (error) {
-      console.error("알바 리스트를 불러오는데 실패했습니다." + error);
-    }
-  };
-
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`/api/alba`, {
+          params: {
+            gu: selectedRegion,
+            dong: selectedDong,
+            category: category !== "all" ? category : undefined,
+            workType: workType.length > 0 ? workType.join(",") : undefined,
+            workDays: workDays.length > 0 ? workDays.join(",") : undefined,
+            workTimeStart: workTime.start,
+            workTimeEnd: workTime.end,
+            searchTerm: searchTerm,
+          }
+        });
+        setAlbaList(response.data);
+      } catch (error) {
+        console.error("알바 리스트를 불러오는데 실패했습니다." + error);
+      }
+    };
     fetchData();
   }, [selectedRegion, selectedDong, category, workType, workDays, workTime, searchTerm]);
 
@@ -134,7 +144,6 @@ export default function AlbaPage(props) {
     setWorkDays([]);
     setWorkTime({ start: "", end: "" });
     setSearchTerm("");
-    fetchData(); // 추가하여 필터 초기화 후 데이터도 갱신되도록 함
   };
 
   const handleWorkTypeChange = (workTypeId) => {
@@ -186,7 +195,7 @@ export default function AlbaPage(props) {
         >
           <option value="">전체 지역</option>
           {regionData.map((region) => (
-            <option key={region.gu} value={region.gu}>{region.gu}</option>
+            <option key={region.sigungu} value={region.sigungu}>{region.sigungu}</option>
           ))}
         </select>
 
@@ -198,9 +207,9 @@ export default function AlbaPage(props) {
           >
             <option value="">전체 동</option>
             {regionData
-              .find(region => region.gu === selectedRegion)
-              ?.dong.map((dong) => (
-                <option key={dong} value={dong}>{dong}</option>
+              .find(region => region.sigungu === selectedRegion)
+              ?.emd.map((dong) => (
+                <option key={dong.emd} value={dong.emd}>{dong.emd}</option>
               ))}
           </select>
         )}
@@ -211,7 +220,6 @@ export default function AlbaPage(props) {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        <button onClick={() => fetchData()}>검색</button>
       </div>
 
       <InnerContainer>
