@@ -49,6 +49,13 @@ const StyledFilterBar = styled.nav`
     flex-direction: column;
     gap: 8px;
   }
+
+  & .filterItem .radioWrap {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
 `;
 
 export default function FilterBar(props) {

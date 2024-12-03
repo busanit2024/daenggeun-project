@@ -10,9 +10,10 @@ const Container = styled.div`
 `;
 
 const Main = styled.div`
-  width: 1024px;
-  padding: 0 128px;
-  margin: 80px auto;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 16px;
+  margin: 80px 0;
 `;
 
 export default function Layout() {
