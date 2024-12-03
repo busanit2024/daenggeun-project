@@ -20,7 +20,7 @@ public class Alba {
     private String description; // 상세내용
     private String createdAt; // 작성시간 (ISO 8601 형식 추천)
     private String wage; // 시급/월급
-    private String WorkType; // 근무 유형 (단기/장기)
+    private String workType; // 근무 유형 (단기/장기)
     private List<String> workDays; // 근무요일
     private WorkTime workTime; // 근무시간
     private String location; // 위치
