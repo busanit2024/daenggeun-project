@@ -6,6 +6,8 @@ import Button from "../../ui/Button";
 import RoundFilter from "../../ui/RoundFilter";
 import { deleteFile, singleFileUpload } from "../../../firebase";
 import InputText from "../../ui/InputText";
+import Switch from "../../ui/Switch";
+import Radio from "../../ui/Radio";
 
 
 const Container = styled.div`
@@ -28,6 +30,12 @@ const Item = styled.div`
   gap: 8px;
   margin-bottom: 16px;
   width: 100%;
+
+  .checkbox-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
 `;
 
 const InputContainer = styled.div`
@@ -82,10 +90,13 @@ const SelectBox = styled.label`
   padding: 24px;
   border-width: 1px;
   border-style: solid;
-  border-color: ${props => props.selected ? "#666666" : "#cccccc"};
+  border-color: ${props => props.selected ? "#999999" : "#cccccc"};
   border-radius: 8px;
-  background-color: ${props => props.selected ? "#dddddd" : "white"};
-    
+  background-color: ${props => props.selected ? "#ebebeb" : "white"};
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const FileInputContainer = styled.div` 
@@ -318,8 +329,8 @@ export default function GroupEditPage(props) {
 
       <Item>
         <h2>모임 운영</h2>
-        <h4>게시판 나누기
-          <input type="checkbox" value={boardDivisions} onChange={(e) => setBoardDivisions(e.target.checked)} />
+        <h4 className="checkbox-wrap">게시판 나누기
+          <Switch value={boardDivisions} onChange={(e) => setBoardDivisions(e.target.checked)} />
         </h4>
         {boardDivisions && (
           <>
@@ -342,17 +353,17 @@ export default function GroupEditPage(props) {
 
       <Item>
         <h4>본인인증 설정</h4>
-        <label>
+        <label className="checkbox-wrap">
           본인인증 사용
-          <input type="checkbox" value={group.requireIdCheck} onChange={(e) => setGroup({...group, requireIdCheck: e.target.checked})} />
+          <Switch value={group.requireIdCheck} onChange={(e) => setGroup({ ...group, requireIdCheck: e.target.checked })} />
         </label>
       </Item>
 
       <Item>
         <h4>별명</h4>
-        <label>
+        <label className="checkbox-wrap">
           별명 사용
-          <input type="checkbox" value={group.useNickname} onChange={(e) =>  setGroup({...group, useNickname: e.target.checked})} />
+          <Switch value={group.useNickname} onChange={(e) => setGroup({ ...group, useNickname: e.target.checked })} />
         </label>
       </Item>
 
@@ -362,11 +373,11 @@ export default function GroupEditPage(props) {
         <SelectBoxContainer>
           <SelectBox selected={group.requireApproval === false}>
             바로 가입
-            <input type="radio" checked={group.requireApproval === false} name="requireApproval" value={false} onChange={(e) => setGroup({ ...group, requireApproval: e.target.value === 'true' })} />
+            <Radio big name="requireApproval" value={false} checked={group.requireApproval === false} onChange={(e) => setGroup({ ...group, requireApproval: e.target.value === 'true' })} />
           </SelectBox>
           <SelectBox selected={group.requireApproval === true}>
             승인 후 가입
-            <input type="radio" checked={group.requireApproval === true} name="requireApproval" value={true} onChange={(e) => setGroup({ ...group, requireApproval: e.target.value === 'true' })} />
+            <Radio big name="requireApproval" value={true} checked={group.requireApproval === true} onChange={(e) => setGroup({ ...group, requireApproval: e.target.value === 'true' })} />
           </SelectBox>
         </SelectBoxContainer>
       </Item>
@@ -377,7 +388,7 @@ export default function GroupEditPage(props) {
           {rangeData.map((item) => (
             <SelectBox key={item.label} selected={item.label === group.groupRange}>
               {item.name}
-              <input type="radio" checked={item.label === group.groupRange} name="range" value={item.label} onChange={(e) => setGroup({ ...group, groupRange: e.target.value })} />
+              <Radio big name="range" value={item.label} checked={item.label === group.groupRange} onChange={(e) => setGroup({ ...group, groupRange: e.target.value })} />
             </SelectBox>
           ))}
         </SelectBoxContainer>
