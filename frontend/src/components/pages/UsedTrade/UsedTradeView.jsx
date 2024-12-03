@@ -16,6 +16,11 @@ const Header = styled.div`
   margin-bottom: 20px;
 `;
 
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 10px; /* 버튼 간의 간격 조정 */
+`;
+
 const BackButton = styled.button`
   padding: 10px 20px;
   background-color: #f5f5f5;
@@ -95,7 +100,7 @@ const UsedTradeView = () => {
     return (
         <div>
             <p>상품 정보가 없습니다.</p>
-            <button onClick={() => navigate(-1)}>뒤로 가기</button>
+            <button onClick={() => navigate("/usedTrade/used-trade")}>뒤로 가기</button>
         </div>
     );
   }
@@ -104,7 +109,10 @@ const UsedTradeView = () => {
     <Container>
       <Header>
         <h2>상품 상세 페이지</h2>
-        <BackButton onClick={() => navigate(-1)}>뒤로 가기</BackButton>
+        <ButtonGroup>
+          <BackButton onClick={() => navigate("/usedTrade/used-trade")}>뒤로 가기</BackButton>
+          <Button onClick={() => navigate(`/usedTrade/used-trade-update/${id}`)} title="수정하기" variant="primary" />
+        </ButtonGroup>
       </Header>
       <ProductDetail>
         <ProductImage>상품 사진</ProductImage>
