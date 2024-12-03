@@ -37,6 +37,13 @@ const Sidebar = styled.aside`
   }
 `;
 
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+`;
+
 const Main = styled.main`
   flex: 1; /* 남은 공간을 차지 */
 `;
@@ -62,18 +69,25 @@ const UsedTrade = () => {
                 <Sidebar>
                 </Sidebar>
                 <Main>
+                  <Header>
                     <Title>부산광역시 동래구 중고거래</Title>
-                    <CardGrid>
-                        {Array.from({ length: 20 }).map((_, index) => (
-                            <Card 
-                                key={index} 
-                                title={`상품 ${index + 1}`} 
-                                location="동래구"
-                                onClick={() => navigate(`/UsedTrade/used-trade-view/${index + 1}`)}  // 클릭 시 해당 상세페이지로 이동
-                                style={{ cursor: "pointer" }}
-                            />
-                        ))}
-                    </CardGrid>
+                    <Button
+                      title="+ 글쓰기"
+                      variant="primary"
+                      onClick={() => navigate("/usedTrade/used-trade-write")}
+                    />
+                  </Header>
+                  <CardGrid>
+                    {Array.from({ length: 20 }).map((_, index) => (
+                      <Card 
+                        key={index} 
+                        title={`상품 ${index + 1}`} 
+                        location="동래구"
+                        onClick={() => navigate(`/UsedTrade/used-trade-view/${index + 1}`)}  // 클릭 시 해당 상세페이지로 이동
+                        style={{ cursor: "pointer" }}
+                     />
+                   ))}
+                  </CardGrid>
                 </Main>
             </Content>
         </Container>
