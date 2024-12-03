@@ -67,14 +67,17 @@ export default function CommunityPage(props) {
   const [sort, setSort] = useState(""); // sort 상태 변수 추가
 
   useEffect(() => {
-    axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
+    axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
       setCategoryData(response.data.filters);
     })
-    .catch((error) => {
-      console.error("카테고리를 불러오는데 실패했습니다." + error);
-    });
-
-    axios.get("/api/community").then((response) => { // {{ edit_2 }} API 호출
+      .catch((error) => {
+        console.error("카테고리를 불러오는데 실패했습니다." + error);
+      });
+  }, []);
+  
+// {{ edit_2 }}
+useEffect(() => { // useEffect 괄호 수정
+    axios.get("/api/community").then((response) => { // API 호출
       setCommunityList(response.data); // 커뮤니티 리스트 설정
     })
     .catch((error) => {
@@ -85,24 +88,27 @@ export default function CommunityPage(props) {
   return(
     <Container>
         <HeadContainer>
-        <h2>{`${location.si} ${location.gu} ${location.dong} ${category === 'all' ? "" : category} 동네생활`}</h2>
+        <h2>{`${location.si} ${location.gu} ${category === 'all' ? `${location.dong ? location.dong : ''} 동네생활` : category === '전체' ? '동네생활' : `${category}`} `}</h2>
         <Button title="+ 글쓰기" width onClick={() => navigate("/community/write")} />
         </HeadContainer>
         <InnerContainer>
-            <FilterBar>
-                <div className="filterItem">                    
-                    <div className="filterList">
-                        <div onClick={() => setCategory('all')} style={{ cursor: 'pointer', fontWeight: category === 'all' ? 'bold' : 'normal' }}>                            
-                            <img src="/images/favorite.png" alt="인기글" style={{ width: '20px', height: '20px', marginTop: '2px', verticalAlign: 'middle' }}/>
-                            인기글
+        <FilterBar>
+              <div className="filterItem">                    
+                  <div className="filterList">
+                      {categoryData.map((item, index) => ( // 라디오 버튼 제거 및 이미지 조건 추가
+                        <div key={item.name} onClick={() => setCategory(item.name)} style={{ cursor: 'pointer', fontWeight: item.name === category ? 'bold' : 'normal', margin: '8px 0' }}> {/* 카테고리 간의 간격 추가 */}
+                          {index === 0 ? ( // 첫 번째 카테고리만 이미지 추가
+                            <>
+                              <img src="/images/favorite.png" alt={item.name} style={{ width: '20px', height: '20px', marginTop: '-4px', verticalAlign: 'middle' }}/> {/* 카테고리 이미지 추가 */}
+                              {item.name}
+                            </>
+                          ) : (
+                            item.name
+                          )}
                         </div>
-                        {["맛집", "반려동물", "운동", "생활/편의", "분실/실종", "병원/약국", "고민/사연", "동네친구", "이사/시공", "주거/부동산", "교육", "취미", "동네사건사고", "동네풍경", "미용", "임신/육아", "일반"].map((item) => (
-                            <div key={item} onClick={() => setCategory(item)} style={{ cursor: 'pointer', fontWeight: category === item ? 'bold' : 'normal' }}>
-                                {item}
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                      ))}
+                  </div>
+              </div>
             </FilterBar>
             <ListContainer>
             {communityList.length === 0 && <NoSearchResult>
