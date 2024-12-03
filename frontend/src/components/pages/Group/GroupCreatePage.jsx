@@ -5,6 +5,8 @@ import styled from "styled-components";
 import Button from "../../ui/Button";
 import RoundFilter from "../../ui/RoundFilter";
 import { singleFileUpload } from "../../../firebase";
+import Radio from "../../ui/Radio";
+import Switch from "../../ui/Switch";
 
 
 const Container = styled.div`
@@ -27,6 +29,12 @@ const Item = styled.div`
   gap: 8px;
   margin-bottom: 16px;
   width: 100%;
+  
+  .checkbox-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
 `;
 
 const InputContainer = styled.div`
@@ -81,10 +89,65 @@ const SelectBox = styled.label`
   padding: 24px;
   border-width: 1px;
   border-style: solid;
-  border-color: ${props => props.selected ? "#666666" : "#cccccc"};
+  border-color: ${props => props.selected ? "#999999" : "#cccccc"};
   border-radius: 8px;
-  background-color: ${props => props.selected ? "#dddddd" : "white"};
-    
+  background-color: ${props => props.selected ? "#ebebeb" : "white"};
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const FileInputContainer = styled.div` 
+  display: flex;
+  justify-content: start;
+  gap: 16px;
+`;
+
+const CustomFileInput = styled.div`
+  display: flex;
+  width: 160px;
+  height: 160px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  .camera-icon {
+    width: 50%;
+    height: 50%;
+  }
+`;
+
+const ImagePreview = styled.div`
+  width: 160px;
+  height: 160px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  position: relative;
+  
+  .preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .delete-button {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: -8px;
+    right: -8px;
+    background-color: black;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+  }
 `;
 
 const ageData = [
@@ -110,7 +173,7 @@ export default function GroupCreatePage(props) {
   const [description, setDescription] = useState("");
   const [range, setRange] = useState("0");
   const [requireApproval, setRequireApproval] = useState(false);
-  const [age, setAge] = useState("");
+  const [age, setAge] = useState(ageData[0]);
   const [ageInput, setAgeInput] = useState(false);
   const [ageInputValue, setAgeInputValue] = useState({ min: 0, max: 0 });
   const [maxMember, setMaxMember] = useState(0);
@@ -118,6 +181,7 @@ export default function GroupCreatePage(props) {
   const [requireIdCheck, setRequireIdCheck] = useState(false);
   const [useNickname, setUseNickname] = useState(false);
   const [image, setImage] = useState(null);
+  const [location, setLocation] = useState({ sido: "부산광역시", sigungu: "해운대구", emd: "반송동" }); // 로그인 구현 될때까지 기본 위치
 
 
   useEffect(() => {
@@ -142,12 +206,16 @@ export default function GroupCreatePage(props) {
     setImage(e.target.files[0]);
   }
 
+  const handleCustomFileInputClick = () => {
+    document.querySelector('input[type="file"]').click();
+  }
+
   const createGroup = async () => {
     let imageInfo = null;
     try {
       if (image !== null) {
-      imageInfo = await singleFileUpload(image);
-      console.log(imageInfo);
+        imageInfo = await singleFileUpload(image);
+        console.log(imageInfo);
       }
 
       const response = await axios.post("/api/group/save", {
@@ -160,7 +228,9 @@ export default function GroupCreatePage(props) {
         ageRange: age,
         maxMember: maxMember,
         useNickname: useNickname,
-        image: imageInfo
+        image: imageInfo,
+        boards: ["자유 게시판"],
+        location: location,
       });
       alert("모임이 생성되었습니다.");
       navigate("/group");
@@ -189,8 +259,8 @@ export default function GroupCreatePage(props) {
         <h4>카테고리</h4>
         <RadioContainer>
           {categoryData.map((item) => (<>
-            <RoundFilter key={item.name} title={item.name} variant={category === item.name ? 'selected' : 'category'} value={item.name} onClick={() => setCategory(item.name)} />
-            </>
+            <RoundFilter key={item.name} title={item.name} variant={category === item.name ? 'selected' : 'category'} value={item.name} onClick={() => {setCategory(item.name)}} />
+          </>
           ))}
         </RadioContainer>
       </Item>
@@ -220,7 +290,7 @@ export default function GroupCreatePage(props) {
           {rangeData.map((item) => (
             <SelectBox key={item.value} selected={item.value === range}>
               {item.name}
-              <input type="radio" defaultChecked={item.value === "0"} name="range" value={item.value} onChange={(e) => setRange(e.target.value)} />
+              <Radio big checked={range === item.value} name="range" value={item.value} onChange={(e) => setRange(e.target.value)} />
             </SelectBox>
           ))}
         </SelectBoxContainer>
@@ -231,11 +301,11 @@ export default function GroupCreatePage(props) {
         <SelectBoxContainer>
           <SelectBox selected={requireApproval === false}>
             바로 가입
-            <input type="radio" defaultChecked name="requireApproval" value={false} onChange={(e) => setRequireApproval(e.target.value === 'true')} />
+            <Radio big checked={requireApproval === false} name="requireApproval" value={false} onChange={(e) => setRequireApproval(e.target.value === 'true')} />
           </SelectBox>
           <SelectBox selected={requireApproval === true}>
             승인 후 가입
-            <input type="radio" name="requireApproval" value={true} onChange={(e) => setRequireApproval(e.target.value === 'true')} />
+            <Radio big checked={requireApproval === true} name="requireApproval" value={true} onChange={(e) => setRequireApproval(e.target.value === 'true')} />
           </SelectBox>
         </SelectBoxContainer>
       </Item>
@@ -245,10 +315,14 @@ export default function GroupCreatePage(props) {
         <p>연령대</p>
         <RadioContainer>
           {ageData.map((item) => (
-            <label>
-              {item}
-              <input type="radio" defaultChecked={item === '누구나'} name="age" value={item} onChange={(e) => { item === '직접 입력' ? setAgeInput(true) : setAge(e.target.value) }} />
-            </label>
+              <RoundFilter title={item} variant={((ageInput && item === '직접 입력') ||  (item === age)) ? 'selected' : 'category' } value={item} onClick={() => {
+                if (item === '직접 입력') {
+                  setAgeInput(true);
+                  setAge('직접 입력');
+                } else {
+                  setAgeInput(false);
+                  setAge(item);
+              }}} />
           ))}
           {ageInput && (
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
@@ -273,10 +347,15 @@ export default function GroupCreatePage(props) {
         <RadioContainer>
           {maxMemberData.map((item) => (
             <>
-              <label>
-                {item === 0 ? "제한없음" : item === -1 ? "직접 입력" : item}
-                <input type="radio" defaultChecked={item === 0} name="maxMember" value={item} onChange={(e) => { item === -1 ? setMaxMemberInput(true) : setMaxMember(e.target.value) }} />
-              </label>
+            <RoundFilter title={item === 0 ? "제한없음" : item === -1 ? "직접 입력" : item} variant={item === maxMember ? 'selected' : 'category'} value={item} onClick={() => { 
+              if (item === -1) {
+                setMaxMemberInput(true);
+                setMaxMember(-1);
+              } else {
+                setMaxMemberInput(false);
+                setMaxMember(item);
+              } 
+            }} />
             </>
           ))}
           {maxMemberInput && (
@@ -296,18 +375,18 @@ export default function GroupCreatePage(props) {
       <Item>
         <h2>본인인증이 필요한 모임인가요?</h2>
         <p>본인인증을 완료한 이웃만 모임에 가입할 수 있어요.</p>
-        <label>
+        <label className="checkbox-wrap">
           본인인증 사용
-          <input type="checkbox" value={requireIdCheck} onChange={(e) => setRequireIdCheck(e.target.checked)} />
+          <Switch value={requireIdCheck} checked={requireIdCheck} onChange={(e) => setRequireIdCheck(e.target.checked)} />
         </label>
       </Item>
 
       <Item>
         <h2>별명을 사용할까요?</h2>
         <p>별명은 이 모임에서만 닉네임 옆에 함께 표시돼요.</p>
-        <label>
+        <label className="checkbox-wrap">
           별명 사용
-          <input type="checkbox" value={useNickname} onChange={(e) => setUseNickname(e.target.checked)} />
+          <Switch value={useNickname} checked={useNickname} onChange={(e) => setUseNickname(e.target.checked)} />
         </label>
       </Item>
 
@@ -325,7 +404,18 @@ export default function GroupCreatePage(props) {
       <Item>
         <h2>대표사진을 등록해주세요</h2>
         <p>전체 모임 목록에서 보이는 대표 이미지에요.</p>
-        <input type="file" onChange={handleImageChange} />
+        <FileInputContainer>
+          <input style={{ display: "none" }} type="file" onChange={handleImageChange} />
+          <CustomFileInput onClick={handleCustomFileInputClick}>
+            <img className="camera-icon" src="/images/icon/camera.svg" alt="대표 이미지 등록" />
+          </CustomFileInput>
+          {image && <ImagePreview>
+            <img className="preview" src={URL.createObjectURL(image)} alt="대표 이미지" />
+            <button className="delete-button" onClick={() => setImage(null)}>
+              <img src="/images/icon/cancel.svg" alt="삭제" />
+            </button>
+          </ImagePreview>}
+        </FileInputContainer>
       </Item>
 
       <ButtonContainer>

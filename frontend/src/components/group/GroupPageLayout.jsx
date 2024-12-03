@@ -120,13 +120,13 @@ export default function GroupPageLayout(props) {
             {group.description}
           </div>
           <div className="tags">
-            <SquareFilter title={group.location?.dong ?? group.location?.gu} variant="tag" />
+            <SquareFilter title={group.location?.emd ?? group.location?.sigungu} variant="tag" />
             <SquareFilter title={group.category} variant="tag" />
             {group.ageRange && <SquareFilter title={group.ageRange} variant="tag" />}
           </div>
           <Button title="입장하기" variant="primary" />
           <ButtonGroup>
-            <Button title="모임 수정" grow />
+            <Button title="모임 수정" grow onClick={() => navigate(`/group/edit/${group.id}`)} />
             <Button title="모임 삭제" grow onClick={() => setModalOpen(true)} />
           </ButtonGroup>
         </GroupDescContainer>

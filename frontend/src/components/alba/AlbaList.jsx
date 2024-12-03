@@ -1,39 +1,88 @@
-import React, { useState } from "react";
-import "../../styles/AlbaList.css";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import "../../styles/AlbaStyled.css";
 
 const AlbaList = () => {
   const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
   const [selectedRegion, setSelectedRegion] = useState(""); // 지역 선택 상태
+  const [selectedType, setSelectedType] = useState([]); // 근무 유형 필터
+  const [selectedCategory, setSelectedCategory] = useState([]); // 카테고리 필터
+  const [data, setData] = useState([]); // 게시글 데이터 상태
+  const navigate = useNavigate();
+
+  // 데이터 불러오기
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/api/alba"); // API 호출
+        setData(response.data);
+      } catch (error) {
+        console.error("데이터 불러오기 실패:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // 검색 및 필터링된 데이터 계산
+  const filteredData = data.filter((item) => {
+    const matchesSearchTerm =
+      item.title.includes(searchTerm) || item.location.includes(searchTerm);
+    const matchesRegion =
+      selectedRegion === "" || item.location.includes(selectedRegion);
+    const matchesType =
+      selectedType.length === 0 || selectedType.includes(item.type);
+    const matchesCategory =
+      selectedCategory.length === 0 || selectedCategory.includes(item.category);
+
+    return (
+      matchesSearchTerm && matchesRegion && matchesType && matchesCategory
+    );
+  });
 
   // 검색어 입력 핸들러
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value); // 검색어 상태 업데이트
+    setSearchTerm(e.target.value);
   };
 
   // 지역 선택 핸들러
   const handleRegionChange = (e) => {
-    setSelectedRegion(e.target.value); // 지역 선택 상태 업데이트
+    setSelectedRegion(e.target.value);
+  };
+
+  // 필터 핸들러
+  const handleFilterChange = (e, filterType) => {
+    const value = e.target.value;
+    const checked = e.target.checked;
+
+    if (filterType === "type") {
+      setSelectedType((prev) =>
+        checked ? [...prev, value] : prev.filter((item) => item !== value)
+      );
+    } else if (filterType === "category") {
+      setSelectedCategory((prev) =>
+        checked ? [...prev, value] : prev.filter((item) => item !== value)
+      );
+    }
+  };
+
+  // 상세 페이지 이동 핸들러
+  const handleClick = (id) => {
+    navigate(`/alba/${id}`);
   };
 
   return (
     <div className="alba-page">
       {/* 검색창 */}
       <div className="search-bar">
-        {/* 지역 선택 필터 */}
         <select
           value={selectedRegion}
           onChange={handleRegionChange}
           className="region-filter"
         >
           <option value="">전체 지역</option>
-          <option value="서울">서울</option>
-          <option value="부산">부산</option>
-          <option value="대구">대구</option>
-          <option value="인천">인천</option>
-          <option value="광주">광주</option>
-          <option value="대전">대전</option>
-          <option value="울산">울산</option>
-          <option value="세종">세종</option>
+          <option value="강남구">강남구</option>
+          <option value="해운대구">해운대구</option>
         </select>
         <input
           type="text"
@@ -41,50 +90,78 @@ const AlbaList = () => {
           value={searchTerm}
           onChange={handleSearchChange}
         />
-        <button>검색</button> {/* TODO: 검색 기능 구현 필요 */}
+        <button>검색</button>
       </div>
 
-      <div className="alba-content">
-        {/* 필터 섹션 */}
+      {/* 리스트 섹션 */}
+      <div className="alba-content-list">
         <aside className="filter-section">
           <h3>필터</h3>
-          {/* TODO: 필터 상태 관리 추가 */}
+          <h4>근무 유형</h4>
           <label>
-            <input type="checkbox" name="type" value="단기" />
+            <input
+              type="checkbox"
+              value="단기"
+              onChange={(e) => handleFilterChange(e, "type")}
+            />
             단기
           </label>
           <label>
-            <input type="checkbox" name="type" value="장기" />
+            <input
+              type="checkbox"
+              value="장기"
+              onChange={(e) => handleFilterChange(e, "type")}
+            />
             장기
           </label>
-          <h4>카테고리</h4>
+          <h4>하는 일</h4>
           <label>
-            <input type="checkbox" name="category" value="서빙" />
+            <input
+              type="checkbox"
+              value="서빙"
+              onChange={(e) => handleFilterChange(e, "category")}
+            />
             서빙
           </label>
           <label>
-            <input type="checkbox" name="category" value="매장관리" />
-            매장관리
+            <input
+              type="checkbox"
+              value="청소"
+              onChange={(e) => handleFilterChange(e, "category")}
+            />
+            청소
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              value="배달"
+              onChange={(e) => handleFilterChange(e, "category")}
+            />
+            배달
           </label>
         </aside>
 
         {/* 게시글 리스트 */}
-        <div className="alba-list">
-          <h3>게시글 리스트</h3>
-          {/* TODO: 게시글 데이터를 동적으로 렌더링 */}
-          <div className="alba-item">
-            <h4>서빙 알바 모집</h4>
-            <p>위치: 서울 강남구</p>
-            <p>시급: 12,000원</p>
-            <p>근무 시간: 10:00 ~ 18:00</p>
-          </div>
-          <div className="alba-item">
-            <h4>청소 알바 모집</h4>
-            <p>위치: 부산 해운대구</p>
-            <p>시급: 15,000원</p>
-            <p>근무 시간: 14:00 ~ 20:00</p>
-          </div>
-          {/* TODO: 게시글 데이터가 없을 때 '결과 없음' 메시지 표시 */}
+        <div className="alba-list-container">
+          {filteredData.length > 0 ? (
+            filteredData.map((item) => (
+              <div
+                key={item._id}
+                className="alba-item"
+                onClick={() => handleClick(item.id)}
+              >
+                <h4>{item.title}</h4>
+                <p>위치: {item.location}</p>
+                <p>시급: {item.wage}</p>
+                <p>
+                  근무 시간: {item.workTime?.start} ~ {item.workTime?.end}
+                </p>
+                <p>근무 요일: {item.workDays?.join(", ")}</p>
+              </div>
+            ))
+          ) : (
+            <p>검색 결과가 없습니다.</p>
+          )}
         </div>
       </div>
     </div>
