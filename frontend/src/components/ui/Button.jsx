@@ -61,8 +61,6 @@ const StyledButton = styled.button`
                 `;
             default:
                 return ``;
-            default:
-                return ``;
         };
     }}
 `;
