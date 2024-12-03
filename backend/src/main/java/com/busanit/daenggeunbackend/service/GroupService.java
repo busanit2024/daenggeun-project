@@ -4,6 +4,8 @@ import com.busanit.daenggeunbackend.domain.GroupDTO;
 import com.busanit.daenggeunbackend.entity.Group;
 import com.busanit.daenggeunbackend.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,20 +37,20 @@ public class GroupService {
     groupRepository.deleteById(id);
   }
 
-  public List<GroupDTO> search(String sigungu, String emd, String category, String sort) {
+  public Slice<GroupDTO> searchPage(String sigungu, String emd, String category, String sort, Pageable pageable) {
     if (Objects.equals(category, "all")) {
-      List<Group> groups = switch (sort) {
-        case "name" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingOrderByTitleAsc(sigungu, emd);
-        case "recent" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingOrderByCreatedDateDesc(sigungu, emd);
-        default -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContaining(sigungu, emd);
+      Slice<Group> groups = switch (sort) {
+        case "name" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingOrderByTitleAsc(sigungu, emd, pageable);
+        case "recent" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingOrderByCreatedDateDesc(sigungu, emd, pageable);
+        default -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContaining(sigungu, emd, pageable);
       };
       return GroupDTO.toDTO(groups);
     }
 
-    List<Group> groups = switch (sort) {
-      case "name" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByTitleAsc(sigungu, emd, category);
-      case "recent" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByCreatedDateDesc(sigungu, emd, category);
-      default -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(sigungu, emd, category);
+    Slice<Group> groups = switch (sort) {
+      case "name" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByTitleAsc(sigungu, emd, category, pageable);
+      case "recent" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByCreatedDateDesc(sigungu, emd, category, pageable);
+      default -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(sigungu, emd, category, pageable);
     };
     return GroupDTO.toDTO(groups);
   }

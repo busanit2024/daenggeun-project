@@ -1,6 +1,8 @@
 package com.busanit.daenggeunbackend.repository;
 
 import com.busanit.daenggeunbackend.entity.Group;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,17 +10,16 @@ import java.util.List;
 
 @Repository
 public interface GroupRepository extends MongoRepository<Group, String> {
+    Slice<Group> findAllByLocationSigunguContainingAndLocationEmdContaining(String locationSigungu, String locationEmd, Pageable pageable);
 
-  List<Group> findAllByLocationSigunguContainingAndLocationEmdContaining(String locationSigungu, String locationEmd);
+  Slice<Group> findAllByLocationSigunguContainingAndLocationEmdContainingOrderByTitleAsc(String locationSigungu, String locationEmd , Pageable pageable);
 
-  List<Group> findAllByLocationSigunguContainingAndLocationEmdContainingOrderByTitleAsc(String locationSigungu, String locationEmd);
+  Slice<Group> findAllByLocationSigunguContainingAndLocationEmdContainingOrderByCreatedDateDesc(String locationSigungu, String locationEmd , Pageable pageable);
 
-  List<Group> findAllByLocationSigunguContainingAndLocationEmdContainingOrderByCreatedDateDesc(String locationSigungu, String locationEmd);
+  Slice<Group> findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(String locationSigungu, String locationEmd, String category , Pageable pageable);
 
-  List<Group> findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(String locationSigungu, String locationEmd, String category);
+  Slice<Group> findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByCreatedDateDesc(String locationSigungu, String locationEmd, String category , Pageable pageable);
 
-  List<Group> findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByCreatedDateDesc(String locationSigungu, String locationEmd, String category);
-
-  List<Group> findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByTitleAsc(String locationSigungu, String locationEmd, String category);
+  Slice<Group> findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByTitleAsc(String locationSigungu, String locationEmd, String category , Pageable pageable);
 }
 
