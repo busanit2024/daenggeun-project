@@ -14,6 +14,9 @@ import UsedTradeUpdate from './components/pages/UsedTrade/UsedTradeUpdate';
 
 import AlbaPage from './components/alba/AlbaPage';
 import AlbaList from './components/alba/AlbaList';
+import GroupEditPage from './components/pages/Group/GroupEditPage';
+import LoginPage from './components/pages/Login/LoginPage';
+import MainPage from './components/pages/MainPage';
 import AlbaCreate from "./components/alba/AlbaCreate";
 import AlbaDetail from "./components/alba/AlbaDetail";
 import AlbaEdit from "./components/alba/AlbaEdit";
@@ -27,10 +30,12 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>
-            <Route index element={<h1>메인 페이지입니다</h1>} />
+            <Route path="/" element={<MainPage />} />
             <Route path="group" element={<GroupPage />} />
             <Route path="group/view/:groupId" element={<GroupViewPage />} />
             <Route path="group/create" element={<GroupCreatePage />} />
+            <Route path="group/edit/:groupId" element={<GroupEditPage />} />
+            <Route path="alba" element={<AlbaList />} />
 
             <Route path="alba" element={<AlbaPage />} />
             <Route path="alba/create" element={<AlbaCreate />} />
@@ -41,6 +46,7 @@ function App() {
             <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
             <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
             <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
+            <Route path="Login" element={<LoginPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@firebase/storage": "^0.13.4",
+    "@googlemaps/react-wrapper": "^1.1.42",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -13,6 +14,7 @@
     "mongoose": "^8.8.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^7.0.1",
     "react-scripts": "5.0.1",
     "styled-components": "^6.1.13",
