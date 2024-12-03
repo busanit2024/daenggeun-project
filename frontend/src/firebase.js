@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -45,4 +45,20 @@ const multipleFileUpload = async (files) => {
   return Promise.all(promises);
 };
 
-export { storage, app as default, singleFileUpload };
+const deleteFile = async (filename) => {
+  const storageRef = ref(storage, `image/${filename}`);
+  try {
+    await getDownloadURL(storageRef);
+    await deleteObject(storageRef);
+  } catch (error) {
+    if (error.code === 'storage/object-not-found') {
+      console.error('File not found');
+      return;
+    } else {
+      console.error('Error deleting file:', error);
+      throw error;
+    }
+  }
+};
+
+export { storage, app as default, singleFileUpload, deleteFile };
