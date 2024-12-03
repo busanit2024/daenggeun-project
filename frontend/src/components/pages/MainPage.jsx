@@ -3,6 +3,7 @@ import styled from "styled-components";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
 import imageData from "../../asset/imageData";
+import "../../styles/carouselOverrides.css"
 
 
 const Wrapper = styled.div`
@@ -28,8 +29,28 @@ const StyledCarousel = styled(Carousel)`
         background-color:transparent;
         border : none;
         font-size:30px;
-        color : gray;
         z-index :10;
+    }
+
+    .carousel .control-arrow:hover {
+        background-color: transparent;
+    }
+
+    .carousel .control-arrow::before {
+        color: black !important;
+        font-size: 30px !important;
+    }
+
+    .carousel .control-arrow.control-prev {
+        left : 10px;
+    }
+
+    .carousel .control-arrow.control-next {
+        right : 10px;
+    }
+
+    .carousel .control-arrow svg {
+        fill: black !important;
     }
 `;
 
