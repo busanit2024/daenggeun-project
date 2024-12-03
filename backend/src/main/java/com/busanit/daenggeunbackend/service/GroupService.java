@@ -6,7 +6,6 @@ import com.busanit.daenggeunbackend.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,20 +35,20 @@ public class GroupService {
     groupRepository.deleteById(id);
   }
 
-  public List<GroupDTO> search(String gu, String dong, String category, String sort) {
+  public List<GroupDTO> search(String sigungu, String emd, String category, String sort) {
     if (Objects.equals(category, "all")) {
       List<Group> groups = switch (sort) {
-        case "name" -> groupRepository.findAllByLocationGuContainingOrLocationDongContainingOrderByTitleAsc(gu, dong);
-        case "recent" -> groupRepository.findAllByLocationGuContainingOrLocationDongContainingOrderByCreatedDateDesc(gu, dong);
-        default -> groupRepository.findAllByLocationGuContainingOrLocationDongContaining(gu, dong);
+        case "name" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingOrderByTitleAsc(sigungu, emd);
+        case "recent" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingOrderByCreatedDateDesc(sigungu, emd);
+        default -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContaining(sigungu, emd);
       };
       return GroupDTO.toDTO(groups);
     }
 
     List<Group> groups = switch (sort) {
-      case "name" -> groupRepository.findAllByLocationGuContainingOrLocationDongContainingAndCategoryOrderByTitleAsc(gu, dong, category);
-      case "recent" -> groupRepository.findAllByLocationGuContainingOrLocationDongContainingAndCategoryOrderByCreatedDateDesc(gu, dong, category);
-      default -> groupRepository.findAllByLocationGuContainingOrLocationDongContainingAndCategory(gu, dong, category);
+      case "name" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByTitleAsc(sigungu, emd, category);
+      case "recent" -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByCreatedDateDesc(sigungu, emd, category);
+      default -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(sigungu, emd, category);
     };
     return GroupDTO.toDTO(groups);
   }

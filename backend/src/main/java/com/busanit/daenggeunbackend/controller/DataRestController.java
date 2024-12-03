@@ -1,7 +1,6 @@
 package com.busanit.daenggeunbackend.controller;
 
 import com.busanit.daenggeunbackend.domain.FilterDataDTO;
-import com.busanit.daenggeunbackend.entity.FilterData;
 import com.busanit.daenggeunbackend.service.FilterDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
