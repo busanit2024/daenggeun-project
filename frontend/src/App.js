@@ -7,6 +7,9 @@ import GroupViewPage from './components/pages/Group/GroupViewPage';
 import GroupCreatePage from './components/pages/Group/GroupCreatePage';
 import Layout from './Layout';
 import UsedTrade from './components/pages/UsedTrade/UsedTrade';
+import UsedTradeView from './components/pages/UsedTrade/UsedTradeView';
+import UsedTradeWrite from './components/pages/UsedTrade/UsedTradeWrite';
+import UsedTradeUpdate from './components/pages/UsedTrade/UsedTradeUpdate';
 import AlbaList from './components/alba/AlbaList';
 import LoginPage from './components/pages/Login/LoginPage';
 import MainPage from './components/pages/MainPage';
@@ -25,6 +28,9 @@ function App() {
             <Route path="group/create" element={<GroupCreatePage />} />
             <Route path="alba" element={<AlbaList />} />
             <Route path="usedTrade/used-trade" element={<UsedTrade />} />
+            <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
+            <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
+            <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
             <Route path="Login" element={<LoginPage />} />
           </Route>
         </Routes>
