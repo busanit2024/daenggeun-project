@@ -69,6 +69,8 @@ export default function GroupPage(props) {
   const [sort, setSort] = useState("");
   const [busanJuso, setBusanJuso] = useState([]);
   const [emdList, setEmdList] = useState([]);
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -86,13 +88,7 @@ export default function GroupPage(props) {
   }, []);
 
   useEffect(() => {
-    axios.get(`api/group/search?sigungu=${location.sigungu}&emd=${location.emd}&category=${category}&sort=${sort}`).then((response) => {
-      setGroupList(response.data);
-    })
-      .catch((error) => {
-        console.error("모임 리스트를 불러오는데 실패했습니다." + error);
-      });
-
+    fetchGroupList(0);
   }, [location, category, sort]);
 
   useEffect(() => {
@@ -105,6 +101,26 @@ export default function GroupPage(props) {
     setSort("");
   }
 
+  const fetchGroupList = async (page) => {
+    try {
+      const response = await axios.get(`api/group/search`, {
+        params: {
+          sigungu: location.sigungu,
+          emd: location.emd,
+          category: category,
+          sort: sort,
+          page: page,
+          size: 10,
+        }
+      });
+      const newGroupList = response.data.content;
+      setGroupList((prevGroups) => (page === 0 ? newGroupList : [...prevGroups, ...newGroupList]));
+      setHasNext(!response.data.last);
+    } catch (error) {
+      console.error("모임 리스트를 불러오는데 실패했습니다." + error);
+    }
+  };
+
   const getEmdList = (gu) => {
     if (busanJuso && gu) {
     const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
@@ -112,6 +128,11 @@ export default function GroupPage(props) {
     setEmdList(emdNameList);
     }
   }
+
+  const handleMoreButton = () => {
+    fetchGroupList(page + 1);
+    setPage(page + 1);
+  };
 
   return (
     <Container>
@@ -193,7 +214,7 @@ export default function GroupPage(props) {
           {groupList?.map((group) => (
             <GroupListItem key={group.id} group={group} />
           ))}
-          <Button title="더보기" />
+{hasNext &&           <Button title="더보기" onClick={handleMoreButton} />}
         </ListContainer>
 
       </InnerContainer>
