@@ -28,6 +28,7 @@ public class Group {
   private Location location;
   private GroupRange groupRange; // 그룹 회원 거리 제한
   private String category;
+  private List<String> boards;
   @CreatedDate
   private LocalDateTime createdDate;
   private Boolean requireIdCheck; // 본인인증 필요 여부
@@ -49,6 +50,7 @@ public class Group {
             .location(groupDTO.getLocation())
             .groupRange(groupDTO.getGroupRange())
             .category(groupDTO.getCategory())
+            .boards(groupDTO.getBoards())
             .createdDate(groupDTO.getCreatedDate())
             .requireIdCheck(groupDTO.getRequireIdCheck())
             .requireApproval(groupDTO.getRequireApproval())

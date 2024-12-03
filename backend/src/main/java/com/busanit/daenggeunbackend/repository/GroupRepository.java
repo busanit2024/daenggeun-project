@@ -9,16 +9,16 @@ import java.util.List;
 @Repository
 public interface GroupRepository extends MongoRepository<Group, String> {
 
-  List<Group> findAllByLocationGuContainingOrLocationDongContaining(String locationSi, String locationDong);
+  List<Group> findAllByLocationSigunguContainingAndLocationEmdContaining(String locationSigungu, String locationEmd);
 
-  List<Group> findAllByLocationGuContainingOrLocationDongContainingOrderByTitleAsc(String locationSi, String locationDong);
+  List<Group> findAllByLocationSigunguContainingAndLocationEmdContainingOrderByTitleAsc(String locationSigungu, String locationEmd);
 
-  List<Group> findAllByLocationGuContainingOrLocationDongContainingOrderByCreatedDateDesc(String locationSi, String locationDong);
+  List<Group> findAllByLocationSigunguContainingAndLocationEmdContainingOrderByCreatedDateDesc(String locationSigungu, String locationEmd);
 
-  List<Group> findAllByLocationGuContainingOrLocationDongContainingAndCategory(String locationSi, String locationDong, String category);
+  List<Group> findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(String locationSigungu, String locationEmd, String category);
 
-  List<Group> findAllByLocationGuContainingOrLocationDongContainingAndCategoryOrderByCreatedDateDesc(String locationSi, String locationDong, String category);
+  List<Group> findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByCreatedDateDesc(String locationSigungu, String locationEmd, String category);
 
-  List<Group> findAllByLocationGuContainingOrLocationDongContainingAndCategoryOrderByTitleAsc(String locationSi, String locationDong, String category);
+  List<Group> findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByTitleAsc(String locationSigungu, String locationEmd, String category);
 }
 
