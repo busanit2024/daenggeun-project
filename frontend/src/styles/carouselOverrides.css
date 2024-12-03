@@ -1,0 +1,12 @@
+.carousel .carousel-slider .control-arrow {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.carousel .carousel-slider .control-arrow svg {
+    fill: black !important; /* SVG 화살표 색상 */
+}
+
+.carousel .carousel-slider .control-arrow svg path {
+    fill: black !important; /* SVG 내부 path 색상 */
+}
