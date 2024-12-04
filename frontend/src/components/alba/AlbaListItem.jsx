@@ -4,7 +4,9 @@ import { useNavigate } from 'react-router-dom';
 
 const ListItemContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   border: 1px solid #ddd;
   padding: 16px;
   border-radius: 8px;
@@ -13,6 +15,24 @@ const ListItemContainer = styled.div`
   &:hover {
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   }
+`;
+
+const DetailsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ImageContainer = styled.div`
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  border-radius: 8px;
+`;
+
+const Image = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 const Title = styled.h3`
@@ -35,14 +55,26 @@ const Category = styled.span`
   align-self: flex-start;
 `;
 
-const WorkType = styled.span`
+const DetailsRow = styled.div`
+  display: flex;
+  gap: 10px;
   margin-top: 8px;
+`;
+
+const WorkType = styled.span`
   background-color: #e6f7ff;
   color: #007bff;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.9rem;
-  align-self: flex-start;
+`;
+
+const WorkTime = styled.span`
+  background-color: #e6f7ff;
+  color: #007bff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
 `;
 
 export default function AlbaListItem({ alba }) {
@@ -54,10 +86,20 @@ export default function AlbaListItem({ alba }) {
 
   return (
     <ListItemContainer onClick={handleClick}>
-      <Title>{alba.title}</Title>
-      <Location>{`${alba.location.si} ${alba.location.gu} ${alba.location.dong}`}</Location>
-      <Category>{alba.category}</Category>
-      {alba.workType && <WorkType>{alba.workType}</WorkType>}
+      <DetailsContainer>
+        <Title>{alba.title}</Title>
+        <Location>{`${alba.location}`}</Location>
+        <Category>{alba.wage}</Category>
+        <DetailsRow>
+          <WorkTime>{alba.workTime?.start} ~ {alba.workTime?.end}</WorkTime>
+          {alba.workType && <WorkType>{alba.workType}</WorkType>}
+        </DetailsRow>
+      </DetailsContainer>
+      {alba.image && (
+        <ImageContainer>
+          <Image src={alba.image} alt={alba.title} />
+        </ImageContainer>
+      )}
     </ListItemContainer>
   );
 }
