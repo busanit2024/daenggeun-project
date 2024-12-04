@@ -1,5 +1,6 @@
 package com.busanit.daenggeunbackend.entity;
 
+import com.busanit.daenggeunbackend.domain.Image;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -16,18 +17,27 @@ public class Alba {
     @Id
     private String id; // 알바 ID
     private String creatorId; // 작성자 ID
+
+
     private String title; // 제목
     private String description; // 상세내용
     private String createdAt; // 작성시간 (ISO 8601 형식 추천)
-    private String wage; // 시급/월급
+    private String wageType; //건당/시급/일급/월급
+    private String wage; // 지급액수
     private String task; // 하는 일
-    private String workType; // 근무 유형 (단기/장기)
+    private String workPeriod; // 근무 기간 (1개월 이상/ 단기)
     private List<String> workDays; // 근무요일
     private WorkTime workTime; // 근무시간
     private String location; // 위치
+    private String companyName; // 업체명
+    private String workPlace; // 일하는 장소
+    private String contactNumber; // 연락처
+    private boolean doNotContact; // 연락받지 않기
+    private boolean negotiable; // 협의 가능 여부
     private List<Application> applications; // 지원 리스트
     private List<Review> reviews; // 리뷰 리스트
     private List<String> interests; // 관심 등록한 사용자 ID 리스트
+    private Image image;
 }
 
 // 근무 시간 클래스

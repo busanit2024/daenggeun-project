@@ -184,6 +184,8 @@ export default function AlbaPage(props) {
     setCategory(e.target.value);
   };
 
+
+  
   return (
     <Container>
       {/* 검색 바 */}
