@@ -14,12 +14,15 @@ public class UserService {
     private final UserRepository userRepository;
 
     public boolean checkUniqueCode(String uniqueCode) {
-        return userRepository.findByUniqueCode(uniqueCode).isPresent();
+        return userRepository.existsByUniqueCode(uniqueCode);
     }
 
-    public User saveUser(String phone, String uid, String uniqueCode){
-        User user = new User(phone, uid, uniqueCode);
-        return userRepository.save(user);
+    public void saveUser(String phone, String uid, String uniqueCode) {
+        User user = new User();
+        user.setPhone(phone);
+        user.setUid(uid);
+        user.setUniqueCode(uniqueCode);
+        userRepository.save(user);
     }
 
     public Optional<User> findUserByPhone(String phone){
