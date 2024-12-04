@@ -1,38 +1,100 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../ui/Button";
 import InputText from "../ui/InputText";
-import "../../styles/AlbaStyled.css"; // 올바른 CSS 파일 경로
+import RoundFilter from "../ui/RoundFilter";
+import "../../styles/AlbaStyled.css";
+import styled from "styled-components";
 import axios from "axios";
-import { LOCATIONS, DAYS } from "../../constants"; // 상수 가져오기
 
 const AlbaCreate = () => {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    location: "",
+    location: { sigungu: "", emd: "" },
     wage: "",
     workDays: [],
     startTime: "",
     endTime: "",
     image: null,
+    category: []
   });
 
+  const [regionData, setRegionData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
   const navigate = useNavigate();
+
+  const StyledRoundFilter = styled(RoundFilter)`
+    padding: 4px 8px;
+    margin: 4px;
+    font-size: 0.9rem;
+    display: inline-block;
+    cursor: pointer;
+    white-space: nowrap;
+  `;
+
+  const HorizontalContainer = styled.div`
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  `;
+
+  // 지역 데이터 가져오기
+  useEffect(() => {
+    const fetchRegionData = async () => {
+      try {
+        const response = await axios.get(`/api/data/filter?name=busanJuso`);
+        setRegionData(response.data.locationFilters || []);
+      } catch (error) {
+        console.error("지역 필터 데이터를 불러오는데 실패했습니다:", error);
+      }
+    };
+    fetchRegionData();
+  }, []);
+
+  // 카테고리 데이터 가져오기
+  useEffect(() => {
+    const fetchCategoryData = async () => {
+      try {
+        const response = await axios.get(`/api/data/filter?name=albaCategory`);
+        setCategoryData(response.data.filters || []);
+      } catch (error) {
+        console.error("카테고리 필터 데이터를 불러오는데 실패했습니다:", error);
+      }
+    };
+    fetchCategoryData();
+  }, []);
 
   // 입력값 변경 핸들러
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "sigungu" || name === "emd") {
+      setForm((prevForm) => ({
+        ...prevForm,
+        location: { ...prevForm.location, [name]: value },
+      }));
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
-  // 체크박스 변경 핸들러
-  const handleCheckboxChange = (e) => {
-    const { value, checked } = e.target;
+  // 근무 요일 라운드 필터 변경 핸들러
+  const handleWorkDayChange = (day) => {
     setForm((prev) => ({
       ...prev,
-      workDays: checked
-        ? [...prev.workDays, value]
-        : prev.workDays.filter((day) => day !== value),
+      workDays: prev.workDays.includes(day)
+        ? prev.workDays.filter((d) => d !== day)
+        : [...prev.workDays, day],
+    }));
+  };
+
+  // 카테고리 필터 변경 핸들러
+  const handleCategoryChange = (category) => {
+    setForm((prev) => ({
+      ...prev,
+      category: prev.category.includes(category)
+        ? prev.category.filter((c) => c !== category)
+        : [...prev.category, category],
     }));
   };
 
@@ -47,8 +109,11 @@ const AlbaCreate = () => {
     const formData = new FormData();
 
     Object.keys(form).forEach((key) => {
-      if (key === "workDays") {
-        form[key].forEach((day) => formData.append("workDays[]", day));
+      if (key === "workDays" || key === "category") {
+        form[key].forEach((item) => formData.append(`${key}[]`, item));
+      } else if (key === "location") {
+        formData.append("sigungu", form.location.sigungu);
+        formData.append("emd", form.location.emd);
       } else {
         formData.append(key, form[key]);
       }
@@ -83,21 +148,45 @@ const AlbaCreate = () => {
           className="textarea"
         ></textarea>
 
-        <label htmlFor="location">위치</label>
-        <select
-          id="location"
-          name="location"
-          value={form.location}
-          onChange={handleChange}
-          className="dropdown"
-        >
-          <option value="">선택</option>
-          {LOCATIONS.map((location) => (
-            <option key={location} value={location}>
-              {location}
-            </option>
-          ))}
-        </select>
+        <div className="location-selection">
+          <div className="dropdown-container">
+            <label htmlFor="sigungu">구 선택</label>
+            <select
+              id="sigungu"
+              name="sigungu"
+              value={form.location.sigungu}
+              onChange={handleChange}
+              className="dropdown"
+            >
+              <option value="">구 선택</option>
+              {regionData.map((region) => (
+                <option key={region.sigungu} value={region.sigungu}>
+                  {region.sigungu}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="dropdown-container">
+            <label htmlFor="emd">동 선택</label>
+            <select
+              id="emd"
+              name="emd"
+              value={form.location.emd}
+              onChange={handleChange}
+              className="dropdown"
+              disabled={!form.location.sigungu}
+            >
+              <option value="">동 선택</option>
+              {regionData
+                .find((region) => region.sigungu === form.location.sigungu)
+                ?.emd?.map((dong) => (
+                  <option key={dong.emd} value={dong.emd}>
+                    {dong.emd}
+                  </option>
+                ))}
+            </select>
+          </div>
+        </div>
 
         <InputText
           name="wage"
@@ -108,17 +197,30 @@ const AlbaCreate = () => {
 
         <div className="work-days">
           <h3 className="section-title">근무 요일</h3>
-          {DAYS.map((day) => (
-            <label key={day} className="checkbox-label">
-              <input
-                type="checkbox"
-                value={day}
-                checked={form.workDays.includes(day)}
-                onChange={handleCheckboxChange}
+          <HorizontalContainer>
+            {"월화수목금토일".split("").map((day) => (
+              <StyledRoundFilter
+                key={day}
+                title={day}
+                variant={form.workDays.includes(day) ? "selected" : "category"}
+                onClick={() => handleWorkDayChange(day)}
               />
-              {day}
-            </label>
-          ))}
+            ))}
+          </HorizontalContainer>
+        </div>
+
+        <div className="category-selection">
+          <h3 className="section-title">하는 일</h3>
+          <HorizontalContainer>
+            {categoryData.map((item) => (
+              <StyledRoundFilter
+                key={item.name}
+                title={item.name}
+                variant={form.category.includes(item.name) ? "selected" : "category"}
+                onClick={() => handleCategoryChange(item.name)}
+              />
+            ))}
+          </HorizontalContainer>
         </div>
 
         <div className="work-time">

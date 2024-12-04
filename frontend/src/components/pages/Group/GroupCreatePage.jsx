@@ -150,6 +150,12 @@ const ImagePreview = styled.div`
   }
 `;
 
+const InputCheckMessage = styled.span`
+  color: red;
+  font-size: 14px;
+`;
+
+
 const ageData = [
   "누구나", "20대", "30대", "40대", "50대", "60대", "직접 입력",
 ]
@@ -168,20 +174,25 @@ export default function GroupCreatePage(props) {
   const [rangeData, setRangeData] = useState([]);
 
   const [step, setStep] = useState(1);
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [range, setRange] = useState("0");
-  const [requireApproval, setRequireApproval] = useState(false);
-  const [age, setAge] = useState(ageData[0]);
+  const [input, setInput] = useState({ 
+    title: "",
+    description: "", 
+    category: "", 
+    groupRange: "0", 
+    ageRange: "누구나", 
+    maxMember: 0, 
+    requireApproval: false,
+    requireIdCheck: false, 
+    useNickname: false, 
+    location: { sido: "부산광역시", sigungu: "해운대구", emd: "반송동" } // 로그인 구현될 때까지 임시 위치
+  });
+
   const [ageInput, setAgeInput] = useState(false);
   const [ageInputValue, setAgeInputValue] = useState({ min: 0, max: 0 });
-  const [maxMember, setMaxMember] = useState(0);
   const [maxMemberInput, setMaxMemberInput] = useState(false);
-  const [requireIdCheck, setRequireIdCheck] = useState(false);
-  const [useNickname, setUseNickname] = useState(false);
   const [image, setImage] = useState(null);
-  const [location, setLocation] = useState({ sido: "부산광역시", sigungu: "해운대구", emd: "반송동" }); // 로그인 구현 될때까지 기본 위치
+  const [inputCheck, setInputCheck] = useState({ title: false, description: false, category: false, maxMember: false, age: false });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   useEffect(() => {
@@ -199,8 +210,46 @@ export default function GroupCreatePage(props) {
   }, []);
 
   useEffect(() => {
-    setAge(`${ageInputValue.min}세~${ageInputValue.max}세`);
+    if (isSubmitting) {
+      const check = validateInput();
+      setInputCheck(check);
+    }
+  }, [input]);
+
+  useEffect(() => {
+    if (ageInput) {
+    setInput({ ...input, ageRange: `${ageInputValue.min}세~${ageInputValue.max}세`});
+    }
   }, [ageInputValue]);
+
+  const validateInput = () => {
+    const newCheck = { title: false, description: false, category: false, maxMember: false, age: false };
+    if (input.title.length < titleInputConstraint.minLength) {
+      newCheck.title = true;
+    }
+    if (input.description.length < descriptionInputConstraint.minLength) {
+      newCheck.description = true;
+    }
+    if (input.category === "") {
+      newCheck.category = true;
+    }
+
+    if (maxMemberInput) {
+      if (input.maxMember < 1) {
+        newCheck.maxMember = true;
+      }
+    }
+
+    if (ageInput) {
+      if (ageInputValue.min < 1 || ageInputValue.max < 1 || ageInputValue.min > ageInputValue.max) {
+        newCheck.age = true;
+      }
+    }
+
+    return newCheck;
+  }
+
+  
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
@@ -219,18 +268,9 @@ export default function GroupCreatePage(props) {
       }
 
       const response = await axios.post("/api/group/save", {
-        title: title,
-        description: description,
-        groupRange: range,
-        category: category,
-        requireIdCheck: requireIdCheck,
-        requireApproval: requireApproval,
-        ageRange: age,
-        maxMember: maxMember,
-        useNickname: useNickname,
+        ...input,
         image: imageInfo,
         boards: ["자유 게시판"],
-        location: location,
       });
       alert("모임이 생성되었습니다.");
       navigate("/group");
@@ -241,6 +281,18 @@ export default function GroupCreatePage(props) {
     };
   }
 
+  const setNextStep = (nextStep) => {
+    setIsSubmitting(true);
+    const check = validateInput();
+    setInputCheck(check);
+    const errorCount = Object.values(check).filter(value => value === true).length;
+    if (errorCount > 0) {
+      return;
+    }
+    setIsSubmitting(false);
+    setStep(nextStep);
+  }
+
 
 
   const firstStep = (
@@ -249,9 +301,13 @@ export default function GroupCreatePage(props) {
         <h2>어떤 모임을 만들까요?</h2>
         <h4>모임명</h4>
         <InputContainer full>
-          <Input type="text" placeholder="모임명이 짧을수록 이해하기 쉬워요." value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input type="text" placeholder="모임명이 짧을수록 이해하기 쉬워요." value={input.title} onChange={(e) => setInput({ ...input, title: e.target.value })} />
         </InputContainer>
-        <TextLength>{`${title.length}/${titleInputConstraint.maxLength}`}</TextLength>
+        <div style={{display: 'flex'}}>
+          <InputCheckMessage>{inputCheck.title && "모임명을 3자 이상 입력해주세요."}</InputCheckMessage>
+          <TextLength>{`${input.title.length}/${titleInputConstraint.maxLength}`}</TextLength>
+        </div>
+        
       </Item>
 
 
@@ -259,24 +315,29 @@ export default function GroupCreatePage(props) {
         <h4>카테고리</h4>
         <RadioContainer>
           {categoryData.map((item) => (<>
-            <RoundFilter key={item.name} title={item.name} variant={category === item.name ? 'selected' : 'category'} value={item.name} onClick={() => {setCategory(item.name)}} />
+            <RoundFilter key={item.name} title={item.name} variant={input.category === item.name ? 'selected' : 'category'} value={item.name} onClick={() => {setInput({ ...input, category: item.name })}} />
           </>
           ))}
         </RadioContainer>
+        <InputCheckMessage>{inputCheck.category && "카테고리를 선택해주세요."}</InputCheckMessage>
       </Item>
 
 
       <Item>
         <h4>모임 소개</h4>
         <InputContainer full height="200px">
-          <Textarea placeholder="활동 중심으로 모임을 소개해주세요. 모임 설정에서 언제든지 바꿀 수 있어요." onChange={(e) => setDescription(e.target.value)}></Textarea>
+          <Textarea placeholder="활동 중심으로 모임을 소개해주세요. 모임 설정에서 언제든지 바꿀 수 있어요." onChange={(e) => setInput({ ...input, description: e.target.value })} />
         </InputContainer>
-        <TextLength>{`${description.length}/${descriptionInputConstraint.maxLength}`}</TextLength>
+        <div style={{display: 'flex'}}>
+          <InputCheckMessage>{inputCheck.description && "모임 소개를 8자 이상 입력해주세요."}</InputCheckMessage>
+          <TextLength>{`${input.description.length}/${descriptionInputConstraint.maxLength}`}</TextLength>
+        </div>
+        
       </Item>
 
 
       <ButtonContainer>
-        <Button title="다음" variant="primary" grow onClick={() => setStep(2)}></Button>
+        <Button title="다음" variant="primary" grow onClick={() => setNextStep(2)}></Button>
       </ButtonContainer>
 
     </Container>
@@ -288,9 +349,9 @@ export default function GroupCreatePage(props) {
         <h2>이웃들을 모집할 동네를 설정해주세요</h2>
         <SelectBoxContainer>
           {rangeData.map((item) => (
-            <SelectBox key={item.value} selected={item.value === range}>
+            <SelectBox key={item.value} selected={item.value === input.groupRange}>
               {item.name}
-              <Radio big checked={range === item.value} name="range" value={item.value} onChange={(e) => setRange(e.target.value)} />
+              <Radio big checked={input.groupRange === item.value} name="range" value={item.value} onChange={(e) => setInput({ ...input, groupRange: e.target.value })} />
             </SelectBox>
           ))}
         </SelectBoxContainer>
@@ -299,13 +360,13 @@ export default function GroupCreatePage(props) {
       <Item>
         <h2>가입은 어떻게 받을까요?</h2>
         <SelectBoxContainer>
-          <SelectBox selected={requireApproval === false}>
+          <SelectBox selected={input.requireApproval === false}>
             바로 가입
-            <Radio big checked={requireApproval === false} name="requireApproval" value={false} onChange={(e) => setRequireApproval(e.target.value === 'true')} />
+            <Radio big checked={input.requireApproval === false} name="requireApproval" value={false} onChange={(e) => setInput({ ...input, requireApproval: e.target.value === 'true' })} />
           </SelectBox>
-          <SelectBox selected={requireApproval === true}>
+          <SelectBox selected={input.requireApproval === true}>
             승인 후 가입
-            <Radio big checked={requireApproval === true} name="requireApproval" value={true} onChange={(e) => setRequireApproval(e.target.value === 'true')} />
+            <Radio big checked={input.requireApproval === true} name="requireApproval" value={true} onChange={(e) => setInput({ ...input, requireApproval: e.target.value === 'true' })} />
           </SelectBox>
         </SelectBoxContainer>
       </Item>
@@ -315,30 +376,31 @@ export default function GroupCreatePage(props) {
         <p>연령대</p>
         <RadioContainer>
           {ageData.map((item) => (
-              <RoundFilter title={item} variant={((ageInput && item === '직접 입력') ||  (item === age)) ? 'selected' : 'category' } value={item} onClick={() => {
+              <RoundFilter title={item} variant={((ageInput && item === '직접 입력') ||  (item === input.ageRange)) ? 'selected' : 'category' } value={item} onClick={() => {
                 if (item === '직접 입력') {
                   setAgeInput(true);
-                  setAge('직접 입력');
+                  setInput({ ...input, ageRange: '직접 입력' });
                 } else {
                   setAgeInput(false);
-                  setAge(item);
+                  setInput({ ...input, ageRange: item });
               }}} />
           ))}
           {ageInput && (
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
               <InputContainer>
-                <Input type="number" onChange={(e) => setAgeInputValue({ ...ageInputValue, min: e.target.value })} />
+                <Input type="number" value={ageInputValue.min} onChange={(e) => { (e.target.value > 0) && setAgeInputValue({ ...ageInputValue, min: e.target.value })}} />
                 <span>세</span>
               </InputContainer>
               <span> ~ </span>
               <InputContainer>
-                <Input type="number" onChange={(e) => setAgeInputValue({ ...ageInputValue, max: e.target.value })} />
+                <Input type="number" value={ageInputValue.max} onChange={(e) => { (e.target.value > 0) && setAgeInputValue({ ...ageInputValue, max: e.target.value })}} />
                 <span> 세</span>
               </InputContainer>
 
             </div>
           )}
         </RadioContainer>
+        <InputCheckMessage>{inputCheck.age && '연령대를 입력해 주세요.'}</InputCheckMessage>
 
       </Item>
 
@@ -347,13 +409,13 @@ export default function GroupCreatePage(props) {
         <RadioContainer>
           {maxMemberData.map((item) => (
             <>
-            <RoundFilter title={item === 0 ? "제한없음" : item === -1 ? "직접 입력" : item} variant={item === maxMember ? 'selected' : 'category'} value={item} onClick={() => { 
+            <RoundFilter title={item === 0 ? "제한없음" : item === -1 ? "직접 입력" : item} variant={(item === input.maxMember || (item === -1 && maxMemberInput) ) ? 'selected' : 'category'} value={item} onClick={() => { 
               if (item === -1) {
                 setMaxMemberInput(true);
-                setMaxMember(-1);
+                setInput({ ...input, maxMember: -1 });
               } else {
                 setMaxMemberInput(false);
-                setMaxMember(item);
+                setInput({ ...input, maxMember: item });
               } 
             }} />
             </>
@@ -361,15 +423,14 @@ export default function GroupCreatePage(props) {
           {maxMemberInput && (
             <div>
               <InputContainer>
-                <Input type="number" onChange={(e) => setMaxMember(e.target.value)} />
+                <Input type="number" value={input.maxMember === -1 ? 0 : input.maxMember} onChange={(e) => { e.target.value > 0  && setInput({ ...input, maxMember: e.target.value })}} />
                 <span>명</span>
               </InputContainer>
 
             </div>
           )}
         </RadioContainer>
-
-
+        <InputCheckMessage>{inputCheck.maxMember && '최대 인원을 입력해 주세요.'}</InputCheckMessage>
       </Item>
 
       <Item>
@@ -377,7 +438,7 @@ export default function GroupCreatePage(props) {
         <p>본인인증을 완료한 이웃만 모임에 가입할 수 있어요.</p>
         <label className="checkbox-wrap">
           본인인증 사용
-          <Switch value={requireIdCheck} checked={requireIdCheck} onChange={(e) => setRequireIdCheck(e.target.checked)} />
+          <Switch value={input.requireIdCheck} checked={input.requireIdCheck} onChange={(e) => setInput({ ...input, requireIdCheck: e.target.checked })} />
         </label>
       </Item>
 
@@ -386,14 +447,14 @@ export default function GroupCreatePage(props) {
         <p>별명은 이 모임에서만 닉네임 옆에 함께 표시돼요.</p>
         <label className="checkbox-wrap">
           별명 사용
-          <Switch value={useNickname} checked={useNickname} onChange={(e) => setUseNickname(e.target.checked)} />
+          <Switch value={input.useNickname} checked={input.useNickname} onChange={(e) => setInput({ ...input, useNickname: e.target.checked })} />
         </label>
       </Item>
 
 
       <ButtonContainer>
         <Button title="이전" variant="gray" onClick={() => setStep(1)} />
-        <Button title="다음" variant="primary" grow onClick={() => setStep(3)} />
+        <Button title="다음" variant="primary" grow onClick={() => setNextStep(3)} />
       </ButtonContainer>
 
     </Container>

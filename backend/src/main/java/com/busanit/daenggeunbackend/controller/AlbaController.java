@@ -3,6 +3,7 @@ package com.busanit.daenggeunbackend.controller;
 import com.busanit.daenggeunbackend.entity.Alba;
 import com.busanit.daenggeunbackend.service.AlbaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +24,12 @@ public class AlbaController {
 
     // 특정 알바 데이터 가져오기
     @GetMapping("/{id}")
-    public Alba getAlbaById(@PathVariable String id) {
-        return albaService.getAlbaById(id);
+    public ResponseEntity<Alba> getAlbaById(@PathVariable String id) {
+        Alba alba = albaService.getAlbaById(id);
+        if (alba == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(alba);
     }
 
     // 알바 데이터 생성
@@ -36,8 +41,12 @@ public class AlbaController {
 
     // 알바 데이터 수정
     @PutMapping("/{id}")
-    public Alba updateAlba(@PathVariable String id, @RequestBody Alba alba) {
-        return albaService.updateAlba(id, alba);
+    public ResponseEntity<Alba> updateAlba(@PathVariable String id, @RequestBody Alba alba) {
+        Alba updatedAlba = albaService.updateAlba(id, alba);
+        if (updatedAlba == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(updatedAlba);
     }
 
     // 알바 데이터 삭제

@@ -4,6 +4,7 @@ import com.busanit.daenggeunbackend.constant.GroupRange;
 import com.busanit.daenggeunbackend.entity.Group;
 import com.busanit.daenggeunbackend.entity.GroupMember;
 import lombok.*;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -59,5 +60,9 @@ public class GroupDTO {
 
   public static List<GroupDTO> toDTO(List<Group> groups) {
     return groups.stream().map(GroupDTO::toDTO).collect(Collectors.toList());
+  }
+
+  public static Slice<GroupDTO> toDTO(Slice<Group> groups) {
+    return groups.map(GroupDTO::toDTO);
   }
 }

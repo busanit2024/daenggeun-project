@@ -5,7 +5,6 @@ import { Carousel } from "react-responsive-carousel";
 import imageData from "../../asset/imageData";
 import "../../styles/carouselOverrides.css"
 
-
 const Wrapper = styled.div`
     max-width: 100%; 
     margin: 0 auto; 
