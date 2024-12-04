@@ -168,7 +168,6 @@ export default function CommunityWritePage(props) {
     const [image, setImage] = useState([]); // 초기값을 빈 배열로 설정
     const [location, setLocation] = useState({ sido: "부산광역시", sigungu: "해운대구", emd: "반송동" }); // 로그인 구현 될때까지 기본 위치
 
-
     useEffect(() => {
         axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
           // 인기글과 전체 카테고리를 제외한 필터링
