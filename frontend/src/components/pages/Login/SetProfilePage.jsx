@@ -28,7 +28,6 @@ export default function SetProfilePage(props) {
                 당근마켓은 동네 직거래 마켓이에요.<br />
                 내 동네를 설정하고 시작해보세요!
             </h4>
-            {/* /동네설정 */}
             <h3>내 동네 설정하기</h3>
             <SearchBox />
 
