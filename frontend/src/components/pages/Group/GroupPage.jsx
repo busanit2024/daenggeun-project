@@ -228,7 +228,7 @@ export default function GroupPage(props) {
           }
 
 
-          {(!loading && groupList.length === 0) && <NoSearchResult>
+          {(!loading && groupList?.length === 0) && <NoSearchResult>
             <h3>{`${location.emd ? location.emd : location.sigungu} 근처에 모임이 없어요.`}</h3>
             <p>다른 조건으로 검색해주세요.</p>
           </NoSearchResult>}
