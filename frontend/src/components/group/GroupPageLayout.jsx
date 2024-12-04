@@ -53,6 +53,12 @@ export const GridContainer = styled.div`
   gap: 24px 48px;
 `;
 
+export const FlexContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
 
 //내부 컴포넌트
 const LayoutContainer = styled.div`

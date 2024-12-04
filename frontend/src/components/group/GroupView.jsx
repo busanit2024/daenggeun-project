@@ -92,9 +92,9 @@ export default function GroupView () {
         <InnerContainer className="innerContainer">
           <div className="group-header">
             <h3 className="title">일정 {group.schedules?.length ?? 0}</h3>
-            <div className="more">더보기
+            <Link to={"schedule"} className="more">더보기
               <img height={12} src="/images/icon/arrow_right.svg" alt="더보기" />
-            </div>
+            </Link>
           </div>
           <GridContainer>
             <ScheduleListItem />
@@ -106,9 +106,9 @@ export default function GroupView () {
         <InnerContainer className="innerContainer">
           <div className="group-header">
             <h3 className="title">게시글 {group.posts?.length ?? 0}</h3>
-            <div className="more">더보기
+            <Link to={"board"} className="more">더보기
               <img height={12} src="/images/icon/arrow_right.svg" alt="더보기" />
-            </div>
+            </Link>
           </div>
           <BoardContainer>
             <RoundFilter title="전체" variant={selectedBoard === '전체' ? 'boardSelected' : 'board'} onClick={() => setSelectedBoard('전체')} />
