@@ -49,7 +49,7 @@ const AlbaDetail = () => {
           />
           <div className="profile-info">
             <h2>{job.title}</h2>
-            <p>{job.location}</p>
+            <p>{job.workPlace}</p>
             <p>시급: {job.wage}</p>
           </div>
         </div>
@@ -57,18 +57,20 @@ const AlbaDetail = () => {
         {/* 우측 영역 */}
         <div className="detail-right">
           <div className="detail-body">
+            
+            <h2>{job.title}</h2>
+            <p>{job.wageType}{job.wage}</p>
+            <p>{job.workPlace}</p>
+            <p>{job.workDays}</p>
+            <p>{job.workTime.start}~{job.workTime.end}</p>
+      
             <h2>상세 내용</h2>
+            
             <p>{job.description}</p>
-            <ul className="detail-list">
-              <li>근무 요일: {job.workDays?.join(", ") || "정보 없음"}</li>
-              <li>근무 시간: {job.workTime?.start} ~ {job.workTime?.end}</li>
-              <li>근무 위치: {job.workplace || job.location}</li>
-            </ul>
-          </div>
+            </div>
 
           <div className="detail-map">
-            <h3>위치 정보</h3>
-            <iframe
+              <iframe
               title="location"
               src={`https://maps.google.com/maps?q=${encodeURIComponent(
                 job.location
@@ -76,6 +78,8 @@ const AlbaDetail = () => {
               className="map-frame"
             ></iframe>
           </div>
+          {job.workPlace}
+
         </div>
       </div>
 

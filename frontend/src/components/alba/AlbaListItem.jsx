@@ -88,7 +88,7 @@ export default function AlbaListItem({ alba }) {
     <ListItemContainer onClick={handleClick}>
       <DetailsContainer>
         <Title>{alba.title}</Title>
-        <Location>{`${alba.location}`}</Location>
+        <Location>{`${alba.workPlace}`}</Location>
         <Category>{alba.wage}</Category>
         <DetailsRow>
           <WorkTime>{alba.workTime?.start} ~ {alba.workTime?.end}</WorkTime><workDays>{alba.workDays}</workDays>
