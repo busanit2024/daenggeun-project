@@ -49,7 +49,6 @@ const AlbaDetail = () => {
           />
           <div className="profile-info">
             <h2>{job.title}</h2>
-            <p>{job.workPlace}</p>
             <p>시급: {job.wage}</p>
           </div>
         </div>
@@ -57,15 +56,15 @@ const AlbaDetail = () => {
         {/* 우측 영역 */}
         <div className="detail-right">
           <div className="detail-body">
-            
+
             <h2>{job.title}</h2>
             <p>{job.wageType}{job.wage}</p>
             <p>{job.workPlace}</p>
             <p>{job.workDays}</p>
             <p>{job.workTime.start}~{job.workTime.end}</p>
-      
+
             <h2>상세 내용</h2>
-            
+
             <p>{job.description}</p>
             </div>
 
