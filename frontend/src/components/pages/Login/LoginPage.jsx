@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from "../../../firebase.js";
 import InputText from "../../ui/InputText";
 import Button from "../../ui/Button";
@@ -47,12 +47,23 @@ const StyledLink = styled.a`
 
 function LoginPage() {
     const [phone, setPhone] = useState("");
+    const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState("");
     const [value, setValue] = useState("");
     const [isCodeSent, setIsCodeSent] = useState(false);
-    const [uid, setUid] = useState("");
-    const navigate = useNavigate();
+    const sessionUid = window.sessionStorage.getItem("uid");
+    const [uid, setUid] = useState(sessionUid || "");
 
+    // uid 동기화
+    useEffect(() => {
+        if(uid){
+            window.sessionStorage.setItem("uid",uid);
+        } else {
+            window.sessionStorage.removeItem("uid");
+        }
+    }, [uid]);
+    
+    
     const onChangePhone = (e) => {
         const inputPhone = e.target.value;
         setPhone(inputPhone);
@@ -94,16 +105,26 @@ function LoginPage() {
             const code = value;
             const result = await window.confirmationResult.confirm(code);
             const user = result.user;
-    
+
             console.log("인증 성공:", user);
+
+            // Firebase ID 토큰 가져오기
+            const idToken = await user.getIdToken();
     
             // DB에서 전화번호 확인
-            const existingUserResponse = await axios.get(`/user/find/${phone}`);
+            const existingUserResponse = await axios.get(`/user/find/${phone}`, {
+                headers: {
+                    Authorization:`Bearer ${idToken}`,
+                },
+            });
             const existingUser = existingUserResponse.data;
     
             if (existingUser) {
-                // 기존 사용자 로그인 처리(세션에 담기)
+                // 기존 사용자 로그인 처리
                 console.log("로그인 성공:", existingUser);
+
+                setUid(user.uid);
+
                 navigate("/");
             } else {
                 // 새로운 사용자 추가
@@ -114,12 +135,14 @@ function LoginPage() {
                 while (!isUnique) {
                     uniqueCode = generateUniqueCode();
                     console.log("Generated Unique Code:", uniqueCode);  // 유니크 코드 값 출력
-                    const checkResponse = await axios.get(`/user/checkUniqueCode/${uniqueCode}`);
-                    console.log("API 응답:", checkResponse);                
+                    const checkResponse = await axios.get(`/user/checkUniqueCode/${uniqueCode}`, {
+                        headers: {
+                            Authorization:`Bearer ${idToken}`,
+                        },
+                    });            
                     
-                    // exists 값이 정상적으로 존재하는지 확인
                     if (checkResponse.data && checkResponse.data.exists !== undefined) {
-                        isUnique = !checkResponse.data.exists;  // 중복되지 않은 경우 true
+                        isUnique = !checkResponse.data.exists; 
                     } else {
                         console.error("API 응답이 예상과 다릅니다:", checkResponse.data);
                         break;
@@ -132,9 +155,17 @@ function LoginPage() {
                         phone,
                         uid: user.uid,
                         uniqueCode,
+                    },
+                    {
+                        headers : {
+                            Authorization:`Bearer ${idToken}`,
+                        },
                     });
     
-                    console.log("새 사용자 등록 성공");
+                    console.log("회원가입 성공");
+
+                    setUid(user.id);
+
                     navigate("/");
                 } else {
                     console.error("유니크 코드 중복 확인에서 오류 발생");
@@ -144,6 +175,7 @@ function LoginPage() {
         } catch (error) {
             // 인증 실패 처리
             console.error("인증 실패:", error);
+            setErrorMessage("인증에 실패했습니다. 다시 시도해주세요.");
         }
     };    
 

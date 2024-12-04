@@ -2,6 +2,7 @@ package com.busanit.daenggeunbackend.entity;
 
 import com.busanit.daenggeunbackend.domain.Image;
 import com.busanit.daenggeunbackend.domain.Location;
+import lombok.Generated;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
