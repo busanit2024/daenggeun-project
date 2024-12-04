@@ -52,7 +52,7 @@ function App() {
             <Route path="community/write" element={<CommunityWritePage />} />
             <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
             <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
-            <Route path="Login" element={<LoginPage />} />
+            <Route path="login" element={<LoginPage />} />
           </Route>
         </Routes>
       </Router>
