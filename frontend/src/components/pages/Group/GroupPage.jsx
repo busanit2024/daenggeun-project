@@ -9,6 +9,7 @@ import RoundFilter from "../../ui/RoundFilter";
 import Radio from "../../ui/Radio";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
+import Breadcrumb from "../../Breadcrumb";
 
 const Container = styled.div`
   display: flex;
@@ -217,7 +218,14 @@ export default function GroupPage(props) {
     setPage(page + 1);
   };
 
+  const routes = [
+    { path: "/", name: "홈" },
+    { path: "/group", name: "모임" },
+  ];
+
   return (
+    <>
+    <Breadcrumb routes={routes} />
     <Container>
       <HeadContainer>
         <h2>{`${location.sido} ${location.sigungu} ${location.emd} ${category === 'all' ? "" : category} 모임`}</h2>
@@ -323,6 +331,7 @@ export default function GroupPage(props) {
       </InnerContainer>
 
     </Container>
+    </>
   );
 
 }

@@ -8,12 +8,14 @@ import { deleteFile, singleFileUpload } from "../../../firebase";
 import InputText from "../../ui/InputText";
 import Switch from "../../ui/Switch";
 import Radio from "../../ui/Radio";
+import Breadcrumb from "../../Breadcrumb";
 
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  margin-top: 24px;
 `;
 
 const ButtonContainer = styled.div`
@@ -283,8 +285,15 @@ export default function GroupEditPage(props) {
     };
   }
 
+  const routes = [
+    { path: '/group', name: '모임' },
+    { path: `/group/${group.id}`, name: group.title },
+    { path: `/group/${group.id}/edit`, name: '모임 수정' },
+  ];
 
   return (
+    <>
+    <Breadcrumb routes={routes}/>
     <Container>
       <Item>
         <h2>모임 정보</h2>
@@ -483,5 +492,6 @@ export default function GroupEditPage(props) {
 
 
     </Container>
+    </>
   );
 } 

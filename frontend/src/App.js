@@ -24,6 +24,8 @@ import MainPage from './components/pages/MainPage';
 import AlbaCreate from "./components/alba/AlbaCreate";
 import AlbaDetail from "./components/alba/AlbaDetail";
 import AlbaEdit from "./components/alba/AlbaEdit";
+import GroupView from './components/group/GroupView';
+import GroupMembers from './components/group/GroupMembers';
 
 
 function App() {
@@ -36,9 +38,12 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<MainPage />} />
             <Route path="group" element={<GroupPage />} />
-            <Route path="group/view/:groupId" element={<GroupViewPage />} />
+            <Route path="group/:groupId" element={<GroupViewPage />}>
+              <Route path="" element={<GroupView />} />
+              <Route path="members" element={<GroupMembers />} />
+            </Route>
             <Route path="group/create" element={<GroupCreatePage />} />
-            <Route path="group/edit/:groupId" element={<GroupEditPage />} />
+            <Route path="group/:groupId/edit" element={<GroupEditPage />} />
 
             <Route path="alba" element={<AlbaPage />} />
             <Route path="alba/create" element={<AlbaCreate />} />

@@ -7,12 +7,14 @@ import RoundFilter from "../../ui/RoundFilter";
 import { singleFileUpload } from "../../../firebase";
 import Radio from "../../ui/Radio";
 import Switch from "../../ui/Switch";
+import Breadcrumb from "../../Breadcrumb";
 
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  margin-top: 24px;
 `;
 
 const ButtonContainer = styled.div`
@@ -487,9 +489,15 @@ export default function GroupCreatePage(props) {
     </Container>
   );
 
+  const routes = [
+    { path: '/group', name: '모임' },
+    { path: `/group/create`, name: '모임 만들기' },
+  ];
+
   return (
     <div>
-      <h1>모임 만들기</h1>
+      <Breadcrumb routes={routes} />
+      {/* <h1>모임 만들기</h1> */}
       {step === 1 && firstStep}
       {step === 2 && secondStep}
       {step === 3 && thirdStep}
