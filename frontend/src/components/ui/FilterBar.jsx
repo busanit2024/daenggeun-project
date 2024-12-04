@@ -48,6 +48,7 @@ const StyledFilterBar = styled.nav`
     display: flex;
     flex-direction: column;
     gap: 8px;
+    width: 100%;
   }
 
   & .filterItem .radioWrap {
