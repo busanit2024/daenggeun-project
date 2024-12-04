@@ -43,7 +43,7 @@ const AlbaDetail = () => {
         {/* 좌측 영역 */}
         <div className="detail-left">
           <img
-            src={job.image || "default-image.png"}
+            src={job.image.url || "default-image.png"}
             alt={job.title}
             className="detail-image"
           />

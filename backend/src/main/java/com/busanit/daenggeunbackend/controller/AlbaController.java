@@ -41,6 +41,7 @@ public class AlbaController {
     }
 
     // 알바 데이터 생성
+
     @PostMapping
     public ResponseEntity<Alba> createAlba(@RequestBody Alba alba) {
         System.out.println("POST 요청이 들어왔습니다: " + alba);
