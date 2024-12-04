@@ -41,6 +41,26 @@ const StyledFilter = styled.span`
                     font-size: 16px;
                 `;
 
+                //모임 게시판 필터
+            case 'board':
+                return `
+                    background-color : #fff;
+                    color: black;
+                    border: 1px solid #dcdcdc;
+                    font-weight: normal;
+                    font-size: 14px;
+                    padding : 4px 12px;
+                `;
+
+            case 'boardSelected':
+                return `
+                    background-color : #303030;
+                    color: #fff;
+                    font-weight: normal;
+                    font-size: 14px;
+                    padding : 4px 12px;
+                `;
+
             //search filter
             case 'search':
                 return `
