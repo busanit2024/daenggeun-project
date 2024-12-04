@@ -85,7 +85,7 @@ const ButtonGroup = styled.div`
 export default function GroupPageLayout(props) {
   const { group } = props;
   const navigate = useNavigate();
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState('');
   const [deleted, setDeleted] = useState(false);
 
   const handleDeleteGroup = () => {
@@ -130,29 +130,42 @@ export default function GroupPageLayout(props) {
           <Button title="입장하기" variant="primary" />
           <ButtonGroup>
             <Button title="모임 수정" grow onClick={() => navigate(`/group/edit/${group.id}`)} />
-            <Button title="모임 삭제" grow onClick={() => setModalOpen(true)} />
+            <Button title="모임 삭제" grow onClick={() => setModalOpen('delete')} />
           </ButtonGroup>
+
+          <div onClick={() => setModalOpen('quit')} style={{alignSelf: 'center', textDecoration: 'underline', color: '#666666', cursor: 'pointer'}}>모임 탈퇴하기</div>
         </GroupDescContainer>
 
 
       </SideBar>
       {props.children}
 
-      <Modal title="모임 삭제" isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+      <Modal title="모임 삭제" isOpen={modalOpen === 'delete'} onClose={() => setModalOpen('e')}>
         {deleted && <>
           <h2 style={{ margin: 0 }}>{group.title} 모임이 삭제되었습니다.</h2>
-          <Button title="모임 리스트로 돌아가기" onClick={() => { setModalOpen(false); setDeleted(false); navigate("/group") }} />
+          <Button title="모임 리스트로 돌아가기" onClick={() => { setModalOpen(''); setDeleted(false); navigate("/group") }} />
         </>}
         {!deleted && <>
           <h2 style={{ margin: 0 }}>{group.title} 모임을 삭제하시겠어요?</h2>
           <p style={{ margin: 0 }}>모임을 삭제하면 되돌릴 수 없어요.</p>
           <ButtonGroup>
             <Button title="삭제" grow variant="danger" onClick={handleDeleteGroup} />
-            <Button title="취소" grow onClick={() => setModalOpen(false)} />
+            <Button title="취소" grow onClick={() => setModalOpen('')} />
           </ButtonGroup>
         </>}
 
       </Modal>
+
+      <Modal title="모임 탈퇴" isOpen={modalOpen === 'quit'} onClose={() => setModalOpen('')}>
+        <h2 style={{ margin: 0 }}>{group.title} 모임을 탈퇴하시겠어요?</h2>
+        <p style={{ margin: 0 }}>모임 멤버가 되려면 다시 가입해야 해요.</p>
+        <ButtonGroup>
+          <Button title="탈퇴" grow variant="danger" />
+          <Button title="취소" grow onClick={() => setModalOpen('')} />
+        </ButtonGroup>
+      </Modal>
+
+
     </Container>
   );
 
