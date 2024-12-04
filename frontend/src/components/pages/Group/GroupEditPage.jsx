@@ -218,6 +218,19 @@ export default function GroupEditPage(props) {
   }
 
   const handleNewBoardButtonClick = () => {
+    if (boardName === "") {
+      alert("게시판 이름을 입력해주세요.");
+      return;
+    }
+    if (group.boards?.includes(boardName)) {
+      alert("이미 존재하는 게시판입니다.");
+      return;
+    }
+    if (!group.boards) {
+      setGroup({ ...group, boards: [boardName] });
+      setBoardName("");
+      return;
+    }
     setGroup({ ...group, boards: [...group.boards, boardName] });
     setBoardName("");
   }
@@ -400,7 +413,7 @@ export default function GroupEditPage(props) {
               </div>
             ))}
             <div style={{ display: "flex", gap: "8px" }}>
-              <InputText type="text" underline placeholder="게시판 제목을 입력해주세요." onChange={(e) => setBoardName(e.target.value)} />
+              <InputText type="text" value={boardName} underline placeholder="게시판 제목을 입력해주세요." onChange={(e) => setBoardName(e.target.value)} />
               <Button title="게시판 만들기" onClick={handleNewBoardButtonClick} />
             </div>
           </>

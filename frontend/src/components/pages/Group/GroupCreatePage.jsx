@@ -73,6 +73,21 @@ const TextLength = styled.div`
   margin-left: auto;
 `;
 
+const DongneSelectContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: center;
+`;
+
+const DongneSelect = styled.select`
+  padding: 12px;
+  border: 2px solid #cccccc;
+  border-radius: 8px;
+  font-size: 18px;
+  font-family: inherit;
+  flex-grow: 1;
+`;
+
 const RadioContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -174,6 +189,8 @@ export default function GroupCreatePage(props) {
 
   const [categoryData, setCategoryData] = useState([]);
   const [rangeData, setRangeData] = useState([]);
+  const [busanJuso, setBusanJuso] = useState(null);
+  const [locationData, setLocationData] = useState({sigungu: [], emd: []});
 
   const [step, setStep] = useState(1);
   const [input, setInput] = useState({ 
@@ -186,7 +203,7 @@ export default function GroupCreatePage(props) {
     requireApproval: false,
     requireIdCheck: false, 
     useNickname: false, 
-    location: { sido: "부산광역시", sigungu: "해운대구", emd: "반송동" } // 로그인 구현될 때까지 임시 위치
+    location: { sido: "부산광역시", sigungu: "연제구", emd: "거제동" } // 로그인 구현될 때까지 임시 위치
   });
 
   const [ageInput, setAgeInput] = useState(false);
@@ -195,7 +212,6 @@ export default function GroupCreatePage(props) {
   const [image, setImage] = useState(null);
   const [inputCheck, setInputCheck] = useState({ title: false, description: false, category: false, maxMember: false, age: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -208,6 +224,22 @@ export default function GroupCreatePage(props) {
       setRangeData(response.data.filters);
     }).catch((error) => {
       console.error("동네 범위를 불러오는데 실패했습니다." + error);
+    });
+
+    axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
+      const juso = response.data.locationFilters;
+      setBusanJuso(juso);
+      const guList = juso?.map((item) => item.sigungu);
+      setInput({ ...input, location: { ...input.location, sigungu: guList[0] } });
+      setLocationData({ ...locationData, sigungu: guList });
+
+      const emdList = juso.find((item) => item.sigungu === guList[0])?.emd;
+      const emdNameList = emdList?.map((item) => item.emd);
+      setInput({ ...input, location: { ...input.location, emd: emdNameList[0] } });
+      setLocationData({ ...locationData, emd: emdNameList });
+
+    }).catch((error) => {
+      console.error("동네 리스트를 불러오는데 실패했습니다." + error);
     });
   }, []);
 
@@ -223,6 +255,20 @@ export default function GroupCreatePage(props) {
     setInput({ ...input, ageRange: `${ageInputValue.min}세~${ageInputValue.max}세`});
     }
   }, [ageInputValue]);
+
+  useEffect(() => {
+    getEmdList(input.location.sigungu);
+  }, [input.location.sigungu]);
+
+  const getEmdList = (sigungu) => {
+    if (busanJuso) {
+      const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
+      const emdNameList = emdList?.map((item) => item.emd);
+      setInput({ ...input, location: { ...input.location, emd: emdNameList[0] } });
+      setLocationData({ ...locationData, emd: emdNameList });
+    }
+  };
+
 
   const validateInput = () => {
     const newCheck = { title: false, description: false, category: false, maxMember: false, age: false };
@@ -309,6 +355,25 @@ export default function GroupCreatePage(props) {
           <InputCheckMessage>{inputCheck.title && "모임명을 3자 이상 입력해주세요."}</InputCheckMessage>
           <TextLength>{`${input.title.length}/${titleInputConstraint.maxLength}`}</TextLength>
         </div>
+        
+      </Item>
+
+      <Item>
+        <h4>동네</h4>
+        <DongneSelectContainer>
+          <div  style={{fontSize: '20px', color: '#666666'}}>부산광역시</div>
+          <DongneSelect value={input.location.sigungu} onChange={(e) => setInput({ ...input, location: { ...input.location, sigungu: e.target.value } })}>
+          {
+          locationData.sigungu.map((item) => (
+            <option key={item} value={item}>{item}</option>
+          ))}
+          </DongneSelect>
+          <DongneSelect value={input.location.emd} onChange={(e) => setInput({ ...input, location: { ...input.location, emd: e.target.value } })}>
+          {locationData.emd.map((item) => (
+            <option key={item} value={item}>{item}</option>
+          ))}
+          </DongneSelect>
+        </DongneSelectContainer>
         
       </Item>
 
