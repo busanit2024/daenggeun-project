@@ -91,7 +91,7 @@ export default function AlbaListItem({ alba }) {
         <Location>{`${alba.location}`}</Location>
         <Category>{alba.wage}</Category>
         <DetailsRow>
-          <WorkTime>{alba.workTime?.start} ~ {alba.workTime?.end}</WorkTime>
+          <WorkTime>{alba.workTime?.start} ~ {alba.workTime?.end}</WorkTime><workDays>{alba.workDays}</workDays>
           {alba.workType && <WorkType>{alba.workType}</WorkType>}
         </DetailsRow>
       </DetailsContainer>
