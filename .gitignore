@@ -1,2 +1,3 @@
 
 frontend/.env
+backend/src/main/resources/firebaseAdminSDK.json
