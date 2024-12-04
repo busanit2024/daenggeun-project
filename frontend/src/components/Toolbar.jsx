@@ -11,6 +11,7 @@ const Toolbar = () => {
     const [ isDropdownOpen, setIsDropdownOpen ] = useState(false);
     const navigate = useNavigate();
 
+    // 로그인 여부를 상태로 저장
     useEffect(()=> {
         const uid = window.sessionStorage.getItem("uid");
         setIsLoggedIn(!!uid);
@@ -49,10 +50,10 @@ const Toolbar = () => {
                 </nav>
                 <div className="auth-links">
                     {isLoggedIn ? (
-                    <>
-                        <button onClick={handleLogout}>로그아웃</button>
-                        <a href="/mypage">마이페이지</a>
-                    </>
+                        <>
+                            <button onClick={handleLogout}>로그아웃</button>
+                            <a href="/mypage">마이페이지</a>
+                        </>
                     ) : (
                         <button onClick={() => navigate("/login")}>로그인 / 회원가입</button>
                     )}
