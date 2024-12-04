@@ -1,7 +1,6 @@
 package com.busanit.daenggeunbackend.controller;
 
 import com.busanit.daenggeunbackend.entity.User;
-import com.busanit.daenggeunbackend.repository.UserRepository;
 import com.busanit.daenggeunbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +12,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     private final UserService userService;

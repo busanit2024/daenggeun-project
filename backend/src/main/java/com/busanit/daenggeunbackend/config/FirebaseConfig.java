@@ -15,12 +15,12 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void initializeFirebase() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream("src/main/resources/daengn-project-firebase-adminsdk-nui0t-1300dd6aca.json");
-
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .build();
-
-        FirebaseApp.initializeApp(options);
+        if (FirebaseApp.getApps().isEmpty()) {
+            FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebaseAdminSDK.json");
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
+            FirebaseApp.initializeApp(options);
+        }
     }
 }
