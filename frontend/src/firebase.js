@@ -2,7 +2,11 @@ import { initializeApp } from 'firebase/app';
 import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import imageCompression from 'browser-image-compression';
-
+import {
+  getAuth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -15,6 +19,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
+const auth = getAuth();
 
 const makeDataUrl = (file) => {
   return new Promise((resolve) => {
@@ -79,4 +84,4 @@ const deleteFile = async (filename) => {
   }
 };
 
-export { storage, app as default, singleFileUpload, deleteFile };
+export { storage, auth, app as default, singleFileUpload, deleteFile,  RecaptchaVerifier, signInWithPhoneNumber  };
