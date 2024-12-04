@@ -11,6 +11,10 @@ const Toolbar = () => {
     const [ isDropdownOpen, setIsDropdownOpen ] = useState(false);
     const navigate = useNavigate();
 
+    const handleLogoOnClick = () => {
+        navigate("/");
+    };
+
     // 로그인 여부를 상태로 저장
     useEffect(()=> {
         const uid = window.sessionStorage.getItem("uid");
@@ -30,7 +34,7 @@ const Toolbar = () => {
             <Logo 
                 variant="logoWithText" 
                 className="logo"
-                onClick={() => navigate("/")} 
+                onClick={handleLogoOnClick} 
                 style={{ cursor: "pointer" }}/>
                 <nav>
                     <ul className="nav-links">
