@@ -6,6 +6,7 @@ import RoundFilter from "../ui/RoundFilter";
 import "../../styles/AlbaStyled.css";
 import styled from "styled-components";
 import axios from "axios";
+import { singleFileUpload } from "../../firebase";
 
 const AlbaCreate = () => {
   const [form, setForm] = useState({
@@ -138,27 +139,17 @@ const AlbaCreate = () => {
 
   // 이미지 변경 핸들러
   const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-        const response = await axios.post("/api/alba/uploadImage", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
-        
-        // 서버에서 반환된 이미지 URL을 form state에 추가
-        setForm((prevForm) => ({
-            ...prevForm,
-            image: response.data,
-        }));
-        alert("이미지 업로드 성공!");
-    } catch (error) {
-        console.error("이미지 업로드 중 오류 발생:", error);
-        alert("이미지 업로드에 실패했습니다.");
+    let imageInfo = null;
+    const image = e.target.files[0];
+    if (!image !== null) {
+      imageInfo = await singleFileUpload(image);
+      console.log(imageInfo);
     }
+
+    setForm((prevForm) => ({
+      ...prevForm,
+      image: imageInfo  
+    }));
 };
 
 
@@ -201,7 +192,8 @@ const AlbaCreate = () => {
             end: form.endTime,
         },
     };
-    console.log("payload",payload)
+    console.log(payload)
+    console.log(typeof payload)
     try {
         await axios.post("/api/alba", payload, {
             headers: { "Content-Type": "application/json" },

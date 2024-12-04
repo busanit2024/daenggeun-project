@@ -97,7 +97,7 @@ export default function AlbaListItem({ alba }) {
       </DetailsContainer>
       {alba.image && (
         <ImageContainer>
-          <Image src={alba.image} alt={alba.title} />
+          <Image src={alba.image.url} alt={alba.title} />
         </ImageContainer>
       )}
     </ListItemContainer>
