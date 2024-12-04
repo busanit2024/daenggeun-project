@@ -24,6 +24,7 @@ import MainPage from './components/pages/MainPage';
 import AlbaCreate from "./components/alba/AlbaCreate";
 import AlbaDetail from "./components/alba/AlbaDetail";
 import AlbaEdit from "./components/alba/AlbaEdit";
+import SetProfilePage from './components/pages/Login/SetProfilePage';
 
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
             <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
             <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
             <Route path="login" element={<LoginPage />} />
+            <Route path="setProfile/:uniqueCode" element={<SetProfilePage />} />
           </Route>
         </Routes>
       </Router>
