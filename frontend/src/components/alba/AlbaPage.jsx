@@ -341,7 +341,7 @@ export default function AlbaPage(props) {
             <AlbaListItem key={alba.id} alba={alba} />
           ))}
 
-          <Button title="더보기" />
+          <Button title="더보기1" />
         </ListContainer>
       </InnerContainer>
     </Container>
