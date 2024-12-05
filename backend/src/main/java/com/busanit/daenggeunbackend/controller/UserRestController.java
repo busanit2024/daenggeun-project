@@ -3,8 +3,10 @@ package com.busanit.daenggeunbackend.controller;
 import com.busanit.daenggeunbackend.entity.User;
 import com.busanit.daenggeunbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/user")
 @CrossOrigin(origins = "http://localhost:3000")
-public class UserController {
+public class UserRestController {
 
     private final UserService userService;
 
@@ -35,5 +37,6 @@ public class UserController {
     public User findUser(@PathVariable String phone){
         return userService.findUserByPhone(phone).orElse(null);
     }
+
 
 }
