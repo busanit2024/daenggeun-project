@@ -13,7 +13,7 @@ const Main = styled.div`
   width: 100%;
   max-width: 1200px;
   padding: 0 16px;
-  margin: 80px 0;
+  margin: 100px 0;
 `;
 
 export default function Layout() {

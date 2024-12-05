@@ -37,7 +37,7 @@ const StyledButton = styled.button`
             // carrot colored button
             case 'primary' :
                 return `
-                    background-color : #FF7B07;
+                    background-color : #ff6f0f;
                     color : white;
                    
                 `;
