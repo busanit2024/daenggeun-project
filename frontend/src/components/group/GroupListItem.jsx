@@ -72,7 +72,7 @@ const Description = styled.p`
 export default function GroupListItem({ group }) {
   const navigate = useNavigate();
   return (
-    <Container key={group.id} onClick={() => navigate(`/group/view/${group.id}`)}>
+    <Container key={group.id} onClick={() => navigate(`/group/${group.id}`)}>
       <ImageContainer>
         {group.image?.url &&
           <img className="group-image" src={group.image?.url} alt={group.title} />

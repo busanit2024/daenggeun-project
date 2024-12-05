@@ -8,12 +8,14 @@ import { deleteFile, singleFileUpload } from "../../../firebase";
 import InputText from "../../ui/InputText";
 import Switch from "../../ui/Switch";
 import Radio from "../../ui/Radio";
+import Breadcrumb from "../../Breadcrumb";
 
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  margin-top: 24px;
 `;
 
 const ButtonContainer = styled.div`
@@ -216,6 +218,19 @@ export default function GroupEditPage(props) {
   }
 
   const handleNewBoardButtonClick = () => {
+    if (boardName === "") {
+      alert("게시판 이름을 입력해주세요.");
+      return;
+    }
+    if (group.boards?.includes(boardName)) {
+      alert("이미 존재하는 게시판입니다.");
+      return;
+    }
+    if (!group.boards) {
+      setGroup({ ...group, boards: [boardName] });
+      setBoardName("");
+      return;
+    }
     setGroup({ ...group, boards: [...group.boards, boardName] });
     setBoardName("");
   }
@@ -283,8 +298,15 @@ export default function GroupEditPage(props) {
     };
   }
 
+  const routes = [
+    { path: '/group', name: '모임' },
+    { path: `/group/${group.id}`, name: group.title },
+    { path: `/group/${group.id}/edit`, name: '모임 수정' },
+  ];
 
   return (
+    <>
+    <Breadcrumb routes={routes}/>
     <Container>
       <Item>
         <h2>모임 정보</h2>
@@ -391,7 +413,7 @@ export default function GroupEditPage(props) {
               </div>
             ))}
             <div style={{ display: "flex", gap: "8px" }}>
-              <InputText type="text" underline placeholder="게시판 제목을 입력해주세요." onChange={(e) => setBoardName(e.target.value)} />
+              <InputText type="text" value={boardName} underline placeholder="게시판 제목을 입력해주세요." onChange={(e) => setBoardName(e.target.value)} />
               <Button title="게시판 만들기" onClick={handleNewBoardButtonClick} />
             </div>
           </>
@@ -483,5 +505,6 @@ export default function GroupEditPage(props) {
 
 
     </Container>
+    </>
   );
 } 
