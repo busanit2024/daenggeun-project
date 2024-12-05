@@ -69,3 +69,4 @@ backend/.vscode/
 
 backend/src/main/resources/firebaseAdminSDK.json
 
+backend/src/main/resources/application.properties

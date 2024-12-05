@@ -3,6 +3,7 @@ package com.busanit.daenggeunbackend.controller;
 import com.busanit.daenggeunbackend.entity.User;
 import com.busanit.daenggeunbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,8 +13,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:3000")
-public class UserController {
+public class UserRestController {
 
     private final UserService userService;
 
@@ -34,6 +34,16 @@ public class UserController {
     @GetMapping("/find/{phone}")
     public User findUser(@PathVariable String phone){
         return userService.findUserByPhone(phone).orElse(null);
+    }
+
+
+
+    //userid불러오기
+    @GetMapping("/{uid}")
+    public ResponseEntity<User> getUserByUid(@PathVariable String uid) {
+        return userService.findUserByUid(uid)
+                .map(user -> ResponseEntity.ok(user))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
 }
