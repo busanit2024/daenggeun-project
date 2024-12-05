@@ -30,6 +30,7 @@ const InputContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
+    padding: 10px 0;
 `;
 
 const TextArea = styled.textarea`
@@ -101,6 +102,9 @@ const TradeButton = styled(Button)`
 
 const UsedTradeWrite = () => {
     const [isPriceNegotiable, setIsPriceNegotiable] = useState(false);  // 체크박스는 기본적으로 체크 X
+    const [location, setLocation] = useState("");
+    const [content, setContent] = useState("");
+    const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -119,7 +123,9 @@ const UsedTradeWrite = () => {
         setPrice(value);
     };
 
-    const handleCheckboxChange = () => {
+    const handleCheckboxChange = (e) => {
+        console.log("가격제안: ", e.target.value);
+
         setIsPriceNegotiable((prev) => !prev);
     };
 
@@ -139,6 +145,45 @@ const UsedTradeWrite = () => {
     const selectCategory = (category) => {
         setSelectedCategory(category);
         setIsCategoryOpen(false);   // 선택 후 드롭다운 닫기
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const usedTradeData = {
+            userId: "사용자 ID", // 실제 사용자 id로 나중에 대체
+            name: name,
+            price: parseInt(price.replace(/[^0-9]/g, ""), 10),
+            location: location,
+            content: content,
+            createdDate: new Date().toISOString(),
+            images: [],
+            views: 0,   // 조회수는 일단 0으로 지정
+            bookmarkUsers: []
+        };
+
+        try {
+            const response = await fetch('/api/usedTrades', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(usedTradeData),
+            });
+            console.log(usedTradeData);
+            if (response.ok) {
+                const createdUsedTrade = await response.json();
+                console.log('Trade created:', createdUsedTrade);
+                alert("등록되었습니다.");
+                navigate("/usedTrade/used-trade");  // 중고거래 등록 후 목록 페이지로 이동
+            } else {
+                console.error('Failed to create trade');
+                alert("등록에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error('Error', error);
+            alert("서버와의 연결이 실패했습니다.");
+        }
     };
 
     return (
@@ -189,11 +234,14 @@ const UsedTradeWrite = () => {
                     </CategoryList>
                     </CategoryToggle>
                 </Form>
-                <InputText placeholder="제목" />
-                
-                <p />
+                <InputText 
+                    placeholder="제목" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                />
+
                 <div>
-                    <h3>거래 방식</h3>
+                    <h3 style={{ marginBottom: "10px" }}>거래 방식</h3>
                     <ButtonContainer>
                         <TradeButton
                             key={`판매하기-${selectedTradeType === "판매하기"}`}
@@ -247,15 +295,20 @@ const UsedTradeWrite = () => {
                 <InputContainer>
                     <h3>설명</h3>
                     <TextArea 
-                        placeholder="{주소}에 올릴 게시글 내용을 작성해 주세요.
-                        (판매 금지 물품은 게시가 제한될 수 있습니다.)"
+                        placeholder={`{주소}에 올릴 게시글 내용을 작성해 주세요.\n(판매 금지 물품은 게시가 제한될 수 있습니다.)`}
                         rows="5"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
                     />
                 </InputContainer>
 
                 <InputContainer>
                     <h3>거래 희망 장소</h3>
-                    <InputText placeholder="거래 희망 장소" />
+                    <InputText 
+                        placeholder="거래 희망 장소" 
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                    />
                 </InputContainer>
             </Form>
 
@@ -271,21 +324,13 @@ const UsedTradeWrite = () => {
                     <Button
                         title="등록하기"
                         variant="primary"
-                        type="submit"
-                        onClick={() => {
-                            alert(
-                                `등록 완료\n가격 제안 가능 여부: ${
-                                    isPriceNegotiable ? "가능" : "불가능"
-                                }`
-                            );
-                            navigate("/usedTrade/used-trade");
-                        }}
+                        type="button"
+                        onClick={handleSubmit}
                     />
                     <Button
                         title="취소하기"
                         variant="gray"
                         onClick={() => {
-                            alert("취소")
                             navigate("/usedTrade/used-trade");
                         }}
                     />
