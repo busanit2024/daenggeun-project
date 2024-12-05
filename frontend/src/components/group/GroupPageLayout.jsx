@@ -5,8 +5,63 @@ import Modal from "../ui/Modal";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Breadcrumb from "../Breadcrumb";
 
-const Container = styled.div`
+//공통 컴포넌트
+export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  & .innerContainer:not(:last-child) {
+    border-bottom: 1px solid #dcdcdc;
+  }
+`;
+
+export const InnerContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  padding: 24px;
+
+  .group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .title {
+    margin: 0;
+  }
+
+  .more {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    color: #666666;
+    cursor: pointer;
+    margin: 0;
+    text-decoration: none;
+  }
+`;
+
+export const GridContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px 48px;
+`;
+
+export const FlexContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+
+//내부 컴포넌트
+const LayoutContainer = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
@@ -98,11 +153,21 @@ export default function GroupPageLayout(props) {
       });
   };
 
-
+  const routes = [
+    { path: '/group', name: '모임' },
+    { path: `/group/${group.id}`, name: group.title },
+    { path: `/group/${group.id}/members`, name: '모임 멤버' },
+    { path: `/group/${group.id}/schedule`, name: '모임 일정' },
+    { path: `/group/${group.id}/album`, name: '모임 앨범' },
+    { path: `/group/${group.id}/board`, name: '모임 게시판' },
+  ];
+  
   return (
-    <Container>
+    <>
+    <Breadcrumb routes={routes} />
+    <LayoutContainer>
       <SideBar>
-        <div className="group-header">
+        <div className="group-header" style={{cursor: 'pointer'}} onClick={() => navigate(`/group/${group.id}`)}>
           <div className="group-image">
             <img src={group.image?.url} alt={group.title} />
           </div>
@@ -127,9 +192,9 @@ export default function GroupPageLayout(props) {
             <SquareFilter title={group.category} variant="tag" />
             {group.ageRange && <SquareFilter title={group.ageRange} variant="tag" />}
           </div>
-          <Button title="입장하기" variant="primary" />
+          <Button title="모임 가입하기" variant="primary" />
           <ButtonGroup>
-            <Button title="모임 수정" grow onClick={() => navigate(`/group/edit/${group.id}`)} />
+            <Button title="모임 수정" grow onClick={() => navigate(`/group/${group.id}/edit`)} />
             <Button title="모임 삭제" grow onClick={() => setModalOpen('delete')} />
           </ButtonGroup>
 
@@ -166,7 +231,8 @@ export default function GroupPageLayout(props) {
       </Modal>
 
 
-    </Container>
+    </LayoutContainer>
+    </>
   );
 
 }
