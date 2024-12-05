@@ -28,6 +28,7 @@ import GroupView from './components/group/GroupView';
 import GroupMembers from './components/group/GroupMembers';
 import GroupSchedules from './components/group/GroupSchedules';
 import GroupBoard from './components/group/GroupBoard';
+import SetProfilePage from './components/pages/Login/SetProfilePage';
 
 
 function App() {
@@ -62,6 +63,7 @@ function App() {
             <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
             <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
             <Route path="login" element={<LoginPage />} />
+            <Route path="setProfile/:uniqueCode" element={<SetProfilePage />} />
           </Route>
         </Routes>
       </Router>
