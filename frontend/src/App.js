@@ -63,7 +63,7 @@ function App() {
             <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
             <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
             <Route path="login" element={<LoginPage />} />
-            <Route path="setProfile/:uniqueCode" element={<SetProfilePage />} />
+            <Route path="setProfile/:userId" element={<SetProfilePage />} />
           </Route>
         </Routes>
       </Router>

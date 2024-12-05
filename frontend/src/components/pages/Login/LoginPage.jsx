@@ -6,6 +6,7 @@ import Logo from "../../ui/Logo";
 import styled from "styled-components";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useGetUserId from "../../../utils/useGetUserId"; 
 
 const Wrapper = styled.div`
     display : flex;
@@ -53,6 +54,7 @@ function LoginPage() {
     const [isCodeSent, setIsCodeSent] = useState(false);
     const sessionUid = window.sessionStorage.getItem("uid");
     const [uid, setUid] = useState(sessionUid || "");
+    const userId = useGetUserId(uid);
 
     // uid 동기화
     useEffect(() => {
@@ -62,7 +64,6 @@ function LoginPage() {
             window.sessionStorage.removeItem("uid");
         }
     }, [uid]);
-    
     
     const onChangePhone = (e) => {
         const inputPhone = e.target.value;
@@ -125,7 +126,7 @@ function LoginPage() {
 
                 setUid(user.uid);
 
-                navigate("/");
+                navigate("/"); // 기존 사용자 로그인 후 홈으로 이동
             } else {
                 // 새로운 사용자 추가
                 let uniqueCode;
@@ -162,9 +163,9 @@ function LoginPage() {
     
                     console.log("회원가입 성공");
 
-                    setUid(user.id);
+                    setUid(user.uid); // uid 설정
 
-                    navigate(`/setProfile/${uniqueCode}`);
+                    navigate(`/setProfile/${userId}`); // userId로 프로필 설정 페이지로 이동
                 } else {
                     console.error("유니크 코드 중복 확인에서 오류 발생");
                 }
