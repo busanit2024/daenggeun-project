@@ -35,6 +35,10 @@ public class UserService {
         return userRepository.findByUidIn(uids);
     }
 
+    public List<User> findByUniqueCodeIn(List<String> uniqueCodes){
+        return userRepository.findByUniqueCodeIn(uniqueCodes);
+    }
+
     public Optional<User> findUserByUid(String uid) {
         return userRepository.findByUid(uid);
     }

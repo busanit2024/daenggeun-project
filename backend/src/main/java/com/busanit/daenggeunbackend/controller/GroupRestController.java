@@ -87,6 +87,9 @@ public class GroupRestController {
   private void joinRequest(@RequestBody Group.JoinRequest request) {
     GroupDTO groupDTO = groupService.findById(request.getGroupId());
     List<Group.JoinRequest> requests = groupDTO.getRequests();
+    if (requests == null) {
+      requests = new ArrayList<>();
+    }
     requests.add(request);
     groupDTO.setRequests(requests);
     groupService.save(groupDTO);

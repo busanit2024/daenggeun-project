@@ -82,10 +82,10 @@ const DescContainer = styled.div`
 `;
 
 const positionData = [
-  { enum : 'ADMIN', name: '모임장'},
-  { enum : 'MANAGER', name: '운영진'},
-  { enum : 'MEMBER', name: '일반멤버'},
-] 
+  { enum: 'ADMIN', name: '모임장' },
+  { enum: 'MANAGER', name: '운영진' },
+  { enum: 'MEMBER', name: '일반멤버' },
+]
 
 export default function MemberProfile() {
   const { group } = useOutletContext();
@@ -95,9 +95,9 @@ export default function MemberProfile() {
   useEffect(() => {
     if (group && group.members) {
       const id = memberId ?? sessionStorage.getItem('uid');
-    const member = group?.members.find((member) => member.userId === id);
-    setMember(member);
-    console.log(member);
+      const member = group?.members.find((member) => member.userId === id);
+      setMember(member);
+      console.log(member);
     }
   }, [group, memberId]);
 
@@ -107,14 +107,14 @@ export default function MemberProfile() {
     const regDate = new Date(date);
     const diffTime = Math.abs(today - regDate);
     const diffYears = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365));
-    if (diffYears > 0 ) {
+    if (diffYears > 0) {
       return `${diffYears}년`;
     }
     const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30));
     if (diffMonths > 0) {
       return `${diffMonths}개월`;
     }
-    
+
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     if (diffDays > 0) {
       return `${diffDays}일`;
@@ -126,9 +126,7 @@ export default function MemberProfile() {
     }
 
     const diffMinutes = Math.floor(diffTime / (1000 * 60));
-    if (diffMinutes > 0) {
-      return `${diffMinutes}분`;
-    }
+    return `${diffMinutes}분`;
   }
 
   const getPosition = (position) => {

@@ -13,5 +13,7 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     List<User> findByUidIn(List<String> uids);
 
+    List<User> findByUniqueCodeIn(List<String> uniqueCodes);
+
     Optional<User> findByUid(String uid);
 }

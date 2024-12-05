@@ -194,6 +194,8 @@ export default function GroupPageLayout(props) {
   };
 
   const handleJoinRequest = () => {
+    ////이미 가입신청중인 모임 체크할것
+    
     const newRequest = {
       groupId: group.id,
       userId: sessionStorage.getItem('uid'),
@@ -358,7 +360,7 @@ export default function GroupPageLayout(props) {
               {group.requireApproval &&
                 <Button title="가입 신청하기" grow variant="primary" onClick={handleJoinRequest} />
               }
-              <Button title="가입하기" grow variant="primary" onClick={handleJoinGroup} />
+              {!group.requireApproval && <Button title="가입하기" grow variant="primary" onClick={handleJoinGroup} /> }
               <Button title="취소" grow onClick={resetJoinInput} />
             </ButtonGroup>
           </>}
