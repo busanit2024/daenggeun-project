@@ -7,7 +7,7 @@ const getUserId = (uid) => {
         const fetchUserId = async () => {
             if (uid) {
                 window.sessionStorage.setItem("uid", uid);
-                const response = await fetch(`/api/user/${uid}`);
+                const response = await fetch(`/user/${uid}`);
                 const data = await response.json();
                 setUserId(data.userId);
             } else {

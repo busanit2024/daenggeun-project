@@ -67,6 +67,7 @@ public class UserRestController {
         }
     }
 
+    //userid불러오기
     @GetMapping("/{uid}")
     public ResponseEntity<User> getUserByUid(@PathVariable String uid) {
         return userService.findUserByUid(uid)
