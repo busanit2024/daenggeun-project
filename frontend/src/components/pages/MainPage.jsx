@@ -4,6 +4,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from "react-responsive-carousel";
 import imageData from "../../asset/imageData";
 import "../../styles/carouselOverrides.css"
+import SearchBar from "../SearchBar";
 
 const Wrapper = styled.div`
     max-width: 100%; 
@@ -82,7 +83,7 @@ const SlideText = styled.h2`
 function MainPage(props) {
     return (
         <Wrapper>
-            <h1>메인 페이지</h1>
+            <SearchBar />
             <FullWidthBackground>
                 <StyledCarousel
                     showArrows={true}

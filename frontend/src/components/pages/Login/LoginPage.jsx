@@ -134,7 +134,6 @@ function LoginPage() {
                 // 유니크 코드 생성 및 중복 확인
                 while (!isUnique) {
                     uniqueCode = generateUniqueCode();
-                    console.log("Generated Unique Code:", uniqueCode);  // 유니크 코드 값 출력
                     const checkResponse = await axios.get(`/user/checkUniqueCode/${uniqueCode}`, {
                         headers: {
                             Authorization:`Bearer ${idToken}`,
@@ -150,7 +149,6 @@ function LoginPage() {
                 }
     
                 if (isUnique) {
-                    // 유니크 코드가 중복되지 않으면 사용자 등록
                     await axios.post("/user/join", {
                         phone,
                         uid: user.uid,
@@ -166,7 +164,7 @@ function LoginPage() {
 
                     setUid(user.id);
 
-                    navigate("/");
+                    navigate(`/setProfile/${uniqueCode}`);
                 } else {
                     console.error("유니크 코드 중복 확인에서 오류 발생");
                 }
