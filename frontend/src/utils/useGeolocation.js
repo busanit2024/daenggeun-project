@@ -22,7 +22,8 @@ const useGeolocation = (isLoaded) => {
               const addressComponents = results[0].address_components;
               const sido = addressComponents.find((component) => component.types.includes('administrative_area_level_1'))?.long_name;
               const sigungu = addressComponents.find((component) => component.types.includes('sublocality_level_1'))?.long_name;
-              setLocation({ sido, sigungu, emd: '' });
+              const emd = addressComponents.find((component) => component.types.includes('sublocality_level_2'))?.long_name;
+              setLocation({ sido, sigungu, emd });
             } else {
               console.error('No results found');
             }

@@ -1,3 +1,71 @@
+#### frontend
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# dependencies
+frontend/node_modules
+frontend/.pnp
+.pnp.js
+
+# testing
+frontend/coverage
+
+# production
+frontend/build
+
+# misc 
 frontend/.env
+frontend/.DS_Store
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+
+
+#### backend
+
+backend/HELP.md
+backend/.gradle
+backend/build/
+!gradle/wrapper/gradle-wrapper.jar
+!backend/src/main/**/build/
+!backend/src/test/**/build/
+
+### STS ###
+backend/.apt_generated
+backend/.classpath
+backend/.factorypath
+backend/.project
+backend/.settings
+backend/.springBeans
+backend/.sts4-cache
+backend/bin/
+!backend/src/main/**/bin/
+!backend/src/test/**/bin/
+
+### IntelliJ IDEA ###
+backend/.idea
+*.iws
+*.iml
+*.ipr
+backend/out/
+!backend/src/main/**/out/
+!backend/src/test/**/out/
+
+### NetBeans ###
+backend/nbproject/private/
+backend/nbbuild/
+backend/dist/
+backend/nbdist/
+backend/.nb-gradle/
+
+### VS Code ###
+backend/.vscode/
+
+
 backend/src/main/resources/firebaseAdminSDK.json
+
