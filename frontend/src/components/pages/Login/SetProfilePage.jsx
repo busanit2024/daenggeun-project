@@ -88,7 +88,6 @@ export default function SetProfilePage(props) {
             const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
             
             const locationObject = {
-                sido: "부산", // 시도는 하드코딩하거나 다른 방법으로 설정
                 sigungu: sigungu,
                 emd: emd
             };
@@ -143,13 +142,13 @@ export default function SetProfilePage(props) {
             if (profileImage) {
                 const { url, filename } = await singleFileUpload(profileImage);
                 console.log("이미지 업로드 성공. 파일 이름 : ", filename);
-                profileImageData = { url, filename, filePath: "your/file/path/here" }; // filePath 추가
+                profileImageData = { url, filename }; 
             }
 
             // userId를 쿼리 파라미터로 포함하여 프로필 저장
             await axios.post(`/user/profileSave/${userId}`, { 
                 username, 
-                userLocation, // Location 객체의 리스트로 전송
+                userLocation,
                 profileImage: profileImageData 
             });
             alert("프로필이 성공적으로 저장되었습니다.");
