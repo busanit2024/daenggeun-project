@@ -8,6 +8,21 @@ import AlbaListItem from "../../alba/AlbaListItem";
 import RoundFilter from "../../ui/RoundFilter";
 import Breadcrumb from "../../Breadcrumb";
 
+const HorizontalContainer = styled.div`
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+`;
+
+const StyledRoundFilter = styled(RoundFilter)`
+    padding: 4px 8px;
+    margin: 4px;
+    font-size: 0.9rem;
+    display: inline-block;
+    cursor: pointer;
+    white-space: nowrap;
+  `;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -113,6 +128,8 @@ export default function AlbaPage(props) {
       });
   }, []);
 
+
+  
   // 알바 리스트 데이터를 가져오기 위한 useEffect
   useEffect(() => {
     const fetchData = async () => {
@@ -122,26 +139,38 @@ export default function AlbaPage(props) {
             gu: selectedRegion || undefined,
             dong: selectedDong || undefined,
             category: category !== "all" ? category : undefined,
-            workType: workType.length > 0 ? workType.join(",") : undefined,
+            workPeriod: workType.length > 0 ? workType.join(",") : undefined,
             workDays: workDays.length > 0 ? workDays.join(",") : undefined,
-            workTimeStart: workTime.start || undefined,
-            workTimeEnd: workTime.end || undefined,
+            start: workTime.start || undefined,
+            end: workTime.end || undefined,
             searchTerm: searchTerm.trim() !== "" ? searchTerm : undefined,
           }
         });
+        console.log(response.data)
         // 필터링 결과가 있는 경우에만 albaList를 업데이트
         const filteredList = response.data.filter(alba => {
+
+          console.log("alba: ", alba);
+          console.log("workTime.start: ", workTime.start);
+          console.log("workTime.end: ", workTime.end);
+          console.log("alba.workTimeStart >= workTime.start: ", '"' + alba.workTimeStart + '"' >= '"' + workTime.start + '"');
+          console.log("alba.workTimeEnd <= workTime.end", '"' + alba.workTimeEnd + '"' >= '"' + workTime.end + '"');
+
           return (
             (!selectedRegion || alba.region === selectedRegion) &&
             (!selectedDong || alba.dong === selectedDong) &&
             (category === "all" || alba.category === category) &&
-            (workType.length === 0 || workType.includes(alba.workType)) &&
+            (workType.length === 0 || workType.includes(alba.workPeriod)) &&
             (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
-            (!workTime.start || alba.workTimeStart >= workTime.start) &&
-            (!workTime.end || alba.workTimeEnd <= workTime.end) &&
+            (!workTime.start || '"' + alba.workTimeStart + '"' >= '"' + workTime.start + '"') &&
+            (!workTime.end || '"' + alba.workTimeEnd + '"' >= '"' + workTime.end + '"') &&
+            // (!workTime.start || alba.workTimeStart >= workTime.start) &&
+            // (!workTime.end || alba.workTimeEnd >= workTime.end) &&
             (!searchTerm.trim() || alba.title.includes(searchTerm.trim()) || alba.description.includes(searchTerm.trim()))
           );
         });
+
+        console.log("filteredList: ", filteredList)
         setAlbaList(filteredList);
       } catch (error) {
         console.error("알바 리스트를 불러오는데 실패했습니다." + error);
@@ -260,13 +289,13 @@ export default function AlbaPage(props) {
                 <div key={item.id}>
                   <input
                     type="checkbox"
-                    id={item.id}
+                    id={item.name}
                     name="workType"
-                    value={item.id}
-                    onChange={() => handleWorkTypeChange(item.id)}
-                    checked={workType.includes(item.id)}
+                    value={item.name}
+                    onChange={() => handleWorkTypeChange(item.name)}
+                    checked={workType.includes(item.name)}
                   />
-                  <label htmlFor={item.id}>{item.name}</label>
+                  <label htmlFor={item.name}>{item.name}</label>
                 </div>
               ))}
             </div>
@@ -294,15 +323,18 @@ export default function AlbaPage(props) {
           <div className="filterItem">
             <h4 className="title">근무 요일</h4>
             <div className="filterList">
+            <HorizontalContainer>
               {workDaysData.map((day) => (
-                <RoundFilter
+                <StyledRoundFilter
                   key={day.name}
                   title={day.name}
                   variant={workDays.includes(day.name) ? 'selected' : 'category'}
                   onClick={() => handleWorkDayChange(day.name)}
                 />
               ))}
-            </div>
+           </HorizontalContainer>
+          </div>
+            
           </div>
 
           <div className="filterItem">
@@ -338,7 +370,7 @@ export default function AlbaPage(props) {
             <FilterContainer>
               {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
               {workType.map((type) => (
-                <RoundFilter key={type} title={workTypeData.find(item => item.id === type)?.name} variant='search' cancelIcon onClick={() => handleWorkTypeChange(type)} />
+                <RoundFilter key={type} title={workTypeData.find(item => item.name === type)?.name} variant='search' cancelIcon onClick={() => handleWorkTypeChange(type)} />
               ))}
               {workDays.map((day) => (
                 <RoundFilter key={day} title={day} variant='search' cancelIcon onClick={() => handleWorkDayChange(day)} />

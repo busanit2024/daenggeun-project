@@ -26,8 +26,10 @@ public class AlbaController {
 
     // 모든 알바 데이터 가져오기
     @GetMapping
-    public List<Alba> getAllAlba() {
-        return albaService.getAllAlba();
+    public List<Alba> getAllAlba(@RequestParam(required = false) String start,  // start 값 받기
+                                 @RequestParam(required = false) String end) {   // end 값 받기
+
+        return albaService.getAllAlba(start, end);
     }
 
     // 특정 알바 데이터 가져오기

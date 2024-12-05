@@ -10,12 +10,14 @@ import { singleFileUpload } from "../../../firebase";
 
 const AlbaCreate = () => {
   const [form, setForm] = useState({
+    creatorId: "",
     title: "",
     description: "",
     wage: "",
     workDays: [],
     startTime: "",
     endTime: "",
+    negotiable: false,
     image: "",
     category: [],
     wageType: "", // 급여 유형 추가
@@ -190,10 +192,10 @@ const AlbaCreate = () => {
         workTime: {
             start: form.startTime,
             end: form.endTime,
+            // start: new Date(form.startTime),
+            // end: new Date(form.endTime),
         },
     };
-    console.log(payload)
-    console.log(typeof payload)
     try {
         await axios.post("/api/alba", payload, {
             headers: { "Content-Type": "application/json" },
@@ -261,14 +263,14 @@ const AlbaCreate = () => {
 
         <div className="work-time">
           <h3 className="section-title">일하는 시간</h3>
-          <InputText
+          <input
             type="time"
             name="startTime"
             value={form.startTime}
             onChange={handleChange}
           />
           ~
-          <InputText
+          <input
             type="time"
             name="endTime"
             value={form.endTime}

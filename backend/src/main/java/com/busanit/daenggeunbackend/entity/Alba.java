@@ -1,12 +1,14 @@
 package com.busanit.daenggeunbackend.entity;
 
 import com.busanit.daenggeunbackend.domain.Image;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -38,15 +40,17 @@ public class Alba {
     private List<Review> reviews; // 리뷰 리스트
     private List<String> interests; // 관심 등록한 사용자 ID 리스트
     private Image image;
+
+    // 근무 시간 클래스
+    @Getter
+    @Setter
+    public static class WorkTime {
+        private String start; // 시작 시간
+        private String end; // 종료 시간
+    }
 }
 
-// 근무 시간 클래스
-@Getter
-@Setter
-class WorkTime {
-    private String start; // 시작 시간
-    private String end; // 종료 시간
-}
+
 
 // 지원 정보 서브 도큐먼트
 @Getter
