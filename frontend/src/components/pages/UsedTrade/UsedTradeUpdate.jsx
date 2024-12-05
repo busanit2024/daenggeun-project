@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Button from "../../ui/Button";
 import InputText from "../../ui/InputText";
 import ImageUpload from "./ImageUpload";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 const ButtonContainer = styled.div`
     display: inline-flex;
@@ -101,12 +101,83 @@ const TradeButton = styled(Button)`
 
 const UsedTradeUpdate = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
+    // location.state에서 정보 가져오기
+    const product = location.state || {};
+
     const [isPriceNegotiable, setIsPriceNegotiable] = useState(false);
-    const [price, setPrice] = useState("100,000");
+    const [name, setName] = useState(product.name || "상품명이 없습니다.");
+    const [price, setPrice] = useState(product.price ? product.price.toString() : "");
+    const [content, setContent] = useState(product.content || "상세 설명이 없습니다.");
+    const [locationInput, setLocationInput] = useState(product.location || "위치 정보가 없습니다.");
+
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("여성의류");
     const [selectedTradeType, setSelectedTradeType] = useState("판매하기");
-    const navigate = useNavigate();
+
+    useEffect(() => {
+        // 상품 정보를 API에서 가져오는 함수
+        const fetchProductInfo = async () => {
+            try {
+                const response = await fetch(`/api/usedTrades/${id}`);
+                if (!response.ok) {
+                    throw new Error('상품을 가져오는 데 실패했습니다.');
+                }
+                const data = await response.json();
+                setName(data.name);
+                setPrice(data.price.toString());
+                setContent(data.content);
+                setLocationInput(data.location);
+                setIsPriceNegotiable(data.isPriceNegotiable);
+            } catch (error) {
+                console.error('Error fetching product:', error);
+            }
+        };
+
+        if (!product.name) {
+            fetchProductInfo();
+        } else {
+            setName(product.name);
+            setPrice(product.price.toString());
+            setContent(product.content);
+            setLocationInput(product.location);
+            setIsPriceNegotiable(product.isPriceNegotiable);
+        }
+    }, [id, product]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const updatedProduct = {
+            name,
+            price: parseInt(price.replace(/[^0-9]/g, ""), 10),
+            content,
+            location: locationInput,
+            isPriceNegotiable,
+            category: selectedCategory,
+            tradeType: selectedTradeType,
+        };
+
+        try {
+            const response = await fetch(`/api/usedTrades/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedProduct),
+            });
+
+            if (response.ok) {
+                alert("수정이 완료되었습니다.");
+                navigate(`/usedTrade/used-trade-view/${id}`);
+            } else {
+                alert("수정에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error('Error updating product:', error);
+            alert("서버와의 연결에 실패했습니다.");
+        }
+    };
 
     const handlePriceChange = (e) => {
         let value = e.target.value.replace(/[^0-9]/g, "");
@@ -115,6 +186,8 @@ const UsedTradeUpdate = () => {
         }
         setPrice(value);
     };
+
+    const formattedPrice = new Intl.NumberFormat('ko-KR').format(price);    // 가격 포맷팅하기
 
     const handleCheckboxChange = () => {
         setIsPriceNegotiable((prev) => !prev);
@@ -185,51 +258,56 @@ const UsedTradeUpdate = () => {
                     </CategoryList>
                     </CategoryToggle>
                 </Form>
-                <InputText placeholder="제목" />
+                <InputText 
+                    placeholder="제목"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                />
 
-                    <div>
-                        <h3>거래 방식</h3>
-                        <ButtonContainer>
-                        <TradeButton
-                            key={`판매하기-${selectedTradeType === "판매하기"}`}
-                            active={selectedTradeType === "판매하기"}
-                            onClick={() => handleTradeTypeChange("판매하기")}
-                            title="판매하기"
-                            variant="gray"
-                            borderRadius="30px"
-                        >
-                            판매하기
-                        </TradeButton>
-                        <TradeButton
-                            key={`나눔하기-${selectedTradeType === "나눔하기"}`}
-                            active={selectedTradeType === "나눔하기"}
-                            onClick={() => handleTradeTypeChange("나눔하기")}
-                            title="나눔하기"
-                            variant="gray"
-                            borderRadius="30px"
-                        >
-                            나눔하기
-                        </TradeButton>
-                        </ButtonContainer>
-                    </div>
+                <div>
+                    <h3>거래 방식</h3>
+                    <ButtonContainer>
+                    <TradeButton
+                        key={`판매하기-${selectedTradeType === "판매하기"}`}
+                        active={selectedTradeType === "판매하기"}
+                        onClick={() => handleTradeTypeChange("판매하기")}
+                        title="판매하기"
+                        variant="gray"
+                        borderRadius="30px"
+                    >
+                        판매하기
+                    </TradeButton>
+                    <TradeButton
+                        key={`나눔하기-${selectedTradeType === "나눔하기"}`}
+                        active={selectedTradeType === "나눔하기"}
+                        onClick={() => handleTradeTypeChange("나눔하기")}
+                        title="나눔하기"
+                        variant="gray"
+                        borderRadius="30px"
+                    >
+                        나눔하기
+                    </TradeButton>
+                    </ButtonContainer>
+                </div>
 
-                    <InputText
-                        placeholder="가격을 입력해주세요"
-                        value={price}
-                        onChange={handlePriceChange}
-                    /> 원
-                    <Label>
-                        <Checkbox
-                            type="checkbox"
-                            checked={isPriceNegotiable}
-                            onChange={handleCheckboxChange}
-                        />
-                        {selectedTradeType
-                            ? (selectedTradeType === "판매하기"
-                                ? "가격 제안 받기"
-                                : "나눔 신청 받기")
-                            : "판매 / 나눔 중 하나를 선택해 주세요"}
-                    </Label>
+                <InputText
+                    placeholder="가격을 입력해주세요"
+                    value={formattedPrice}
+                    onChange={handlePriceChange}
+                /> 원
+
+                <Label>
+                    <Checkbox
+                        type="checkbox"
+                        checked={isPriceNegotiable}
+                        onChange={handleCheckboxChange}
+                    />
+                    {selectedTradeType
+                        ? (selectedTradeType === "판매하기"
+                            ? "가격 제안 받기"
+                            : "나눔 신청 받기")
+                        : "판매 / 나눔 중 하나를 선택해 주세요"}
+                </Label>
                 </InputContainer>
             </Form>
 
@@ -237,15 +315,20 @@ const UsedTradeUpdate = () => {
                 <InputContainer>
                     <h3>설명</h3>
                     <TextArea 
-                        placeholder="{주소}에 올릴 게시글 내용을 작성해 주세요.
-                        (판매 금지 물품은 게시가 제한될 수 있습니다.)"
+                        placeholder={`${locationInput}에 올릴 게시글 내용을 작성해 주세요.\n(판매 금지 물품은 게시가 제한될 수 있습니다.)`}
                         rows="5"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
                     />
                 </InputContainer>
 
                 <InputContainer>
                     <h3>거래 희망 장소</h3>
-                    <InputText placeholder="거래 희망 장소" />
+                    <InputText 
+                        placeholder="거래 희망 장소" 
+                        value={locationInput}
+                        onChange={(e) => setLocationInput(e.target.value)}
+                    />
                 </InputContainer>
             </Form>
 
@@ -262,20 +345,12 @@ const UsedTradeUpdate = () => {
                         title="수정하기"
                         variant="primary"
                         type="submit"
-                        onClick={() => {
-                            alert(
-                                `수정 완료\n가격 제안 가능 여부: ${
-                                    isPriceNegotiable ? "가능" : "불가능"
-                                }`
-                            );
-                            navigate(`/usedTrade/used-trade-view/${id}`);
-                        }}
+                        onClick={handleSubmit}
                     />
                     <Button
                         title="취소하기"
                         variant="gray"
                         onClick={() => {
-                            alert("취소")
                             navigate(`/usedTrade/used-trade-view/${id}`);
                         }}
                     />
