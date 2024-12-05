@@ -26,4 +26,39 @@ public class UsedTradeController {
         List<UsedTrade> usedTradeList = usedTradeService.getAllUsedTrade();
         return ResponseEntity.ok(usedTradeList);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UsedTrade> getUsedTradeById(@PathVariable String id) {
+        UsedTrade usedTrade = usedTradeService.getUsedTradeById(id);
+        if (usedTrade != null) {
+            return ResponseEntity.ok(usedTrade);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UsedTrade> updateUsedTrade(@PathVariable String id,
+                                                     @RequestBody UsedTrade updatedUsedTrade) {
+        System.out.println("Received PUT request for ID: " + id + " with data: " + updatedUsedTrade);
+        UsedTrade existingTrade = usedTradeService.getUsedTradeById(id);
+        if (existingTrade != null) {
+            updatedUsedTrade.setId(id);
+            UsedTrade savedUsedTrade = usedTradeService.updatedUsedTrade(updatedUsedTrade);
+            return ResponseEntity.ok(savedUsedTrade);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUsedTrade(@PathVariable String id) {
+        System.out.println("Received DELETE request for ID: " + id);
+        boolean isDeleted = usedTradeService.deleteUsedTradeById(id);
+        if (isDeleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

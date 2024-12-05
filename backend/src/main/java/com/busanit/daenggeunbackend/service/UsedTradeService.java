@@ -20,5 +20,21 @@ public class UsedTradeService {
         return usedTradeRepository.findAll();
     }
 
+    public UsedTrade getUsedTradeById(String id) {
+        return usedTradeRepository.findById(id).orElse(null);
+    }
+
+    public UsedTrade updatedUsedTrade(UsedTrade updatedUsedTrade) {
+        return usedTradeRepository.save(updatedUsedTrade);
+    }
+
+    public boolean deleteUsedTradeById(String id) {
+        if (usedTradeRepository.existsById(id)) {
+            usedTradeRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
     
 }

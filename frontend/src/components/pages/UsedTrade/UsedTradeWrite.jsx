@@ -331,7 +331,6 @@ const UsedTradeWrite = () => {
                         title="취소하기"
                         variant="gray"
                         onClick={() => {
-                            alert("취소")
                             navigate("/usedTrade/used-trade");
                         }}
                     />

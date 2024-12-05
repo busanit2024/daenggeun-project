@@ -78,6 +78,10 @@ const UsedTrade = () => {
     fetchTrades();  // 컴포넌트가 마운트될 때 중고거래 목록 가져오기
   }, []);
 
+  const formattedPrice = (price) => {
+    return new Intl.NumberFormat('ko-KR').format(price);
+  }
+
   return (
     <Container>
         <Content>
@@ -97,7 +101,7 @@ const UsedTrade = () => {
                   <Card 
                     key={usedTrade.id}
                     title={usedTrade.name}
-                    price={`${usedTrade.price} 원`}
+                    price={`${formattedPrice(usedTrade.price)} 원`}
                     location={usedTrade.location}
                     onClick={() => navigate(`/usedTrade/used-trade-view/${usedTrade.id}`, { state: usedTrade })}
                     style={{ cursor: "pointer" }}
