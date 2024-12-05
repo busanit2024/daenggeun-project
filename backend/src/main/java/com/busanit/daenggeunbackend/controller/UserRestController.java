@@ -15,7 +15,6 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:3000")
 public class UserRestController {
 
     private final UserService userService;
@@ -66,6 +65,13 @@ public class UserRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("이미지 삭제 실패: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/{uid}")
+    public ResponseEntity<User> getUserByUid(@PathVariable String uid) {
+        return userService.findUserByUid(uid)
+                .map(user -> ResponseEntity.ok(user))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
 }

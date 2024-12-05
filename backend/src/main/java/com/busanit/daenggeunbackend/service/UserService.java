@@ -44,6 +44,10 @@ public class UserService {
         return userRepository.findByPhone(phone);
     }
 
+    public Optional<User> findUserByUid(String uid) {
+        return userRepository.findByUid(uid);
+    }
+
     public UserProfileDTO saveProfile(String username, String location, MultipartFile profileImageFile, String uid) throws IOException {
         User user = userRepository.findByUid(uid)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
