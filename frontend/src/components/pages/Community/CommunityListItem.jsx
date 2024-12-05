@@ -20,7 +20,7 @@ const Content = styled.p`
 `;
 
 const CommunityListItem = ({ community }) => {
-  const { title, content, createdDate, location, likeCount, commentCount, images } = community;
+  const { title, content, createdDate, location, likeCount, commentCount, images, category } = community;
 
   const timeAgo = (date) => {
     const now = new Date();
@@ -35,6 +35,7 @@ const CommunityListItem = ({ community }) => {
       {images && images.length > 0 && <img src={images[0]} alt="첨부 이미지" style={{ width: '100%', borderRadius: '8px' }} />}
       <div>{location}</div>
       <div>{timeAgo(createdDate)}</div>
+      <div>좋테고리: {category}</div>
       <div>좋아요: {likeCount} | 댓글: {commentCount}</div>
     </ItemContainer>
   );

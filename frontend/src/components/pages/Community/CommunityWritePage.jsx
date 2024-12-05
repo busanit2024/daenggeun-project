@@ -5,8 +5,6 @@ import styled from "styled-components";
 import Button from "../../ui/Button";
 import RoundFilter from "../../ui/RoundFilter";
 import { singleFileUpload } from "../../../firebase";
-import Radio from "../../ui/Radio";
-import Switch from "../../ui/Switch";
 
 
 const Container = styled.div`
