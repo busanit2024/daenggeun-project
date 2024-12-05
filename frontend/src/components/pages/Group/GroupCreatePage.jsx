@@ -358,13 +358,14 @@ export default function GroupCreatePage(props) {
         groupNickName: nickname,
       }
 
-      const response = await axios.post("/api/group/save", {
+      const response = await axios.post("/api/group/new", {
         ...input,
         image: imageInfo,
         boards: ["자유 게시판"],
         userId: userId,
         members: [memberProfile],
       });
+      
       alert("모임이 생성되었습니다.");
       navigate("/group");
 

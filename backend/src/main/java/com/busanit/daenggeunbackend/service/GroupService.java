@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,6 +34,26 @@ public class GroupService {
 
   public void save(GroupDTO groupDTO) {
     groupRepository.save(Group.toEntity(groupDTO));
+  }
+
+  public String saveAndGetId(GroupDTO groupDTO) {
+    return groupRepository.save(Group.toEntity(groupDTO)).getId();
+  }
+
+  @Transactional
+  public void createGroup(GroupDTO groupDTO) {
+    Group group = groupRepository.save(Group.toEntity(groupDTO));
+    GroupMember admin = group.getMembers().stream()
+            .filter(member -> member.getPosition() == GroupMember.Position.ADMIN)
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Admin member not found"));
+
+    admin.setGroupId(group.getId());
+
+    group.getMembers().remove(admin);
+    group.getMembers().add(admin);
+
+    groupRepository.save(group);
   }
 
   public void delete(String id) {

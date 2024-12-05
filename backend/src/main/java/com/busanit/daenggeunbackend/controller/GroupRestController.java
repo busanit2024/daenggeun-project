@@ -46,6 +46,16 @@ public class GroupRestController {
     return groupService.findById(groupId);
   }
 
+  @PostMapping("/new")
+  private ResponseEntity<String> createGroup(@RequestBody GroupDTO groupDTO) {
+    try {
+      groupService.createGroup(groupDTO);
+      return ResponseEntity.ok("Group created");
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
   @PostMapping("/save")
   private void saveGroup(@RequestBody GroupDTO groupDTO) {
     groupService.save(groupDTO);
