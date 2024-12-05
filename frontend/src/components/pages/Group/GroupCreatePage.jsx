@@ -18,6 +18,7 @@ export const Container = styled.div`
   flex-direction: column;
   width: 100%;
   margin-top: 24px;
+  gap: 12px;
 `;
 
 export const ButtonContainer = styled.div`
@@ -39,6 +40,10 @@ export const Item = styled.div`
     display: flex;
     align-items: center;
     gap: 16px;
+  }
+
+  h2 {
+    margin-top: 24px;
   }
 `;
 
@@ -76,13 +81,13 @@ export const TextLength = styled.div`
   margin-left: auto;
 `;
 
-const DongneSelectContainer = styled.div`
+export const DongneSelectContainer = styled.div`
   display: flex;
   gap: 16px;
   align-items: center;
 `;
 
-const DongneSelect = styled.select`
+export const DongneSelect = styled.select`
   padding: 12px;
   border: 2px solid #cccccc;
   border-radius: 8px;

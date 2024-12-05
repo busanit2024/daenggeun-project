@@ -9,7 +9,7 @@ import InputText from "../../ui/InputText";
 import Switch from "../../ui/Switch";
 import Radio from "../../ui/Radio";
 import Breadcrumb from "../../Breadcrumb";
-import { Container, ButtonContainer, Item, InputContainer, Input, Textarea, TextLength, RadioContainer, SelectBoxContainer, SelectBox, FileInputContainer, InputCheckMessage } from "./GroupCreatePage";
+import { Container, ButtonContainer, Item, InputContainer, Input, Textarea, TextLength, RadioContainer, SelectBoxContainer, SelectBox, FileInputContainer, InputCheckMessage, DongneSelectContainer, DongneSelect } from "./GroupCreatePage";
 
 
 const ImagePreview = styled.div`
@@ -66,6 +66,8 @@ export default function GroupEditPage(props) {
   const [group, setGroup] = useState({});
   const [categoryData, setCategoryData] = useState([]);
   const [rangeData, setRangeData] = useState([]);
+  const [busanJuso, setBusanJuso] = useState([]);
+  const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
   const [boardDivisions, setBoardDivisions] = useState(false);
   const [boardName, setBoardName] = useState("");
   const [ageInput, setAgeInput] = useState(false);
@@ -95,13 +97,31 @@ export default function GroupEditPage(props) {
     }).catch((error) => {
       console.error("동네 범위를 불러오는데 실패했습니다." + error);
     });
+
+    axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
+      const juso = response.data.locationFilters;
+      setBusanJuso(juso);
+      const guList = juso?.map((item) => item.sigungu);
+
+      setLocationData((prevLocationData) => ({
+        ...prevLocationData,
+        sigungu: guList,
+      }));
+    }).catch((error) => {
+      console.error("부산 주소를 불러오는데 실패했습니다." + error);
+    });
   }, []);
 
   useEffect(() => {
       const check = validateInput();
       setInputCheck(check);
-      console.log(check.age);
   }, [group]);
+
+  useEffect(() => {
+    if (group?.location && busanJuso) {
+      getEmdList(group.location.sigungu);
+    }
+  }, [busanJuso, group.location?.sigungu]);
 
   useEffect(() => {
     if (group.ageRange) { 
@@ -120,6 +140,16 @@ export default function GroupEditPage(props) {
     setGroup({...group , ageRange: `${ageInputValue.min}세~${ageInputValue.max}세`});
     }
   }, [ageInputValue]);
+
+  
+  const getEmdList = (sigungu) => {
+    if (busanJuso) {
+      const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
+      const emdNameList = emdList?.map((item) => item.emd);
+      setLocationData({ ...locationData, emd: emdNameList });
+      setGroup({ ...group, location: { ...group.location, emd: emdNameList?.[0] } });
+    }
+  };
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
@@ -258,6 +288,25 @@ export default function GroupEditPage(props) {
         <InputCheckMessage>{inputCheck.description && "모임 소개를 8자 이상 입력해주세요."}</InputCheckMessage>
         <TextLength>{`${group.description?.length}/${descriptionInputConstraint.maxLength}`}</TextLength>
         </div>
+      </Item>
+
+      <Item>
+      <h4>동네</h4>
+        <DongneSelectContainer>
+          <div style={{ fontSize: '20px', color: '#666666' }}>부산광역시</div>
+          <DongneSelect value={group?.location?.sigungu} onChange={(e) => setGroup({ ...group, location: { ...group.location, sigungu: e.target.value } })}>
+          {
+              locationData.sigungu?.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+          </DongneSelect>
+          <DongneSelect value={group?.location?.emd} onChange={(e) => setGroup({ ...group, location: { ...group.location, emd: e.target.value } })}>
+          {
+              locationData.emd?.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+          </DongneSelect>
+        </DongneSelectContainer>
       </Item>
 
       <Item>
