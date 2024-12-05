@@ -126,10 +126,23 @@ export default function AlbaPage(props) {
             workDays: workDays.length > 0 ? workDays.join(",") : undefined,
             workTimeStart: workTime.start || undefined,
             workTimeEnd: workTime.end || undefined,
-            searchTerm: searchTerm || undefined,
+            searchTerm: searchTerm.trim() !== "" ? searchTerm : undefined,
           }
         });
-        setAlbaList(response.data);
+        // 필터링 결과가 있는 경우에만 albaList를 업데이트
+        const filteredList = response.data.filter(alba => {
+          return (
+            (!selectedRegion || alba.region === selectedRegion) &&
+            (!selectedDong || alba.dong === selectedDong) &&
+            (category === "all" || alba.category === category) &&
+            (workType.length === 0 || workType.includes(alba.workType)) &&
+            (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
+            (!workTime.start || alba.workTimeStart >= workTime.start) &&
+            (!workTime.end || alba.workTimeEnd <= workTime.end) &&
+            (!searchTerm.trim() || alba.title.includes(searchTerm.trim()) || alba.description.includes(searchTerm.trim()))
+          );
+        });
+        setAlbaList(filteredList);
       } catch (error) {
         console.error("알바 리스트를 불러오는데 실패했습니다." + error);
       }
@@ -321,7 +334,7 @@ export default function AlbaPage(props) {
 
         {/* 알바 리스트 컨테이너 */}
         <ListContainer>
-          {(category !== 'all' || workType.length > 0 || workDays.length > 0 || workTime.start || workTime.end || searchTerm !== "" || selectedRegion !== "" || selectedDong !== "") &&
+          {(category !== 'all' || workType.length > 0 || workDays.length > 0 || workTime.start || workTime.end || searchTerm.trim() !== "" || selectedRegion !== "" || selectedDong !== "") &&
             <FilterContainer>
               {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
               {workType.map((type) => (
@@ -334,7 +347,7 @@ export default function AlbaPage(props) {
               {workTime.end && <RoundFilter title={`종료 시간: ${workTime.end}`} variant='search' cancelIcon onClick={() => setWorkTime(prev => ({ ...prev, end: "" }))} />}
               {selectedRegion && <RoundFilter title={selectedRegion} variant='search' cancelIcon onClick={() => setSelectedRegion("")} />}
               {selectedDong && <RoundFilter title={selectedDong} variant='search' cancelIcon onClick={() => setSelectedDong("")} />}
-              {searchTerm && <RoundFilter title={`검색어: ${searchTerm}`} variant='search' cancelIcon onClick={() => setSearchTerm("")} />}
+              {searchTerm.trim() !== "" && <RoundFilter title={`검색어: ${searchTerm}`} variant='search' cancelIcon onClick={() => setSearchTerm("")} />}
             </FilterContainer>
           }
 
