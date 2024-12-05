@@ -1,0 +1,15 @@
+{
+    "title": "해운대에서 쓰는 첫 동네생활",
+    "content": "이것은 동네생활 첫 글이에요",
+    "category": "생활/편의",
+    "image": {
+        "filename": "32c43494-42f5-4885-a9e4-af85418af5b9",
+        "url": "https://firebasestorage.googleapis.com/v0/b/daengn-project.firebasestorage.app/o/image%2F32c43494-42f5-4885-a9e4-af85418af5b9?alt=media&token=38312a9e-e7e4-4a75-a850-3b86355e6872"
+    },
+    "location": {
+        "sigungu": "해운대구",
+        "emd": "재송동"
+    },
+    "createdDate": "2023-10-01T12:00:00Z",
+    "class": "com.busanit.daengnbackend.entity.Community"
+}

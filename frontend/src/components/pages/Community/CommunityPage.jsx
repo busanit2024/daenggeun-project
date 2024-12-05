@@ -87,11 +87,11 @@ useEffect(() => { // useEffect 괄호 수정
 
   return(
     <Container>
-        <HeadContainer>
+      <HeadContainer>
         <h2>{`${location.si} ${location.gu} ${category === 'all' ? `${location.dong ? location.dong : ''} 동네생활` : category === '전체' ? '동네생활' : `${category}`} `}</h2>
         <Button title="+ 글쓰기" width onClick={() => navigate("/community/write")} />
-        </HeadContainer>
-        <InnerContainer>
+      </HeadContainer>
+      <InnerContainer>
         <FilterBar>
               <div className="filterItem">                    
                   <div className="filterList">

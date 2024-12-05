@@ -84,4 +84,4 @@ const deleteFile = async (filename) => {
   }
 };
 
-export { storage, auth, app as default, singleFileUpload, deleteFile,  RecaptchaVerifier, signInWithPhoneNumber  };
+export { storage, auth, app as default, singleFileUpload, multipleFileUpload, deleteFile,  RecaptchaVerifier, signInWithPhoneNumber  };

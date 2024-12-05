@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
 import RoundFilter from "../../ui/RoundFilter";
-import { singleFileUpload } from "../../../firebase";
+import { multipleFileUpload, singleFileUpload } from "../../../firebase";
 
 
 const Container = styled.div`
@@ -77,24 +77,7 @@ const RadioContainer = styled.div`
   align-items: center;
 `;
 
-const SelectBoxContainer = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 2fr;
-  gap: 16px;
-`;
 
-const SelectBox = styled.label`
-  padding: 24px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: ${props => props.selected ? "#999999" : "#cccccc"};
-  border-radius: 8px;
-  background-color: ${props => props.selected ? "#ebebeb" : "white"};
-  display: flex;
-  gap: 8px;
-  justify-content: space-between;
-  align-items: center;
-`;
 
 const FileInputContainer = styled.div` 
   display: flex;
@@ -150,7 +133,7 @@ const ImagePreview = styled.div`
 
 
 const titleInputConstraint = { minLength: 3, maxLength: 24 };
-const descriptionInputConstraint = { minLength: 8, maxLength: 500 };
+const contentInputConstraint = { minLength: 8, maxLength: 500 };
 
 export default function CommunityWritePage(props) {
     const navigate = useNavigate();
@@ -161,7 +144,7 @@ export default function CommunityWritePage(props) {
     const [step, setStep] = useState(1);
     const [title, setTitle] = useState("");
     const [category, setCategory] = useState("");
-    const [description, setDescription] = useState("");
+    const [content, setContent] = useState("");
     const [range, setRange] = useState("0");
     const [image, setImage] = useState([]); // 초기값을 빈 배열로 설정
     const [location, setLocation] = useState({ sido: "부산광역시", sigungu: "해운대구", emd: "반송동" }); // 로그인 구현 될때까지 기본 위치
@@ -195,17 +178,16 @@ export default function CommunityWritePage(props) {
     let imageInfo = null;
     try {
       if (image.length > 0) { // 이미지가 선택되었는지 확인
-        imageInfo = await singleFileUpload(image[0]); // 첫 번째 파일만 업로드
+        imageInfo = await multipleFileUpload(image); 
         console.log(imageInfo);
       }
 
       const response = await axios.post("/api/community/view", {
         title: title,
-        description: description,
+        content: content,
         groupRange: range,
         category: category,        
         image: imageInfo ? imageInfo : undefined, // 이미지가 없을 경우 undefined로 설정
-        boards: ["자유 게시판"],
         location: location,
       });
       alert("게시글이 등록 됐습니다.");
@@ -217,7 +199,7 @@ export default function CommunityWritePage(props) {
     };
   }
 
-  const categoryDescriptions = {
+  const categoryContents = {
     "맛집": `${location.emd} 근처 맛집에 대한 이야기를 들려주세요.`,
     "반려동물": "귀여운 반려동물을 자랑해주세요. 잃어버린 동물은 [분실/실종]에 올려주세요.",
     "운동": `${location.emd} 근처 이웃과 러닝, 헬스, 테니스 등 운동 이야기를 나눠보세요.`,
@@ -237,7 +219,7 @@ export default function CommunityWritePage(props) {
     "일반": "자유롭게 이야기를 나눠보세요."
   };
 
-  const selectedCategoryDescription = category ? categoryDescriptions[category] : "#맛집 #병원 #산책..."; // 카테고리 미선택 시 기본값
+  const selectedCategoryContent = category ? categoryContents[category] : "#맛집 #병원 #산책..."; // 카테고리 미선택 시 기본값
 
 
 
@@ -253,7 +235,7 @@ export default function CommunityWritePage(props) {
         </RadioContainer>
       </Item>
 
-      <Item style={{marginTop: "20px"}}>
+      <Item style={{marginTop: "50px"}}>
         <InputContainer full>
           <Input type="text" placeholder="제목을 입력하세요" value={title} onChange={(e) => setTitle(e.target.value)} />
         </InputContainer>
@@ -262,10 +244,10 @@ export default function CommunityWritePage(props) {
 
 
       <Item>        
-        <InputContainer full height="200px">
-        <Textarea placeholder={`${location.emd} 이웃과 이야기를 나눠보세요.\n${selectedCategoryDescription}`} onChange={(e) => setDescription(e.target.value)}></Textarea>
+        <InputContainer full height="500px">
+        <Textarea placeholder={`${location.emd} 이웃과 이야기를 나눠보세요.\n${selectedCategoryContent}`} onChange={(e) => setContent(e.target.value)}></Textarea>
         </InputContainer>
-        <TextLength>{`${description.length}/${descriptionInputConstraint.maxLength}`}</TextLength>
+        <TextLength>{`${content.length}/${contentInputConstraint.maxLength}`}</TextLength>
       </Item>
     </Container>
   );
