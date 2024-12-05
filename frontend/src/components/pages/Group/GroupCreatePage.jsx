@@ -8,6 +8,8 @@ import { singleFileUpload } from "../../../firebase";
 import Radio from "../../ui/Radio";
 import Switch from "../../ui/Switch";
 import Breadcrumb from "../../Breadcrumb";
+import { useJsApiLoader } from "@react-google-maps/api";
+import useGeolocation from "../../../utils/useGeolocation";
 
 
 const Container = styled.div`
@@ -184,26 +186,28 @@ const maxMemberData = [
 const titleInputConstraint = { minLength: 3, maxLength: 24 };
 const descriptionInputConstraint = { minLength: 8, maxLength: 500 };
 
+const libraries = ['places'];
+
 export default function GroupCreatePage(props) {
   const navigate = useNavigate();
 
   const [categoryData, setCategoryData] = useState([]);
   const [rangeData, setRangeData] = useState([]);
   const [busanJuso, setBusanJuso] = useState(null);
-  const [locationData, setLocationData] = useState({sigungu: [], emd: []});
+  const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
 
   const [step, setStep] = useState(1);
-  const [input, setInput] = useState({ 
+  const [input, setInput] = useState({
     title: "",
-    description: "", 
-    category: "", 
-    groupRange: "0", 
-    ageRange: "누구나", 
-    maxMember: 0, 
+    description: "",
+    category: "",
+    groupRange: "0",
+    ageRange: "누구나",
+    maxMember: 0,
     requireApproval: false,
-    requireIdCheck: false, 
-    useNickname: false, 
-    location: { sido: "부산광역시", sigungu: "연제구", emd: "거제동" } // 로그인 구현될 때까지 임시 위치
+    requireIdCheck: false,
+    useNickname: false,
+    location: { sido: "부산광역시", sigungu: "", emd: "" } // 로그인 구현될 때까지 임시 위치
   });
 
   const [ageInput, setAgeInput] = useState(false);
@@ -212,6 +216,16 @@ export default function GroupCreatePage(props) {
   const [image, setImage] = useState(null);
   const [inputCheck, setInputCheck] = useState({ title: false, description: false, category: false, maxMember: false, age: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { isLoaded: isJsApiLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: libraries,
+    language: 'ko',
+    region: 'KR',
+  });
+
+  const currentLocation = useGeolocation(isJsApiLoaded);
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -230,13 +244,11 @@ export default function GroupCreatePage(props) {
       const juso = response.data.locationFilters;
       setBusanJuso(juso);
       const guList = juso?.map((item) => item.sigungu);
-      setInput({ ...input, location: { ...input.location, sigungu: guList[0] } });
-      setLocationData({ ...locationData, sigungu: guList });
 
-      const emdList = juso.find((item) => item.sigungu === guList[0])?.emd;
-      const emdNameList = emdList?.map((item) => item.emd);
-      setInput({ ...input, location: { ...input.location, emd: emdNameList[0] } });
-      setLocationData({ ...locationData, emd: emdNameList });
+      setLocationData((prevLocationData) => ({
+        ...prevLocationData,
+        sigungu: guList,
+      }));
 
     }).catch((error) => {
       console.error("동네 리스트를 불러오는데 실패했습니다." + error);
@@ -248,24 +260,39 @@ export default function GroupCreatePage(props) {
       const check = validateInput();
       setInputCheck(check);
     }
-  }, [input]);
+  }, [input, isSubmitting]);
 
   useEffect(() => {
     if (ageInput) {
-    setInput({ ...input, ageRange: `${ageInputValue.min}세~${ageInputValue.max}세`});
+      setInput({ ...input, ageRange: `${ageInputValue.min}세~${ageInputValue.max}세` });
     }
-  }, [ageInputValue]);
+  }, [ageInputValue, ageInput]);
 
   useEffect(() => {
     getEmdList(input.location.sigungu);
   }, [input.location.sigungu]);
 
+  useEffect(() => {
+    if (busanJuso) {
+      if (currentLocation.sigungu) {
+        setInput({ ...input, location: { ...input.location, sigungu: currentLocation.sigungu } });
+      } else {
+        setInput({ ...input, location: { ...input.location, sigungu: locationData.sigungu?.[0] } });
+      }
+    }
+  }, [currentLocation, busanJuso]);
+
+
   const getEmdList = (sigungu) => {
     if (busanJuso) {
       const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
       const emdNameList = emdList?.map((item) => item.emd);
-      setInput({ ...input, location: { ...input.location, emd: emdNameList[0] } });
       setLocationData({ ...locationData, emd: emdNameList });
+      if (currentLocation.emd !== "") {
+        setInput({ ...input, location: { ...input.location, emd: currentLocation.emd } });
+      } else {
+        setInput({ ...input, location: { ...input.location, emd: emdNameList?.[0] } });
+      }
     }
   };
 
@@ -297,7 +324,7 @@ export default function GroupCreatePage(props) {
     return newCheck;
   }
 
-  
+
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
@@ -351,30 +378,30 @@ export default function GroupCreatePage(props) {
         <InputContainer full>
           <Input type="text" placeholder="모임명이 짧을수록 이해하기 쉬워요." value={input.title} onChange={(e) => setInput({ ...input, title: e.target.value })} />
         </InputContainer>
-        <div style={{display: 'flex'}}>
+        <div style={{ display: 'flex' }}>
           <InputCheckMessage>{inputCheck.title && "모임명을 3자 이상 입력해주세요."}</InputCheckMessage>
           <TextLength>{`${input.title.length}/${titleInputConstraint.maxLength}`}</TextLength>
         </div>
-        
+
       </Item>
 
       <Item>
         <h4>동네</h4>
         <DongneSelectContainer>
-          <div  style={{fontSize: '20px', color: '#666666'}}>부산광역시</div>
+          <div style={{ fontSize: '20px', color: '#666666' }}>부산광역시</div>
           <DongneSelect value={input.location.sigungu} onChange={(e) => setInput({ ...input, location: { ...input.location, sigungu: e.target.value } })}>
-          {
-          locationData.sigungu.map((item) => (
-            <option key={item} value={item}>{item}</option>
-          ))}
+            {
+              locationData.sigungu?.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
           </DongneSelect>
           <DongneSelect value={input.location.emd} onChange={(e) => setInput({ ...input, location: { ...input.location, emd: e.target.value } })}>
-          {locationData.emd.map((item) => (
-            <option key={item} value={item}>{item}</option>
-          ))}
+            {locationData.emd?.map((item) => (
+              <option key={item} value={item}>{item}</option>
+            ))}
           </DongneSelect>
         </DongneSelectContainer>
-        
+
       </Item>
 
 
@@ -382,7 +409,7 @@ export default function GroupCreatePage(props) {
         <h4>카테고리</h4>
         <RadioContainer>
           {categoryData.map((item) => (<>
-            <RoundFilter key={item.name} title={item.name} variant={input.category === item.name ? 'selected' : 'category'} value={item.name} onClick={() => {setInput({ ...input, category: item.name })}} />
+            <RoundFilter key={item.name} title={item.name} variant={input.category === item.name ? 'selected' : 'category'} value={item.name} onClick={() => { setInput({ ...input, category: item.name }) }} />
           </>
           ))}
         </RadioContainer>
@@ -395,11 +422,11 @@ export default function GroupCreatePage(props) {
         <InputContainer full height="200px">
           <Textarea placeholder="활동 중심으로 모임을 소개해주세요. 모임 설정에서 언제든지 바꿀 수 있어요." onChange={(e) => setInput({ ...input, description: e.target.value })} />
         </InputContainer>
-        <div style={{display: 'flex'}}>
+        <div style={{ display: 'flex' }}>
           <InputCheckMessage>{inputCheck.description && "모임 소개를 8자 이상 입력해주세요."}</InputCheckMessage>
           <TextLength>{`${input.description.length}/${descriptionInputConstraint.maxLength}`}</TextLength>
         </div>
-        
+
       </Item>
 
 
@@ -443,24 +470,25 @@ export default function GroupCreatePage(props) {
         <p>연령대</p>
         <RadioContainer>
           {ageData.map((item) => (
-              <RoundFilter title={item} variant={((ageInput && item === '직접 입력') ||  (item === input.ageRange)) ? 'selected' : 'category' } value={item} onClick={() => {
-                if (item === '직접 입력') {
-                  setAgeInput(true);
-                  setInput({ ...input, ageRange: '직접 입력' });
-                } else {
-                  setAgeInput(false);
-                  setInput({ ...input, ageRange: item });
-              }}} />
+            <RoundFilter key={item} title={item} variant={((ageInput && item === '직접 입력') || (item === input.ageRange)) ? 'selected' : 'category'} value={item} onClick={() => {
+              if (item === '직접 입력') {
+                setAgeInput(true);
+                setInput({ ...input, ageRange: '직접 입력' });
+              } else {
+                setAgeInput(false);
+                setInput({ ...input, ageRange: item });
+              }
+            }} />
           ))}
           {ageInput && (
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
               <InputContainer>
-                <Input type="number" value={ageInputValue.min} onChange={(e) => { (e.target.value > 0) && setAgeInputValue({ ...ageInputValue, min: e.target.value })}} />
+                <Input type="number" value={ageInputValue.min} onChange={(e) => { (e.target.value >= 0) && setAgeInputValue({ ...ageInputValue, min: e.target.value }) }} />
                 <span>세</span>
               </InputContainer>
               <span> ~ </span>
               <InputContainer>
-                <Input type="number" value={ageInputValue.max} onChange={(e) => { (e.target.value > 0) && setAgeInputValue({ ...ageInputValue, max: e.target.value })}} />
+                <Input type="number" value={ageInputValue.max} onChange={(e) => { (e.target.value >= 0) && setAgeInputValue({ ...ageInputValue, max: e.target.value }) }} />
                 <span> 세</span>
               </InputContainer>
 
@@ -476,21 +504,21 @@ export default function GroupCreatePage(props) {
         <RadioContainer>
           {maxMemberData.map((item) => (
             <>
-            <RoundFilter title={item === 0 ? "제한없음" : item === -1 ? "직접 입력" : item} variant={(item === input.maxMember || (item === -1 && maxMemberInput) ) ? 'selected' : 'category'} value={item} onClick={() => { 
-              if (item === -1) {
-                setMaxMemberInput(true);
-                setInput({ ...input, maxMember: -1 });
-              } else {
-                setMaxMemberInput(false);
-                setInput({ ...input, maxMember: item });
-              } 
-            }} />
+              <RoundFilter key={item} title={item === 0 ? "제한없음" : item === -1 ? "직접 입력" : item} variant={(item === input.maxMember || (item === -1 && maxMemberInput)) ? 'selected' : 'category'} value={item} onClick={() => {
+                if (item === -1) {
+                  setMaxMemberInput(true);
+                  setInput({ ...input, maxMember: -1 });
+                } else {
+                  setMaxMemberInput(false);
+                  setInput({ ...input, maxMember: item });
+                }
+              }} />
             </>
           ))}
           {maxMemberInput && (
             <div>
               <InputContainer>
-                <Input type="number" value={input.maxMember === -1 ? 0 : input.maxMember} onChange={(e) => { e.target.value > 0  && setInput({ ...input, maxMember: e.target.value })}} />
+                <Input type="number" value={input.maxMember === -1 ? 0 : input.maxMember} onChange={(e) => { e.target.value >= 0 && setInput({ ...input, maxMember: e.target.value }) }} />
                 <span>명</span>
               </InputContainer>
 
