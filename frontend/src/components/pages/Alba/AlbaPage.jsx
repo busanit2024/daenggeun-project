@@ -2,10 +2,11 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import FilterBar from "../ui/FilterBar";
-import Button from "../ui/Button";
-import AlbaListItem from "./AlbaListItem";
-import RoundFilter from "../ui/RoundFilter";
+import FilterBar from "../../ui/FilterBar";
+import Button from "../../ui/Button";
+import AlbaListItem from "../../alba/AlbaListItem";
+import RoundFilter from "../../ui/RoundFilter";
+import Breadcrumb from "../../Breadcrumb";
 
 const Container = styled.div`
   display: flex;
@@ -118,14 +119,14 @@ export default function AlbaPage(props) {
       try {
         const response = await axios.get(`/api/alba`, {
           params: {
-            gu: selectedRegion,
-            dong: selectedDong,
+            gu: selectedRegion || undefined,
+            dong: selectedDong || undefined,
             category: category !== "all" ? category : undefined,
             workType: workType.length > 0 ? workType.join(",") : undefined,
             workDays: workDays.length > 0 ? workDays.join(",") : undefined,
-            workTimeStart: workTime.start,
-            workTimeEnd: workTime.end,
-            searchTerm: searchTerm,
+            workTimeStart: workTime.start || undefined,
+            workTimeEnd: workTime.end || undefined,
+            searchTerm: searchTerm || undefined,
           }
         });
         setAlbaList(response.data);
@@ -184,7 +185,13 @@ export default function AlbaPage(props) {
     setCategory(e.target.value);
   };
 
-
+  const routes = [
+    { path: "/", name: "홈" },
+    { path: "/alba", name: "알바 검색" },
+    { path: "/alba/create", name: "알바 게시물 작성" },
+    { path: "/alba/{id}", name: "알바 상세 보기" },
+    { path: "/alba/{id}/edit", name: "알바 게시물 수정" },
+  ];
   
   return (
     <Container>
@@ -223,6 +230,7 @@ export default function AlbaPage(props) {
           onChange={handleSearchChange}
         />
       </div>
+      <Breadcrumb routes={routes} />
 
       <InnerContainer>
         {/* 필터 바 */}
@@ -341,7 +349,7 @@ export default function AlbaPage(props) {
             <AlbaListItem key={alba.id} alba={alba} />
           ))}
 
-          <Button title="더보기1" />
+          <Button title="더보기" />
         </ListContainer>
       </InnerContainer>
     </Container>

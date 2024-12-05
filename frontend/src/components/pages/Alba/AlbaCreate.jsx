@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../ui/Button";
-import InputText from "../ui/InputText";
-import RoundFilter from "../ui/RoundFilter";
-import "../../styles/AlbaStyled.css";
+import Button from "../../ui/Button";
+import InputText from "../../ui/InputText";
+import RoundFilter from "../../ui/RoundFilter";
+import "../../../styles/AlbaStyled.css";
 import styled from "styled-components";
 import axios from "axios";
-import { singleFileUpload } from "../../firebase";
+import { singleFileUpload } from "../../../firebase";
 
 const AlbaCreate = () => {
   const [form, setForm] = useState({

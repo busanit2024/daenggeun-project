@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Button from "../ui/Button";
-import InputText from "../ui/InputText";
-import RoundFilter from "../ui/RoundFilter";
-import "../../styles/AlbaStyled.css";
+import Button from "../../ui/Button";
+import InputText from "../../ui/InputText";
+import RoundFilter from "../../ui/RoundFilter";
+import "../../../styles/AlbaStyled.css";
 import styled from "styled-components";
 import axios from "axios";
-import { singleFileUpload } from "../../firebase";
+import { singleFileUpload } from "../../../firebase";
 
 const AlbaEdit = () => {
   const { id } = useParams(); // URL과에서 ID 추작
@@ -52,7 +52,12 @@ const AlbaEdit = () => {
     const fetchJob = async () => {
       try {
         const response = await axios.get(`/api/alba/${id}`); // GET 요청으로 기존 데이터 조회
-        setForm(response.data || {}); // 응답 데이터를 상태에 설정, null 방지
+        const data = response.data || {};
+        setForm({
+          ...data,
+          startTime: data.workTime?.start || "",
+          endTime: data.workTime?.end || ""
+        }); // 응답 데이터를 상태에 설정, null 방지 및 workTime 데이터 설정
       } catch (error) {
         console.error("데이터 불러오기 실패:", error);
       }
@@ -260,7 +265,7 @@ const AlbaEdit = () => {
               checked={form.negotiable}
               onChange={handleChange}
             />
-            협의 가능
+            협 의 가능
           </label>
         </div>
 
@@ -286,6 +291,13 @@ const AlbaEdit = () => {
 
         <div className="image-upload">
           <h3 className="section-title">이미지 업로드</h3>
+          {form.image && (
+            <img
+              src={form.image}
+              alt="현재 이미지"
+              style={{ width: "150px", height: "150px", objectFit: "cover", marginBottom: "10px" }}
+            />
+          )}
           <input type="file" name="image" onChange={handleImageChange} />
         </div>
 

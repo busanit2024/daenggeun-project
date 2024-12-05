@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../../styles/AlbaStyled.css";
+import "../../../styles/AlbaStyled.css";
 import { ImAlarm } from "react-icons/im";
 import { ImCalendar } from "react-icons/im";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 import { LiaWonSignSolid } from "react-icons/lia";
+import Breadcrumb from "../../Breadcrumb";
 
 const AlbaDetail = () => {
   const { id } = useParams(); // URL에서 id 가져오기
@@ -40,10 +41,22 @@ const AlbaDetail = () => {
 
   if (!job) return <p>로딩 중...</p>; // 로딩 처리
 
+  const routes = [
+    { path: "/", name: "홈" },
+    { path: "/alba", name: "알바 검색" },
+    { path: "/alba/create", name: "알바 게시물 작성" },
+    { path: "/alba/{id}", name: "알바 상세 보기" },
+    { path: "/alba/{id}/edit", name: "알바 게시물 수정" },
+  ];
+
   return (
+    
     <div className="alba-detail-page">
+            <Breadcrumb routes={routes} />
+
       {/* 상세 영역 */}
       <div className="alba-detail-container">
+        
         {/* 좌측 영역 */}
         <div className="detail-left">
           <img
