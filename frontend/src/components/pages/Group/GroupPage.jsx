@@ -9,6 +9,7 @@ import RoundFilter from "../../ui/RoundFilter";
 import Radio from "../../ui/Radio";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
+import Breadcrumb from "../../Breadcrumb";
 
 const Container = styled.div`
   display: flex;
@@ -117,14 +118,13 @@ const MoreFilterButton = styled.div`
   font-size: 16px;
 `;
 
+const libraries = ['places'];
 
 export default function GroupPage(props) {
   const navigate = useNavigate();
   const [groupList, setGroupList] = useState([]);
-  const [location, setLocation] = useState({ sido: "부산광역시", sigungu: "해운대구", emd: "" });
   const [categoryData, setCategoryData] = useState([]);
-  const [category, setCategory] = useState("all");
-  const [sort, setSort] = useState("");
+  const [searchFilter, setSearchFilter] = useState({ sido: "부산광역시", sigungu: "", emd: "", category: "all", sort: "" });
   const [busanJuso, setBusanJuso] = useState([]);
   const [emdList, setEmdList] = useState([]);
   const [page, setPage] = useState(0);
@@ -135,14 +135,12 @@ export default function GroupPage(props) {
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries: ['places'],
+    libraries: libraries,
     language: 'ko',
     region: 'KR',
   });
 
   const currentLocation = useGeolocation(isJsApiLoaded);
-
-  console.log(currentLocation);
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -160,24 +158,27 @@ export default function GroupPage(props) {
   }, []);
 
   useEffect(() => {
-    setLocation({ ...location, sido: currentLocation.sido, sigungu: currentLocation.sigungu });
+    setSearchFilter({ ...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu });
   }, [currentLocation]);
 
   useEffect(() => {
-    fetchGroupList(0).then(() => setLoading(false));
-  }, [location, category, sort]);
+    setLoading(true);
+    if (searchFilter.sigungu) {
+      fetchGroupList(0);
+    }
+  }, [searchFilter]);
 
 
   useEffect(() => {
-    setLocation({ ...location, emd: '' });
-    getEmdList(location.sigungu);
+    setLoading(true);
+    setSearchFilter({ ...searchFilter, emd: '' });
+    getEmdList(searchFilter.sigungu);
     setIsFilterOpen(false);
-  }, [location.sigungu, busanJuso]);
+  }, [searchFilter.sigungu, busanJuso]);
 
   const resetFilter = () => {
-    setLocation(currentLocation);
-    setCategory("all");
-    setSort("");
+    setLoading(true);
+    setSearchFilter({...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu, emd: '', category: 'all', sort: ''});
     setIsFilterOpen(false);
     setPage(0);
   }
@@ -186,10 +187,10 @@ export default function GroupPage(props) {
     try {
       const response = await axios.get(`api/group/search`, {
         params: {
-          sigungu: location.sigungu,
-          emd: location.emd,
-          category: category,
-          sort: sort,
+          sigungu: searchFilter.sigungu,
+          emd: searchFilter.emd,
+          category: searchFilter.category,
+          sort: searchFilter.sort,
           page: page,
           size: 10,
         }
@@ -197,6 +198,7 @@ export default function GroupPage(props) {
       const newGroupList = response.data.content;
       setGroupList((prevGroups) => (page === 0 ? newGroupList : [...prevGroups, ...newGroupList]));
       setHasNext(!response.data.last);
+      setLoading(false);
     } catch (error) {
       console.error("모임 리스트를 불러오는데 실패했습니다." + error);
     }
@@ -217,10 +219,17 @@ export default function GroupPage(props) {
     setPage(page + 1);
   };
 
+  const routes = [
+    { path: "/", name: "홈" },
+    { path: "/group", name: "모임" },
+  ];
+
   return (
+    <>
+    <Breadcrumb routes={routes} />
     <Container>
       <HeadContainer>
-        <h2>{`${location.sido} ${location.sigungu} ${location.emd} ${category === 'all' ? "" : category} 모임`}</h2>
+        <h2>{`${searchFilter.sido} ${searchFilter.sigungu} ${searchFilter.emd} ${searchFilter.category === 'all' ? "" : searchFilter.category} 모임`}</h2>
         <Button title="모임 만들기" onClick={() => navigate("/group/create")} />
       </HeadContainer>
       <InnerContainer>
@@ -231,7 +240,7 @@ export default function GroupPage(props) {
           </div>
           <div className="filterItem">
             <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center' }}>지역
-              <CustomSelect value={location.sigungu} onChange={(e) => setLocation({ ...location, sigungu: e.target.value })}>
+              <CustomSelect value={searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.value })}>
                 {busanJuso.map((item) => (
                   <option key={item.sigungu} value={item.sigungu}>{item.sigungu}</option>
                 ))}
@@ -239,27 +248,27 @@ export default function GroupPage(props) {
             </h4>
 
             <div className="filterList">
-              <p>{location.sido}</p>
+              <p>{searchFilter.sido}</p>
               <label className="radioWrap">
-                <Radio name="gu" value={location.sigungu} checked={location.emd === ''} onChange={() => setLocation({ ...location, emd: '' })} />
-                {location.sigungu}
+                <Radio name="gu" value={searchFilter.sigungu} checked={searchFilter.emd === ''} onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
+                {searchFilter.sigungu}
               </label>
               <EmdFilterWrap open={isFilterOpen}>
-                {location.emd !== '' &&
+                {searchFilter.emd !== '' &&
                   <label className="radioWrap">
-                    <Radio name="dong" value="" checked onChange={() => setLocation({ ...location, emd: '' })} />
-                    {location.emd}
+                    <Radio name="dong" value="" checked onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
+                    {searchFilter.emd}
                   </label>
                 }
-                {(emdList && location.emd === '') && emdList.map((dong) => (
+                {(emdList && searchFilter.emd === '') && emdList.map((dong) => (
                   <label key={dong} className="radioWrap">
-                    <Radio name="dong" value={dong} checked={location.emd === dong} onChange={() => setLocation({ ...location, emd: dong })} />
+                    <Radio name="dong" value={dong} checked={searchFilter.emd === dong} onChange={() => setSearchFilter({ ...searchFilter, emd: dong })} />
                     {dong}
                   </label>
                 ))}
               </EmdFilterWrap>
               {
-                (emdList && emdList.length > 5 && location.emd === '') &&
+                (emdList && emdList.length > 5 && searchFilter.emd === '') &&
                 <MoreFilterButton className="toggle" onClick={() => setIsFilterOpen(!isFilterOpen)}>{isFilterOpen ? "접기" : "더보기"}</MoreFilterButton>
               }
 
@@ -269,12 +278,12 @@ export default function GroupPage(props) {
             <h4 className="title">카테고리</h4>
             <div className="filterList">
               <label className="radioWrap">
-                <Radio name="category" value="all" checked={category === 'all'} onChange={(e) => setCategory(e.target.value)} />
+                <Radio name="category" value="all" checked={searchFilter.category === 'all'} onChange={(e) => setSearchFilter({...searchFilter, category: e.target.value})} />
                 전체
               </label>
               {categoryData.map((item) => (
                 <label key={item.name} className="radioWrap">
-                  <Radio name="category" value={item.name} checked={item.name === category} onChange={(e) => setCategory(e.target.value)} />
+                  <Radio name="category" value={item.name} checked={item.name === searchFilter.category} onChange={(e) => setSearchFilter({...searchFilter, category: e.target.value})} />
                   {item.name}
                 </label>
               ))}
@@ -283,11 +292,11 @@ export default function GroupPage(props) {
           <div className="filterItem">
             <h4 className="title">정렬</h4>
             <label className="radioWrap">
-              <Radio name="sort" value="recent" checked={sort === 'recent'} onChange={(e) => setSort(e.target.value)} />
+              <Radio name="sort" value="recent" checked={searchFilter.sort === 'recent'} onChange={(e) => setSearchFilter({...searchFilter, sort: e.target.value})} /> 
               최신순
             </label>
             <label className="radioWrap">
-              <Radio name="sort" value="name" checked={sort === 'name'} onChange={(e) => setSort(e.target.value)} />
+              <Radio name="sort" value="name" checked={searchFilter.sort === 'name'} onChange={(e) => setSearchFilter({...searchFilter, sort: e.target.value})} /> 
               이름순
             </label>
 
@@ -295,16 +304,16 @@ export default function GroupPage(props) {
         </FilterBar>
 
         <ListContainer>
-          {(category !== 'all' || sort !== "") &&
+          {(searchFilter.category !== 'all' || searchFilter.sort !== "") &&
             <FilterContainer>
-              {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
-              {sort !== "" && <RoundFilter title={sort === 'recent' ? '최신순' : '이름순'} variant='search' cancelIcon onClick={() => setSort("")} />}
+              {searchFilter.category !== 'all' && <RoundFilter title={searchFilter.category} variant='search' cancelIcon onClick={() => setSearchFilter({...searchFilter, category: 'all'})} />}
+              {searchFilter.sort !== "" && <RoundFilter title={searchFilter.sort === 'recent' ? '최신순' : '이름순'} variant='search' cancelIcon onClick={() => setSearchFilter({...searchFilter, sort: ''})} />}
             </FilterContainer>
           }
 
 
           {(!loading && groupList.length === 0) && <NoSearchResult>
-            <h3>{`${location.emd ? location.emd : location.sigungu} 근처에 모임이 없어요.`}</h3>
+            <h3>{`${searchFilter.emd ? searchFilter.emd : searchFilter.sigungu} 근처에 모임이 없어요.`}</h3>
             <p>다른 조건으로 검색해주세요.</p>
           </NoSearchResult>}
           {loading &&
@@ -314,7 +323,7 @@ export default function GroupPage(props) {
 
           }
 
-          {groupList?.map((group) => (
+          {!loading && groupList?.map((group) => (
             <GroupListItem key={group.id} group={group} />
           ))}
           {(!loading && hasNext) && <Button title="더보기" onClick={handleMoreButton} />}
@@ -323,6 +332,7 @@ export default function GroupPage(props) {
       </InnerContainer>
 
     </Container>
+    </>
   );
 
 }
