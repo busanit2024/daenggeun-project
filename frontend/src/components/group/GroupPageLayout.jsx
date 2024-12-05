@@ -107,8 +107,10 @@ const SideBar = styled.div`
     .group-info-detail {
       font-size: 14px;
       display: flex;
+      align-items: center;
       gap: 8px;
       color: #666666;
+      white-space: nowrap;
     }
   }
 `;
@@ -137,6 +139,16 @@ const ButtonGroup = styled.div`
   gap: 8px;
   width: 100%;
   justify-content: center;
+`;
+
+const MyProfileButton = styled.div`
+  padding: 1px 6px;
+  font-size: 12px;
+  color: #666666;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+  cursor: pointer;
+  white-space: nowrap;
 `;
 
 export default function GroupPageLayout(props) {
@@ -211,6 +223,7 @@ export default function GroupPageLayout(props) {
                 <span>멤버 {group.members?.length ?? 0}</span>
                 <span> · </span>
                 <span>게시글 {group.posts?.length ?? 0}</span>
+                {isMember && <MyProfileButton onClick={() => navigate(`my`)}>내 프로필</MyProfileButton>}
               </div>
             </div>
           </div>

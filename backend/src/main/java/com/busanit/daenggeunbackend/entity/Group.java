@@ -40,6 +40,15 @@ public class Group {
   private List<GroupMember> members; //멤버 클래스 리스트
   private List<String> posts; //게시글 id
   private List<String> schedules; // 일정 id
+  private List<JoinRequest> requests;
+
+  @Data
+  public static class JoinRequest {
+    private String groupId;
+    private String memberId;
+    private String message;
+    private LocalDateTime requestDate;
+  }
 
 
   public static Group toEntity(GroupDTO groupDTO) {
@@ -62,7 +71,8 @@ public class Group {
             .posts(groupDTO.getPosts())
             .schedules(groupDTO.getSchedules())
             .favoriteUsers(groupDTO.getFavoriteUsers())
-            .schedules(groupDTO.getSchedules());
+            .schedules(groupDTO.getSchedules())
+            .requests(groupDTO.getRequests());
     if (groupDTO.getId() != null) {
       builder.id(groupDTO.getId());
     }

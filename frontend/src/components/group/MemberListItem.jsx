@@ -32,7 +32,14 @@ const MemberInfo = styled.div`
   }
   .name {
     font-size: 16px;
+    display: flex;
+    gap: 4px;
   }
+
+  .nickname {
+    color: #666666;
+  }
+
   .location {
     color: #666666;
   }
@@ -50,20 +57,20 @@ export default function MemberListItem(props) {
   const handleClick = () => {
     const currentPath = location.pathname;
     if (currentPath.endsWith("members")) {
-      naviagte(`${currentPath}/${member?.id}`);
+      naviagte(`${currentPath}/${member?.userId}`);
     } else {
-      naviagte(`members/${member?.id}`);
+      naviagte(`members/${member?.userId}`);
     }
   }
   return (
     <Wrapper onClick={handleClick}>
       <ProfileImage>
-        {member?.profileImage && <img src={member?.profileImage} alt={member?.name} />}
+        { <img src={member?.profileImage ?? '/images/defaultProfileImage.png'} alt={member?.name} />}
       </ProfileImage>
       <MemberInfo>
         <div className="name-wrap">
-          <div className="name">이름</div>
-          <div className="location">지역</div>
+          <div className="name">{member?.username ?? '이름'} <span className="nickname">({member?.groupNickName ?? '그룹 별명'})</span></div>
+          <div className="location">{member?.location ?? '지역'}</div>
         </div>
         <div className="desc">소개</div>
       </MemberInfo>

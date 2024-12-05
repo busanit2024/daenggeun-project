@@ -48,10 +48,8 @@ const PostContainer = styled.div`
 
 export default function GroupView() {
   const naviagte = useNavigate();
-  const { group, users } = useOutletContext();
+  const { group } = useOutletContext();
   const [selectedBoard, setSelectedBoard] = useState('전체');
-
-  console.log(users);
 
   return (
     <Container>
@@ -85,8 +83,8 @@ export default function GroupView() {
           </Link>
         </div>
         <GridContainer>
-          {group.members?.map((item) => (
-            <MemberListItem key={item.id} />
+          {group.members?.map((member) => (
+            <MemberListItem key={member.id} member={member} />
           ))}
             </GridContainer>
       </InnerContainer>

@@ -12,13 +12,12 @@ export default function GroupMembers() {
 
       <InnerContainer>
         <div className="group-header">
-          <h3 className="title">멤버 {group.members?.length ?? 0}</h3>
+          <h3 className="title">멤버 {group?.members?.length ?? 0}</h3>
         </div>
         <GridContainer>
-          <MemberListItem />
-          <MemberListItem />
-          <MemberListItem />
-          <MemberListItem />
+          {group?.members?.map((member) => (
+            <MemberListItem key={member.id} member={member} />
+          ))}
         </GridContainer>
         <Button title={'더 보기'}></Button>
       </InnerContainer>
