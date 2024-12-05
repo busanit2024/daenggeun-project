@@ -1,103 +1,43 @@
-import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import { FaRegHeart, FaRegComment, FaBookmark} from "react-icons/fa";
+import React from 'react';
+import styled from 'styled-components';
 
-const Container = styled.div`
-  display: flex;
-  width: 100%;
-  gap: 16px;
-  cursor: pointer;
-
-  &:hover img {
-    transform: scale(1.1);
-    transition: transform 0.3s;
-  }
-`;
-const CommunityContainer = styled(Container)`
-  // CommunityListItem에 필요한 추가 스타일이 있다면 여기에 작성
-`;
-
-const ImageContainer = styled.div`
-  width: 86px;
-  height: 86px;
-  background-color: #f0f0f0;
+const ItemContainer = styled.div`
+  border: 1px solid #cccccc;
   border-radius: 8px;
-  overflow: hidden;
-
-  & img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  padding: 16px;
+  margin-bottom: 16px;
 `;
 
-const TextContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 4px;
-  flex-grow: 1;
-`;
-
-const Title = styled.h2`
-  font-size: 20px;
-  font-style: normal;
+const Title = styled.h3`
   margin: 0;
 `;
 
-const TagContainer = styled.div`
-  display: flex;
-  gap: 4px;
-  color: #666666;
-`;
-
-const ContentPreview = styled.p`
+const Content = styled.p`
   margin: 0;
-  color: #333333;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1; // 첫 줄만 표시
+  white-space: nowrap;
 `;
 
-const IconContainer = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-`;
+const CommunityListItem = ({ community }) => {
+  const { title, content, createdDate, location, likeCount, commentCount, images } = community;
 
-export default function CommunityListItem({ community }) {
-  const navigate = useNavigate();
   const timeAgo = (date) => {
     const now = new Date();
-    const diff = Math.floor((now - new Date(date)) / 60000); // 분 단위로 변환
-    return `${diff}분 전`;
+    const diff = Math.floor((now - new Date(date)) / 1000 / 60); // 분 단위
+    return diff < 60 ? `${diff}분 전` : `${Math.floor(diff / 60)}시간 전`;
   };
 
   return (
-    <CommunityContainer key={community.id} onClick={() => navigate(`/community/view/${community.id}`)}>
-      {community.image && (
-        <ImageContainer>
-          <img src={community.image.url} alt={community.title} />
-        </ImageContainer>
-      )}
-      <TextContainer>
-        <Title>{community.title}</Title>
-        <ContentPreview>{community.content}</ContentPreview>
-        <TagContainer>
-          <span>{community.location.dong ?? community.location.gu}</span>
-          <span> · </span>
-          <span>{community.category}</span>
-          <span> · </span>
-          <span>{timeAgo(community.createdAt)}</span>
-        </TagContainer>
-        <IconContainer>
-          <span>{community.likes?.length ?? 0} <FaRegHeart /></span>
-          <span>{community.comments?.length ?? 0} <FaRegComment /></span>
-          <span><FaBookmark /></span>
-        </IconContainer>
-      </TextContainer>
-    </CommunityContainer>
+    <ItemContainer>
+      <Title>{title}</Title>
+      <Content>{content.length > 50 ? `${content.substring(0, 50)}...` : content}</Content>
+      {images && images.length > 0 && <img src={images[0]} alt="첨부 이미지" style={{ width: '100%', borderRadius: '8px' }} />}
+      <div>{location}</div>
+      <div>{timeAgo(createdDate)}</div>
+      <div>좋아요: {likeCount} | 댓글: {commentCount}</div>
+    </ItemContainer>
   );
-}
+};
+
+export default CommunityListItem;
