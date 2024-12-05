@@ -121,7 +121,14 @@ export default function MemberProfile() {
     }
 
     const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    if (diffHours > 0) {
       return `${diffHours}시간`;
+    }
+
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+    if (diffMinutes > 0) {
+      return `${diffMinutes}분`;
+    }
   }
 
   const getPosition = (position) => {
@@ -162,7 +169,7 @@ export default function MemberProfile() {
             <div>본인인증 완료</div>
             <div>{getPosition(member?.position)}</div>
             <div>{calculateRegDate(member?.registeredDate)} 전에 가입</div>
-            <div>{member?.location?.emd ?? '지역'}</div>
+            <div>{member?.location?.[0]?.emd ?? '지역'}</div>
           </div>
         </DescContainer>
 

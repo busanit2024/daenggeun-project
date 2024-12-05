@@ -159,9 +159,12 @@ export default function GroupPageLayout(props) {
   const [joinData, setJoinData] = useState({ message: '', nickname: '' });
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMember, setIsMember] = useState(false);
+  const [joinStatus, setJoinStatus] = useState('');
 
   const resetJoinInput = () => {
     setJoinData({ message: '', nickname: '' });
+    setModalOpen('');
+    setJoinStatus('');
   };
 
   const handleDeleteGroup = () => {
@@ -172,6 +175,39 @@ export default function GroupPageLayout(props) {
       .catch((error) => {
         console.error("모임 삭제에 실패했습니다." + error);
       });
+  };
+
+  const handleJoinGroup = () => {
+    const newMember = {
+      groupId: group.id,
+      userId: sessionStorage.getItem('uid'),
+      position: 'MEMBER',
+      groupNickName: joinData.nickname,
+      registeredDate: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(' ', 'T'),
+    }
+    axios.post(`/api/group/join`, newMember).then((response) => {
+      setJoinStatus('success');
+    }).catch((error) => {
+      console.error("모임 가입에 실패했습니다." + error);
+      setJoinStatus('fail');
+    });
+  };
+
+  const handleJoinRequest = () => {
+    const newRequest = {
+      groupId: group.id,
+      userId: sessionStorage.getItem('uid'),
+      message: joinData.message,
+      requestDate: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(' ', 'T'),
+      status: 'PENDING',
+    }
+
+    axios.post(`/api/group/join/request`, newRequest).then((response) => {
+      setJoinStatus('submitted');
+    }).catch((error) => {
+      console.error("가입 신청에 실패했습니다." + error);
+      setJoinStatus('fail');
+    });
   };
 
   const checkAdmin = (userId) => {
@@ -253,12 +289,12 @@ export default function GroupPageLayout(props) {
             {!isMember && <Button title="모임 가입하기" variant="primary" onClick={handleJoinButton} />}
             {isAdmin &&
               <>
-              <Button title={`모임 가입 신청 ${group.requests?.length ?? 0}건`} onClick={() => navigate(`/group/${group.id}/requests`)} />
+                <Button title={`모임 가입 신청 ${group.requests?.length ?? 0}건`} onClick={() => navigate(`/group/${group.id}/requests`)} />
                 <ButtonGroup>
                   <Button title="모임 수정" grow onClick={() => navigate(`/group/${group.id}/edit`)} />
                   <Button title="모임 삭제" grow onClick={() => setModalOpen('delete')} />
                 </ButtonGroup>
-                
+
               </>
             }
 
@@ -296,31 +332,54 @@ export default function GroupPageLayout(props) {
         </Modal>
 
         <Modal title="모임 가입" isOpen={modalOpen === 'join'} onClose={() => { resetJoinInput(); setModalOpen('') }}>
-          <h2>'{group.title}' 모임에 가입</h2>
-          {group.requireApproval && (
-            <div className="inputWrap">
-              <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}> <FaExclamationCircle color="#999999" />가입 신청 후 관리자의 승인이 필요해요.</p>
-              <InputText underline placeholder="신청 메시지를 입력하세요" value={joinData.message} onChange={(e) => setJoinData({ ...joinData, message: e.target.value })} />
-            </div>
+          {joinStatus === '' && <>
+            <h2>'{group.title}' 모임에 가입하기</h2>
+            {group.requireApproval && (
+              <div className="inputWrap">
+                <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}> <FaExclamationCircle color="#999999" />가입 신청 후 관리자의 승인이 필요해요.</p>
+                <InputText underline placeholder="신청 메시지를 입력하세요" value={joinData.message} onChange={(e) => setJoinData({ ...joinData, message: e.target.value })} />
+              </div>
 
-          )}
-          {group.useNickname && (
-            <div className="inputWrap">
-              <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FaExclamationCircle color="#999999" /> 모임에서만 사용하는 별명을 지정할 수 있어요.</p>
-              <InputText underline placeholder="별명을 입력하세요" value={joinData.nickname} onChange={(e) => setJoinData({ ...joinData, nickname: e.target.value })} />
-            </div>
+            )}
+            {group.useNickname && (
+              <div className="inputWrap">
+                <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FaExclamationCircle color="#999999" /> 모임에서만 사용하는 별명을 지정할 수 있어요.</p>
+                <InputText underline placeholder="별명을 입력하세요" value={joinData.nickname} onChange={(e) => setJoinData({ ...joinData, nickname: e.target.value })} />
+              </div>
 
-          )}
-          {group.requireIdCheck && (
-            <div className="inputWrap">
-              <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FaExclamationCircle color="#999999" /> 본인인증을 한 회원만 가입할 수 있어요.</p>
-            </div>
-          )}
+            )}
+            {group.requireIdCheck && (
+              <div className="inputWrap">
+                <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FaExclamationCircle color="#999999" /> 본인인증을 한 회원만 가입할 수 있어요.</p>
+              </div>
+            )}
 
-          <ButtonGroup>
-            <Button title="가입하기" grow variant="primary" />
-            <Button title="취소" grow onClick={() => { resetJoinInput(); setModalOpen('') }} />
-          </ButtonGroup>
+            <ButtonGroup>
+              {group.requireApproval &&
+                <Button title="가입 신청하기" grow variant="primary" onClick={handleJoinRequest} />
+              }
+              <Button title="가입하기" grow variant="primary" onClick={handleJoinGroup} />
+              <Button title="취소" grow onClick={resetJoinInput} />
+            </ButtonGroup>
+          </>}
+
+          {joinStatus === 'success' && <>
+            <h2>'{group.title}' 모임에 가입했습니다.</h2>
+            <p>환영합니다!</p>
+            <Button title="확인" onClick={resetJoinInput} />
+          </>}
+
+          {joinStatus === 'submitted' && <>
+            <h2>'{group.title}' 모임 가입 신청을 제출했습니다.</h2>
+            <p>관리자의 승인을 기다려주세요.</p>
+            <Button title="확인" onClick={resetJoinInput} />
+          </>}
+
+          {joinStatus === 'fail' && <>
+            <h2>모임 가입에 실패했습니다.</h2>
+            <p>다시 시도해주세요.</p>
+            <Button title="확인" onClick={resetJoinInput} />
+          </>}
         </Modal>
 
 
@@ -328,7 +387,7 @@ export default function GroupPageLayout(props) {
           <h3>모임에 가입하려면 로그인해야 해요.</h3>
           <div className="buttonWrap">
             <Button title="로그인" variant='primary' onClick={() => { setModalOpen(''); navigate("/login") }} />
-            <Button title="닫기" onClick={() => setModalOpen('')} />
+            <Button title="닫기" onClick={resetJoinInput} />
           </div>
         </Modal>
 

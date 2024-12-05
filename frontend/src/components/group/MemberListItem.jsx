@@ -56,7 +56,10 @@ export default function MemberListItem(props) {
 
   const handleClick = () => {
     const currentPath = location.pathname;
-    if (currentPath.endsWith("members")) {
+    const myId = sessionStorage.getItem('uid');
+    if (member?.userId === myId) {
+      naviagte('my');
+    } else if (currentPath.endsWith("members")) {
       naviagte(`${currentPath}/${member?.userId}`);
     } else {
       naviagte(`members/${member?.userId}`);
@@ -65,12 +68,12 @@ export default function MemberListItem(props) {
   return (
     <Wrapper onClick={handleClick}>
       <ProfileImage>
-        { <img src={member?.profileImage ?? '/images/defaultProfileImage.png'} alt={member?.name} />}
+        {<img src={member?.profileImage ?? '/images/defaultProfileImage.png'} alt={member?.name} />}
       </ProfileImage>
       <MemberInfo>
         <div className="name-wrap">
           <div className="name">{member?.username ?? '이름'} <span className="nickname">({member?.groupNickName ?? '그룹 별명'})</span></div>
-          <div className="location">{member?.location ?? '지역'}</div>
+          <div className="location">{member?.location?.[0]?.emd ?? '지역'}</div>
         </div>
         <div className="desc">소개</div>
       </MemberInfo>

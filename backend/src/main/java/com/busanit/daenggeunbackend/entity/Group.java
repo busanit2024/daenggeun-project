@@ -45,7 +45,7 @@ public class Group {
   @Data
   public static class JoinRequest {
     private String groupId;
-    private String memberId;
+    private String userId;
     private String message;
     private LocalDateTime requestDate;
     private Status status;
