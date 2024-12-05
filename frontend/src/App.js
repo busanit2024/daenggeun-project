@@ -12,12 +12,8 @@ import UsedTrade from './components/pages/UsedTrade/UsedTrade';
 import UsedTradeView from './components/pages/UsedTrade/UsedTradeView';
 import UsedTradeWrite from './components/pages/UsedTrade/UsedTradeWrite';
 import UsedTradeUpdate from './components/pages/UsedTrade/UsedTradeUpdate';
-
 import AlbaPage from './components/alba/AlbaPage';
 import AlbaList from './components/alba/AlbaList';
-import CommunityPage from './components/pages/Community/CommunityPage';
-// import CommunityViewPage from './components/pages/Community/CommunityViewPage';
-import CommunityWritePage from './components/pages/Community/CommunityWritePage';
 import GroupEditPage from './components/pages/Group/GroupEditPage';
 import LoginPage from './components/pages/Login/LoginPage';
 import MainPage from './components/pages/MainPage';
@@ -28,6 +24,7 @@ import GroupView from './components/group/GroupView';
 import GroupMembers from './components/group/GroupMembers';
 import GroupSchedules from './components/group/GroupSchedules';
 import GroupBoard from './components/group/GroupBoard';
+import CommunityPage from './components/pages/Community/CommunityPage';
 
 
 function App() {
@@ -56,12 +53,11 @@ function App() {
 
             <Route path="usedTrade/used-trade" element={<UsedTrade />} />
             <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
-            <Route path="community" element={<CommunityPage />} />
-            {/* <Route path="community/view/:communityId" element={<CommunityViewPage />} /> */}
-            <Route path="community/write" element={<CommunityWritePage />} />
             <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
             <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
             <Route path="login" element={<LoginPage />} />
+
+            <Route path="community" element={<CommunityPage />} />
           </Route>
         </Routes>
       </Router>
