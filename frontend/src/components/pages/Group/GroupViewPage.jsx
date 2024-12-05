@@ -7,6 +7,7 @@ export default function GroupViewPage(props) {
   const navigate = useNavigate();
   const { groupId } = useParams();
   const [group, setGroup] = useState({});
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     axios.get("/api/group/view/" + groupId).then((response) => {
@@ -18,9 +19,21 @@ export default function GroupViewPage(props) {
       });
   }, []);
 
+  useEffect(() => {
+    if (group && group.members) {
+      const memberIds = group.members?.map((member) => member.userId);
+      console.log(memberIds);
+      axios.post(`/api/group/members`, memberIds).then((response) => {
+        setUsers(response.data);
+      }).catch((error) => {
+        console.error("멤버 정보를 불러오는데 실패했습니다." + error);
+      } );
+    }
+  }, [group]);
+
   return (
     <GroupPageLayout group={group}>
-      <Outlet context={{ group, ...props }} />
+      <Outlet context={{ group, users, ...props }} />
     </GroupPageLayout>
   );
 

@@ -10,16 +10,17 @@ import Switch from "../../ui/Switch";
 import Breadcrumb from "../../Breadcrumb";
 import { useJsApiLoader } from "@react-google-maps/api";
 import useGeolocation from "../../../utils/useGeolocation";
+import InputText from "../../ui/InputText";
 
 
-const Container = styled.div`
+export const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   margin-top: 24px;
 `;
 
-const ButtonContainer = styled.div`
+export const ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
   gap: 16px;
@@ -27,7 +28,7 @@ const ButtonContainer = styled.div`
   margin: 24px auto;
 `;
 
-const Item = styled.div`
+export const Item = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -41,16 +42,16 @@ const Item = styled.div`
   }
 `;
 
-const InputContainer = styled.div`
+export const InputContainer = styled.div`
   display: flex;
-  width: ${props => props.full ? "100%" : "64px"};
+  width: ${props => props.full ? "100%" : "96px"};
   padding: ${props => props.full ? "16px" : "8px"};
   border: 2px solid #cccccc;
   border-radius: 8px;
   min-height: ${props => props.height ?? "auto"};
 `;
 
-const Input = styled.input`
+export const Input = styled.input`
   width: 100%;
   flex-grow: 1;
   border: none;
@@ -59,7 +60,7 @@ const Input = styled.input`
   font-family: inherit;
 `;
 
-const Textarea = styled.textarea`
+export const Textarea = styled.textarea`
   flex-grow: 1;
   border: none;
   outline: none;
@@ -68,7 +69,7 @@ const Textarea = styled.textarea`
   resize: none;
 `;
 
-const TextLength = styled.div`
+export const TextLength = styled.div`
   display: flex;
   justify-content: flex-end;
   justify-self: end;
@@ -90,7 +91,7 @@ const DongneSelect = styled.select`
   flex-grow: 1;
 `;
 
-const RadioContainer = styled.div`
+export const RadioContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
@@ -98,13 +99,13 @@ const RadioContainer = styled.div`
   align-items: center;
 `;
 
-const SelectBoxContainer = styled.div`
+export const SelectBoxContainer = styled.div`
   display: grid;
   grid-template-columns: 2fr 2fr;
   gap: 16px;
 `;
 
-const SelectBox = styled.label`
+export const SelectBox = styled.label`
   padding: 24px;
   border-width: 1px;
   border-style: solid;
@@ -117,7 +118,7 @@ const SelectBox = styled.label`
   align-items: center;
 `;
 
-const FileInputContainer = styled.div` 
+export const FileInputContainer = styled.div` 
   display: flex;
   justify-content: start;
   gap: 16px;
@@ -169,7 +170,7 @@ const ImagePreview = styled.div`
   }
 `;
 
-const InputCheckMessage = styled.span`
+export const InputCheckMessage = styled.span`
   color: red;
   font-size: 14px;
 `;
@@ -195,6 +196,7 @@ export default function GroupCreatePage(props) {
   const [rangeData, setRangeData] = useState([]);
   const [busanJuso, setBusanJuso] = useState(null);
   const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
+  const [nickname, setNickName] = useState("");
 
   const [step, setStep] = useState(1);
   const [input, setInput] = useState({
@@ -342,10 +344,21 @@ export default function GroupCreatePage(props) {
         console.log(imageInfo);
       }
 
+      const userId = sessionStorage.getItem('uid');
+
+      const memberProfile = {
+        userId: userId,
+        position: 'ADMIN',
+        registeredDate : new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(' ', 'T'),
+        groupNickName: nickname,
+      }
+
       const response = await axios.post("/api/group/save", {
         ...input,
         image: imageInfo,
         boards: ["자유 게시판"],
+        userId: userId,
+        members: [memberProfile],
       });
       alert("모임이 생성되었습니다.");
       navigate("/group");
@@ -544,6 +557,7 @@ export default function GroupCreatePage(props) {
           별명 사용
           <Switch value={input.useNickname} checked={input.useNickname} onChange={(e) => setInput({ ...input, useNickname: e.target.checked })} />
         </label>
+        {input.useNickname && <InputText type="text" value={nickname} underline placeholder="사용할 별명을 입력해주세요." onChange={(e) => setNickName(e.target.value)} /> }
       </Item>
 
 

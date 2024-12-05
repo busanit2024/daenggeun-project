@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -43,8 +44,19 @@ const MemberInfo = styled.div`
 
 export default function MemberListItem(props) {
   const { member } = props;
+  const naviagte = useNavigate();
+  const location = useLocation();
+
+  const handleClick = () => {
+    const currentPath = location.pathname;
+    if (currentPath.endsWith("members")) {
+      naviagte(`${currentPath}/${member?.id}`);
+    } else {
+      naviagte(`members/${member?.id}`);
+    }
+  }
   return (
-    <Wrapper>
+    <Wrapper onClick={handleClick}>
       <ProfileImage>
         {member?.profileImage && <img src={member?.profileImage} alt={member?.name} />}
       </ProfileImage>

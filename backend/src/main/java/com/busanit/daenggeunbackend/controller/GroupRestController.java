@@ -2,7 +2,9 @@ package com.busanit.daenggeunbackend.controller;
 
 import com.busanit.daenggeunbackend.domain.GroupDTO;
 import com.busanit.daenggeunbackend.entity.Group;
+import com.busanit.daenggeunbackend.entity.User;
 import com.busanit.daenggeunbackend.service.GroupService;
+import com.busanit.daenggeunbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -17,6 +20,7 @@ import java.util.List;
 @RequestMapping("/api/group")
 public class GroupRestController {
   private final GroupService groupService;
+  private final UserService userService;
 
   @GetMapping("/list")
   private List<GroupDTO> getGroups() {
@@ -47,5 +51,10 @@ public class GroupRestController {
   @DeleteMapping("/delete/{groupId}")
   private void deleteGroup(@PathVariable String groupId) {
     groupService.delete(groupId);
+  }
+
+  @PostMapping("/members")
+  private List<User> joinMembersAndUser(@RequestBody ArrayList<String> uids) {
+    return userService.findByUidIn(uids);
   }
 }

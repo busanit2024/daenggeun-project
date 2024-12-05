@@ -5,6 +5,7 @@ import com.busanit.daenggeunbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,5 +28,9 @@ public class UserService {
 
     public Optional<User> findUserByPhone(String phone){
         return userRepository.findByPhone(phone);
+    }
+
+    public List<User> findByUidIn(List<String> uids){
+        return userRepository.findByUidIn(uids);
     }
 }

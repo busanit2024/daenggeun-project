@@ -28,6 +28,7 @@ import GroupView from './components/group/GroupView';
 import GroupMembers from './components/group/GroupMembers';
 import GroupSchedules from './components/group/GroupSchedules';
 import GroupBoard from './components/group/GroupBoard';
+import MemberProfile from './components/group/MemberProfile';
 
 
 function App() {
@@ -43,6 +44,8 @@ function App() {
             <Route path="group/:groupId" element={<GroupViewPage />}>
               <Route path="" element={<GroupView />} />
               <Route path="members" element={<GroupMembers />} />
+              <Route path='members/:memberId' element={<MemberProfile />} />
+              <Route path="my" element={<MemberProfile />} />
               <Route path="schedule" element={<GroupSchedules />} />
               <Route path="board" element={<GroupBoard />} />
             </Route>

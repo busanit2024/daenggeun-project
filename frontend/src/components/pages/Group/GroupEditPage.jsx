@@ -9,103 +9,7 @@ import InputText from "../../ui/InputText";
 import Switch from "../../ui/Switch";
 import Radio from "../../ui/Radio";
 import Breadcrumb from "../../Breadcrumb";
-
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin-top: 24px;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  width: 640px;
-  margin: 24px auto;
-`;
-
-const Item = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-  width: 100%;
-
-  .checkbox-wrap {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  width: ${props => props.full ? "100%" : "64px"};
-  padding: ${props => props.full ? "16px" : "8px"};
-  border: 2px solid #cccccc;
-  border-radius: 8px;
-  min-height: ${props => props.height ?? "auto"};
-`;
-
-const Input = styled.input`
-  width: 100%;
-  flex-grow: 1;
-  border: none;
-  outline: none;
-  font-size: 18px;
-  font-family: inherit;
-`;
-
-const Textarea = styled.textarea`
-  flex-grow: 1;
-  border: none;
-  outline: none;
-  font-size: 18px;
-  font-family: inherit;
-  resize: none;
-`;
-
-const TextLength = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  justify-self: end;
-  margin-left: auto;
-`;
-
-const RadioContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  gap: 8px;
-  align-items: center;
-`;
-
-const SelectBoxContainer = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 2fr;
-  gap: 16px;
-`;
-
-const SelectBox = styled.label`
-  padding: 24px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: ${props => props.selected ? "#999999" : "#cccccc"};
-  border-radius: 8px;
-  background-color: ${props => props.selected ? "#ebebeb" : "white"};
-  display: flex;
-  gap: 8px;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const FileInputContainer = styled.div` 
-  display: flex;
-  justify-content: start;
-  gap: 16px;
-`;
+import { Container, ButtonContainer, Item, InputContainer, Input, Textarea, TextLength, RadioContainer, SelectBoxContainer, SelectBox, FileInputContainer, InputCheckMessage } from "./GroupCreatePage";
 
 
 const ImagePreview = styled.div`
@@ -143,11 +47,6 @@ const ImagePreview = styled.div`
   }
 `;
 
-
-const InputCheckMessage = styled.span`
-  color: red;
-  font-size: 14px;
-`;
 
 const ageData = [
   "누구나", "20대", "30대", "40대", "50대", "60대", "직접 입력",
@@ -201,7 +100,20 @@ export default function GroupEditPage(props) {
   useEffect(() => {
       const check = validateInput();
       setInputCheck(check);
+      console.log(check.age);
   }, [group]);
+
+  useEffect(() => {
+    if (group.ageRange) { 
+      const ageRange = group.ageRange.split("~");
+      if (ageRange.length === 2) {
+        ageRange[0] = ageRange[0].replace("세", "");
+        ageRange[1] = ageRange[1].replace("세", "");
+        setAgeInput(true);
+        setAgeInputValue({ min: ageRange[0], max: ageRange[1] });
+      }
+    }
+  }, [group.ageRange]);
 
   useEffect(() => {
     if (ageInput) {
@@ -258,13 +170,13 @@ export default function GroupEditPage(props) {
     }
 
     if (maxMemberInput) {
-      if (group.maxMember < 1) {
+      if (group.maxMember < 2) {
         newCheck.maxMember = true;
       }
     }
 
     if (ageInput) {
-      if (ageInputValue.min < 1 || ageInputValue.max < 1 || ageInputValue.min > ageInputValue.max) {
+      if (ageInputValue.min < 0 || ageInputValue.max < 1 || ageInputValue.min > ageInputValue.max) {
         newCheck.age = true;
       }
     }
@@ -382,19 +294,19 @@ export default function GroupEditPage(props) {
           {((!ageData.includes(group.ageRange)) || ageInput) && (
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
               <InputContainer>
-                <Input type="number" value={ageInputValue.min} onChange={(e) => e.target.value > 0 && setAgeInputValue({ ...ageInputValue, min: e.target.value })} />
+                <Input type="number" value={ageInputValue.min} onChange={(e) => e.target.value >= 0 && setAgeInputValue({ ...ageInputValue, min: e.target.value })} />
                 <span>세</span>
               </InputContainer>
               <span> ~ </span>
               <InputContainer>
-                <Input type="number" value={ageInputValue.max} onChange={(e) => e.target.value > 0 && setAgeInputValue({ ...ageInputValue, max: e.target.value })} />
+                <Input type="number" value={ageInputValue.max} onChange={(e) => e.target.value >= 0 && setAgeInputValue({ ...ageInputValue, max: e.target.value })} />
                 <span> 세</span>
               </InputContainer>
 
             </div>
           )}
         </RadioContainer>
-        <InputCheckMessage>{inputCheck.age && '연령대를 입력해 주세요.'}</InputCheckMessage>
+        <InputCheckMessage>{inputCheck.age && '최대 연령은 최소 연령보다 높아야 합니다.'}</InputCheckMessage>
 
       </Item>
 
@@ -471,7 +383,7 @@ export default function GroupEditPage(props) {
         <RadioContainer>
           {maxMemberData.map((item) => (
             <>
-              <RoundFilter title={item === 0 ? "제한없음" : item === -1 ? "직접 입력" : item} variant={item === group.maxMember ? 'selected' : 'category'} value={item} onClick={() => {
+              <RoundFilter title={item === 0 ? "제한없음" : item === -1 ? "직접 입력" : item} variant={(item === group.maxMember) || (item === -1 && !maxMemberData.includes(group.maxMember) ) ? 'selected' : 'category'} value={item} onClick={() => {
                 if (item === -1) {
                   setMaxMemberInput(true);
                   setGroup({ ...group, maxMember: -1 });
@@ -485,7 +397,7 @@ export default function GroupEditPage(props) {
           {(!maxMemberData.includes(group.maxMember) || maxMemberInput) && (
             <div>
               <InputContainer>
-                <Input type="number" value={group.maxMember === 1 ? 0 : group.maxMember} onChange={(e) => e.target.value > 0 && setGroup({...group, maxMember: e.target.value})} />
+                <Input type="number" value={group.maxMember === -1 ? 0 : group.maxMember} onChange={(e) => e.target.value >= 0 && setGroup({...group, maxMember: e.target.value})} />
                 <span>명</span>
               </InputContainer>
 
@@ -493,7 +405,7 @@ export default function GroupEditPage(props) {
           )}
         </RadioContainer>
 
-        <InputCheckMessage>{inputCheck.maxMember && '최대 인원을 입력해 주세요.'}</InputCheckMessage>
+        <InputCheckMessage>{inputCheck.maxMember && '최대 인원은 2명 이상이어야 합니다.'}</InputCheckMessage>
       </Item>
 
       <ButtonContainer>
