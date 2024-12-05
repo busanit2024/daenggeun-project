@@ -102,7 +102,7 @@ export default function ScheduleListItem(props) {
         </Date>
         <Info>
           {/* <div className="private"><FaExclamationCircle />모임에게만 공개된 일정이에요.</div> */}
-          <div className="title">모임 제목</div>
+          <div className="title">일정 제목</div>
           <div className="state">
             <span className="open">모집중</span>
             <span className="close">마감</span>

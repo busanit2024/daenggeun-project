@@ -2,6 +2,7 @@ package com.busanit.daenggeunbackend.service;
 
 import com.busanit.daenggeunbackend.domain.GroupDTO;
 import com.busanit.daenggeunbackend.entity.Group;
+import com.busanit.daenggeunbackend.entity.GroupMember;
 import com.busanit.daenggeunbackend.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

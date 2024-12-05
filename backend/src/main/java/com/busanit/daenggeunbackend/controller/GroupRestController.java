@@ -2,6 +2,7 @@ package com.busanit.daenggeunbackend.controller;
 
 import com.busanit.daenggeunbackend.domain.GroupDTO;
 import com.busanit.daenggeunbackend.entity.Group;
+import com.busanit.daenggeunbackend.entity.GroupMember;
 import com.busanit.daenggeunbackend.entity.User;
 import com.busanit.daenggeunbackend.service.GroupService;
 import com.busanit.daenggeunbackend.service.UserService;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -56,5 +59,26 @@ public class GroupRestController {
   @PostMapping("/members")
   private List<User> joinMembersAndUser(@RequestBody ArrayList<String> uids) {
     return userService.findByUidIn(uids);
+  }
+
+  @PostMapping("/join")
+  private void joinGroup(@RequestBody GroupMember member) {
+    GroupDTO groupDTO = groupService.findById(member.getGroupId());
+    List<GroupMember> members = groupDTO.getMembers();
+    if (members == null ) {
+      members = new ArrayList<>();
+    }
+    members.add(member);
+    groupDTO.setMembers(members);
+    groupService.save(groupDTO);
+  }
+
+  @PostMapping("/join/request")
+  private void joinRequest(@RequestBody Group.JoinRequest request) {
+    GroupDTO groupDTO = groupService.findById(request.getGroupId());
+    List<Group.JoinRequest> requests = groupDTO.getRequests();
+    requests.add(request);
+    groupDTO.setRequests(requests);
+    groupService.save(groupDTO);
   }
 }

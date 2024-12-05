@@ -12,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 public class GroupMember {
+  private String groupId;
   private String userId; // 유저 id
   private Position position; // 그룹 내 직책(멤버장, 운영진, 일반...)
   private String groupUserName; // 모임 닉네임

@@ -48,8 +48,12 @@ public class Group {
     private String memberId;
     private String message;
     private LocalDateTime requestDate;
+    private Status status;
   }
 
+  public enum Status {
+    PENDING, APPROVED, REJECTED
+  }
 
   public static Group toEntity(GroupDTO groupDTO) {
     GroupBuilder builder = Group.builder()
