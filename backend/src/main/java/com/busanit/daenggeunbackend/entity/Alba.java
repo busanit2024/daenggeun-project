@@ -24,7 +24,7 @@ public class Alba {
     private String createdAt; // 작성시간 (ISO 8601 형식 추천)
     private String wageType; //건당/시급/일급/월급
     private String wage; // 지급액수
-    private String task; // 하는 일
+    private String category; // 하는 일
     private String workPeriod; // 근무 기간 (1개월 이상/ 단기)
     private List<String> workDays; // 근무요일
     private WorkTime workTime; // 근무시간

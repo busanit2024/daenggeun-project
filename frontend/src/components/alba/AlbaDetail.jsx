@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/AlbaStyled.css";
+import { ImAlarm } from "react-icons/im";
+import { ImCalendar } from "react-icons/im";
+import { HiOutlineLocationMarker } from "react-icons/hi";
+import { LiaWonSignSolid } from "react-icons/lia";
 
 const AlbaDetail = () => {
   const { id } = useParams(); // URL에서 id 가져오기
@@ -58,10 +62,10 @@ const AlbaDetail = () => {
           <div className="detail-body">
 
             <h2>{job.title}</h2>
-            <p>{job.wageType}{job.wage}</p>
-            <p>{job.workPlace}</p>
-            <p>{job.workDays}</p>
-            <p>{job.workTime.start}~{job.workTime.end}</p>
+            <p><LiaWonSignSolid /> {job.wageType} {job.wage}</p>
+            <p><HiOutlineLocationMarker /> {job.workPlace}</p>
+            <p><ImCalendar /> {job.workDays}</p>
+            <p><ImAlarm /> {job.workTime.start}~{job.workTime.end}</p>
 
             <h2>상세 내용</h2>
 
