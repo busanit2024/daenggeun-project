@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Button from "../../ui/Button";
 import InputText from "../../ui/InputText";
 import ImageUpload from "./ImageUpload";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 const ButtonContainer = styled.div`
     display: inline-flex;
@@ -101,12 +101,41 @@ const TradeButton = styled(Button)`
 
 const UsedTradeUpdate = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
+    // location.state에서 정보 가져오기
+    const product = location.state || {};
+
     const [isPriceNegotiable, setIsPriceNegotiable] = useState(false);
-    const [price, setPrice] = useState("100,000");
+    const [name, setName] = useState(product.name || "상품명이 없습니다.");
+    const [price, setPrice] = useState(product.price || "");
+    const [content, setContent] = useState(product.content || "상세 설명이 없습니다.");
+    const [locationInput, setLocationInput] = useState(product.location || "위치 정보가 없습니다.");
+
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("여성의류");
     const [selectedTradeType, setSelectedTradeType] = useState("판매하기");
-    const navigate = useNavigate();
+
+    useEffect(() => {
+        // 상품 정보를 API에서 가져오는 함수
+        const fetchProductInfo = async () => {
+            try {
+                const response = await fetch(`/api/usedTrades/${id}`);
+                if (!response.ok) {
+                    throw new Error('상품을 가져오는 데 실패했습니다.');
+                }
+                const data = await response.json();
+            } catch (error) {
+                console.error('Error fetching product:', error);
+            }
+        };
+
+        fetchProductInfo();
+    }, [id]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+    };
 
     const handlePriceChange = (e) => {
         let value = e.target.value.replace(/[^0-9]/g, "");
@@ -216,8 +245,8 @@ const UsedTradeUpdate = () => {
                     <InputText
                         placeholder="가격을 입력해주세요"
                         value={price}
-                        onChange={handlePriceChange}
-                    /> 원
+                        onChange={handlePriceChange} 원
+                    />
                     <Label>
                         <Checkbox
                             type="checkbox"
@@ -237,8 +266,7 @@ const UsedTradeUpdate = () => {
                 <InputContainer>
                     <h3>설명</h3>
                     <TextArea 
-                        placeholder="{주소}에 올릴 게시글 내용을 작성해 주세요.
-                        (판매 금지 물품은 게시가 제한될 수 있습니다.)"
+                        placeholder={`${location}에 올릴 게시글 내용을 작성해 주세요.\n(판매 금지 물품은 게시가 제한될 수 있습니다.)`}
                         rows="5"
                     />
                 </InputContainer>

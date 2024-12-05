@@ -5,6 +5,8 @@ import com.busanit.daenggeunbackend.repository.UsedTradeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UsedTradeService {
     @Autowired
@@ -12,6 +14,10 @@ public class UsedTradeService {
 
     public UsedTrade createUsedTrade(UsedTrade usedTrade) {
         return usedTradeRepository.save(usedTrade);
+    }
+
+    public List<UsedTrade> getAllUsedTrade() {
+        return usedTradeRepository.findAll();
     }
 
     

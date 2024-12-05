@@ -94,7 +94,14 @@ const UsedTradeView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const product = location.state || { title: "상품 정보가 없습니다", price: "가격 정보가 없습니다"};
+
+  // location.state에서 상품 정보 가져오기
+  const product = location.state || { 
+    name: "상품 정보가 없습니다", 
+    price: "가격 정보가 없습니다",
+    content: "상세 설명이 없습니다.",
+    location: "위치 정보가 없습니다."
+  };
 
   if (!product) {
     return (
@@ -111,22 +118,18 @@ const UsedTradeView = () => {
         <h2>상품 상세 페이지</h2>
         <ButtonGroup>
           <BackButton onClick={() => navigate("/usedTrade/used-trade")}>뒤로 가기</BackButton>
-          <Button onClick={() => navigate(`/usedTrade/used-trade-update/${id}`)} title="수정하기" variant="primary" />
+          <Button onClick={() => navigate(`/usedTrade/used-trade-update/${id}`, { state: product })} title="수정하기" variant="primary" />
         </ButtonGroup>
       </Header>
       <ProductDetail>
         <ProductImage>상품 사진</ProductImage>
 
         <ProductInfo>
-          <Title>{product.title}</Title>
-          <Price>{product.price}</Price>
+          <Title>{product.name}</Title>
+          <Price>{product.price}원</Price>
 
           <Description>
-            상세 설명: 이 상품은 {id}번 상품으로 상세 내용은 여기에 표시됩니다.
-            안녕하세요 감사해요 잘 있어요 다시 만나요 
-            안녕하세요 감사해요 잘 있어요 다시 만나요 
-            안녕하세요 감사해요 잘 있어요 다시 만나요 
-            안녕하세요 감사해요 잘 있어요 다시 만나요 
+            {product.content}
           </Description>
 
           <ButtonWrapper>
