@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumb from "../Breadcrumb";
 import InputText from "../ui/InputText";
 import { FaExclamationCircle } from "react-icons/fa";
+import { deleteFile } from "../../firebase";
 
 //공통 컴포넌트
 export const Container = styled.div`
@@ -173,6 +174,7 @@ export default function GroupPageLayout(props) {
     axios.delete(`/api/group/delete/${group.id}`).then((response) => {
       console.log(response.data);
       setDeleted(true);
+      deleteFile(group.image?.filename);
     })
       .catch((error) => {
         console.error("모임 삭제에 실패했습니다." + error);
