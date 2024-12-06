@@ -106,7 +106,7 @@ public class GroupService {
     }
 
     if (!category.equals("all")) {
-      criteria.and("location.category").is(category);
+      criteria.and("category").is(category);
     }
 
     MatchOperation matchOperation = Aggregation.match(criteria);
