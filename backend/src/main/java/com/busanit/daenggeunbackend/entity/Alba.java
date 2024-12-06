@@ -4,6 +4,7 @@ import com.busanit.daenggeunbackend.domain.Image;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -23,7 +24,9 @@ public class Alba {
 
     private String title; // 제목
     private String description; // 상세내용
-    private String createdAt; // 작성시간 (ISO 8601 형식 추천)
+    @CreatedDate
+    private LocalDateTime createdAt; // 작성시간 (ISO 8601 형식 추천)
+    private LocalDateTime updatedAt; // 수정시간 (수정 시 갱신됨)
     private String wageType; //건당/시급/일급/월급
     private String wage; // 지급액수
     private String category; // 하는 일
