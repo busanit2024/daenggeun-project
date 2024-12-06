@@ -96,12 +96,13 @@ public class GroupService {
     }
   }
 
-  public void quitGroup(GroupMember member) {
-    Group group = groupRepository.findById(member.getGroupId()).orElse(null);
+  public void quitGroup(String groupId, String userId) {
+    Group group = groupRepository.findById(groupId).orElse(null);
     if (group == null) {
       throw new RuntimeException("Group not found");
     }
     List<GroupMember> members = group.getMembers();
+    GroupMember member = members.stream().filter(groupMember -> groupMember.getUserId().equals(userId)).findFirst().orElse(null);
     if (members.contains(member)) {
       members.remove(member);
     } else {

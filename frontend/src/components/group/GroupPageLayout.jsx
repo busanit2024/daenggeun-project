@@ -161,6 +161,7 @@ export default function GroupPageLayout(props) {
   const [isMember, setIsMember] = useState(false);
   const [joinStatus, setJoinStatus] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isQuit, setIsQuit] = useState(false);
 
   const resetJoinInput = () => {
     setJoinData({ message: '', nickname: '' });
@@ -218,8 +219,12 @@ export default function GroupPageLayout(props) {
   };
 
   const handleQuitGroup = () => {
-    axios.delete(`/api/group/quit/${group.id}/${sessionStorage.getItem('uid')}`).then((response) => {
-      alert("모임을 나갔습니다.");
+    const data = {
+      userId : sessionStorage.getItem('uid'),
+      groupId : group.id
+    }
+    axios.post(`/api/group/quit`, data).then((response) => {
+      setIsQuit(true);
     }).catch((error) => {
       alert("모임 나가기에 실패했습니다. 다시 시도해 주세요.");
       console.error("모임 나가기에 실패했습니다." + error);
@@ -264,8 +269,9 @@ export default function GroupPageLayout(props) {
 
     if (group.requests && group.requests.length > 0) {
       const userId = sessionStorage.getItem('uid');
-      const request = group.requests.find((request) => request.userId === userId);
-      if (request) {
+      const request = group.requests.filter((request) => (request.userId === userId && request.status === 'PENDING'));
+      console.log(request);
+      if (request.length > 0) {
         setSubmitted(true);
       }
     }
@@ -357,13 +363,17 @@ export default function GroupPageLayout(props) {
             <Button title="확인" onClick={() => setModalOpen('')} />
           </>
           }
-          {!isAdmin && <>
+          {(!isAdmin && !isQuit) && <>
           <h2 style={{ margin: 0 }}>'{group.title}' 모임을 나가시겠어요?</h2>
           <p style={{ margin: 0 }}>모임을 나가기 전에 작성한 게시글과 댓글은 수정할 수 없어요.</p>
           <ButtonGroup>
-            <Button title="나가기" grow variant="danger" />
+            <Button title="나가기" grow variant="danger" onClick={handleQuitGroup} />
             <Button title="취소" grow onClick={() => setModalOpen('')} />
           </ButtonGroup>
+          </>}
+          {isQuit && <>
+            <h2>'{group.title}' 모임을 나갔습니다.</h2>
+            <Button title="확인" onClick={() => { setModalOpen(''); setIsQuit(false); window.location.reload() }} />
           </>}
         </Modal>
 
@@ -402,13 +412,13 @@ export default function GroupPageLayout(props) {
           {joinStatus === 'success' && <>
             <h2>'{group.title}' 모임에 가입했습니다.</h2>
             <p>환영합니다!</p>
-            <Button title="확인" onClick={resetJoinInput} />
+            <Button title="확인" onClick={() => {resetJoinInput(); window.location.reload()}} />
           </>}
 
           {joinStatus === 'submitted' && <>
             <h2>'{group.title}' 모임 가입 신청을 제출했습니다.</h2>
             <p>관리자의 승인을 기다려주세요.</p>
-            <Button title="확인" onClick={resetJoinInput} />
+            <Button title="확인" onClick={() => {resetJoinInput(); window.location.reload()}} />
           </>}
 
           {joinStatus === 'fail' && <>

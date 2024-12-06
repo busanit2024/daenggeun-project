@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -77,8 +78,10 @@ public class GroupRestController {
   }
 
   @PostMapping("/quit")
-  private void quitGroup(@RequestBody GroupMember member) {
-    groupService.quitGroup(member);
+  private void quitGroup(@RequestBody Map<String, String> data) {
+    String groupId = data.get("groupId");
+    String userId = data.get("userId");
+    groupService.quitGroup(groupId, userId);
   }
 
   @PostMapping("/join/request")
@@ -89,8 +92,13 @@ public class GroupRestController {
       requests = new ArrayList<>();
     }
 
-    boolean exists = requests.stream()
-            .anyMatch(r -> r.getUserId().equals(request.getUserId()));
+    List<Group.JoinRequest> existingRequests = requests.stream()
+            .filter(r -> r.getUserId().equals(request.getUserId())).toList();
+
+    System.out.println(existingRequests);
+
+    boolean exists = existingRequests.stream()
+            .anyMatch(r -> r.getStatus().equals(Group.Status.PENDING));
 
     if (exists) {
       return ResponseEntity.status(HttpStatus.CONFLICT).body("Join request already exists");
