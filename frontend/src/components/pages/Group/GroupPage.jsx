@@ -125,7 +125,14 @@ export default function GroupPage(props) {
   const navigate = useNavigate();
   const [groupList, setGroupList] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
-  const [searchFilter, setSearchFilter] = useState({ sido: "부산광역시", sigungu: "", emd: "", category: "all", sort: "" });
+  const [searchFilter, setSearchFilter] = useState({
+    sido: "부산광역시",
+    sigungu: "",
+    emd: "",
+    category: "all",
+    sort: "",
+    uid: '',
+  });
   const [busanJuso, setBusanJuso] = useState([]);
   const [emdList, setEmdList] = useState([]);
   const [page, setPage] = useState(0);
@@ -160,35 +167,45 @@ export default function GroupPage(props) {
   }, []);
 
   useEffect(() => {
-    setSearchFilter({ ...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu });
-  }, [currentLocation]);
+    console.log(currentLocation);
+    if (currentLocation.sido && currentLocation.sigungu) {
+      setSearchFilter((prev) => ({ ...prev, sido: currentLocation.sido, sigungu: currentLocation.sigungu }));
+    }
+  }, [currentLocation.sigungu]);
 
   useEffect(() => {
     setLoading(true);
-    if (searchFilter.sigungu) {
-      fetchGroupList(0);
+    if (categoryData.length > 0 && busanJuso.length > 0 ) {
+    fetchGroupList(0);
     }
   }, [searchFilter]);
 
-
   useEffect(() => {
     setLoading(true);
-    setSearchFilter({ ...searchFilter, emd: '' });
+    setSearchFilter((prev) => ({ ...prev, emd: '' }));
     getEmdList(searchFilter.sigungu);
     setIsFilterOpen(false);
   }, [searchFilter.sigungu, busanJuso]);
 
   const resetFilter = () => {
     setLoading(true);
-    setSearchFilter({ ...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu, emd: '', category: 'all', sort: '' });
+    setSearchFilter((prev) => ({ ...prev, sido: currentLocation.sido, sigungu: currentLocation.sigungu, emd: '', category: 'all', sort: '', uid: '' }));
     setIsFilterOpen(false);
     setPage(0);
   }
+
+  const handleMyGroupFilter = () => {
+    if (sessionStorage.getItem('uid')) {
+      setSearchFilter({ ...searchFilter, sigungu: '', emd: '', category: 'all', sort: '', uid: sessionStorage.getItem('uid') });
+    }
+  }
+
 
   const fetchGroupList = async (page) => {
     try {
       const response = await axios.get(`api/group/search`, {
         params: {
+          uid: searchFilter.uid,
           sigungu: searchFilter.sigungu,
           emd: searchFilter.emd,
           category: searchFilter.category,
@@ -198,21 +215,28 @@ export default function GroupPage(props) {
         }
       });
       const newGroupList = response.data.content;
+      console.log(newGroupList);
       setGroupList((prevGroups) => (page === 0 ? newGroupList : [...prevGroups, ...newGroupList]));
       setHasNext(!response.data.last);
       setLoading(false);
     } catch (error) {
       console.error("모임 리스트를 불러오는데 실패했습니다." + error);
+      setLoading(false);
     }
   };
 
 
 
   const getEmdList = (gu) => {
-    if (busanJuso && gu) {
-      const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
-      const emdNameList = emdList?.map((item) => item.emd);
-      setEmdList(emdNameList);
+    if (busanJuso) {
+      if (!gu) {
+        setEmdList([]);
+        console.log(searchFilter)
+      } else {
+        const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
+        const emdNameList = emdList?.map((item) => item.emd);
+        setEmdList(emdNameList);
+      }
     }
   }
 
@@ -221,7 +245,7 @@ export default function GroupPage(props) {
     setPage(page + 1);
   };
 
-  const handleCreateButton = () => {  
+  const handleCreateButton = () => {
     if (sessionStorage.getItem('uid')) {
       navigate("/group/create");
     } else {
@@ -241,7 +265,10 @@ export default function GroupPage(props) {
       <Container>
         <HeadContainer>
           <h2>{`${searchFilter.sido} ${searchFilter.sigungu} ${searchFilter.emd} ${searchFilter.category === 'all' ? "" : searchFilter.category} 모임`}</h2>
-          <Button title="모임 만들기" onClick={handleCreateButton} />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button title="내 모임" onClick={handleMyGroupFilter} />
+            <Button title="모임 만들기" variant="primary" onClick={handleCreateButton} />
+          </div>
         </HeadContainer>
         <InnerContainer>
           <FilterBar>
@@ -252,6 +279,7 @@ export default function GroupPage(props) {
             <div className="filterItem">
               <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center' }}>지역
                 <CustomSelect value={searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.value })}>
+                  <option value="">전지역</option>
                   {busanJuso.map((item) => (
                     <option key={item.sigungu} value={item.sigungu}>{item.sigungu}</option>
                   ))}
@@ -262,7 +290,7 @@ export default function GroupPage(props) {
                 <p>{searchFilter.sido}</p>
                 <label className="radioWrap">
                   <Radio name="gu" value={searchFilter.sigungu} checked={searchFilter.emd === ''} onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
-                  {searchFilter.sigungu}
+                  {searchFilter.sigungu === '' ? "전지역" : searchFilter.sigungu}
                 </label>
                 <EmdFilterWrap open={isFilterOpen}>
                   {searchFilter.emd !== '' &&
@@ -315,10 +343,11 @@ export default function GroupPage(props) {
           </FilterBar>
 
           <ListContainer>
-            {(searchFilter.category !== 'all' || searchFilter.sort !== "") &&
+            {(searchFilter.category !== 'all' || searchFilter.sort !== "" || searchFilter.uid) &&
               <FilterContainer>
                 {searchFilter.category !== 'all' && <RoundFilter title={searchFilter.category} variant='search' cancelIcon onClick={() => setSearchFilter({ ...searchFilter, category: 'all' })} />}
                 {searchFilter.sort !== "" && <RoundFilter title={searchFilter.sort === 'recent' ? '최신순' : '이름순'} variant='search' cancelIcon onClick={() => setSearchFilter({ ...searchFilter, sort: '' })} />}
+                {searchFilter.uid && <RoundFilter title="내 모임" variant='search' cancelIcon onClick={() => setSearchFilter({ ...searchFilter, uid: '' })} />}
               </FilterContainer>
             }
 
@@ -347,12 +376,12 @@ export default function GroupPage(props) {
       <Modal title="로그인" isOpen={modalOpen === 'login'} onClose={() => setModalOpen('')}>
         <h3>모임을 만들려면 로그인해야 해요.</h3>
         <div className="buttonWrap">
-        <Button title="로그인" variant='primary' onClick={() => { setModalOpen(''); navigate("/login") }} />
-        <Button title="닫기" onClick={() => setModalOpen('')} />
-          </div>
+          <Button title="로그인" variant='primary' onClick={() => { setModalOpen(''); navigate("/login") }} />
+          <Button title="닫기" onClick={() => setModalOpen('')} />
+        </div>
       </Modal>
 
-      </>
-      );
+    </>
+  );
 
 }

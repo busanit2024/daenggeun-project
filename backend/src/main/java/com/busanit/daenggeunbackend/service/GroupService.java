@@ -5,8 +5,14 @@ import com.busanit.daenggeunbackend.entity.Group;
 import com.busanit.daenggeunbackend.entity.GroupMember;
 import com.busanit.daenggeunbackend.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,10 +20,17 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
+import static com.mongodb.client.model.Filters.eq;
+import static org.springframework.data.mongodb.core.aggregation.BooleanOperators.Or.or;
+import static org.springframework.data.mongodb.core.query.TypedCriteriaExtensionsKt.elemMatch;
+
 @Service
 @RequiredArgsConstructor
 public class GroupService {
   private final GroupRepository groupRepository;
+
+  @Autowired
+  private MongoTemplate mongoTemplate;
 
   public List<GroupDTO> findAll() {
      List<Group> groups = groupRepository.findAll();
@@ -76,6 +89,46 @@ public class GroupService {
       default -> groupRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(sigungu, emd, category, pageable);
     };
     return GroupDTO.toDTO(groups);
+  }
+
+  public Slice<GroupDTO> searchMyGroupPage(String sigungu, String emd, String category, String sort, String uid, Pageable pageable) {
+    Criteria criteria = new Criteria().orOperator(
+            Criteria.where("userId").is(uid),
+            Criteria.where("members").elemMatch(Criteria.where("userId").is(uid))
+    );
+
+    if (!sigungu.isEmpty()) {
+      criteria.and("location.sigungu").is(sigungu);
+    }
+
+    if (!emd.isEmpty()) {
+      criteria.and("location.emd").is(emd);
+    }
+
+    if (!category.equals("all")) {
+      criteria.and("location.category").is(category);
+    }
+
+    MatchOperation matchOperation = Aggregation.match(criteria);
+
+    SortOperation sortOperation;
+
+    if (sort.equals("name")) {
+      sortOperation = Aggregation.sort(Sort.by(Sort.Direction.ASC, "title"));
+    } else if (sort.equals("recent")) {
+      sortOperation = Aggregation.sort(Sort.by(Sort.Direction.DESC, "createdDate"));
+    } else {
+      sortOperation = Aggregation.sort(Sort.by(Sort.DEFAULT_DIRECTION, "id"));
+    }
+
+    Aggregation aggregation = Aggregation.newAggregation(matchOperation, sortOperation);
+
+    List<Group> results = mongoTemplate.aggregate(aggregation, "group", Group.class).getMappedResults();
+    boolean hasNext = results.size() == pageable.getPageSize();
+
+    Slice<Group> groups =  new SliceImpl<>(results, pageable, hasNext);
+    return GroupDTO.toDTO(groups);
+
   }
 
   public void joinGroup(GroupMember member) {

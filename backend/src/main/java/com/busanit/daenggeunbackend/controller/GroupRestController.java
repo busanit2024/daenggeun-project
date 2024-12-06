@@ -36,10 +36,14 @@ public class GroupRestController {
                                        @RequestParam String emd,
                                        @RequestParam String category,
                                        @RequestParam String sort,
+                                       @RequestParam String uid,
                                        @RequestParam int page,
                                        @RequestParam int size) {
     Pageable pageable = PageRequest.of(page, size);
-    return groupService.searchPage(sigungu, emd, category, sort, pageable);
+    if (uid.isEmpty()) {
+      return groupService.searchPage(sigungu, emd, category, sort, pageable);
+    }
+    return groupService.searchMyGroupPage(sigungu, emd, category, sort, uid, pageable);
   }
 
   @GetMapping("/view/{groupId}")
