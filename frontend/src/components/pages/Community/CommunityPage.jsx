@@ -297,8 +297,8 @@ export default function CommunityPage(props) {
 
 
           {(!loading && communityList.length === 0) && <NoSearchResult>
-            <h3>{`${searchFilter.emd ? searchFilter.emd : searchFilter.sigungu} 근처에 모임이 없어요.`}</h3>
-            <p>다른 조건으로 검색해주세요.</p>
+            <h3>{`${searchFilter.emd ? searchFilter.emd : searchFilter.sigungu} 근처의 동네생활 글이 없어요.`}</h3>
+            <p>다른 조건으로 검색하거나 첫 글을 써보세요.</p>
           </NoSearchResult>}
           {loading &&
             <LoadingText>

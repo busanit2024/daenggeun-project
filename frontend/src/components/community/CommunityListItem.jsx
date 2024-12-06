@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { elapsedText } from "../../utils/elapsedText";
 
 const Container = styled.div`
   display: flex;
@@ -85,7 +86,7 @@ export default function CommunityListItem({community}) {
           <span> · </span>
           <span>{community.category}</span>
           <span> · </span>
-          // 시간계산 컴포넌트
+          <span>{elapsedText(new Date(community.createdDate))}</span>
         </TagContainer>
       </TextContainer>
     </Container>

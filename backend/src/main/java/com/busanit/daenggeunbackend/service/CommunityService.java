@@ -57,11 +57,12 @@ public class CommunityService {
 
     public Slice<CommunityDTO> searchPage(String sigungu, String emd, String category, Pageable pageable) {
         if (Objects.equals(category, "all")) {
-            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContaining(sigungu, emd, pageable);
+            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingOrderByCreatedDateDesc(sigungu, emd, pageable);
             return CommunityDTO.toDTO(communities);
         }
         Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(sigungu, emd, category, pageable);
         return CommunityDTO.toDTO(communities);
     }
+
 
 }
