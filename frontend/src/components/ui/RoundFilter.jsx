@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import locationIcon from '../../images/icons8-marker-o-50.png';
 
 const StyledFilter = styled.span`
     font-size : 13px;
@@ -7,7 +8,7 @@ const StyledFilter = styled.span`
     cursor:pointer;
     border-width:0px;
     border-radius: 30px;
-    
+    white-space:nowrap;
     color : black;
     font-weight: bold;
     display: flex;
@@ -19,7 +20,7 @@ const StyledFilter = styled.span`
             //location filter
             case 'location':
                 return `
-                    background-color : #dcdcdc;
+                    background-color : #f2f3f6;
                     color: black;
                 `;
 
@@ -116,11 +117,16 @@ const StyledFilter = styled.span`
 `;
 
 function RoundFilter(props) {
-    const { title, onClick, variant, cancelIcon } = props;
-    return <StyledFilter title={title} onClick={onClick} variant={variant}>{title || "filter"}
+    const { title, onClick, variant, cancelIcon, LocationIcon } = props;
+    return <StyledFilter title={title} onClick={onClick} variant={variant}>
+        {LocationIcon &&
+            <img src={locationIcon} style={{ width : '20px', height:'20px'}} alt="loc" />
+        }
+        {title || "filter"}
         {cancelIcon &&
             <img src="/images/icon/cancel.svg" alt="cancel" />
         }
+       
     </StyledFilter>;
 
 }

@@ -4,7 +4,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from "react-responsive-carousel";
 import imageData from "../../asset/imageData";
 import "../../styles/carouselOverrides.css"
-import SearchBar from "../SearchBar";
+import SearchBar from "../ui/SearchBar";
 
 const Wrapper = styled.div`
     max-width: 100%; 
@@ -24,6 +24,7 @@ const FullWidthBackground = styled.div`
 const StyledCarousel = styled(Carousel)`
     width: 100%;
     margin: 0;
+    margin-top : 20px;
 
     .carousel .control-arrow {
         background-color:transparent;
@@ -79,6 +80,7 @@ const SlideText = styled.span`
     top : 50px;
     font-family : SBAggroB;
 `;
+
 
 function MainPage(props) {
     return (

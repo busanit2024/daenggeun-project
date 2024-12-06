@@ -6,7 +6,6 @@ const StyledButton = styled.button`
     font-size : 16px;
     border-width: 0px;
     border-radius: ${props => props.borderRadius || "5px"};
-    border-radius: ${props => props.borderRadius || "5px"};
     cursor:pointer;
     height : 40px;
     width: ${props => props.width ? props.width : "auto"};
@@ -20,10 +19,11 @@ const StyledButton = styled.button`
             `
         }
 
-        if (props.active) {
+        if (props.disabled) {
             return `
-                background-color: #000000;
-                color: #ffffff;
+                background-color: #dcdcdc;
+                color: #666666;
+                cursor: default;
             `
         }
 
@@ -59,6 +59,12 @@ const StyledButton = styled.button`
                     background-color : #a50000;
                     color : white;
                 `;
+
+            case 'findLocation' :
+                return `
+                    background-color : #ff6f0f24;
+                    color : #ff6f0f;
+                `;
             default:
                 return ``;
         };
@@ -67,7 +73,7 @@ const StyledButton = styled.button`
 
 
 function Button(props) {
-    const { title, onClick, variant, width, grow, borderRadius, active } = props;
+    const { title, onClick, variant, width, grow, borderRadius, active, disabled } = props;
     return <StyledButton
             title={title}
             onClick={onClick}
@@ -76,6 +82,7 @@ function Button(props) {
             grow={grow}
             borderRadius={borderRadius}
             active={active}
+            disabled={disabled}
         >
             {title || "button"}
         </StyledButton>;
