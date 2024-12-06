@@ -34,6 +34,7 @@ public class GroupDTO {
     private List<GroupMember> members; //멤버 클래스 리스트
     private List<String> posts; //게시글 id
     private List<String> schedules; // 일정 id
+    private List<Group.JoinRequest> requests; //가입 신청
 
   public static GroupDTO toDTO(Group group) {
     GroupDTOBuilder builder = GroupDTO.builder();
@@ -55,6 +56,7 @@ public class GroupDTO {
     builder.members(group.getMembers());
     builder.posts(group.getPosts());
     builder.schedules(group.getSchedules());
+    builder.requests(group.getRequests());
     return builder.build();
   }
 

@@ -37,6 +37,16 @@ const Breadcrumb = ({ routes }) => {
   const location = useLocation();
   const pathnames = location.pathname.split('/').filter((x) => x);
 
+  const findRouteName = (path) => {
+    const route = routes.find((route) => {
+      const routePath = route.path.replace(/:\w+/g, '[^/]+');
+      const regex = new RegExp(`^${routePath}$`);
+      return regex.test(path);
+    });
+    return route ? route.name : path;
+  };
+
+
   return (
     <BreadcrumbContainer>
       <BreadcrumbItem>
@@ -44,17 +54,17 @@ const Breadcrumb = ({ routes }) => {
       </BreadcrumbItem>
       {pathnames.map((value, index) => {
         const to = `/${pathnames.slice(0, index + 1).join('/')}`;
-        const route = routes.find((route) => route.path === to);
+        const routeName = findRouteName(to);
         return (
-          route && (
-            <BreadcrumbItem key={to}>
-              {index < pathnames.length &&
-                <div style={{ margin: '0 8px', display: 'flex', alignItems: 'center' }}>
-                  <img height={12} src='/images/icon/arrow_right.svg' alt='arrow-right' />
-                </div>
-              }
-              <Link to={to}>{route.name}</Link>
-            </BreadcrumbItem>)
+          routeName && <BreadcrumbItem key={to}>
+            {index < pathnames.length &&
+              <div style={{ margin: '0 8px', display: 'flex', alignItems: 'center' }}>
+                <img height={12} src='/images/icon/arrow_right.svg' alt='arrow-right' />
+              </div>
+            }
+            <Link to={to}>{routeName}</Link>
+          </BreadcrumbItem>
+          
         );
       })}
     </BreadcrumbContainer>

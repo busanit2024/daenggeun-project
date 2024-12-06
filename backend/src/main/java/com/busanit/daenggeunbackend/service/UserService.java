@@ -49,6 +49,14 @@ public class UserService {
             return userRepository.save(user);
         }
         return null;
+        }
+
+    public List<User> findByUidIn(List<String> uids){
+        return userRepository.findByUidIn(uids);
+    }
+
+    public List<User> findByUniqueCodeIn(List<String> uniqueCodes){
+        return userRepository.findByUniqueCodeIn(uniqueCodes);
     }
 
 
