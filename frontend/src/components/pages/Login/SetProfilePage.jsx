@@ -7,6 +7,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LocationSearchModal from "../../ui/LocationSearchModal";
 import { singleFileUpload } from "../../../firebase";
+import { compressImage } from "../../../firebase";
 import useGetUserId from "../../../utils/useGetUserId"; 
 
 const Wrapper = styled.div`
