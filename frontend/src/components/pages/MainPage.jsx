@@ -57,7 +57,7 @@ const StyledCarousel = styled(Carousel)`
 
 const Slide = styled.div`
     width: 100%; 
-    height: 400px; 
+    height: 650px; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -73,7 +73,6 @@ const SlideImage = styled.img`
 const SlideText = styled.span`
     position: absolute; 
     color: black;
-    font-size: 1.5rem;
     text-align: left ;
     left: 25%;
     transform: translateX(-50%);
