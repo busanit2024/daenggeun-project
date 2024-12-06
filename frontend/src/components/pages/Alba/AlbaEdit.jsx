@@ -246,15 +246,15 @@ console.log("payload 결과는? ", payload);
         </div>
 
         <div className="work-time">
-          <h3 className="section-title">근무 시간</h3>
-          <InputText
+          <h3 className="section-title">일하는 시간</h3>
+          <input
             type="time"
             name="startTime"
             value={form.startTime}
             onChange={handleChange}
           />
           ~
-          <InputText
+          <input
             type="time"
             name="endTime"
             value={form.endTime}

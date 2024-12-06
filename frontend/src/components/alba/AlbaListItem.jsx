@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-
+import { elapsedText } from '../../utils/elapsedText';
 
 const ListItemContainer = styled.div`
   display: flex;
@@ -78,6 +78,14 @@ const WorkTime = styled.span`
   font-size: 0.9rem;
 `;
 
+const WorkDays = styled.span`
+  background-color: #e6f7ff;
+  color: #007bff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+`;
+
 export default function AlbaListItem({ alba }) {
   const navigate = useNavigate();
 
@@ -89,10 +97,19 @@ export default function AlbaListItem({ alba }) {
     <ListItemContainer onClick={handleClick}>
       <DetailsContainer>
         <Title>{alba.title}</Title>
-        <Location>{`${alba.workPlace}`}</Location>
+        <Location>
+          {alba.workPlace} • {elapsedText(new Date(alba.createdAt))}
+        </Location>
         <Category>{alba.wage}</Category>
         <DetailsRow>
-          <WorkTime>{alba.workTime?.start} ~ {alba.workTime?.end}</WorkTime><workDays>{alba.workDays}</workDays>
+          <WorkTime>
+            {alba.workTime?.start} ~ {alba.workTime?.end}
+          </WorkTime>
+          {alba.workDays && (
+            <WorkDays>
+              {alba.workDays.join(', ')}
+            </WorkDays>
+          )}
           {alba.workType && <WorkType>{alba.workType}</WorkType>}
         </DetailsRow>
       </DetailsContainer>
