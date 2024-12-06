@@ -48,6 +48,7 @@ const StyledLink = styled.a`
 
 function LoginPage() {
     const [phone, setPhone] = useState("");
+    const [formattedPhone, setFormattedPhone] = useState("");
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState("");
     const [value, setValue] = useState("");
@@ -67,7 +68,17 @@ function LoginPage() {
     
     const onChangePhone = (e) => {
         const inputPhone = e.target.value;
+        
         setPhone(inputPhone);
+
+        if(inputPhone.startsWith("0")){
+            const formattedPhone = `+82${inputPhone.slice(1)}}`;
+            setFormattedPhone(formattedPhone);
+        } else {
+            setErrorMessage("휴대폰 번호를 확인해주세요");
+            setPhone("");
+            setFormattedPhone("");
+        }
     };
 
     const requestVerificationCode = () => {
@@ -89,7 +100,7 @@ function LoginPage() {
         console.log(auth);
         console.log(phone);
         console.log(appVerifier);
-        signInWithPhoneNumber(auth, phone, appVerifier)
+        signInWithPhoneNumber(auth, formattedPhone, appVerifier)
           .then((confirmationResult) => {
             setIsCodeSent(true);
             console.log("signInWithPhoneNumber 결과: ", confirmationResult);
@@ -193,7 +204,7 @@ function LoginPage() {
                 <InputText 
                     value={phone}
                     onChange={onChangePhone}
-                    placeholder="휴대폰 번호(+82 10 1234 5678 형식으로 '-' 없이 입력)"
+                    placeholder="휴대폰 번호 '-' 없이 입력"
                 />
                 <Spacing />
                 {errorMessage && <PhoneErrorMsg>{errorMessage}</PhoneErrorMsg>}
