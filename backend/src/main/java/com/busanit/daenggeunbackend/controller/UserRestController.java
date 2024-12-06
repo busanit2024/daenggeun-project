@@ -54,10 +54,15 @@ public class UserRestController {
 
     @PostMapping("/profileSave/{id}")
     public ResponseEntity<String> saveUserProfile(@PathVariable String id, @RequestBody UserProfileRequestDTO request) {
-        Image profileImage = new Image();
-        profileImage.setUrl(request.getProfileImage().getUrl());
-        profileImage.setFilename(request.getProfileImage().getFilename());
-        profileImage.setFilePath(request.getProfileImage().getFilePath());
+        Image profileImage = null;
+
+        // 프로필 이미지가 제공된 경우에만 설정
+        if (request.getProfileImage() != null) {
+            profileImage = new Image();
+            profileImage.setUrl(request.getProfileImage().getUrl());
+            profileImage.setFilename(request.getProfileImage().getFilename());
+            profileImage.setFilePath(request.getProfileImage().getFilePath());
+        }
 
         // userLocation 변환
         List<Location> locations = new ArrayList<>();

@@ -71,10 +71,15 @@ function LoginPage() {
     };
 
     const requestVerificationCode = () => {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, "sign-in-button", {
-          size: "invisible",  // "invisible"에서 "visible"로 변경
+        const signInButton = document.getElementById("sign-in-button");
+        if (!signInButton) {
+            console.error("sign-in-button 요소를 찾을 수 없습니다.");
+            return;
+        }
+
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, signInButton, {
+          size: "invisible", 
           callback: (response) => {
-            // reCAPTCHA solved, allow signInWithPhoneNumber.
             console.log("reCAPTCHA solved");
           },
         }, auth);
@@ -88,7 +93,7 @@ function LoginPage() {
           .then((confirmationResult) => {
             setIsCodeSent(true);
             console.log("signInWithPhoneNumber 결과: ", confirmationResult);
-            window.confirmationResult = confirmationResult;	// window
+            window.confirmationResult = confirmationResult;
         })
           .catch((error) => {
             console.log("SMS FAILED");

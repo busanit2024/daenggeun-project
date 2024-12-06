@@ -16,6 +16,10 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    public Optional<User> findUserByUid(String uid) {
+        return userRepository.findByUid(uid);
+    }
+
     public boolean checkUniqueCode(String uniqueCode) {
         return userRepository.existsByUniqueCode(uniqueCode);
     }
@@ -33,9 +37,7 @@ public class UserService {
         return userRepository.findByPhone(phone);
     }
 
-    public Optional<User> findUserByUid(String uid) {
-        return userRepository.findByUid(uid);
-    }
+
 
     public User saveUserProfile(String id, String username, List<Location> userLocation, Image profileImage) {
         Optional<User> optionalUser = userRepository.findById(id); // id로 사용자 찾기
