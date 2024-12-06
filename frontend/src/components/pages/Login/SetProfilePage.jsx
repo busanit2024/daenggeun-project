@@ -99,7 +99,7 @@ export default function SetProfilePage(props) {
         }
     };
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
             if (file.size > 5 * 1024 * 1024) { // 5MB 제한
@@ -107,12 +107,18 @@ export default function SetProfilePage(props) {
                 return;
             }
             
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewImage(reader.result);
-            };
-            reader.readAsDataURL(file);
-            setProfileImage(file);
+            try {
+                // 이미지 압축
+                const compressedFile = await compressImage(file);
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPreviewImage(reader.result);
+                };
+                reader.readAsDataURL(compressedFile); 
+                setProfileImage(compressedFile); 
+            } catch (error) {
+                console.error('이미지 압축 중 오류 발생:', error);
+            }
         }
     };
 
