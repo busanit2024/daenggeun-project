@@ -322,7 +322,7 @@ export default function GroupPageLayout(props) {
               <SquareFilter title={group.category} variant="tag" />
               {group.ageRange && <SquareFilter title={group.ageRange} variant="tag" />}
             </div>
-            {!isMember && <Button title={submitted ? '가입신청 중' : '모임 가입하기'} disabled={submitted}  variant="primary" onClick={handleJoinButton} />}
+            {!isMember && <Button title={submitted ? '가입신청 중' : group.maxMember >= group.members?.length ? '멤버 수 상한에 도달했어요' : '모임 가입하기'} disabled={submitted || group.maxMember >= group.members?.length}  variant="primary" onClick={handleJoinButton} />}
             {isAdmin &&
               <>
                 <Button title={`모임 가입 신청 ${getPendingRequests()}건`} onClick={() => navigate(`/group/${group.id}/requests`)} />

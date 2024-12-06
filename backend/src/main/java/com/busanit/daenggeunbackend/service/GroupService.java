@@ -141,15 +141,19 @@ public class GroupService {
       members = new ArrayList<>();
     }
 
+    if (members.size() >= group.getMaxMember()) {
+      throw new RuntimeException("Maximum number of members reached");
+    }
+
     boolean memberExists = members.stream().anyMatch(m -> m.getUserId().equals(member.getUserId()));
 
-    if (!memberExists) {
-      members.add(member);
-      group.setMembers(members);
-      groupRepository.save(group);
-    } else {
+    if (memberExists) {
       throw new RuntimeException("Member already exists");
     }
+
+    members.add(member);
+    group.setMembers(members);
+    groupRepository.save(group);
   }
 
   public void quitGroup(String groupId, String userId) {
@@ -190,6 +194,10 @@ public class GroupService {
     List<GroupMember> members = group.getMembers();
     if (members == null) {
       members = new ArrayList<>();
+    }
+
+    if (members.size() >= group.getMaxMember()) {
+      throw new RuntimeException("Maximum number of members reached");
     }
 
     boolean memberExists = members.stream().anyMatch(m -> m.getUserId().equals(joinRequest.getUserId()));
