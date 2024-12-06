@@ -303,7 +303,7 @@ export default function CommunityPage(props) {
           </NoSearchResult>}
           {loading &&
             <LoadingText>
-              <h3>동네생활을 찾는 중이에요.</h3>
+              <h3>동네생활 목록을 찾는 중이에요.</h3>
             </LoadingText>
 
           }

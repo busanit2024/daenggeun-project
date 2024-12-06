@@ -18,7 +18,7 @@ import UsedTradeUpdate from './components/pages/UsedTrade/UsedTradeUpdate';
 
 import CommunityPage from './components/pages/Community/CommunityPage';
 // import CommunityViewPage from './components/pages/Community/CommunityViewPage';
-// import CommunityWritePage from './components/pages/Community/CommunityWritePage';
+import CommunityWritePage from './components/pages/Community/CommunityWritePage';
 
 import LoginPage from './components/pages/Login/LoginPage';
 import MainPage from './components/pages/MainPage';
@@ -44,6 +44,7 @@ function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<MainPage />} />
+
             <Route path="group" element={<GroupPage />} />
             <Route path="group/:groupId" element={<GroupViewPage />}>
               <Route path="" element={<GroupView />} />
@@ -66,6 +67,8 @@ function App() {
             <Route path="login" element={<LoginPage />} />
 
             <Route path="community" element={<CommunityPage />} />
+            <Route path="community/write" element={<CommunityWritePage />} />
+
             <Route path="setProfile/:uniqueCode" element={<SetProfilePage />} />
           </Route>
         </Routes>
