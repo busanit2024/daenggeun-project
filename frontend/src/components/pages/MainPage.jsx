@@ -4,7 +4,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from "react-responsive-carousel";
 import imageData from "../../asset/imageData";
 import "../../styles/carouselOverrides.css"
-import SearchBar from "../SearchBar";
+import SearchBar from "../ui/SearchBar";
 
 const Wrapper = styled.div`
     max-width: 100%; 

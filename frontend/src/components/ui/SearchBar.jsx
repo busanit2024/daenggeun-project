@@ -1,6 +1,6 @@
 import React from "react";
-import RoundFilter from "./ui/RoundFilter";
-import SearchBox from "./ui/MainSearch";
+import RoundFilter from "./RoundFilter";
+import SearchBox from "./MainSearch";
 import styled from "styled-components";
 
 const SearchWrapper = styled.div`

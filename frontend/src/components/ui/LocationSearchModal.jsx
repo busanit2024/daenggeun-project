@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
+import Button from "./Button";
+import useGeolocation from "../../utils/useGeolocation";
+import { useJsApiLoader } from "@react-google-maps/api";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -26,8 +29,16 @@ const ModalContent = styled.div`
 const SearchInput = styled.input`
   width: 100%;
   padding: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top:3px;
+`;
+
+const StyledButton =styled(Button)`
+  width : 100%;
+  padding : 10px;
+  margin-bottom : 15px;
   border-radius: 4px;
 `;
 
@@ -50,18 +61,33 @@ const SuggestionItem = styled.li`
 `;
 
 const LocationSearchModal = ({ onSelect, onClose }) => {
-  const [locations, setLocations] = useState([]); // 검색 결과
+  const [locations, setLocations] = useState([]); // 지도 리스트
+  const [ busanJuso, setBusanJuso] = useState([]);
+  
+  const { isLoaded: isJsApiLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: ['places'],
+    language: 'ko',
+    region: 'KR',
+  });
+
+  const currentLocation = useGeolocation(isJsApiLoaded);
+
+  
 
   // 컴포넌트가 마운트될 때 데이터 요청
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const response = await axios.get(`/api/data/filter?name=busanJuso`); // 필터 이름을 하드코딩
-        console.log("서버 응답:", response.data); // 응답 데이터 확인
+        const response = await axios.get(`/api/data/filter?name=busanJuso`); 
+        console.log("서버 응답:", response.data); 
         const locationFilters = response.data.locationFilters; // 서버에서 받은 데이터의 locationFilters 추출
     
         // 데이터 가공
-        if (Array.isArray(locationFilters)) { // 배열인지 확인
+        if (Array.isArray(locationFilters)) { 
+          setBusanJuso(locationFilters); 
+
           const allLocations = locationFilters.flatMap(locationFilter => {
             if (locationFilter && locationFilter.sigungu) {
               return locationFilter.emd.map(e => ({
@@ -72,7 +98,7 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
             return []; // null 또는 유효하지 않은 경우 빈 배열 반환
           });
     
-          setLocations(allLocations); // 상태 업데이트
+          setLocations(allLocations.slice(0,10)); 
         } else {
           console.error("응답 데이터의 locationFilters가 배열이 아닙니다:", locationFilters);
           setLocations([]); // 배열이 아닐 경우 결과 초기화
@@ -85,6 +111,31 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
     fetchLocations();
   }, []); // 컴포넌트가 처음 마운트될 때만 실행
 
+
+  const findMyLocation = () => {
+    if (!isJsApiLoaded) {
+      console.error("Google Maps API가 로드되지 않았습니다.");
+      return;
+    }
+
+    const { sigungu } = currentLocation; 
+    console.log("현재 위치 :", sigungu);
+  
+    if (sigungu) {
+      const locationFilter = busanJuso.find(item => item.sigungu === sigungu);
+      
+      if (locationFilter && locationFilter.emd) {
+        setLocations(locationFilter.emd.map(e => ({
+          sigungu: sigungu,
+          emd: e.emd
+        })));
+      } else {
+        console.error("해당 시군구에 대한 emd 리스트를 찾을 수 없습니다.");
+      }
+    }
+  };
+
+
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
@@ -93,6 +144,12 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
           type="text"
           placeholder="지역이나 동네 이름을 입력하세요"
         />
+        <StyledButton
+          title="현재 내 위치 사용하기"
+          onClick={findMyLocation}
+          variant="findLocation"
+        />
+          
         <Suggestions>
           {locations.map((location, index) => (
             <SuggestionItem key={index} onClick={() => {
