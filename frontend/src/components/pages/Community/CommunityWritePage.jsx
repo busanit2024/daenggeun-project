@@ -71,45 +71,11 @@ const TextLength = styled.div`
   margin-left: auto;
 `;
 
-const DongneSelectContainer = styled.div`
-  display: flex;
-  gap: 16px;
-  align-items: center;
-`;
-
-const DongneSelect = styled.select`
-  padding: 12px;
-  border: 2px solid #cccccc;
-  border-radius: 8px;
-  font-size: 18px;
-  font-family: inherit;
-  flex-grow: 1;
-`;
-
 const RadioContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
   gap: 8px;
-  align-items: center;
-`;
-
-const SelectBoxContainer = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 2fr;
-  gap: 16px;
-`;
-
-const SelectBox = styled.label`
-  padding: 24px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: ${props => props.selected ? "#999999" : "#cccccc"};
-  border-radius: 8px;
-  background-color: ${props => props.selected ? "#ebebeb" : "white"};
-  display: flex;
-  gap: 8px;
-  justify-content: space-between;
   align-items: center;
 `;
 

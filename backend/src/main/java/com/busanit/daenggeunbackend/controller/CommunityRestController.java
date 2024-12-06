@@ -4,6 +4,7 @@ import com.busanit.daenggeunbackend.domain.CommunityDTO;
 import com.busanit.daenggeunbackend.service.CommunityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,16 @@ public class CommunityRestController {
     @DeleteMapping("/delete/{communityId}")
     public void deleteCommunity(@PathVariable String communityId) {
         communityService.delete(communityId);
+    }
+
+    @GetMapping("/search")
+    private Slice<CommunityDTO> searchCommunities(@RequestParam String sigungu,
+                                                  @RequestParam String emd,
+                                                  @RequestParam String category,
+                                                  @RequestParam int page,
+                                                  @RequestParam int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return communityService.searchPage(sigungu, emd, category, pageable);
     }
 
 }

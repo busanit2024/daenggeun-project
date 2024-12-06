@@ -11,6 +11,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +53,15 @@ public class CommunityService {
 
     public void delete(String id) {
         communityRepository.deleteById(id);
+    }
+
+    public Slice<CommunityDTO> searchPage(String sigungu, String emd, String category, Pageable pageable) {
+        if (Objects.equals(category, "all")) {
+            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContaining(sigungu, emd, pageable);
+            return CommunityDTO.toDTO(communities);
+        }
+        Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(sigungu, emd, category, pageable);
+        return CommunityDTO.toDTO(communities);
     }
 
 }

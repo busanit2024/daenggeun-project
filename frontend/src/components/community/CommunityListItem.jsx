@@ -1,4 +1,3 @@
-import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -8,7 +7,7 @@ const Container = styled.div`
   gap: 16px;
   cursor: pointer;
 
-  &:hover .community-image {
+  &:hover .group-image {
     transform: scale(1.1);
     transition: transform 0.3s;
   }
@@ -22,7 +21,7 @@ const ImageContainer = styled.div`
   border-radius: 12px;
   overflow: hidden;
 
-  & .community-image {
+  & .group-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -69,28 +68,26 @@ const Content = styled.p`
   text-overflow: ellipsis;
 `;
 
-export default function CommunityListItem({ community }) {
+export default function CommunityListItem({community}) {
   const navigate = useNavigate();
   return (
     <Container key={community.id} onClick={() => navigate(`/community/${community.id}`)}>
       <ImageContainer>
         {community.image?.url &&
-          <img className="community-image" src={community.image?.url} alt={community.title} />
+          <image className="community-image" src={community.image?.url} alt={community.title} />
         }
       </ImageContainer>
       <TextContainer>
         <Title>{community.title}</Title>
         <Content>{community.content}</Content>
         <TagContainer>
-          <span>
-            <img height={16} src="/images/icon/location_gray.svg" alt="location" />
-            {community.location.emd ?? community.location.sigungu}</span>
+          <span>{community.location.emd ?? community.location.sigungu}</span>
           <span> · </span>
           <span>{community.category}</span>
-
+          <span> · </span>
+          // 시간계산 컴포넌트
         </TagContainer>
       </TextContainer>
     </Container>
-  );
-
+  )
 }

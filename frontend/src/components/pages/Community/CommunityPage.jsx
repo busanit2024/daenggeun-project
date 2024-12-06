@@ -189,8 +189,7 @@ export default function CommunityPage(props) {
         params: {
           sigungu: searchFilter.sigungu,
           emd: searchFilter.emd,
-          category: searchFilter.category,
-          sort: searchFilter.sort,
+          category: searchFilter.category,          
           page: page,
           size: 10,
         }
