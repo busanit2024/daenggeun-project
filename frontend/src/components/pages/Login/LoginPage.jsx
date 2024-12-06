@@ -6,6 +6,7 @@ import Logo from "../../ui/Logo";
 import styled from "styled-components";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useGetUserId from "../../../utils/useGetUserId"; 
 
 const Wrapper = styled.div`
     display : flex;
@@ -47,12 +48,14 @@ const StyledLink = styled.a`
 
 function LoginPage() {
     const [phone, setPhone] = useState("");
+    const [formattedPhone, setFormattedPhone] = useState("");
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState("");
     const [value, setValue] = useState("");
     const [isCodeSent, setIsCodeSent] = useState(false);
     const sessionUid = window.sessionStorage.getItem("uid");
     const [uid, setUid] = useState(sessionUid || "");
+    const userId = useGetUserId(uid);
 
     // uid 동기화
     useEffect(() => {
@@ -63,17 +66,31 @@ function LoginPage() {
         }
     }, [uid]);
     
-    
     const onChangePhone = (e) => {
         const inputPhone = e.target.value;
+        
         setPhone(inputPhone);
+
+        if(inputPhone.startsWith("0")){
+            const formattedPhone = `+82${inputPhone.slice(1)}}`;
+            setFormattedPhone(formattedPhone);
+        } else {
+            setErrorMessage("휴대폰 번호를 확인해주세요");
+            setPhone("");
+            setFormattedPhone("");
+        }
     };
 
     const requestVerificationCode = () => {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, "sign-in-button", {
-          size: "invisible",  // "invisible"에서 "visible"로 변경
+        const signInButton = document.getElementById("sign-in-button");
+        if (!signInButton) {
+            console.error("sign-in-button 요소를 찾을 수 없습니다.");
+            return;
+        }
+
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, signInButton, {
+          size: "invisible", 
           callback: (response) => {
-            // reCAPTCHA solved, allow signInWithPhoneNumber.
             console.log("reCAPTCHA solved");
           },
         }, auth);
@@ -83,11 +100,11 @@ function LoginPage() {
         console.log(auth);
         console.log(phone);
         console.log(appVerifier);
-        signInWithPhoneNumber(auth, phone, appVerifier)
+        signInWithPhoneNumber(auth, formattedPhone, appVerifier)
           .then((confirmationResult) => {
             setIsCodeSent(true);
             console.log("signInWithPhoneNumber 결과: ", confirmationResult);
-            window.confirmationResult = confirmationResult;	// window
+            window.confirmationResult = confirmationResult;
         })
           .catch((error) => {
             console.log("SMS FAILED");
@@ -125,7 +142,7 @@ function LoginPage() {
 
                 setUid(user.uid);
 
-                navigate("/");
+                navigate("/"); // 기존 사용자 로그인 후 홈으로 이동
             } else {
                 // 새로운 사용자 추가
                 let uniqueCode;
@@ -153,6 +170,7 @@ function LoginPage() {
                         phone,
                         uid: user.uid,
                         uniqueCode,
+                        mannerTemp : 36.5
                     },
                     {
                         headers : {
@@ -162,9 +180,9 @@ function LoginPage() {
     
                     console.log("회원가입 성공");
 
-                    setUid(user.id);
+                    setUid(user.uid); // uid 설정
 
-                    navigate(`/setProfile/${uniqueCode}`);
+                    navigate(`/setProfile/${userId}`); // userId로 프로필 설정 페이지로 이동
                 } else {
                     console.error("유니크 코드 중복 확인에서 오류 발생");
                 }
@@ -186,7 +204,7 @@ function LoginPage() {
                 <InputText 
                     value={phone}
                     onChange={onChangePhone}
-                    placeholder="휴대폰 번호(+82 10 1234 5678 형식으로 '-' 없이 입력)"
+                    placeholder="휴대폰 번호 '-' 없이 입력"
                 />
                 <Spacing />
                 {errorMessage && <PhoneErrorMsg>{errorMessage}</PhoneErrorMsg>}
