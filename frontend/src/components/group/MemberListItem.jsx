@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -29,11 +29,13 @@ const MemberInfo = styled.div`
   .name-wrap {
     display: flex;
     gap: 8px;
+    align-items: center;
   }
   .name {
     font-size: 16px;
     display: flex;
     gap: 4px;
+    align-items: center;
   }
 
   .nickname {
@@ -47,6 +49,7 @@ const MemberInfo = styled.div`
   .desc {
     color: #666666;
   }
+
 `;
 
 export default function MemberListItem(props) {
@@ -72,7 +75,12 @@ export default function MemberListItem(props) {
       </ProfileImage>
       <MemberInfo>
         <div className="name-wrap">
-          <div className="name">{member?.username ?? '이름'} <span className="nickname">({member?.groupNickName ?? '그룹 별명'})</span></div>
+          <div className="name">{member?.username ?? '이름'}
+            {member.groupNickName && <span className="nickname">({member?.groupNickName ?? '그룹 별명'})</span> }
+            {member?.position !== 'MEMBER' &&
+              <img height={18} src={`/images/icon/group_${member?.position?.toLowerCase()}.svg`} alt={member?.position} />
+            }
+          </div>
           <div className="location">{member?.location?.[0]?.emd ?? '지역'}</div>
         </div>
         <div className="desc">소개</div>

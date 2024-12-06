@@ -3,6 +3,11 @@ import { Container } from "./GroupPageLayout";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { calculateDate } from "../../utils/calculateDate";
+import InputText from "../ui/InputText";
+import { FaEdit, FaPen } from "react-icons/fa";
+import { FaPencil } from "react-icons/fa6";
+import Button from "../ui/Button";
+import axios from "axios";
 
 const InnerContainer = styled.div`
   display: flex;
@@ -27,9 +32,21 @@ const ProfileContainer = styled.div`
   .name {
     font-size: 18px;
     font-weight: bold;
+    display: flex;
+    gap: 4px;
+    align-items: center;
   }
 .nickname {
     color: #666666;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .nickname-input {
+    display: flex;
+    gap: 4px;
+    align-items: center;
   }
 `;
 
@@ -92,46 +109,48 @@ export default function MemberProfile() {
   const { group } = useOutletContext();
   const { memberId } = useParams();
   const [member, setMember] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [nickname, setNickname] = useState('');
 
   useEffect(() => {
     if (group && group.members) {
       const id = memberId ?? sessionStorage.getItem('uid');
       const member = group?.members.find((member) => member.userId === id);
       setMember(member);
+      setNickname(member?.groupNickName);
       console.log(member);
     }
   }, [group, memberId]);
 
-  const calculateRegDate = (date) => {
-    const today = new Date();
-    const regDate = new Date(date);
-    const diffTime = Math.abs(today - regDate);
-    const diffYears = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365));
-    if (diffYears > 0) {
-      return `${diffYears}년`;
-    }
-    const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30));
-    if (diffMonths > 0) {
-      return `${diffMonths}개월`;
-    }
-
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays > 0) {
-      return `${diffDays}일`;
-    }
-
-    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
-    if (diffHours > 0) {
-      return `${diffHours}시간`;
-    }
-
-    const diffMinutes = Math.floor(diffTime / (1000 * 60));
-    return `${diffMinutes}분`;
-  }
 
   const getPosition = (position) => {
     return positionData.find((data) => data.enum === position)?.name;
   }
+
+  const handleEditNickname = () => {
+    if (nickname === member?.groupNickName) {
+      return;
+    }
+
+    const newGroup = group;
+    newGroup.members = newGroup.members.map((m) => {
+      if (m.userId === member.userId) {
+        m.groupNickName = nickname;
+      }
+      return m;
+    });
+
+    setMember((prev) => ({ ...prev, groupNickName: nickname }));
+
+    axios.post(`/api/group/save`, newGroup).then((response) => {
+      console.log(response.data);
+    }).catch((error) => {
+      console.error("닉네임 변경에 실패했습니다." + error);
+    });
+
+    setIsEditing(false);
+  }
+
 
   return (
     <Container>
@@ -141,8 +160,26 @@ export default function MemberProfile() {
             <img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt="프로필 이미지" />
           </ProfilePic>
           <div className="nameWrap">
-            <div className="name">{member?.username ?? '멤버이름'}</div>
-            <div className="nickname">{member?.groupNickName ?? '모임 별명'}</div>
+            <div className="name">{member?.username ?? '멤버이름'}
+              <img height={22} src={`/images/icon/group_${member?.position?.toLowerCase()}.svg`} alt={member?.position} />
+            </div>
+            {group.useNickname &&
+              <>
+                {!isEditing && (
+                  <div className="nickname">{member?.groupNickName ?? '모임 별명'}
+                    <FaPen onClick={() => setIsEditing(true)} />
+                  </div>
+                )}
+                {isEditing && (
+                  <div className="nickname-input">
+                    <InputText underline value={nickname} onChange={(e) => setNickname(e.target.value)} />
+                    <Button title={'변경'} onClick={handleEditNickname} />
+                    <Button title={'취소'} onClick={() => { setNickname(member?.groupNickName); setIsEditing(false); }} />
+                  </div>
+                )}
+              </>}
+
+
           </div>
         </ProfileContainer>
 
