@@ -24,6 +24,7 @@ const FullWidthBackground = styled.div`
 const StyledCarousel = styled(Carousel)`
     width: 100%;
     margin: 0;
+    margin-top : 20px;
 
     .carousel .control-arrow {
         background-color:transparent;
@@ -79,6 +80,7 @@ const SlideText = styled.span`
     top : 50px;
     font-family : SBAggroB;
 `;
+
 
 function MainPage(props) {
     return (

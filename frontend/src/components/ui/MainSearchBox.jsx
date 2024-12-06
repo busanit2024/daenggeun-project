@@ -37,7 +37,7 @@ const FilterButton = styled.button`
 
 const DropdownMenu = styled.div`
   position: absolute;
-  top: 110%;
+  top: 115%;
   left: 0;
   width: auto;
   min-width: 10%;
