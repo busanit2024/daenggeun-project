@@ -68,10 +68,11 @@ export default function MemberListItem(props) {
       naviagte(`members/${member?.userId}`);
     }
   }
+
   return (
     <Wrapper onClick={handleClick}>
       <ProfileImage>
-        {<img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt={member?.name} />}
+        {<img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt={member?.name} onError={(e) => e.target.src = '/images/defaultProfileImage.png'}/>}
       </ProfileImage>
       <MemberInfo>
         <div className="name-wrap">

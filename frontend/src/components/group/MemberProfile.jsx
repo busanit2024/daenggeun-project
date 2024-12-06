@@ -157,11 +157,11 @@ export default function MemberProfile() {
       <InnerContainer>
         <ProfileContainer>
           <ProfilePic>
-            <img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt="프로필 이미지" />
+            <img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt="프로필 이미지" onError={(e) => e.target.src = '/images/defaultProfileImage.png'} />
           </ProfilePic>
           <div className="nameWrap">
             <div className="name">{member?.username ?? '멤버이름'}
-              <img height={22} src={`/images/icon/group_${member?.position?.toLowerCase()}.svg`} alt={member?.position} />
+             {member?.position !== 'MEMBER' && <img height={22} src={`/images/icon/group_${member?.position?.toLowerCase()}.svg`} alt={'멤버 직책'} />}
             </div>
             {group.useNickname &&
               <>

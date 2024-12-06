@@ -141,7 +141,7 @@ public class GroupService {
       members = new ArrayList<>();
     }
 
-    if (members.size() >= group.getMaxMember()) {
+    if (group.getMaxMember() != 0 && members.size() >= group.getMaxMember()) {
       throw new RuntimeException("Maximum number of members reached");
     }
 
@@ -196,7 +196,7 @@ public class GroupService {
       members = new ArrayList<>();
     }
 
-    if (members.size() >= group.getMaxMember()) {
+    if (group.getMaxMember() != 0 && members.size() >= group.getMaxMember()) {
       throw new RuntimeException("Maximum number of members reached");
     }
 
