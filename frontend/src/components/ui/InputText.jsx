@@ -35,10 +35,11 @@ const StyledInput = styled.input`
 `;
 
 function InputText(props) {
-    const { value, onChange, placeholder, underline, grow } = props;
+    const { name, value, onChange, placeholder, underline, grow } = props;
     return (
         <StyledInput
             type="text"
+            name={name}
             value={value}
             onChange={onChange}
             placeholder={placeholder}

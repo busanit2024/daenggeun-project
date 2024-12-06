@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
@@ -94,16 +94,57 @@ const UsedTradeView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const product = location.state || { title: "상품 정보가 없습니다", price: "가격 정보가 없습니다"};
+
+  const [product, setProduct] = useState(location.state);
+
+  // 상품 정보 가져오기
+  const fetchProductInfo = async () => {
+    try {
+      const response = await fetch(`/api/usedTrades/${id}`);
+      if (!response.ok) {
+        throw new Error('상품 정보를 가져오는 데 실패했습니다.');
+      }
+      const data = await response.json();
+      setProduct(data);
+    } catch (error) {
+      console.error('Error fetching product:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProductInfo(); // 컴포넌트가 마운트될 때 상품 정보 가져오기
+  }, [id]);
 
   if (!product) {
     return (
-        <div>
-            <p>상품 정보가 없습니다.</p>
-            <button onClick={() => navigate("/usedTrade/used-trade")}>뒤로 가기</button>
-        </div>
+        <Container>
+          <p>상품 정보를 가져오는 중입니다...</p>
+        </Container>
     );
   }
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("정말로 이 상품을 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(`/api/usedTrades/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        alert("삭제가 완료되었습니다.");
+        navigate("/usedTrade/used-trade");
+      } else {
+        alert("해당 물품을 삭제하는 데 실패했습니다.");
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert("서버와의 연결에 실패했습니다.");
+    }
+  }
+
+  const formattedPrice = Intl.NumberFormat('ko-KR').format(product.price); // 가격 포맷팅하기
 
   return (
     <Container>
@@ -111,22 +152,19 @@ const UsedTradeView = () => {
         <h2>상품 상세 페이지</h2>
         <ButtonGroup>
           <BackButton onClick={() => navigate("/usedTrade/used-trade")}>뒤로 가기</BackButton>
-          <Button onClick={() => navigate(`/usedTrade/used-trade-update/${id}`)} title="수정하기" variant="primary" />
+          <Button onClick={() => navigate(`/usedTrade/used-trade-update/${id}`, { state: product })} title="수정하기" variant="primary" />
+          <Button onClick={handleDelete} title="삭제하기" variant="danger" />
         </ButtonGroup>
       </Header>
       <ProductDetail>
         <ProductImage>상품 사진</ProductImage>
 
         <ProductInfo>
-          <Title>{product.title}</Title>
-          <Price>{product.price}</Price>
+          <Title>{product.name}</Title>
+          <Price>{formattedPrice} 원</Price>
 
           <Description>
-            상세 설명: 이 상품은 {id}번 상품으로 상세 내용은 여기에 표시됩니다.
-            안녕하세요 감사해요 잘 있어요 다시 만나요 
-            안녕하세요 감사해요 잘 있어요 다시 만나요 
-            안녕하세요 감사해요 잘 있어요 다시 만나요 
-            안녕하세요 감사해요 잘 있어요 다시 만나요 
+            {product.content}
           </Description>
 
           <ButtonWrapper>

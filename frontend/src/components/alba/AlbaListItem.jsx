@@ -88,16 +88,16 @@ export default function AlbaListItem({ alba }) {
     <ListItemContainer onClick={handleClick}>
       <DetailsContainer>
         <Title>{alba.title}</Title>
-        <Location>{`${alba.location}`}</Location>
+        <Location>{`${alba.workPlace}`}</Location>
         <Category>{alba.wage}</Category>
         <DetailsRow>
-          <WorkTime>{alba.workTime?.start} ~ {alba.workTime?.end}</WorkTime>
+          <WorkTime>{alba.workTime?.start} ~ {alba.workTime?.end}</WorkTime><workDays>{alba.workDays}</workDays>
           {alba.workType && <WorkType>{alba.workType}</WorkType>}
         </DetailsRow>
       </DetailsContainer>
       {alba.image && (
         <ImageContainer>
-          <Image src={alba.image} alt={alba.title} />
+          <Image src={alba.image.url} alt={alba.title} />
         </ImageContainer>
       )}
     </ListItemContainer>

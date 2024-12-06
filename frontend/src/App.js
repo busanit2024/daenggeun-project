@@ -4,27 +4,35 @@ import axios from "axios";
 import Toolbar from './components/Toolbar';
 import { AuthContext } from './context/AuthContext';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Layout from './Layout';
+
 import GroupPage from './components/pages/Group/GroupPage';
 import GroupViewPage from './components/pages/Group/GroupViewPage';
 import GroupCreatePage from './components/pages/Group/GroupCreatePage';
-import Layout from './Layout';
+import GroupEditPage from './components/pages/Group/GroupEditPage';
+
 import UsedTrade from './components/pages/UsedTrade/UsedTrade';
 import UsedTradeView from './components/pages/UsedTrade/UsedTradeView';
 import UsedTradeWrite from './components/pages/UsedTrade/UsedTradeWrite';
 import UsedTradeUpdate from './components/pages/UsedTrade/UsedTradeUpdate';
-import AlbaPage from './components/alba/AlbaPage';
-import AlbaList from './components/alba/AlbaList';
-import GroupEditPage from './components/pages/Group/GroupEditPage';
+
+import CommunityPage from './components/pages/Community/CommunityPage';
+// import CommunityViewPage from './components/pages/Community/CommunityViewPage';
+// import CommunityWritePage from './components/pages/Community/CommunityWritePage';
+
 import LoginPage from './components/pages/Login/LoginPage';
 import MainPage from './components/pages/MainPage';
-import AlbaCreate from "./components/alba/AlbaCreate";
-import AlbaDetail from "./components/alba/AlbaDetail";
-import AlbaEdit from "./components/alba/AlbaEdit";
+
+import AlbaPage from './components/pages/Alba/AlbaPage';
+import AlbaCreate from "./components/pages/Alba/AlbaCreate";
+import AlbaDetail from "./components/pages/Alba/AlbaDetail";
+import AlbaEdit from "./components/pages/Alba/AlbaEdit";
+
 import GroupView from './components/group/GroupView';
 import GroupMembers from './components/group/GroupMembers';
 import GroupSchedules from './components/group/GroupSchedules';
 import GroupBoard from './components/group/GroupBoard';
-import CommunityPage from './components/pages/Community/CommunityPage';
+import SetProfilePage from './components/pages/Login/SetProfilePage';
 
 
 function App() {
@@ -58,6 +66,7 @@ function App() {
             <Route path="login" element={<LoginPage />} />
 
             <Route path="community" element={<CommunityPage />} />
+            <Route path="setProfile/:uniqueCode" element={<SetProfilePage />} />
           </Route>
         </Routes>
       </Router>

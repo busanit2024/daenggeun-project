@@ -3,6 +3,7 @@ package com.busanit.daenggeunbackend.service;
 import com.busanit.daenggeunbackend.entity.User;
 import com.busanit.daenggeunbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -28,4 +29,11 @@ public class UserService {
     public Optional<User> findUserByPhone(String phone){
         return userRepository.findByPhone(phone);
     }
+
+    public Optional<User> findUserByUid(String uid) {
+        return userRepository.findByUid(uid);
+    }
+
+
+
 }
