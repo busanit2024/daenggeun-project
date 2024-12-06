@@ -2,6 +2,7 @@ import { useOutletContext, useParams } from "react-router-dom";
 import { Container } from "./GroupPageLayout";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
+import { calculateDate } from "../../utils/calculateDate";
 
 const InnerContainer = styled.div`
   display: flex;
@@ -102,7 +103,6 @@ export default function MemberProfile() {
   }, [group, memberId]);
 
   const calculateRegDate = (date) => {
-    //오늘로부터 멤버 가입일까지의 날짜 차이 계산
     const today = new Date();
     const regDate = new Date(date);
     const diffTime = Math.abs(today - regDate);
@@ -166,7 +166,7 @@ export default function MemberProfile() {
           <div className="moreinfo">
             <div>본인인증 완료</div>
             <div>{getPosition(member?.position)}</div>
-            <div>{calculateRegDate(member?.registeredDate)} 전에 가입</div>
+            <div>{calculateDate(member?.registeredDate)} 전에 가입</div>
             <div>{member?.location?.[0]?.emd ?? '지역'}</div>
           </div>
         </DescContainer>

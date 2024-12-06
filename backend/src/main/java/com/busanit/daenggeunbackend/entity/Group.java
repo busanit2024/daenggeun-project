@@ -47,6 +47,7 @@ public class Group {
     private String groupId;
     private String userId;
     private String message;
+    private String groupNickName;
     private LocalDateTime requestDate;
     private Status status;
   }

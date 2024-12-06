@@ -194,13 +194,12 @@ export default function GroupPageLayout(props) {
     });
   };
 
-  const handleJoinRequest = () => {
-    ////이미 가입신청중인 모임 체크할것
-    
+  const handleJoinRequest = () => {   
     const newRequest = {
       groupId: group.id,
       userId: sessionStorage.getItem('uid'),
       message: joinData.message,
+      groupNickName: joinData.nickname,
       requestDate: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(' ', 'T'),
       status: 'PENDING',
     }
@@ -215,6 +214,15 @@ export default function GroupPageLayout(props) {
       }
       console.error("가입 신청에 실패했습니다." + error);
       setJoinStatus('fail');
+    });
+  };
+
+  const handleQuitGroup = () => {
+    axios.delete(`/api/group/quit/${group.id}/${sessionStorage.getItem('uid')}`).then((response) => {
+      alert("모임을 나갔습니다.");
+    }).catch((error) => {
+      alert("모임 나가기에 실패했습니다. 다시 시도해 주세요.");
+      console.error("모임 나가기에 실패했습니다." + error);
     });
   };
 
@@ -239,6 +247,14 @@ export default function GroupPageLayout(props) {
       return;
     }
     setModalOpen('join');
+  };
+
+  const getPendingRequests = () => {
+    if (group.requests) {
+      const pendingRequests = group.requests.filter((request) => request.status === 'PENDING');
+      return pendingRequests.length;
+    }
+    return 0;
   };
 
   useEffect(() => {
@@ -301,7 +317,7 @@ export default function GroupPageLayout(props) {
             {!isMember && <Button title={submitted ? '가입신청 중' : '모임 가입하기'} disabled={submitted}  variant="primary" onClick={handleJoinButton} />}
             {isAdmin &&
               <>
-                <Button title={`모임 가입 신청 ${group.requests?.length ?? 0}건`} onClick={() => navigate(`/group/${group.id}/requests`)} />
+                <Button title={`모임 가입 신청 ${getPendingRequests()}건`} onClick={() => navigate(`/group/${group.id}/requests`)} />
                 <ButtonGroup>
                   <Button title="모임 수정" grow onClick={() => navigate(`/group/${group.id}/edit`)} />
                   <Button title="모임 삭제" grow onClick={() => setModalOpen('delete')} />
@@ -335,12 +351,20 @@ export default function GroupPageLayout(props) {
         </Modal>
 
         <Modal title="모임 나가기" isOpen={modalOpen === 'quit'} onClose={() => setModalOpen('')}>
+          {isAdmin && <>
+            <h2>모임장은 모임을 나갈 수 없어요.</h2>
+            <p>모임을 나가려면 다른 멤버를 모임장으로 임명해주세요.</p>
+            <Button title="확인" onClick={() => setModalOpen('')} />
+          </>
+          }
+          {!isAdmin && <>
           <h2 style={{ margin: 0 }}>'{group.title}' 모임을 나가시겠어요?</h2>
           <p style={{ margin: 0 }}>모임을 나가기 전에 작성한 게시글과 댓글은 수정할 수 없어요.</p>
           <ButtonGroup>
             <Button title="나가기" grow variant="danger" />
             <Button title="취소" grow onClick={() => setModalOpen('')} />
           </ButtonGroup>
+          </>}
         </Modal>
 
         <Modal title="모임 가입" isOpen={modalOpen === 'join'} onClose={() => { resetJoinInput(); setModalOpen('') }}>

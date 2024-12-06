@@ -73,14 +73,12 @@ public class GroupRestController {
 
   @PostMapping("/join")
   private void joinGroup(@RequestBody GroupMember member) {
-    GroupDTO groupDTO = groupService.findById(member.getGroupId());
-    List<GroupMember> members = groupDTO.getMembers();
-    if (members == null ) {
-      members = new ArrayList<>();
-    }
-    members.add(member);
-    groupDTO.setMembers(members);
-    groupService.save(groupDTO);
+    groupService.joinGroup(member);
+  }
+
+  @PostMapping("/quit")
+  private void quitGroup(@RequestBody GroupMember member) {
+    groupService.quitGroup(member);
   }
 
   @PostMapping("/join/request")
@@ -102,5 +100,15 @@ public class GroupRestController {
     groupDTO.setRequests(requests);
     groupService.save(groupDTO);
     return ResponseEntity.ok("Join request created");
+  }
+
+  @PostMapping("/join/request/accept")
+  private void joinRequestAccept(@RequestBody Group.JoinRequest request) {
+    groupService.acceptRequest(request);
+  }
+
+  @PostMapping("/join/request/reject")
+  private void joinRequestReject(@RequestBody Group.JoinRequest request) {
+    groupService.rejectRequest(request);
   }
 }
