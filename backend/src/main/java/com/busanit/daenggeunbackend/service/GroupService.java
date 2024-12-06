@@ -140,7 +140,10 @@ public class GroupService {
     if (members == null) {
       members = new ArrayList<>();
     }
-    if (!members.contains(member)) {
+
+    boolean memberExists = members.stream().anyMatch(m -> m.getUserId().equals(member.getUserId()));
+
+    if (!memberExists) {
       members.add(member);
       group.setMembers(members);
       groupRepository.save(group);
@@ -188,6 +191,13 @@ public class GroupService {
     if (members == null) {
       members = new ArrayList<>();
     }
+
+    boolean memberExists = members.stream().anyMatch(m -> m.getUserId().equals(joinRequest.getUserId()));
+
+    if (memberExists) {
+      throw new RuntimeException("Member already exists");
+    }
+
     GroupMember member = new GroupMember();
     member.setGroupId(joinRequest.getGroupId());
     member.setUserId(joinRequest.getUserId());

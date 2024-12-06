@@ -88,6 +88,7 @@ export default function JoinRequest() {
   const handleAccept = (request) => {
     axios.post(`/api/group/join/request/accept`, request).then((response) => {
       alert("가입 신청을 승인했습니다.");
+      window.location.reload();
     }).catch((error) => {
       alert("가입 신청 승인에 실패했습니다.");
       console.error("가입 신청 승인에 실패했습니다." + error);
@@ -98,6 +99,7 @@ export default function JoinRequest() {
     if (window.confirm("가입 신청을 거절할까요?")) {
       axios.post(`/api/group/join/request/reject`, request).then((response) => {
         alert("가입 신청을 거절했습니다.");
+        window.location.reload();
       }).catch((error) => {
         alert("가입 신청 거절에 실패했습니다.");
         console.error("가입 신청 거절에 실패했습니다." + error);
@@ -122,7 +124,7 @@ export default function JoinRequest() {
 
         <FlexContainer>
           {requests?.map((request) => (
-            <RequestItem key={request.userId}>
+            <RequestItem key={request.userId + request.requestDate}>
               <div className="profile">
                 <div className="profile-image">
                   <img src={request.profileImage?.url ?? '/images/defaultProfileImage.png'} alt="프로필 이미지" />
