@@ -1,4 +1,4 @@
-import { Outlet, useParams } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Toolbar from "./components/Toolbar";
 import styled from "styled-components";
 
