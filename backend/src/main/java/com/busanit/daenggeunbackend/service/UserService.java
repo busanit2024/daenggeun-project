@@ -20,11 +20,12 @@ public class UserService {
         return userRepository.existsByUniqueCode(uniqueCode);
     }
 
-    public void saveUser(String phone, String uid, String uniqueCode) {
+    public void saveUser(String phone, String uid, String uniqueCode, Double mannerTemp) {
         User user = new User();
         user.setPhone(phone);
         user.setUid(uid);
         user.setUniqueCode(uniqueCode);
+        user.setMannerTemp(mannerTemp);
         userRepository.save(user);
     }
 

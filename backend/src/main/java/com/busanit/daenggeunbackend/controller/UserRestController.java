@@ -47,7 +47,7 @@ public class UserRestController {
 
     @PostMapping("/join")
     public String joinUser(@RequestBody User user){
-        userService.saveUser(user.getPhone(), user.getUid(), user.getUniqueCode());
+        userService.saveUser(user.getPhone(), user.getUid(), user.getUniqueCode(), user.getMannerTemp());
         return "가입성공";
     }
 

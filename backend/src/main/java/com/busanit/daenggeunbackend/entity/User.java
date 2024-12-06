@@ -35,12 +35,6 @@ public class User {
     private List<String> posts;
     private List<String> comments; // 작성 댓글 id
 
-    public User(String phone, String uid, String uniqueCode) {
-        this.phone = phone;
-        this.uid = uid;
-        this.uniqueCode = uniqueCode;
-    }
-
     // UserDTO를 User로 변환하는 정적 메서드
     public static User toEntity(UserDTO userDTO) {
         return User.builder()

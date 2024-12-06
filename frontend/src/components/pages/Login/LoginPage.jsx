@@ -154,6 +154,7 @@ function LoginPage() {
                         phone,
                         uid: user.uid,
                         uniqueCode,
+                        mannerTemp : 36.5
                     },
                     {
                         headers : {
