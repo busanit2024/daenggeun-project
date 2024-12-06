@@ -2,6 +2,7 @@ package com.busanit.daenggeunbackend.controller;
 
 import com.busanit.daenggeunbackend.entity.Alba;
 import com.busanit.daenggeunbackend.service.AlbaService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,12 +11,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @CrossOrigin(origins = "http://localhost:3000") // 프론트엔드 주소로 변경
 @RestController
 @RequestMapping("/api/alba")
+@Log4j2
 public class AlbaController {
 
     private final AlbaService albaService;
@@ -43,13 +46,16 @@ public class AlbaController {
     }
 
     // 알바 데이터 생성
-
     @PostMapping
     public ResponseEntity<Alba> createAlba(@RequestBody Alba alba) {
-        System.out.println("POST 요청이 들어왔습니다: " + alba);
+        log.info("POST 요청 처리@@@@@@@@@@@");
+        if (alba.getCreatedAt() == null) {
+            alba.setCreatedAt(LocalDateTime.now());
+        }
         Alba createdAlba = albaService.createAlba(alba);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAlba);
     }
+
 
     // 알바 데이터 수정
     @PutMapping("/{id}")
@@ -95,4 +101,6 @@ public class AlbaController {
         albaService.deleteAlba(id);
         return ResponseEntity.ok("Alba deleted successfully");
     }
+
+
 }
