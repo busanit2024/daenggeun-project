@@ -98,7 +98,9 @@ export default function AlbaListItem({ alba }) {
       <DetailsContainer>
         <Title>{alba.title}</Title>
         <Location>
-          {alba.workPlace} • {elapsedText(new Date(alba.createdAt))}
+        {alba.companyName ? `${alba.companyName} · ` : ''}
+        {alba.location ? `${alba.location}· ` : ''}
+        {elapsedText(new Date(alba.createdAt))}
         </Location>
         <Category>{alba.wage}</Category>
         <DetailsRow>
