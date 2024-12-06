@@ -19,6 +19,7 @@ const AlbaEdit = () => {
     startTime: "",
     endTime: "",
     image: "",
+    negotiable: false,
     category: "", // 카테고리를 단일 선택으로 처리
     wageType: "", // 급여 유형 추가
     workPeriod: "", // 일하는 기간 추가
@@ -152,9 +153,10 @@ const AlbaEdit = () => {
   const handleImageChange = async (e) => {
     let imageInfo = null;
     const image = e.target.files[0];
+    console.log("이미지 변경 핸들러 들어오나??");
     if (image) {
       imageInfo = await singleFileUpload(image);
-      console.log(imageInfo);
+      console.log("이미지 변경 핸들러 실행: ",imageInfo);
     }
 
     setForm((prevForm) => ({
@@ -174,7 +176,7 @@ const AlbaEdit = () => {
         end: form.endTime,
       },
     };
-
+console.log("payload 결과는? ", payload);
     // Remove any properties that shouldn't be part of the payload (like undefined or unnecessary values)
     const cleanedPayload = Object.fromEntries(
       Object.entries(payload).filter(([_, v]) => v !== undefined && v !== null)
@@ -244,15 +246,15 @@ const AlbaEdit = () => {
         </div>
 
         <div className="work-time">
-          <h3 className="section-title">근무 시간</h3>
-          <InputText
+          <h3 className="section-title">일하는 시간</h3>
+          <input
             type="time"
             name="startTime"
             value={form.startTime}
             onChange={handleChange}
           />
           ~
-          <InputText
+          <input
             type="time"
             name="endTime"
             value={form.endTime}

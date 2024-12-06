@@ -95,6 +95,7 @@ export default function AlbaPage(props) {
     { id: 'longterm', name: '1개월 이상' },
     { id: 'shortterm', name: '단기' }
   ]);
+  const [itemsToShow, setItemsToShow] = useState(5);
 
   // 카테고리 데이터를 가져오기 위한 useEffect
   useEffect(() => {
@@ -128,8 +129,6 @@ export default function AlbaPage(props) {
       });
   }, []);
 
-
-  
   // 알바 리스트 데이터를 가져오기 위한 useEffect
   useEffect(() => {
     const fetchData = async () => {
@@ -164,8 +163,6 @@ export default function AlbaPage(props) {
             (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
             (!workTime.start || '"' + alba.workTimeStart + '"' >= '"' + workTime.start + '"') &&
             (!workTime.end || '"' + alba.workTimeEnd + '"' >= '"' + workTime.end + '"') &&
-            // (!workTime.start || alba.workTimeStart >= workTime.start) &&
-            // (!workTime.end || alba.workTimeEnd >= workTime.end) &&
             (!searchTerm.trim() || alba.title.includes(searchTerm.trim()) || alba.description.includes(searchTerm.trim()))
           );
         });
@@ -225,6 +222,10 @@ export default function AlbaPage(props) {
 
   const handleCategoryChange = (e) => {
     setCategory(e.target.value);
+  };
+
+  const handleShowMore = () => {
+    setItemsToShow(prev => prev + 5);
   };
 
   const routes = [
@@ -390,11 +391,13 @@ export default function AlbaPage(props) {
             </NoSearchResult>
           )}
 
-          {albaList?.map((alba) => (
+          {albaList.slice(0, itemsToShow).map((alba) => (
             <AlbaListItem key={alba.id} alba={alba} />
           ))}
 
-          <Button title="더보기" />
+          {itemsToShow < albaList.length && (
+            <Button title="더보기" onClick={handleShowMore} />
+          )}
         </ListContainer>
       </InnerContainer>
     </Container>

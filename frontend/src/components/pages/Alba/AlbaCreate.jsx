@@ -12,14 +12,11 @@ const AlbaCreate = () => {
   const [form, setForm] = useState({
     creatorId: "",
     title: "",
-    description: "",
+    description: "",    
     wage: "",
     workDays: [],
-    startTime: "",
-    endTime: "",
-    negotiable: false,
-    image: "",
-    category: [],
+    negotiable: false,    
+    category: "",
     wageType: "", // 급여 유형 추가
     workPeriod: "", // 일하는 기간 추가
     companyName: "", // 업체명 추가
@@ -33,6 +30,7 @@ const AlbaCreate = () => {
   const [wageTypeData, setWageTypeData] = useState([]); // 급여 유형 데이터 추가
   const [workPeriodData, setWorkPeriodData] = useState([]); // 일하는 기간 데이터 추가
   const navigate = useNavigate();
+
 
   const StyledRoundFilter = styled(RoundFilter)`
     padding: 4px 8px;
@@ -112,48 +110,45 @@ const AlbaCreate = () => {
         : [...prev.workDays, day],
     }));
   };
-
-  // 카테고리 필터 변경 핸들러
-  const handleCategoryChange = (category) => {
-    setForm((prev) => ({
-      ...prev,
-      category: prev.category.includes(category)
-        ? prev.category.filter((c) => c !== category)
-        : [...prev.category, category],
-    }));
-  };
-
-  // 급여 유형 변경 핸들러
-  const handleWageTypeChange = (wageType) => {
-    setForm((prev) => ({
-      ...prev,
-      wageType: wageType,
-    }));
-  };
-
-  // 일하는 기간 변경 핸들러
-  const handleWorkPeriodChange = (workPeriod) => {
-    setForm((prev) => ({
-      ...prev,
-      workPeriod: workPeriod,
-    }));
-  };
-
-  // 이미지 변경 핸들러
-  const handleImageChange = async (e) => {
-    let imageInfo = null;
-    const image = e.target.files[0];
-    if (!image !== null) {
-      imageInfo = await singleFileUpload(image);
-      console.log(imageInfo);
-    }
-
-    setForm((prevForm) => ({
-      ...prevForm,
-      image: imageInfo  
-    }));
+  
+// 카테고리 필터 변경 핸들러 (단일 선택으로 수정)
+const handleCategoryChange = (category) => {
+  setForm((prev) => ({
+    ...prev,
+    category: prev.category === category ? "" : category,
+  }));
 };
 
+// 급여 유형 변경 핸들러
+const handleWageTypeChange = (wageType) => {
+  setForm((prev) => ({
+    ...prev,
+    wageType,
+  }));
+};
+
+// 일하는 기간 변경 핸들러
+const handleWorkPeriodChange = (workPeriod) => {
+  setForm((prev) => ({
+    ...prev,
+    workPeriod,
+  }));
+};
+
+// 이미지 변경 핸들러
+const handleImageChange = async (e) => {
+  let imageInfo = null;
+  const image = e.target.files[0];
+  if (image) {  // 제대로 이미지 존재 여부 확인
+    imageInfo = await singleFileUpload(image);
+    console.log("업로드된 이미지 정보:", imageInfo);
+  }
+
+  setForm((prevForm) => ({
+    ...prevForm,
+    image: imageInfo,
+  }));
+};
 
   const handleAddressSearch = (e) => {
     e.preventDefault(); // 기본 폼 제출 동작 방지
@@ -184,29 +179,55 @@ const AlbaCreate = () => {
 
   // 폼 제출 핸들러
 
-  const handleSubmit = async (e) => {
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   const payload = {
+  //       ...form,
+  //       workTime: {
+  //           start: form.startTime,
+  //           end: form.endTime
+  //       },
+  //   };
+  //   console.log(payload)
+  //   try {
+  //       await axios.post("/api/alba", payload, {
+  //       //await axios.post("/api/alba", payload, {
+  //           headers: { "Content-Type": "application/json" },
+  //       })
+  //       alert("글이 성공적으로 작성되었습니다!");
+  //       //navigate("/alba");
+  //   } catch (error) {
+  //       console.error("글 작성 중 오류 발생:", error);
+  //   }
+  // };
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    const payload = {
+  
+    const cleanedPayload = Object.fromEntries(
+      Object.entries({
         ...form,
+        createdAt: new Date().toISOString(), // 현재 시간 추가
         workTime: {
-            start: form.startTime,
-            end: form.endTime,
-            // start: new Date(form.startTime),
-            // end: new Date(form.endTime),
+          start: form.startTime,
+          end: form.endTime
         },
-    };
-    try {
-        await axios.post("/api/alba", payload, {
-            headers: { "Content-Type": "application/json" },
-        });
-        alert("글이 성공적으로 작성되었습니다!");
-        navigate("/alba");
-    } catch (error) {
-        console.error("글 작성 중 오류 발생:", error);
-    }
-};
-
+      }).filter(([_, value]) => value !== undefined && value !== null)
+    );
+  
+    console.log("전송할 데이터:", cleanedPayload);
+  
+    axios.post("/api/alba", cleanedPayload, {
+      headers: { "Content-Type": "application/json" },
+    })
+    .then(() => {
+      alert("글이 성공적으로 작성되었습니다!");
+      navigate("/alba");
+    })
+    .catch((error) => {
+      console.error("글 작성 중 오류 발생:", error);
+    });
+  };
 
   return (
     <div className="container">

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
-import axios from "axios";
-import Toolbar from './components/Toolbar';
-import { AuthContext } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Layout from './Layout';
 
@@ -39,7 +37,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+    <AuthProvider>
       <Router>
         <Routes>
           <Route element={<Layout />}>
@@ -69,12 +67,12 @@ function App() {
             <Route path="community" element={<CommunityPage />} />
             <Route path="community/write" element={<CommunityWritePage />} />
 
-            <Route path="setProfile/:uniqueCode" element={<SetProfilePage />} />
+            <Route path="setProfile/:userId" element={<SetProfilePage />} />
           </Route>
         </Routes>
       </Router>
 
-    </AuthContext.Provider>
+    </AuthProvider>
   );
 };
 
