@@ -23,6 +23,9 @@ const ModalContent = styled.div`
   padding: 20px;
   border-radius: 8px;
   width: 400px;
+  max-height: 80vh; 
+  min-height: 400px;
+  overflow-y: auto; 
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 `;
 
@@ -32,14 +35,14 @@ const SearchInput = styled.input`
   margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-top:3px;
+  margin-top: 3px;
 `;
 
-const StyledButton =styled(Button)`
-  width : 100%;
-  padding : 10px;
-  margin-bottom : 15px;
+const StyledButton = styled(Button)`
+  padding: 10px;
+  margin-bottom: 20px;
   border-radius: 4px;
+
 `;
 
 const Suggestions = styled.ul`
@@ -60,21 +63,28 @@ const SuggestionItem = styled.li`
   }
 `;
 
+const NoResultsMessage = styled.div`
+  padding: 10px;
+  text-align: center;
+  color: #999;
+`;
+
+const libraries = ['places'];
+
 const LocationSearchModal = ({ onSelect, onClose }) => {
   const [locations, setLocations] = useState([]); // 지도 리스트
-  const [ busanJuso, setBusanJuso] = useState([]);
-  
+  const [busanJuso, setBusanJuso] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries: ['places'],
+    libraries: [libraries],
     language: 'ko',
     region: 'KR',
   });
 
   const currentLocation = useGeolocation(isJsApiLoaded);
-
-  
 
   // 컴포넌트가 마운트될 때 데이터 요청
   useEffect(() => {
@@ -82,8 +92,8 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
       try {
         const response = await axios.get(`/api/data/filter?name=busanJuso`); 
         console.log("서버 응답:", response.data); 
-        const locationFilters = response.data.locationFilters; // 서버에서 받은 데이터의 locationFilters 추출
-    
+        const locationFilters = response.data.locationFilters; 
+
         // 데이터 가공
         if (Array.isArray(locationFilters)) { 
           setBusanJuso(locationFilters); 
@@ -97,11 +107,11 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
             }
             return []; // null 또는 유효하지 않은 경우 빈 배열 반환
           });
-    
-          setLocations(allLocations.slice(0,10)); 
+
+          setLocations(allLocations); 
         } else {
           console.error("응답 데이터의 locationFilters가 배열이 아닙니다:", locationFilters);
-          setLocations([]); // 배열이 아닐 경우 결과 초기화
+          setLocations([]); 
         }
       } catch (error) {
         console.error("데이터 로드 실패:", error);
@@ -109,8 +119,7 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
     };
 
     fetchLocations();
-  }, []); // 컴포넌트가 처음 마운트될 때만 실행
-
+  }, []); 
 
   const findMyLocation = () => {
     if (!isJsApiLoaded) {
@@ -135,6 +144,21 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
     }
   };
 
+  // 검색
+  const filteredLocations = locations.filter(location => 
+    location.sigungu.includes(searchTerm) || location.emd.includes(searchTerm)
+  );
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); 
+      const selectedLocation = filteredLocations[0]; 
+      if (selectedLocation) {
+        onSelect(`${selectedLocation.sigungu}, ${selectedLocation.emd}`);
+        setLocations([]); 
+      }
+    }
+  };
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -142,24 +166,32 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
         <h3>지역 검색</h3>
         <SearchInput
           type="text"
-          placeholder="지역이나 동네 이름을 입력하세요"
+          placeholder="구 단위 입력(ex> 해운대구)"
+          value={searchTerm} 
+          onChange={(e) => setSearchTerm(e.target.value)} 
+          onKeyDown={handleKeyDown}
         />
         <StyledButton
           title="현재 내 위치 사용하기"
           onClick={findMyLocation}
           variant="findLocation"
+          width="100%"
         />
           
         <Suggestions>
-          {locations.map((location, index) => (
-            <SuggestionItem key={index} onClick={() => {
-              const selectedLocation = `${location.sigungu}, ${location.emd}`; // 문자열로 변환
-              onSelect(selectedLocation); // 선택한 지역을 부모 컴포넌트에 전달
-              setLocations([]); // 선택 후 결과 초기화
-            }}>
-              {`${location.sigungu}, ${location.emd}`} {/* 시군구와 읍면동 표시 */}
-            </SuggestionItem>
-          ))}
+          {filteredLocations.length > 0 ? (
+            filteredLocations.map((location, index) => (
+              <SuggestionItem key={index} onClick={() => {
+                const selectedLocation = `${location.sigungu}, ${location.emd}`; // 문자열로 변환
+                onSelect(selectedLocation); // 선택한 지역을 부모 컴포넌트에 전달
+                setLocations([]); 
+              }}>
+                {`${location.sigungu}, ${location.emd}`} 
+              </SuggestionItem>
+            ))
+          ) : (
+            <NoResultsMessage>일치하는 장소가 없습니다.</NoResultsMessage>
+          )}
         </Suggestions>
       </ModalContent>
     </ModalOverlay>
