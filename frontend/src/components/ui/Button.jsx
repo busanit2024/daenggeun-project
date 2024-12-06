@@ -27,6 +27,14 @@ const StyledButton = styled.button`
             `
         }
 
+        if (props.disabled) {
+            return `
+                background-color: #dcdcdc;
+                color: #666666;
+                cursor: default;
+            `
+        }
+
         switch(props.variant){
             case 'gray' : 
                 return `
@@ -67,7 +75,7 @@ const StyledButton = styled.button`
 
 
 function Button(props) {
-    const { title, onClick, variant, width, grow, borderRadius, active } = props;
+    const { title, onClick, variant, width, grow, borderRadius, active, disabled } = props;
     return <StyledButton
             title={title}
             onClick={onClick}
@@ -76,6 +84,7 @@ function Button(props) {
             grow={grow}
             borderRadius={borderRadius}
             active={active}
+            disabled={disabled}
         >
             {title || "button"}
         </StyledButton>;

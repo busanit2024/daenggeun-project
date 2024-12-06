@@ -84,14 +84,23 @@ public class GroupRestController {
   }
 
   @PostMapping("/join/request")
-  private void joinRequest(@RequestBody Group.JoinRequest request) {
+  private ResponseEntity<String> joinRequest(@RequestBody Group.JoinRequest request) {
     GroupDTO groupDTO = groupService.findById(request.getGroupId());
     List<Group.JoinRequest> requests = groupDTO.getRequests();
     if (requests == null) {
       requests = new ArrayList<>();
     }
+
+    boolean exists = requests.stream()
+            .anyMatch(r -> r.getUserId().equals(request.getUserId()));
+
+    if (exists) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Join request already exists");
+    }
+
     requests.add(request);
     groupDTO.setRequests(requests);
     groupService.save(groupDTO);
+    return ResponseEntity.ok("Join request created");
   }
 }

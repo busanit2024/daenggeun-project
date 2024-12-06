@@ -160,6 +160,7 @@ export default function GroupPageLayout(props) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMember, setIsMember] = useState(false);
   const [joinStatus, setJoinStatus] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
   const resetJoinInput = () => {
     setJoinData({ message: '', nickname: '' });
@@ -207,6 +208,11 @@ export default function GroupPageLayout(props) {
     axios.post(`/api/group/join/request`, newRequest).then((response) => {
       setJoinStatus('submitted');
     }).catch((error) => {
+      if (error.response.status === 409) {
+        setJoinStatus('exist');
+        setSubmitted(true);
+        return;
+      }
       console.error("가입 신청에 실패했습니다." + error);
       setJoinStatus('fail');
     });
@@ -235,15 +241,19 @@ export default function GroupPageLayout(props) {
     setModalOpen('join');
   };
 
-
-
   useEffect(() => {
     const userId = sessionStorage.getItem('uid');
     checkAdmin(userId);
     checkMember(userId);
+
+    if (group.requests && group.requests.length > 0) {
+      const userId = sessionStorage.getItem('uid');
+      const request = group.requests.find((request) => request.userId === userId);
+      if (request) {
+        setSubmitted(true);
+      }
+    }
   }, [group]);
-
-
 
   const routes = [
     { path: '/group', name: '모임' },
@@ -288,7 +298,7 @@ export default function GroupPageLayout(props) {
               <SquareFilter title={group.category} variant="tag" />
               {group.ageRange && <SquareFilter title={group.ageRange} variant="tag" />}
             </div>
-            {!isMember && <Button title="모임 가입하기" variant="primary" onClick={handleJoinButton} />}
+            {!isMember && <Button title={submitted ? '가입신청 중' : '모임 가입하기'} disabled={submitted}  variant="primary" onClick={handleJoinButton} />}
             {isAdmin &&
               <>
                 <Button title={`모임 가입 신청 ${group.requests?.length ?? 0}건`} onClick={() => navigate(`/group/${group.id}/requests`)} />
@@ -380,6 +390,12 @@ export default function GroupPageLayout(props) {
           {joinStatus === 'fail' && <>
             <h2>모임 가입에 실패했습니다.</h2>
             <p>다시 시도해주세요.</p>
+            <Button title="확인" onClick={resetJoinInput} />
+          </>}
+
+          {joinStatus === 'exist' && <>
+            <h2>이미 가입 신청한 모임이에요.</h2>
+            <p>관리자의 승인을 기다려주세요.</p>
             <Button title="확인" onClick={resetJoinInput} />
           </>}
         </Modal>
