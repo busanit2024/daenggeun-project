@@ -8,6 +8,7 @@ import { LiaWonSignSolid } from "react-icons/lia";
 import Breadcrumb from "../../Breadcrumb";
 import "../../../styles/AlbaStyled.css";
 
+
 const AlbaDetail = () => {
   const { id } = useParams(); // URL에서 id 가져오기
   const navigate = useNavigate(); // 상세 페이지 이동용
@@ -89,7 +90,7 @@ const AlbaDetail = () => {
         {/* 좌측 영역 */}
         <div className="detail-left">
           <img
-            src={job.image.url || "default-image.png"}
+            src={job.image != null ? job.image.url : "default-image.png"}
             alt={job.title}
             className="detail-image"
           />
