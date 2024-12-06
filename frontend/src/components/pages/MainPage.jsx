@@ -69,7 +69,7 @@ const SlideImage = styled.img`
     object-fit: cover;
 `;
 
-const SlideText = styled.h2`
+const SlideText = styled.span`
     position: absolute; 
     color: black;
     font-size: 1.5rem;
