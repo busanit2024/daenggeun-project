@@ -19,4 +19,11 @@ public class FilterDataService {
     return FilterDataDTO.toDTO(filterData);
   }
 
+  public List<FilterDataDTO> findAll() {
+    List<FilterData> filterDataList = filterDataRepository.findAll();
+    return filterDataList.stream()
+            .map(FilterDataDTO::toDTO)
+            .collect(Collectors.toList());
+  }
+
 }
