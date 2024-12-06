@@ -8,12 +8,16 @@ const SearchBoxWrapper = styled.div`
   width: 100%;
   background-color: white;
   border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  height : 50px;
+  position : relative;
 `;
 
 const FilterSection = styled.div`
   display: flex;
-  flex-direction: column;
-  padding: 10px;
+  flex-direction: row;
+  align-items : center;
+
 `;
 
 const FilterButton = styled.button`
@@ -33,9 +37,10 @@ const FilterButton = styled.button`
 
 const DropdownMenu = styled.div`
   position: absolute;
-  top: 100%;
+  top: 115%;
   left: 0;
-  width: 100%;
+  width: auto;
+  min-width: 10%;
   background-color: white;
   border: 1px solid #dcdcdc;
   border-radius: 4px;
@@ -86,7 +91,7 @@ const SearchButton = styled.button`
   }
 `;
 
-const SearchBox = () => {
+const MainSearchBox = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("중고거래");
 
@@ -128,4 +133,4 @@ const SearchBox = () => {
       );
     };
 
-export default SearchBox;
+export default MainSearchBox;

@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import Logo from "../../ui/Logo";
 import InputText from "../../ui/InputText";
 import Button from "../../ui/Button";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components"; // keyframes 추가
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import LocationSearchModal from "../../ui/LocationSearchModal";
@@ -16,6 +16,34 @@ const Wrapper = styled.div`
     min-height: 100vh;
     padding: 20px;  
     align-items: center;
+`;
+
+const TextContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+`;
+
+// 애니메이션 정의
+const fadeInUp = keyframes`
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+`;
+
+const AnimatedH3 = styled.h3`
+    animation: ${fadeInUp} 0.5s ease forwards;
+    animation-delay: ${(props) => props.delay || '0s'}; // 지연 시간 설정
+`;
+
+const AnimatedH4 = styled.h4`
+    animation: ${fadeInUp} 0.5s ease forwards;
+    animation-delay: ${(props) => props.delay || '0.5s'}
 `;
 
 const Spacing = styled.div`
@@ -84,7 +112,6 @@ export default function SetProfilePage(props) {
     const userId = useGetUserId(window.sessionStorage.getItem("uid"));
 
     const handleLocationSelect = (selectedLocation) => {
-        // selectedLocation이 문자열인지 확인
         if (typeof selectedLocation === 'string') {
             const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
             
@@ -93,7 +120,7 @@ export default function SetProfilePage(props) {
                 emd: emd
             };
 
-            setUserLocation([locationObject]); // Location 객체의 리스트로 설정
+            setUserLocation([locationObject]);
             setIsModalOpen(false); 
         } else {
             console.error("선택된 위치가 문자열이 아닙니다:", selectedLocation);
@@ -109,7 +136,6 @@ export default function SetProfilePage(props) {
             }
             
             try {
-                // 이미지 압축
                 const compressedFile = await compressImage(file);
                 const reader = new FileReader();
                 reader.onloadend = () => {
@@ -145,14 +171,12 @@ export default function SetProfilePage(props) {
         try {
             let profileImageData = null;
 
-            // 이미지가 선택된 경우에만 업로드
             if (profileImage) {
                 const { url, filename } = await singleFileUpload(profileImage);
                 console.log("이미지 업로드 성공. 파일 이름 : ", filename);
                 profileImageData = { url, filename }; 
             }
 
-            // userId를 쿼리 파라미터로 포함하여 프로필 저장
             await axios.post(`/user/profileSave/${userId}`, { 
                 username, 
                 userLocation,
@@ -168,25 +192,28 @@ export default function SetProfilePage(props) {
 
     return (
         <Wrapper>
-            <Logo variant="logoWithText" />
-            <h3>우리 동네 중고 직거래</h3>
-            <h4>
-                당근마켓은 동네 직거래 마켓이에요.<br />
-                내 동네를 설정하고 시작해보세요!
-            </h4>
-            <h3>내 동네 설정하기</h3>
+            <TextContainer>
+                <Logo variant="logoWithText" />
+                <AnimatedH3 delay="0s">우리 동네 중고 직거래</AnimatedH3>
+                <AnimatedH4 delay="0.5s">
+                    당근마켓은 동네 직거래 마켓이에요.<br />
+                    내 동네를 설정하고 시작해보세요!
+                </AnimatedH4>
+            </TextContainer>
+            <Spacing />
+            <AnimatedH3 delay="1s">내 동네 설정하기</AnimatedH3>
             <InputText
                 value={userLocation.map(loc => `${loc.sigungu}, ${loc.emd}`).join(", ")} 
                 onClick={() => setIsModalOpen(true)}
                 placeholder="지역이나 동네로 검색하기"
                 readOnly 
-                onChange={(e) => {    }}
+                onChange={(e) => { }}
             />
             {isModalOpen && (
                 <LocationSearchModal onSelect={handleLocationSelect} onClose={() => setIsModalOpen(false)} />
             )}
             <Spacing />
-            <h3>프로필 설정하기</h3>
+            <AnimatedH3 delay="1.5s">프로필 설정하기</AnimatedH3>
             <Spacing />
             <ProfileImageWrapper onClick={() => fileInput.current?.click()}>
                 {previewImage ? (
