@@ -67,17 +67,16 @@ const Content = styled.p`
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  width: 35ch;
+  white-space: nowrap;
+  word-wrap: break-word;
 `;
 
 export default function CommunityListItem({community}) {
   const navigate = useNavigate();
   return (
     <Container key={community.id} onClick={() => navigate(`/community/${community.id}`)}>
-      <ImageContainer>
-        {community.image?.url &&
-          <image className="community-image" src={community.image?.url} alt={community.title} />
-        }
-      </ImageContainer>
       <TextContainer>
         <Title>{community.title}</Title>
         <Content>{community.content}</Content>
@@ -89,6 +88,11 @@ export default function CommunityListItem({community}) {
           <span>{elapsedText(new Date(community.createdDate))}</span>
         </TagContainer>
       </TextContainer>
+      <ImageContainer>
+        {community.image?.url &&
+          <image className="community-image" src={community.image?.url} alt={community.title} />
+        }
+      </ImageContainer>
     </Container>
   )
 }
