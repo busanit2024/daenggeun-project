@@ -105,6 +105,20 @@ const AlbaEdit = () => {
     fetchWorkPeriodData();
   }, []);
 
+
+  useEffect(() => {
+    // Daum Postcode script 추가
+    const script = document.createElement("script");
+    script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.async = true;
+    document.body.appendChild(script);
+  
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  
   // 입력값 변경 핸들러
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -164,7 +178,18 @@ const AlbaEdit = () => {
       image: imageInfo,
     }));
   };
-
+  const handleAddressSearch = (e) => {
+    e.preventDefault(); // 기본 폼 제출 동작 방지
+    new window.daum.Postcode({
+      oncomplete: function (data) {
+        setForm((prevForm) => ({
+          ...prevForm,
+          workPlace: data.address,
+        }));
+      },
+    }).open();
+};
+  
   // 폼 제출 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -311,6 +336,7 @@ console.log("payload 결과는? ", payload);
             value={form.companyName}
             onChange={handleChange}
           />
+          <Button type="button" title="주소 검색" onClick={handleAddressSearch} />
           <InputText
             name="workPlace"
             placeholder="일하는 장소"
@@ -323,7 +349,7 @@ console.log("payload 결과는? ", payload);
             value={form.contactNumber}
             onChange={handleChange}
           />
-          <label>
+          <p><label>
             <input
               type="checkbox"
               name="doNotContact"
@@ -331,8 +357,7 @@ console.log("payload 결과는? ", payload);
               onChange={handleChange}
             />
             연락 받지 않기
-
-          </label>
+          </label></p>
         </div>
 
         <Button type="submit" title="수정 완료" variant="primary" />

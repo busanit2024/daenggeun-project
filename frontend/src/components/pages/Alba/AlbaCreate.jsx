@@ -12,7 +12,8 @@ const AlbaCreate = () => {
   const [form, setForm] = useState({
     creatorId: "",
     title: "",
-    description: "",    
+    description: "",
+    location: {emd: ""} ,
     wage: "",
     workDays: [],
     negotiable: false,    
@@ -24,7 +25,7 @@ const AlbaCreate = () => {
     contactNumber: "", // 연락처 추가
     doNotContact: false // 연락 받지 않기 체크박스 추가
   });
-
+  const [locationData, setLocationData] = useState({ emd: [] });
   const [regionData, setRegionData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [wageTypeData, setWageTypeData] = useState([]); // 급여 유형 데이터 추가
@@ -363,7 +364,7 @@ const handleImageChange = async (e) => {
             value={form.contactNumber}
             onChange={handleChange}
           />
-          <label>
+          <p><label>
             <input
               type="checkbox"
               name="doNotContact"
@@ -371,7 +372,7 @@ const handleImageChange = async (e) => {
               onChange={handleChange}
             />
             연락 받지 않기
-          </label>
+          </label></p>
         </div>
 
         <Button type="submit" title="작성 완료" variant="primary" />

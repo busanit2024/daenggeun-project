@@ -125,7 +125,7 @@ const AlbaDetail = () => {
             <iframe
               title="location"
               src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                job.location
+                job.workPlace
               )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
               className="map-frame"
             ></iframe>
