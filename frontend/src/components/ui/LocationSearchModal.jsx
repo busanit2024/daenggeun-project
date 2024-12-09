@@ -79,7 +79,7 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries: [libraries],
+    libraries: ['places'],
     language: 'ko',
     region: 'KR',
   });
@@ -128,6 +128,15 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
     );
     setFilteredLocations(filtered);
   }, [searchTerm, locations]);
+
+
+
+  const handleLocationSelect = (selectedLocation) => {
+    onSelect(selectedLocation); 
+    setSearchTerm(""); 
+    onClose(); 
+};
+
 
   const findMyLocation = () => {
     if (!isJsApiLoaded) {
@@ -180,7 +189,7 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
         <h3>지역 검색</h3>
         <SearchInput
           type="text"
-          placeholder="구 단위 입력(ex> 해운대구)"
+          placeholder="우리 동네를 찾아보세요!"
           value={searchTerm} 
           onChange={(e) => setSearchTerm(e.target.value)} 
           onKeyDown={handleKeyDown}
@@ -197,9 +206,10 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
             Object.keys(groupedLocations).map((sigungu, index) => (
               <div key={index}>
                 <SuggestionItem onClick={() => {
-                  onSelect(sigungu); 
+                  const selectedLocation = sigungu; 
+                  onSelect(selectedLocation); 
                   setSearchTerm("");
-                  setLocations([]); 
+                  setLocations([]);
                 }}>
                   {sigungu} 
                 </SuggestionItem>
@@ -209,6 +219,7 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
                     onSelect(selectedLocation); // 선택한 지역을 부모 컴포넌트에 전달
                     setSearchTerm("");
                     setLocations([]); 
+                    handleLocationSelect(`${sigungu}, ${emd}`)
                   }}>
                     {`${sigungu}, ${emd}`} 
                   </SuggestionItem>

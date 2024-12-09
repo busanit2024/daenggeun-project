@@ -7,6 +7,7 @@ import Button from "../../ui/Button";
 import AlbaListItem from "../../alba/AlbaListItem";
 import RoundFilter from "../../ui/RoundFilter";
 import Breadcrumb from "../../Breadcrumb";
+import SearchBar from "../../ui/SearchBar";
 
 const HorizontalContainer = styled.div`
 display: flex;
@@ -145,36 +146,22 @@ export default function AlbaPage(props) {
             searchTerm: searchTerm.trim() !== "" ? searchTerm : undefined,
           }
         });
-        console.log(response.data)
-        // 필터링 결과가 있는 경우에만 albaList를 업데이트
-        const filteredList = response.data.filter(alba => {
-
-          console.log("alba: ", alba);
-          console.log("workTime.start: ", workTime.start);
-          console.log("workTime.end: ", workTime.end);
-          console.log("alba.workTimeStart >= workTime.start: ", '"' + alba.workTimeStart + '"' >= '"' + workTime.start + '"');
-          console.log("alba.workTimeEnd <= workTime.end", '"' + alba.workTimeEnd + '"' >= '"' + workTime.end + '"');
-
-          return (
-            (!selectedRegion || alba.region === selectedRegion) &&
-            (!selectedDong || alba.dong === selectedDong) &&
-            (category === "all" || alba.category === category) &&
-            (workType.length === 0 || workType.includes(alba.workPeriod)) &&
-            (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
-            (!workTime.start || '"' + alba.workTimeStart + '"' >= '"' + workTime.start + '"') &&
-            (!workTime.end || '"' + alba.workTimeEnd + '"' >= '"' + workTime.end + '"') &&
-            (!searchTerm.trim() || alba.title.includes(searchTerm.trim()) || alba.description.includes(searchTerm.trim()))
-          );
-        });
-
-        console.log("filteredList: ", filteredList)
-        setAlbaList(filteredList);
+        setAlbaList(response.data);
       } catch (error) {
         console.error("알바 리스트를 불러오는데 실패했습니다." + error);
       }
     };
     fetchData();
   }, [selectedRegion, selectedDong, category, workType, workDays, workTime, searchTerm]);
+
+  const handleLocationSelect = (selectedLocation) => {
+    const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+    setSelectedRegion(sigungu);
+    setSelectedDong(emd); 
+    console.log("Selected Region:", sigungu);
+    console.log("Selected Dong:", emd); 
+};
+
 
   const resetFilter = () => {
     setSelectedRegion("");
@@ -207,19 +194,6 @@ export default function AlbaPage(props) {
     setWorkTime(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleRegionChange = (e) => {
-    setSelectedRegion(e.target.value);
-    setSelectedDong(""); // 구가 변경될 때 동 선택 초기화
-  };
-
-  const handleDongChange = (e) => {
-    setSelectedDong(e.target.value);
-  };
-
   const handleCategoryChange = (e) => {
     setCategory(e.target.value);
   };
@@ -227,6 +201,23 @@ export default function AlbaPage(props) {
   const handleShowMore = () => {
     setItemsToShow(prev => prev + 5);
   };
+
+
+  const filteredAlbaList = albaList.filter(alba => {
+    return (
+      // 지역 필터링
+      (!selectedRegion || alba.location.sigungu === selectedRegion) &&
+      (!selectedDong || alba.location.emd === selectedDong) &&
+      // 추가 필터링
+      (category === "all" || alba.category === category) &&
+      (workType.length === 0 || workType.includes(alba.workPeriod)) &&
+      (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
+      (!workTime.start || alba.workTimeStart >= workTime.start) &&
+      (!workTime.end || alba.workTimeEnd <= workTime.end) &&
+      // 검색어 필터링
+      (!searchTerm.trim() || alba.title.includes(searchTerm.trim()) || alba.description.includes(searchTerm.trim()))
+    );
+  });
 
   const routes = [
     { path: "/", name: "홈" },
@@ -239,40 +230,9 @@ export default function AlbaPage(props) {
   return (
     <Container>
       {/* 검색 바 */}
-      <div className="search-bar">
-        <select
-          value={selectedRegion}
-          onChange={handleRegionChange}
-          className="region-filter"
-        >
-          <option value="">전체 지역</option>
-          {regionData.map((region) => (
-            <option key={region.sigungu} value={region.sigungu}>{region.sigungu}</option>
-          ))}
-        </select>
-
-        {selectedRegion && (
-          <select
-            value={selectedDong}
-            onChange={handleDongChange}
-            className="dong-filter"
-          >
-            <option value="">전체 동</option>
-            {regionData
-              .find(region => region.sigungu === selectedRegion)
-              ?.emd.map((dong) => (
-                <option key={dong.emd} value={dong.emd}>{dong.emd}</option>
-              ))}
-          </select>
-        )}
-
-        <input
-          type="text"
-          placeholder="검색어를 입력하세요"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-      </div>
+      <SearchBar 
+        searchTerm={searchTerm} setSearchTerm={setSearchTerm} selectedCategory="알바"
+        regionData={regionData} onLocationSelect ={handleLocationSelect} />
       <Breadcrumb routes={routes} />
 
       <InnerContainer>
@@ -384,14 +344,14 @@ export default function AlbaPage(props) {
             </FilterContainer>
           }
 
-          {albaList.length === 0 && (
+          {filteredAlbaList.length === 0 && (
             <NoSearchResult>
               <h3>{`${selectedRegion || "해당 지역"} 근처에 알바가 없어요.`}</h3>
               <p>다른 조건으로 검색해주세요.</p>
             </NoSearchResult>
           )}
 
-          {albaList.slice(0, itemsToShow).map((alba) => (
+          {filteredAlbaList.slice(0, itemsToShow).map((alba) => (
             <AlbaListItem key={alba.id} alba={alba} />
           ))}
 

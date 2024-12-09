@@ -90,24 +90,24 @@ const SearchButton = styled.button`
   }
 `;
 
-const MainSearchBox = ({ searchTerm, setSearchTerm }) => {
+const MainSearchBox = ({ searchTerm, setSearchTerm, selectedCategory }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState("중고거래");
+    const [category, setCategory] = useState(selectedCategory);
     const navigate = useNavigate();
 
     const toggleDropdown = () => setIsDropdownOpen(prev => !prev);
 
     const handleCategorySelect = (category) => {
-        setSelectedCategory(category);
-        setIsDropdownOpen(false); 
+      setCategory(category);
+      setIsDropdownOpen(false); 
     };
 
     const handleSearch = () => {
-        if (selectedCategory === "중고거래") {
+        if (category === "중고거래") {
             navigate(`/usedTrade/used-trade?search=${searchTerm}`);
-        } else if (selectedCategory === "알바") {
+        } else if (category === "알바") {
             navigate(`/alba?search=${searchTerm}`);
-        } else if (selectedCategory === "동네생활") {
+        } else if (category === "동네생활") {
             navigate(`/community?search=${searchTerm}`);
         }
     }

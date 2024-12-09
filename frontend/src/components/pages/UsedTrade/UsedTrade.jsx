@@ -98,7 +98,7 @@ const UsedTrade = () => {
 
   return (
     <Container>
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} selectedCategory="중고거래" />
       <Content>
           <Sidebar>
           </Sidebar>
