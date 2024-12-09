@@ -6,6 +6,8 @@ import RoundFilter from "../../ui/RoundFilter";
 import { multipleFileUpload } from "../../../firebase";
 import Breadcrumb from "../../Breadcrumb";
 import { useNavigate } from "react-router-dom";
+import useGeolocation from "../../../utils/useGeolocation";
+import { useJsApiLoader } from "@react-google-maps/api";
 
 const Container = styled.div`
   display: flex;
@@ -138,12 +140,15 @@ const InputCheckMessage = styled.span`
 const titleInputConstraint = { minLength: 3, maxLength: 25 };
 const contentInputConstraint = { minLength: 10, maxLength: 1000 };
 
+const libraries = ['places'];
+
 export default function CommunityWritePage(props) {
     const navigate = useNavigate();
 
     const [categoryData, setCategoryData] = useState([]);
     const [busanJuso, setBusanJuso] = useState(null);
     const [locationData, setLocationData] = useState({sigungu: [], emd: []});
+    const [searchFilter, setSearchFilter] = useState({ sido: "부산광역시", sigungu: "", emd: "", category: "all", sort: "" });
 
     const [input, setInput] = useState({
         title: "",
@@ -155,6 +160,15 @@ export default function CommunityWritePage(props) {
     const [image, setImage] = useState([]);
     const [inputCheck, setInputCheck] = useState({ title: false, content: false, category: false});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { isLoaded: isJsApiLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+        libraries: libraries,
+        language: 'ko',
+        region: 'KR',
+      });
+    
+    const currentLocation = useGeolocation(isJsApiLoaded);
 
     useEffect(() => {
         axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
@@ -164,19 +178,10 @@ export default function CommunityWritePage(props) {
         })
 
         axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
-            const juso = response.data.locationFilters;
-            setBusanJuso(juso);
-            const guList = juso?.map((item) => item.sigungu);
-            setInput({ ...input, location: { ...input.location, sigungu: guList[0] } });
-            setLocationData({ ...locationData, sigungu: guList });
-
-            const emdList = juso.find((item) => item.sigungu === guList[0])?.emd;
-            const emdNameList = emdList?.map((item) => item.emd);
-            setInput({ ...input, location: { ...input.location, emd: emdNameList[0] } });
-            setLocationData()
-        }).catch((error) => {
-            console.error("동네 리스트를 불러오는데 실패했습니다." + error);
-        });
+            setBusanJuso(response.data.locationFilters);
+          }).catch((error) => {
+            console.error("부산 주소를 불러오는데 실패했습니다." + error);
+          });
     }, []);
 
     useEffect(() => {
@@ -198,6 +203,10 @@ export default function CommunityWritePage(props) {
             setLocationData({ ...locationData, emd: emdNameList });
         }
     };
+
+    useEffect(() => {
+        setSearchFilter({ ...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu });
+      }, [currentLocation]);
 
     const validateInput = () => {
         const newCheck = { title: false, content: false, category: false};
@@ -247,7 +256,7 @@ export default function CommunityWritePage(props) {
     }
 
     const categoryDescriptions = {
-        "맛집": `${input.location.emd} 근처 맛집에 대한 이야기를 들려주세요.`,
+        "맛집": `${searchFilter.emd} 근처 맛집에 대한 이야기를 들려주세요.`,
         "반려동물": "귀여운 반려동물을 자랑해주세요. 잃어버린 동물은 [분실/실종]에 올려주세요.",
         "운동": `${input.location.emd} 근처 이웃과 러닝, 헬스, 테니스 등 운동 이야기를 나눠보세요.`,
         "생활/편의": `${input.location.emd} 근처 세탁소, 프린트, 청소업체 등 생활에 도움 되는 이야기를 들려주세요.`,
