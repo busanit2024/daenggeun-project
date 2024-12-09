@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.swing.plaf.ListUI;
 import java.util.List;
 
 @Service
@@ -60,6 +61,11 @@ public class UsedTradeService {
 
         // 카테고리가 없거나 all인 경우 모든 중고 거래 데이터 반환
         return usedTradeRepository.findAll(sortOrder);
+    }
+
+    // 검색 결과
+    public List<UsedTrade> searchUsedTrades(String keyword) {
+        return usedTradeRepository.findByContentContainingOrNameContaining(keyword, keyword);
     }
 
     
