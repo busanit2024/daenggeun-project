@@ -72,8 +72,11 @@ const CategoryWrapper = styled.div`
         position: relative;
     }
 
-    & .category-container {
-        display: flex;
+`;
+
+const CategoryContainer = styled.div`
+
+    display: flex;
         gap: 24px;
         width: 100%;
         overflow-x: auto;
@@ -82,8 +85,32 @@ const CategoryWrapper = styled.div`
         &::-webkit-scrollbar {
             display: none;
         }
+    
+
+    &::before,
+    &::after {
+        content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    pointer-events: none;
+    z-index: 1;
+    }
+
+    &::before {
+        display: ${props => props.start ? "none" : "block"};
+        left: 0;
+        background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+    }
+
+    &::after {
+        display: ${props => props.end ? "none" : "block"};
+        right: 0;
+        background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
     }
 `;
+
 
 const ArrowButton = styled.div`
     display: ${props => props.hidden ? "none" : "flex"};
@@ -277,7 +304,7 @@ function MainPage(props) {
                         <ArrowButton className="arrow-button" hidden={isAtStart} onClick={handleScrollLeft}>
                             <img src="/images/icon/arrow_left.svg" alt="왼쪽으로 이동" />
                         </ArrowButton>
-                        <div className="category-container" ref={categoryContainerRef}>
+                        <CategoryContainer className="category-container" ref={categoryContainerRef} start={isAtStart} end={isAtEnd}>
                             {categoryData.map(category => (
                                 <Category>
                                     <div className="category-image">
@@ -286,7 +313,7 @@ function MainPage(props) {
                                     <div className="category-name">{category.name}</div>
                                 </Category>
                             ))}
-                        </div>
+                        </CategoryContainer>
                         <ArrowButton className="arrow-button" hidden={isAtEnd} onClick={handleScrollRight}>
                             <img src="/images/icon/arrow_right.svg" alt="오른쪽으로 이동" />
                         </ArrowButton>
