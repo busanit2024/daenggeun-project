@@ -121,8 +121,8 @@ const MainSearchBox = ({ searchTerm, setSearchTerm }) => {
                 {isDropdownOpen && (
                     <DropdownMenu>
                         <DropdownItem onClick={() => handleCategorySelect("중고거래")}>중고거래</DropdownItem>
-                        <DropdownItem onClick={() => handleCategorySelect("동네생활")}>동네생활</DropdownItem>
                         <DropdownItem onClick={() => handleCategorySelect("알바")}>알바</DropdownItem>
+                        <DropdownItem onClick={() => handleCategorySelect("동네생활")}>동네생활</DropdownItem>
                     </DropdownMenu>
                 )}
             </FilterSection>

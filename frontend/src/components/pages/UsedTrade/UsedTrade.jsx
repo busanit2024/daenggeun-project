@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Card from "../../ui/Card";
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../ui/Button";
-import MainSearchBox from "../../ui/MainSearchBox"; // MainSearchBox를 가져옵니다.
+import SearchBar from "../../ui/SearchBar";
 
 const Container = styled.div`
   display: flex;
@@ -98,7 +98,7 @@ const UsedTrade = () => {
 
   return (
     <Container>
-      <MainSearchBox searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <Content>
           <Sidebar>
           </Sidebar>

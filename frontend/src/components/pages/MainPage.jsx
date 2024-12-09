@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from "react-responsive-carousel";
@@ -81,10 +81,11 @@ const SlideText = styled.span`
 `;
 
 
-function MainPage(props) {
+function MainPage() {
+    const [searchTerm, setSearchTerm] = useState("");
     return (
         <Wrapper>
-            <SearchBar />
+            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             <FullWidthBackground>
                 <StyledCarousel
                     showArrows={true}
