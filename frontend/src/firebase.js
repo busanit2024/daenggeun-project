@@ -84,4 +84,9 @@ const deleteFile = async (filename) => {
   }
 };
 
+const deleteFiles = async (files) => {
+  const promises = files.map((file) => deleteFile(file.filename));
+  return Promise.all(promises);
+}
+
 export { storage, auth, app as default, singleFileUpload, deleteFile,  RecaptchaVerifier, signInWithPhoneNumber, compressImage  };

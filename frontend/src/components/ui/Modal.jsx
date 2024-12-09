@@ -43,6 +43,26 @@ const Content = styled.div`
   padding: 48px;
   min-height: 200px;
   gap: 24px;
+
+  & h2 {
+    margin: 0;
+  }
+
+  & p {
+    margin: 0;
+  }
+
+  & .inputWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  & .buttonWrap {
+    display: flex;
+    gap: 16px;
+  }
 `;
 
 export default function Modal(props) {
