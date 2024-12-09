@@ -203,7 +203,7 @@ export default function CommunityPage(props) {
       setHasNext(!response.data.last);
       setLoading(false);
     } catch (error) {
-      console.error("모임 리스트를 불러오는데 실패했습니다." + error);
+      console.error("동네생활 리스트를 불러오는데 실패했습니다." + error);
     }
   };
 
