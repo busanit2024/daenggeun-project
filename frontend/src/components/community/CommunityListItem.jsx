@@ -8,7 +8,7 @@ const Container = styled.div`
   gap: 16px;
   cursor: pointer;
 
-  &:hover .group-image {
+  &:hover .community-image {
     transform: scale(1.1);
     transition: transform 0.3s;
   }
@@ -22,7 +22,7 @@ const ImageContainer = styled.div`
   border-radius: 12px;
   overflow: hidden;
 
-  & .group-image {
+  & .community-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -67,32 +67,36 @@ const Content = styled.p`
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  width: 35ch;
-  white-space: nowrap;
-  word-wrap: break-word;
 `;
 
-export default function CommunityListItem({community}) {
+export default function CommunityListItem({ community }) {
   const navigate = useNavigate();
+  const firstImage = community.images?.length > 0 ? community.images[0].url : '/images/defaultGroupImage.png';
   return (
     <Container key={community.id} onClick={() => navigate(`/community/${community.id}`)}>
+      <ImageContainer>
+        <img
+          className="community-image"
+          src={community.images?.length > 0 ? community.images[0].url : '/images/defaultGroupImage.png'}
+          alt={community.title}
+          onError={(e) => e.target.src = '/images/defaultGroupImage.png'}
+        />
+      </ImageContainer>
       <TextContainer>
         <Title>{community.title}</Title>
         <Content>{community.content}</Content>
         <TagContainer>
-          <span>{community.location.emd ?? community.location.sigungu}</span>
+          <span>
+            <img height={16} src="/images/icon/location_gray.svg" alt="location" />
+            {community.location.emd ?? community.location.sigungu}</span>
           <span> · </span>
           <span>{community.category}</span>
           <span> · </span>
-          <span>{elapsedText(new Date(community.createdDate))}</span>
+          {elapsedText(new Date(community.createdDate))}
+
         </TagContainer>
       </TextContainer>
-      <ImageContainer>
-        {community.image?.url &&
-          <image className="community-image" src={community.image?.url} alt={community.title} />
-        }
-      </ImageContainer>
     </Container>
-  )
+  );
+
 }

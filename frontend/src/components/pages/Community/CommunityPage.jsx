@@ -10,6 +10,7 @@ import Radio from "../../ui/Radio";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
+import Modal from "../../ui/Modal";
 
 const Container = styled.div`
   display: flex;
@@ -131,6 +132,7 @@ export default function CommunityPage(props) {
   const [hasNext, setHasNext] = useState(true);
   const [loading, setLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState('');
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -195,6 +197,7 @@ export default function CommunityPage(props) {
         }
       });
       const newCommunityList = response.data.content;
+      console.log(newCommunityList);
       setCommunityList((prevCommunities) => (page === 0 ? newCommunityList : [...prevCommunities, ...newCommunityList]));
       setHasNext(!response.data.last);
       setLoading(false);
@@ -202,8 +205,6 @@ export default function CommunityPage(props) {
       console.error("모임 리스트를 불러오는데 실패했습니다." + error);
     }
   };
-
-
 
   const getEmdList = (gu) => {
     if (busanJuso && gu) {
@@ -218,6 +219,14 @@ export default function CommunityPage(props) {
     setPage(page + 1);
   };
 
+  const handleCreateButton = () => {
+    if (sessionStorage.getItem('uid')) {
+      navigate("/community/write");
+    } else {
+      setModalOpen('login');
+    }
+  };
+
   const routes = [
     { path: "/", name: "홈" },
     { path: "/community", name: "동네생활" },
@@ -229,7 +238,7 @@ export default function CommunityPage(props) {
     <Container>
       <HeadContainer>
       <h2>{`${searchFilter.sido} ${searchFilter.sigungu} ${searchFilter.emd} ${searchFilter.category === 'all' ? "" : searchFilter.category}`}{searchFilter.category === 'all' ? " 동네생활" : ""}</h2>
-        <Button title="+ 글쓰기" onClick={() => navigate("/community/write")} />
+        <Button title="+ 글쓰기" variant="primary" onClick={handleCreateButton} />
       </HeadContainer>
       <InnerContainer>
         <FilterBar>
@@ -316,6 +325,15 @@ export default function CommunityPage(props) {
       </InnerContainer>
 
     </Container>
+
+    <Modal title="로그인" isOpen={modalOpen === 'login'} onClose={() => setModalOpen('')}>
+        <h3>동네생활을 작성하려면 로그인해야 해요.</h3>
+        <div className="buttonWrap">
+          <Button title="로그인" variant='primary' onClick={() => { setModalOpen(''); navigate("/login") }} />
+          <Button title="닫기" onClick={() => setModalOpen('')} />
+        </div>
+      </Modal>
+
     </>
   );
 

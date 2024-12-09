@@ -6,7 +6,6 @@ import RoundFilter from "../../ui/RoundFilter";
 import { multipleFileUpload } from "../../../firebase";
 import Breadcrumb from "../../Breadcrumb";
 import { useNavigate } from "react-router-dom";
-import { validate } from "uuid";
 
 const Container = styled.div`
   display: flex;
@@ -217,12 +216,6 @@ export default function CommunityWritePage(props) {
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
         setImage(prevImages => [...prevImages, ...files]);
-        // const file = e.target.files;
-        // console.log("typeof file 어떻게 나옴?: ", typeof file)
-        // console.log("file 어떻게 나옴?: ", file)
-        // if (file) {         
-        //     setImage(file);
-        // }
     }
 
     const handleCustomFileInputClick = () => {
@@ -251,6 +244,26 @@ export default function CommunityWritePage(props) {
             alert("글 작성에 실패했습니다.");
             console.error(error);
         };
+    }
+
+    const categoryDescriptions = {
+        "맛집": `${input.location.emd} 근처 맛집에 대한 이야기를 들려주세요.`,
+        "반려동물": "귀여운 반려동물을 자랑해주세요. 잃어버린 동물은 [분실/실종]에 올려주세요.",
+        "운동": `${input.location.emd} 근처 이웃과 러닝, 헬스, 테니스 등 운동 이야기를 나눠보세요.`,
+        "생활/편의": `${input.location.emd} 근처 세탁소, 프린트, 청소업체 등 생활에 도움 되는 이야기를 들려주세요.`,
+        "분실/실종": `무언가를 잃어버리셨나요? ${input.location.emd} 근처 이웃에게 도움을 요청해부세요.`,
+        "병원/약국": `${input.location.emd} 근처 병원, 약국 정보를 나눠보세요.`,
+        "고민/사연": "고민을 나누고 따뜻한 위로를 받아요.",
+        "동네친구": `${input.location.emd} 근처에서 취미, 관심사가 비슷한 친구를 찾아봐요.`,
+        "이사/시공": `${input.location.emd} 근처 용달, 인테리어 시공 정보를 나눠보세요.`,
+        "주거/부동산": `${input.location.emd} 근처 부동산 정보, 거주 후기를 공유해보세요. 거래 게시글은 노출이 제한될 수 있어요.`,
+        "교육": "학원, 과외, 교육과 관련된 이야기를 나눠보세요.",
+        "취미": "취미생활에 대해 이야기를 나눠보세요.",
+        "동네사건사고": `${input.location.emd}에 일어난 사건사고를 이웃에게 공유해보세요. 잃어버린 동물은 [분실/실종]에 올려주세요.`,
+        "동네풍경":`${input.location.emd}에서 볼 수 있는 멋진 풍경과 매력을 이웃과 공유해보세요.`,
+        "미용": `${input.location.emd} 근처 헤어, 피부, 네일 등 미용 정보를 나눠보세요.`,
+        "임신/육아": `${input.location.emd} 근처 이웃과 임신, 육아 이야기를 나눠보세요.`,
+        "일반": "자유롭게 이야기를 나눠보세요.",
     }
 
     const routes = [
@@ -286,7 +299,7 @@ export default function CommunityWritePage(props) {
 
             <Item>
                 <InputContainer full height="500px">
-                    <Textarea placeholder="ㅇㅇ동 이웃과 이야기를 나눠보세요.\n" onChange={(e) => setInput({ ...input, content: e.target.value })} />
+                    <Textarea placeholder={`${input.location.emd} 이웃과 이야기를 나눠보세요.\n${categoryDescriptions[input.category]}`} onChange={(e) => setInput({ ...input, content: e.target.value })} />
                 </InputContainer>
                 <div style={{display: 'flex'}}>
                     <InputCheckMessage>{inputCheck.content && "내용을 10자 이상 입력해주세요."}</InputCheckMessage>
