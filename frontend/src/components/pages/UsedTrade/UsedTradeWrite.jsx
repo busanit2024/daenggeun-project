@@ -109,6 +109,7 @@ const UsedTradeWrite = () => {
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedTradeType, setSelectedTradeType] = useState("판매하기");
+    const [isGiveable, setIsGiveable] = useState(false);
     const navigate = useNavigate();
 
     const handlePriceChange = (e) => {
@@ -124,18 +125,22 @@ const UsedTradeWrite = () => {
     };
 
     const handleCheckboxChange = (e) => {
-        console.log("가격제안: ", e.target.value);
-
-        setIsPriceNegotiable((prev) => !prev);
+        const checked = e.target.checked;
+        setIsPriceNegotiable(checked);
+        console.log("네고 가능 여부: ", checked);
     };
 
     const handleTradeTypeChange = (type) => {
         // 선택된 타입을 업데이트
-        if (selectedTradeType === type) {
-            setSelectedTradeType(null); // 이미 선택된 버튼이 클릭되면 비활성화
-        } else {
-            setSelectedTradeType(type); // 새로운 버튼을 선택하면 활성화
+        if (type === "판매하기") {
+            setSelectedTradeType("판매하기");
+            setIsGiveable(false); // 판매하기 선택 시 나눔 불가
+        } else if (type === "나눔하기") {
+            setSelectedTradeType("나눔하기");
+            setIsGiveable(true); // 나눔하기 선택 시 판매 불가
         }
+        console.log("selectedTradeType: ", type);
+        console.log("isGiveable: ", type === "나눔하기");
     };
 
     const toggleCategory = () => {
@@ -150,17 +155,33 @@ const UsedTradeWrite = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!name || !location || !price) {
+            alert("제목과 가격, 거래 희망 장소를 입력해주세요!");
+            return;
+        }
+
         const usedTradeData = {
             userId: "사용자 ID", // 실제 사용자 id로 나중에 대체
             name: name,
+            category: selectedCategory || "카테고리 없음",
             price: parseInt(price.replace(/[^0-9]/g, ""), 10),
             location: location,
             content: content,
             createdDate: new Date().toISOString(),
             images: [],
             views: 0,   // 조회수는 일단 0으로 지정
+            isNegotiable: isPriceNegotiable,    // 네고 가능 여부
+            isGiveable: isGiveable, // 나눔 신청 가능 여부
+            isGived: selectedTradeType, // 판매, 나눔 여부
+            tradeble: true,  // 거래 가능 여부
             bookmarkUsers: []
         };
+
+        console.log("isPriceNegotiable:", isPriceNegotiable);
+        console.log("isGiveable:", isGiveable);
+        console.log("selectedTradeType:", selectedTradeType);
+        
+        console.log("usedTradeData: ", usedTradeData);
 
         try {
             const response = await fetch('/api/usedTrades', {
@@ -269,8 +290,9 @@ const UsedTradeWrite = () => {
                     {/* 가격 입력 */}
                     <InputText 
                         placeholder="가격을 입력해주세요" 
-                        value={price}
+                        value={selectedTradeType === "나눔하기" ? "0" : price}
                         onChange={handlePriceChange}
+                        disabled={selectedTradeType === "나눔하기"}
                     /> 원
                     <br />
 
@@ -295,7 +317,7 @@ const UsedTradeWrite = () => {
                 <InputContainer>
                     <h3>설명</h3>
                     <TextArea 
-                        placeholder={`{주소}에 올릴 게시글 내용을 작성해 주세요.\n(판매 금지 물품은 게시가 제한될 수 있습니다.)`}
+                        placeholder={`${location || "[ 장소 ] "}에 올릴 게시글 내용을 작성해 주세요.\n(판매 금지 물품은 게시가 제한될 수 있습니다.)`}
                         rows="5"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
