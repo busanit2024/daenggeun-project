@@ -5,6 +5,7 @@ import com.busanit.daenggeunbackend.repository.UsedTradeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.plaf.ListUI;
 import java.util.List;
 
 @Service
@@ -34,6 +35,11 @@ public class UsedTradeService {
             return true;
         }
         return false;
+    }
+
+    // 검색 결과
+    public List<UsedTrade> searchUsedTrades(String keyword) {
+        return usedTradeRepository.findByContentContainingOrNameContaining(keyword, keyword);
     }
 
     

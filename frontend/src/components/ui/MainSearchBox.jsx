@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-
+import { useNavigate } from "react-router-dom";
 
 const SearchBoxWrapper = styled.div`
   display: flex;
@@ -9,15 +9,14 @@ const SearchBoxWrapper = styled.div`
   background-color: white;
   border-radius: 8px;
   border: 1px solid #dcdcdc;
-  height : 50px;
-  position : relative;
+  height: 50px;
+  position: relative;
 `;
 
 const FilterSection = styled.div`
   display: flex;
   flex-direction: row;
-  align-items : center;
-
+  align-items: center;
 `;
 
 const FilterButton = styled.button`
@@ -91,46 +90,67 @@ const SearchButton = styled.button`
   }
 `;
 
-const MainSearchBox = () => {
+const MainSearchBox = ({ searchTerm, setSearchTerm }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("중고거래");
+    const navigate = useNavigate();
 
     const toggleDropdown = () => setIsDropdownOpen(prev => !prev);
 
     const handleCategorySelect = (category) => {
         setSelectedCategory(category);
         setIsDropdownOpen(false); 
-      };
-
-      return (
-        <SearchBoxWrapper>
-          <FilterSection>
-            <FilterButton onClick={toggleDropdown}>
-              {selectedCategory}
-            </FilterButton>
-            {isDropdownOpen && (
-              <DropdownMenu>
-                <DropdownItem onClick={() => handleCategorySelect("중고거래")}>중고거래</DropdownItem>
-                <DropdownItem onClick={() => handleCategorySelect("동네업체")}>동네업체</DropdownItem>
-                <DropdownItem onClick={() => handleCategorySelect("알바")}>알바</DropdownItem>
-              </DropdownMenu>
-            )}
-          </FilterSection>
-          <SearchInputWrapper>
-            <SearchInput type="search" placeholder="검색어를 입력해주세요" />
-            <SearchButton type="submit">
-              <svg viewBox="0 0 24 24">
-                <g>
-                  <path
-                    d="M10.5 2C5.80558 2 2 5.80558 2 10.5C2 15.1944 5.80558 19 10.5 19C12.4869 19 14.3145 18.3183 15.7618 17.176L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.176 15.7618C18.3183 14.3145 19 12.4869 19 10.5C19 5.80558 15.1944 2 10.5 2ZM4 10.5C4 6.91015 6.91015 4 10.5 4C14.0899 4 17 6.91015 17 10.5C17 14.0899 14.0899 17 10.5 17C6.91015 17 4 14.0899 4 10.5Z"
-                    fill="currentColor"
-                  />
-                </g>
-              </svg>
-            </SearchButton>
-          </SearchInputWrapper>
-        </SearchBoxWrapper>
-      );
     };
+
+    const handleSearch = () => {
+        if (selectedCategory === "중고거래") {
+            navigate(`/usedTrade/used-trade?search=${searchTerm}`);
+        } else if (selectedCategory === "알바") {
+            navigate(`/alba?search=${searchTerm}`);
+        } else if (selectedCategory === "동네생활") {
+            navigate(`/community?search=${searchTerm}`);
+        }
+    }
+
+    return (
+        <SearchBoxWrapper>
+            <FilterSection>
+                <FilterButton onClick={toggleDropdown}>
+                    {selectedCategory}
+                </FilterButton>
+                {isDropdownOpen && (
+                    <DropdownMenu>
+                        <DropdownItem onClick={() => handleCategorySelect("중고거래")}>중고거래</DropdownItem>
+                        <DropdownItem onClick={() => handleCategorySelect("동네생활")}>동네생활</DropdownItem>
+                        <DropdownItem onClick={() => handleCategorySelect("알바")}>알바</DropdownItem>
+                    </DropdownMenu>
+                )}
+            </FilterSection>
+            <SearchInputWrapper>
+                <SearchInput 
+                    type="search" 
+                    placeholder="검색어를 입력해주세요"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleSearch();
+                        }
+                    }} 
+                />
+                <SearchButton type="submit" onClick={handleSearch}>
+                    <svg viewBox="0 0 24 24">
+                        <g>
+                            <path
+                                d="M10.5 2C5.80558 2 2 5.80558 2 10.5C2 15.1944 5.80558 19 10.5 19C12.4869 19 14.3145 18.3183 15.7618 17.176L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.176 15.7618C18.3183 14.3145 19 12.4869 19 10.5C19 5.80558 15.1944 2 10.5 2ZM4 10.5C4 6.91015 6.91015 4 10.5 4C14.0899 4 17 6.91015 17 10.5C17 14.0899 14.0899 17 10.5 17C6.91015 17 4 14.0899 4 10.5Z"
+                                fill="currentColor"
+                            />
+                        </g>
+                    </svg>
+                </SearchButton>
+            </SearchInputWrapper>
+        </SearchBoxWrapper>
+    );
+};
 
 export default MainSearchBox;
