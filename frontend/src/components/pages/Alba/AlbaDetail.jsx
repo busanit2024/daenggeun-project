@@ -7,7 +7,7 @@ import { HiOutlineLocationMarker } from "react-icons/hi";
 import { LiaWonSignSolid } from "react-icons/lia";
 import Breadcrumb from "../../Breadcrumb";
 import "../../../styles/AlbaStyled.css";
-
+import Button from "../../ui/Button";
 
 const AlbaDetail = () => {
   const { id } = useParams(); // URL에서 id 가져오기
@@ -110,7 +110,7 @@ const AlbaDetail = () => {
             <p><ImAlarm /> {job.workTime.start}~{job.workTime.end}</p>
 
             <h2>상세 내용</h2>
-            <p>{job.description}</p>
+            <pre>{job.description}</pre>
           </div>
 
           {/* 수정 및 삭제 버튼 (작성자와 관리자만 볼 수 있음) */}
@@ -133,6 +133,8 @@ const AlbaDetail = () => {
           {job.workPlace}
         </div>
       </div>
+      <Button/>
+      <Button>삭제</Button>
 
       {/* 하단 관련 알바 리스트 */}
       <div className="related-jobs">
@@ -146,7 +148,7 @@ const AlbaDetail = () => {
                 onClick={() => navigate(`/alba/${item._id}`)}
               >
                 <h4>{item.title}</h4>
-                <p>위치: {item.location}</p>
+                <p>위치: {item.workPlace}</p>
                 <p>시급: {item.wage}</p>
                 <p>
                   근무 시간: {item.workTime?.start} ~ {item.workTime?.end}

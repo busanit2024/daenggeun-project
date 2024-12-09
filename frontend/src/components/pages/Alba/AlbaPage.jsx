@@ -7,7 +7,7 @@ import Button from "../../ui/Button";
 import AlbaListItem from "../../alba/AlbaListItem";
 import RoundFilter from "../../ui/RoundFilter";
 import Breadcrumb from "../../Breadcrumb";
-
+import SearchBar from "../../ui/SearchBar";  
 const HorizontalContainer = styled.div`
 display: flex;
 gap: 8px;
@@ -273,6 +273,8 @@ export default function AlbaPage(props) {
           onChange={handleSearchChange}
         />
       </div>
+      <SearchBar />
+
       <Breadcrumb routes={routes} />
 
       <InnerContainer>
