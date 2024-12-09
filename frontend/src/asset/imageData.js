@@ -5,8 +5,8 @@ const imageData = [
         src: require("../images/main1.png"),
         text: (
             <>
-                <p style={{ fontSize: "2.5rem", margin: 0 }}>믿을만한</p>
-                <p style={{ fontSize: "2.5rem", margin: 0 }}>이웃 간 중고거래</p>
+                <p style={{ fontSize: "3rem", margin: 0 }}>믿을만한</p>
+                <p style={{ fontSize: "3rem", margin: 0 }}>이웃 간 중고거래</p>
                 <br />
                 <h4 style={{ fontSize: "1.2rem", margin: 0 }}>동네 주민들과 가깝고 따뜻한 거래를</h4>
                 <h4 style={{ fontSize: "1.2rem", margin: 0 }}>지금 경험해보세요.</h4>

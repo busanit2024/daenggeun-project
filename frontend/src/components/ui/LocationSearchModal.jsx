@@ -42,7 +42,6 @@ const StyledButton = styled(Button)`
   padding: 10px;
   margin-bottom: 20px;
   border-radius: 4px;
-
 `;
 
 const Suggestions = styled.ul`
@@ -75,6 +74,7 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
   const [locations, setLocations] = useState([]); // 지도 리스트
   const [busanJuso, setBusanJuso] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filteredLocations, setFilteredLocations] = useState([]); // 필터링된 위치 리스트
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -121,6 +121,14 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
     fetchLocations();
   }, []); 
 
+  // 검색어가 변경될 때마다 필터링된 위치 업데이트
+  useEffect(() => {
+    const filtered = locations.filter(location => 
+      location.sigungu.includes(searchTerm) || location.emd.includes(searchTerm)
+    );
+    setFilteredLocations(filtered);
+  }, [searchTerm, locations]);
+
   const findMyLocation = () => {
     if (!isJsApiLoaded) {
       console.error("Google Maps API가 로드되지 않았습니다.");
@@ -144,21 +152,27 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
     }
   };
 
-  // 검색
-  const filteredLocations = locations.filter(location => 
-    location.sigungu.includes(searchTerm) || location.emd.includes(searchTerm)
-  );
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault(); 
       const selectedLocation = filteredLocations[0]; 
       if (selectedLocation) {
-        onSelect(`${selectedLocation.sigungu}, ${selectedLocation.emd}`);
+        const selectedString = `${selectedLocation.sigungu}, ${selectedLocation.emd}`;
+        onSelect(selectedString);
+        setSearchTerm("");
         setLocations([]); 
       }
     }
   };
+
+  // 지역별 그룹화
+  const groupedLocations = filteredLocations.reduce((acc, location) => {
+    if (!acc[location.sigungu]) {
+      acc[location.sigungu] = [];
+    }
+    acc[location.sigungu].push(location.emd);
+    return acc;
+  }, {});
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -179,20 +193,33 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
         />
           
         <Suggestions>
-          {filteredLocations.length > 0 ? (
-            filteredLocations.map((location, index) => (
-              <SuggestionItem key={index} onClick={() => {
-                const selectedLocation = `${location.sigungu}, ${location.emd}`; // 문자열로 변환
-                onSelect(selectedLocation); // 선택한 지역을 부모 컴포넌트에 전달
-                setLocations([]); 
-              }}>
-                {`${location.sigungu}, ${location.emd}`} 
-              </SuggestionItem>
+          {Object.keys(groupedLocations).length > 0 ? (
+            Object.keys(groupedLocations).map((sigungu, index) => (
+              <div key={index}>
+                <SuggestionItem onClick={() => {
+                  onSelect(sigungu); 
+                  setSearchTerm("");
+                  setLocations([]); 
+                }}>
+                  {sigungu} 
+                </SuggestionItem>
+                {groupedLocations[sigungu].map((emd, emdIndex) => (
+                  <SuggestionItem key={emdIndex} onClick={() => {
+                    const selectedLocation = `${sigungu}, ${emd}`; // 문자열로 변환
+                    onSelect(selectedLocation); // 선택한 지역을 부모 컴포넌트에 전달
+                    setSearchTerm("");
+                    setLocations([]); 
+                  }}>
+                    {`${sigungu}, ${emd}`} 
+                  </SuggestionItem>
+                ))}
+              </div>
             ))
           ) : (
             <NoResultsMessage>일치하는 장소가 없습니다.</NoResultsMessage>
           )}
         </Suggestions>
+
       </ModalContent>
     </ModalOverlay>
   );
