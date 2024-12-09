@@ -245,42 +245,6 @@ export default function CommunityPage(props) {
       <InnerContainer>
         <FilterBar>
           <div className="filterItem">
-            <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center' }}>지역
-              <CustomSelect value={searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.value })}>
-                {busanJuso.map((item) => (
-                  <option key={item.sigungu} value={item.sigungu}>{item.sigungu}</option>
-                ))}
-              </CustomSelect>
-            </h4>
-
-            <div className="filterList">
-              <p>{searchFilter.sido}</p>
-              <label className="radioWrap">
-                <Radio name="gu" value={searchFilter.sigungu} checked={searchFilter.emd === ''} onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
-                {searchFilter.sigungu}
-              </label>
-              <EmdFilterWrap open={isFilterOpen}>
-                {searchFilter.emd !== '' &&
-                  <label className="radioWrap">
-                    <Radio name="dong" value="" checked onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
-                    {searchFilter.emd}
-                  </label>
-                }
-                {(emdList && searchFilter.emd === '') && emdList.map((dong) => (
-                  <label key={dong} className="radioWrap">
-                    <Radio name="dong" value={dong} checked={searchFilter.emd === dong} onChange={() => setSearchFilter({ ...searchFilter, emd: dong })} />
-                    {dong}
-                  </label>
-                ))}
-              </EmdFilterWrap>
-              {
-                (emdList && emdList.length > 5 && searchFilter.emd === '') &&
-                <MoreFilterButton className="toggle" onClick={() => setIsFilterOpen(!isFilterOpen)}>{isFilterOpen ? "접기" : "더보기"}</MoreFilterButton>
-              }
-
-            </div>
-          </div>
-          <div className="filterItem">
             <div className="filterList">
               <label className="radioWrap" onClick={() => setSearchFilter({...searchFilter, category: '인기글'})} style={{ fontWeight: searchFilter.category === '인기글' ? 'bold' : 'normal' }}>
                 <img src="images/favorite.png" style={{ height: '20px', width: '20px', marginRight: '-6px' }} />
