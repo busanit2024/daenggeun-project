@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Toolbar from "./components/Toolbar";
 import styled from "styled-components";
+import Footer from "./components/ui/Footer";
 
 const Container = styled.div`
   display: flex;
@@ -11,8 +12,8 @@ const Container = styled.div`
 
 const Main = styled.div`
   width: 100%;
-  max-width: 1200px;
-  padding: 0 16px;
+  max-width: 1280px;
+  padding: 0 64px;
   margin: 100px 0;
 `;
 
@@ -23,6 +24,7 @@ export default function Layout() {
       <Main>
         <Outlet />
       </Main>
+      <Footer />
     </Container>
 
   );
