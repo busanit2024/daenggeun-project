@@ -11,6 +11,7 @@ import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
 import Modal from "../../ui/Modal";
+import SearchBar from "../../ui/SearchBar";
 
 const Container = styled.div`
   display: flex;
@@ -234,6 +235,7 @@ export default function CommunityPage(props) {
 
   return (
     <>
+    <SearchBar/>
     <Breadcrumb routes={routes} />
     <Container>
       <HeadContainer>
