@@ -90,7 +90,7 @@ const DownloadContainer = styled.div`
 
     & .left {
       top: -48px;
-      left: 156px;
+      right: 260px;
     }
 
     & .right {
@@ -104,7 +104,7 @@ const DownloadContainer = styled.div`
       height: auto;
       position: absolute;
       top: 120px;
-      left: 96px;
+      right: 280px;
       z-index: 1;
 
       & img {
