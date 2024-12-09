@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useJsApiLoader } from '@react-google-maps/api';
 import getCurrentPosition from './getCurrentPosition';
-
-const libraries = ['places'];
 
 const useGeolocation = (isLoaded) => {
   const [location, setLocation] = useState({ sido: '', sigungu: '', emd: '' });
