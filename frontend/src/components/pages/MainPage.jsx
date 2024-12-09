@@ -53,7 +53,7 @@ const CategoryWrapper = styled.div`
     flex-direction: column;
     align-items: start;
     justify-content: center;
-    margin: 24px 0 24px 0;
+    margin-top: 24px;
     width: 100vh;
     min-width: 1280px;
     padding: 0 64px;

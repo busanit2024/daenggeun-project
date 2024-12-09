@@ -129,7 +129,7 @@ const SiteMap = styled.div`
   border-bottom: 1px solid #e9ecef;
   width: 100%;
   max-width: 1280px;
-
+  white-space: nowrap;
   color: #212124;
 
   & .logos {
@@ -175,7 +175,6 @@ const SiteMap = styled.div`
     gap: 24px;
     font-size: 14px;
 
-
     & .sitemap_column {
       display: flex;
       flex-direction: column;
@@ -210,6 +209,7 @@ const FooterText = styled.div`
   color: #727580;
   width: 100%;
   max-width: 1280px;
+  white-space: nowrap;
 
   font-size: 14px;
 
