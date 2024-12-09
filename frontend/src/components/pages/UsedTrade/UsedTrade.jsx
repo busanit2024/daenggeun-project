@@ -9,13 +9,15 @@ import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
 import SearchBar from "../../ui/SearchBar";
+import Modal from "../../ui/Modal";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   width: 100%;
   padding: 2vw;
+  min-height: 100vh;
 `;
 
 const Content = styled.div`
@@ -71,7 +73,6 @@ const CardGrid = styled.div`
 const FilterContainer = styled.div`
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   max-height: 100%;
   padding: 10px;
   margin-bottom: 16px;
