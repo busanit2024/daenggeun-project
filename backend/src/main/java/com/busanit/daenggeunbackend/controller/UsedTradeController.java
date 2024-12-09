@@ -61,4 +61,11 @@ public class UsedTradeController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    //검색 결과
+    @GetMapping("/search")
+    public ResponseEntity<List<UsedTrade>> searchUsedTrade(@RequestParam String keyword) {
+        List<UsedTrade> filteredTrades = usedTradeService.searchUsedTrades(keyword);
+        return ResponseEntity.ok(filteredTrades);
+    }
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from "react-responsive-carousel";
@@ -57,7 +57,7 @@ const StyledCarousel = styled(Carousel)`
 
 const Slide = styled.div`
     width: 100%; 
-    height: 400px; 
+    height: 650px; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -73,7 +73,6 @@ const SlideImage = styled.img`
 const SlideText = styled.span`
     position: absolute; 
     color: black;
-    font-size: 1.5rem;
     text-align: left ;
     left: 25%;
     transform: translateX(-50%);
@@ -82,10 +81,11 @@ const SlideText = styled.span`
 `;
 
 
-function MainPage(props) {
+function MainPage() {
+    const [searchTerm, setSearchTerm] = useState("");
     return (
         <Wrapper>
-            <SearchBar />
+            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             <FullWidthBackground>
                 <StyledCarousel
                     showArrows={true}
