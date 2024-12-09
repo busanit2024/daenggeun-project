@@ -301,7 +301,7 @@ export default function GroupPageLayout(props) {
               <img src={group.image?.url ?? '/images/defaultGroupImage.png'} alt={group.title} onError={(e) => e.target.src = '/images/defaultGroupImage.png'} />
             </div>
             <div className="group-info">
-              <h2 style={{ cursor: 'pointer' }} onClick={() => navigate(`/group/${group.id}`)}>{group.title}</h2>
+              <h2 style={{ cursor: 'pointer' }} onClick={() => navigate(`/group/${group.id}`)}>{group.title ?? '(모임 제목)'}</h2>
               <div className="group-info-detail">
                 <span>멤버 {group.members?.length ?? 0}</span>
                 <span> · </span>

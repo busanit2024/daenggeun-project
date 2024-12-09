@@ -56,9 +56,9 @@ export default function GroupView() {
       <InnerContainer className="innerContainer">
         <div className="group-header">
           <h3 className="title">앨범</h3>
-          <div className="more">더보기
+          <Link to={'album'} className="more">더보기
             <img height={12} src="/images/icon/arrow_right.svg" alt="더보기" />
-          </div>
+          </Link>
         </div>
         <AlbumContainer>
           <AlbumItem>

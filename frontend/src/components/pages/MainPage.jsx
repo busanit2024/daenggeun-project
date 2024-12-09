@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from "react-responsive-carousel";
 import imageData from "../../asset/imageData";
 import "../../styles/carouselOverrides.css"
 import SearchBar from "../ui/SearchBar";
+import categoryData from "../../asset/categoryData";
 
 const Wrapper = styled.div`
     max-width: 100%; 
@@ -13,12 +14,145 @@ const Wrapper = styled.div`
 `;
 
 const FullWidthBackground = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 100vw; 
     position: relative; 
     left: 50%;
     right: 50%; 
     margin-left: -50vw; 
     margin-right: -50vw; 
+`;
+
+const CategoryWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    margin-top: 24px;
+    width: 100vh;
+    min-width: 1280px;
+    padding: 0 64px;
+
+    
+    & h2 {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 24px;
+    }
+
+    & .category-wrapper {
+        display: flex;
+        gap: 24px;
+        width: 100%;
+        position: relative;
+    }
+
+`;
+
+const CategoryContainer = styled.div`
+
+    display: flex;
+        gap: 24px;
+        width: 100%;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    
+
+    &::before,
+    &::after {
+        content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    pointer-events: none;
+    z-index: 1;
+    }
+
+    &::before {
+        display: ${props => props.start ? "none" : "block"};
+        left: 0;
+        background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+    }
+
+    &::after {
+        display: ${props => props.end ? "none" : "block"};
+        right: 0;
+        background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+    }
+`;
+
+
+const ArrowButton = styled.div`
+    display: ${props => props.hidden ? "none" : "flex"};
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 50%;
+    background-color: #ffffff;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    z-index: 10;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.1s;
+    opacity: 0;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    &:first-child {
+        
+        left: 0;
+        transform: translate(-50%, -50%);
+    }
+
+    &:last-child {
+        right: 0;
+        transform: translate(50%, -50%);
+    }
+`;
+
+const Category = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+
+    & .category-image {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background-color: #F2F3F6;
+        border: 1px solid #E9EBF0;
+        margin-bottom: 12px;
+        padding: 36px;
+
+        &:hover img {
+            transform: scale(1.1);
+        }
+
+        img {
+            transition: all 0.2s;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    & .category-name {
+        font-size: 14px;
+        font-weight: bold;
+    }
 `;
 
 const StyledCarousel = styled(Carousel)`
@@ -80,9 +214,51 @@ const SlideText = styled.span`
     font-family : SBAggroB;
 `;
 
-
-function MainPage() {
+function MainPage(props) {
+    const categoryContainerRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isAtStart, setIsAtStart] = useState(true);
+    const [isAtEnd, setIsAtEnd] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (categoryContainerRef.current.scrollLeft === 0) {
+                setIsAtStart(true);
+            } else {
+                setIsAtStart(false);
+            }
+
+            if (categoryContainerRef.current.scrollLeft + categoryContainerRef.current.clientWidth === categoryContainerRef.current.scrollWidth) {
+                setIsAtEnd(true);
+            } else {
+                setIsAtEnd(false);
+            }
+        };
+
+        categoryContainerRef.current.addEventListener('scroll', handleScroll);
+        handleScroll();
+
+        return () => {
+            if (categoryContainerRef.current) {
+            categoryContainerRef.current.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, []);
+
+    const handleScrollLeft = () => {
+        categoryContainerRef.current.scrollBy({
+            left: -1100,
+            behavior: "smooth"
+        });
+    };
+
+    const handleScrollRight = () => {
+        categoryContainerRef.current.scrollBy({
+            left: 1100,
+            behavior: "smooth"
+        });
+    };
+
     return (
         <Wrapper>
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
@@ -92,7 +268,7 @@ function MainPage() {
                     autoPlay={true}
                     infiniteLoop={true}
                     showThumbs={false}
-                    >
+                >
                     {imageData.map(image => (
                         <Slide key={image.alt}>
                             <SlideImage src={image.src} alt={image.alt} />
@@ -100,9 +276,30 @@ function MainPage() {
                         </Slide>
                     ))}
                 </StyledCarousel>
+                <CategoryWrapper>
+                    <h2>인기 카테고리</h2>
+                    <div className="category-wrapper">
+                        <ArrowButton className="arrow-button" hidden={isAtStart} onClick={handleScrollLeft}>
+                            <img src="/images/icon/arrow_left.svg" alt="왼쪽으로 이동" />
+                        </ArrowButton>
+                        <CategoryContainer className="category-container" ref={categoryContainerRef} start={isAtStart} end={isAtEnd}>
+                            {categoryData.map(category => (
+                                <Category>
+                                    <div className="category-image">
+                                        <img src={category.image} alt={category.name} />
+                                    </div>
+                                    <div className="category-name">{category.name}</div>
+                                </Category>
+                            ))}
+                        </CategoryContainer>
+                        <ArrowButton className="arrow-button" hidden={isAtEnd} onClick={handleScrollRight}>
+                            <img src="/images/icon/arrow_right.svg" alt="오른쪽으로 이동" />
+                        </ArrowButton>
+                    </div>
+                </CategoryWrapper>
             </FullWidthBackground>
         </Wrapper>
     );
 }
 
-export default MainPage ;
+export default MainPage;

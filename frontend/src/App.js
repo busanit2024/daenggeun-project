@@ -33,6 +33,7 @@ import GroupBoard from './components/group/GroupBoard';
 import MemberProfile from './components/group/MemberProfile';
 import SetProfilePage from './components/pages/Login/SetProfilePage';
 import JoinRequest from './components/group/JoinRequest';
+import GroupAlbum from './components/group/GroupAlbum';
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
               <Route path="schedule" element={<GroupSchedules />} />
               <Route path="board" element={<GroupBoard />} />
               <Route path="requests" element={<JoinRequest />} />
+              <Route path='album' element={<GroupAlbum />} />
             </Route>
             <Route path="group/create" element={<GroupCreatePage />} />
             <Route path="group/:groupId/edit" element={<GroupEditPage />} />

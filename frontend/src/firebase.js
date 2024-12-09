@@ -89,4 +89,4 @@ const deleteFiles = async (files) => {
   return Promise.all(promises);
 }
 
-export { storage, auth, app as default, singleFileUpload, multipleFileUpload, deleteFile,  RecaptchaVerifier, signInWithPhoneNumber, compressImage  };
+export { storage, auth, app as default, singleFileUpload, multipleFileUpload, deleteFile, deleteFiles, RecaptchaVerifier, signInWithPhoneNumber, compressImage  };
