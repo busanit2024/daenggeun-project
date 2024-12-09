@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Card from "../../ui/Card";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../ui/Button";
+import SearchBar from "../../ui/SearchBar";
 
 const Container = styled.div`
   display: flex;
@@ -61,7 +62,9 @@ const CardGrid = styled.div`
 `;
 
 const UsedTrade = () => {
+  const location = useLocation(); // URL에서 query 가져오기
   const [trades, setTrades] = useState([]); // 중고거래 목록 상태
+  const [searchTerm, setSearchTerm] = useState(""); // 검색어
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -70,46 +73,58 @@ const UsedTrade = () => {
         const response = await fetch('/api/usedTrades');
         const data = await response.json();
         setTrades(data);  // 중고거래 목록 업데이트
+
+        const query = new URLSearchParams(location.search);
+        const search = query.get('search');
+        if (search) {
+            setSearchTerm(search); // URL에서 검색어 가져오기
+        } 
       } catch (error) {
         console.error('Error fetching trades:', error);
       }
     };
 
     fetchTrades();  // 컴포넌트가 마운트될 때 중고거래 목록 가져오기
-  }, []);
+  }, [location.search]);
 
   const formattedPrice = (price) => {
     return new Intl.NumberFormat('ko-KR').format(price);
   }
 
+  // 검색어 필터링
+  const filteredTrades = searchTerm ? trades.filter(trade =>
+    trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
+  ) : trades;
+
   return (
     <Container>
-        <Content>
-            <Sidebar>
-            </Sidebar>
-            <Main>
-              <Header>
-                <Title>부산광역시 동래구 중고거래</Title>
-                <Button
-                  title="+ 글쓰기"
-                  variant="primary"
-                  onClick={() => navigate("/usedTrade/used-trade-write")}
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <Content>
+          <Sidebar>
+          </Sidebar>
+          <Main>
+            <Header>
+              <Title>부산광역시 동래구 중고거래</Title>
+              <Button
+                title="+ 글쓰기"
+                variant="primary"
+                onClick={() => navigate("/usedTrade/used-trade-write")}
+              />
+            </Header>
+            <CardGrid>
+              {filteredTrades.map((usedTrade) => (
+                <Card 
+                  key={usedTrade.id}
+                  title={usedTrade.name}
+                  price={`${formattedPrice(usedTrade.price)} 원`}
+                  location={usedTrade.location}
+                  onClick={() => navigate(`/usedTrade/used-trade-view/${usedTrade.id}`, { state: usedTrade })}
+                  style={{ cursor: "pointer" }}
                 />
-              </Header>
-              <CardGrid>
-                {trades.map((usedTrade) => (
-                  <Card 
-                    key={usedTrade.id}
-                    title={usedTrade.name}
-                    price={`${formattedPrice(usedTrade.price)} 원`}
-                    location={usedTrade.location}
-                    onClick={() => navigate(`/usedTrade/used-trade-view/${usedTrade.id}`, { state: usedTrade })}
-                    style={{ cursor: "pointer" }}
-                  />
-                ))}
-              </CardGrid>
-            </Main>
-        </Content>
+              ))}
+            </CardGrid>
+          </Main>
+      </Content>
     </Container>
   );
 };

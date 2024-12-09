@@ -235,7 +235,7 @@ export default function CommunityPage(props) {
 
   return (
     <>
-    <SearchBar/>
+    <SearchBar />
     <Breadcrumb routes={routes} />
     <Container>
       <HeadContainer>

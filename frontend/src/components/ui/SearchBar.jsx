@@ -16,7 +16,7 @@ const StyledRoundFilter = styled(RoundFilter)`
     
 `;
 
-const SearchBar = () => {
+const SearchBar = ({ searchTerm,setSearchTerm }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [userLocation, setUserLocation] = useState([{ sigungu: "해운대구", emd: "" }]);
 
@@ -46,7 +46,7 @@ const SearchBar = () => {
             {isModalOpen && (
                 <LocationSearchModal onSelect={handleLocationSelect} onClose={() => setIsModalOpen(false)} />
             )}
-            <MainSearchBox />
+            <MainSearchBox searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </SearchWrapper>
     );    
 };
