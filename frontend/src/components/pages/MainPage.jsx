@@ -239,7 +239,9 @@ function MainPage(props) {
         handleScroll();
 
         return () => {
+            if (categoryContainerRef.current) {
             categoryContainerRef.current.removeEventListener('scroll', handleScroll);
+            }
         };
     }, []);
 
