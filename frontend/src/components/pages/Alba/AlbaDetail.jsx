@@ -15,6 +15,7 @@ const AlbaDetail = () => {
   const [job, setJob] = useState(null); // 상세 데이터 상태
   const [relatedJobs, setRelatedJobs] = useState([]); // 관련 알바 데이터 상태
   const [user, setUser] = useState(null); // 사용자 데이터 상태
+  const [post, setPost] = useState(null);
 
   useEffect(() => {
     // 사용자 정보 로드 (로그인 상태 확인 및 사용자 역할 확인)
@@ -63,6 +64,7 @@ const AlbaDetail = () => {
   ];
 
   const handleEdit = () => {
+    // 수정 버튼 클릭 시 수정 페이지로 이동
     navigate(`/alba/${id}/edit`);
   };
 
@@ -87,8 +89,10 @@ const AlbaDetail = () => {
 
       {/* 상세 영역 */}
       <div className="alba-detail-container">
+        
         {/* 좌측 영역 */}
         <div className="detail-left">
+          
           <img
             src={job.image != null ? job.image.url : "default-image.png"}
             alt={job.title}
@@ -97,11 +101,17 @@ const AlbaDetail = () => {
           <div className="profile-info">
             <h2>{job.title}</h2>
             <p>시급: {job.wage}</p>
+
+        <Button type="edit-button" title="수정" variant="gray" onClick={handleEdit}/>
+        <Button type="delete-button" title="삭제" variant="danger" onClick={handleDelete}/>
           </div>
+        
         </div>
 
         {/* 우측 영역 */}
+      
         <div className="detail-right">
+        
           <div className="detail-body">
             <h2>{job.title}</h2>
             <p><LiaWonSignSolid /> {job.wageType} {job.wage}</p>
@@ -132,9 +142,9 @@ const AlbaDetail = () => {
           </div>
           {job.workPlace}
         </div>
+        
       </div>
-      <Button/>
-      <Button>삭제</Button>
+      
 
       {/* 하단 관련 알바 리스트 */}
       <div className="related-jobs">
