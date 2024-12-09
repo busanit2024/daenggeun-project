@@ -5,8 +5,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../ui/Button";
 import axios from "axios";
 import Radio from "../../ui/Radio";
-import FilterBar from "../../ui/FilterBar";
-import RoundFilter from "../../ui/RoundFilter";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
@@ -37,11 +35,13 @@ const Sidebar = styled.aside`
   flex: 0 0 20%; /* 가로폭의 20% 차지 */
   max-width: 250px; /* 최대 너비 제한 */
   min-width: 150px; /* 최소 너비 제한 */
+  max-height: calc(100vh - 100px);
 
   @media (max-width: 768px) {
     flex: 0 0 auto;
-    width: 100%; /* 작은 화면에서는 전체 너비 */
+    width: 100%;
     margin-bottom: 16px;
+    max-height: none;
   }
 `;
 
@@ -71,7 +71,14 @@ const CardGrid = styled.div`
 const FilterContainer = styled.div`
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  max-height: 100%;
+  padding: 10px;
   margin-bottom: 16px;
+
+  @media (max-width: 768px) {
+    max-height: none;
+  }
 `;
 
 const FilterItem = styled.div`
