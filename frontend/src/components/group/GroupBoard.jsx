@@ -1,4 +1,4 @@
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { Container, FlexContainer, InnerContainer } from "./GroupPageLayout";
 import Button from "../ui/Button";
 import PostListItem from "./PostListItem";
@@ -13,13 +13,14 @@ const BoardContainer = styled.div`
 
 export default function GroupBoard() {
   const { group } = useOutletContext();
+  const navigate = useNavigate();
   const [selectedBoard, setSelectedBoard] = useState('전체');
   return (
     <Container>
       <InnerContainer>
         <div className="group-header">
           <h3 className="title">게시글 {group.posts?.length ?? 0}</h3>
-          <Button title='글쓰기' />
+          <Button title='글쓰기' onClick={() => navigate('write')}  />
         </div>
         <BoardContainer>
             <RoundFilter title="전체" variant={selectedBoard === '전체' ? 'boardSelected' : 'board'} onClick={() => setSelectedBoard('전체')} />

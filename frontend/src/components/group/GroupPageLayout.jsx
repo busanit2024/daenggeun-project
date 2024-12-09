@@ -287,6 +287,8 @@ export default function GroupPageLayout(props) {
     { path: `/group/${group.id}/schedule`, name: '전체 일정' },
     { path: `/group/${group.id}/album`, name: '모임 앨범' },
     { path: `/group/${group.id}/board`, name: '모임 게시판' },
+    { path: `/group/${group.id}/board/write`, name: '글쓰기' },
+    { path: `/group/${group.id}/board/:postId`, name: '게시글 상세보기' },
     { path: `/group/${group.id}/my`, name: '내 모임 프로필' },
     { path: `/group/${group.id}/requests`, name: '가입 신청' },
   ];
