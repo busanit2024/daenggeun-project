@@ -180,7 +180,7 @@ const UsedTradeWrite = () => {
         console.log("isPriceNegotiable:", isPriceNegotiable);
         console.log("isGiveable:", isGiveable);
         console.log("selectedTradeType:", selectedTradeType);
-        
+
         console.log("usedTradeData: ", usedTradeData);
 
         try {
@@ -240,17 +240,68 @@ const UsedTradeWrite = () => {
                         }}>
                             None
                         </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("여성의류")}>
-                            여성의류
-                        </CategoryItem>
                         <CategoryItem onClick={() => selectCategory("디지털기기")}>
                             디지털기기
                         </CategoryItem>
                         <CategoryItem onClick={() => selectCategory("생활가전")}>
                             생활가전
                         </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("가구/인테리어")}>
+                            가구/인테리어
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("생활/주방")}>
+                            생활/주방
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("가구/인테리어")}>
+                            가구/인테리어
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("유아동")}>
+                            유아동
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("유아도서")}>
+                            유아도서
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("여성의류")}>
+                            여성의류
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("여성잡화")}>
+                            여성잡화
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("남성패션/잡화")}>
+                            남성패션/잡화
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("뷰티/미용")}>
+                            뷰티/미용
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("스포츠/레저")}>
+                            스포츠/레저
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("취미/게임/음반")}>
+                            취미/게임/음반
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("도서")}>
+                            도서
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("티켓/교환권")}>
+                            티켓/교환권
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("가공식품")}>
+                            가공식품
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("건강기능식품")}>
+                            건강기능식품
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("반려동물용품")}>
+                            반려동물용품
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("식물")}>
+                            식물
+                        </CategoryItem>
                         <CategoryItem onClick={() => selectCategory("기타")}>
                             기타
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("삽니다")}>
+                            삽니다
                         </CategoryItem>
                     </CategoryList>
                     </CategoryToggle>

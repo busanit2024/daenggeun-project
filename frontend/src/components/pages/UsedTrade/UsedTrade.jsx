@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Card from "../../ui/Card";
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../ui/Button";
-import SearchBar from "../../ui/SearchBar";
 import axios from "axios";
 import Radio from "../../ui/Radio";
 import FilterBar from "../../ui/FilterBar";
@@ -80,9 +79,9 @@ const FilterItem = styled.div`
 `;
 
 const UsedTrade = () => {
-  const location = useLocation(); // URL에서 query 가져오기
+  const location = useLocation();
   const [trades, setTrades] = useState([]); // 중고거래 목록 상태
-  const [searchTerm, setSearchTerm] = useState(""); // 검색어
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [categoryData, setCategoryData] = useState([]);
   const [searchFilter, setSearchFilter] = useState({
@@ -97,7 +96,7 @@ const UsedTrade = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchTrades = async () => {
       setLoading(true);
       try {
         // 처음부터 모든 중고 거래 데이터 가져오기
@@ -105,28 +104,26 @@ const UsedTrade = () => {
         // setTrades(tradesResponse.data);
         await fetchFilteredUsedTrades();
 
-        // 필터 카테고리 데이터 가져오기
-        const categoryResponse = await axios.get(`/api/usedTrades/data/filter?categoryName=usedTradeCategory`);
-        setCategoryData(categoryResponse.data.filters);
-        const response = await fetch('/api/usedTrades');
-        const data = await response.json();
-        setTrades(data);  // 중고거래 목록 업데이트
-
         const query = new URLSearchParams(location.search);
         const search = query.get('search');
         if (search) {
-            setSearchTerm(search); // URL에서 검색어 가져오기
-        } 
+          setSearchTerm(search);  // URL에서 검색어 가져오기
+        }
+
+        // 필터 카테고리 데이터 가져오기
+        const categoryResponse = await axios.get(`/api/usedTrades/data/filter?categoryName=usedTradeCategory`);
+        setCategoryData(categoryResponse.data.filters);
       } catch (error) {
         console.error("데이터를 불러오는 데 실패했습니다.", error.response ? error.response.data : error.message);
+        console.error('Error fetching trades:', error);
         setLoading(true);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [categoryData]);
+    fetchTrades();
+  }, [categoryData, location.search]);
 
   useEffect(() => {
     fetchFilteredUsedTrades();
@@ -144,7 +141,8 @@ const UsedTrade = () => {
         params: {
           category: searchFilter.category === "all" ? undefined : searchFilter.category,
           sort: searchFilter.sort,
-          tradeable: searchFilter.tradeable ? true : null
+          tradeable: searchFilter.tradeable ? true : null,
+          search: searchTerm,
         },
       });
       console.log("필터링된 거래 데이터: ", response.data);
@@ -163,13 +161,6 @@ const UsedTrade = () => {
     }));
   };
   
-        console.error('Error fetching trades:', error);
-      }
-    };
-
-    fetchTrades();  // 컴포넌트가 마운트될 때 중고거래 목록 가져오기
-  }, [location.search]);
-
   const formattedPrice = (price) => {
     return new Intl.NumberFormat('ko-KR').format(price);
   }
@@ -179,13 +170,13 @@ const UsedTrade = () => {
   }
 
   // 검색어 필터링
-  const filteredTrades = searchTerm ? trades.filter(trade =>
+  const filteredTrades = searchTerm ? trades.filter(trade => 
     trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
   ) : trades;
 
   return (
     <Container>
-      <SearchBar />
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <Content>
         <Sidebar>
           <FilterContainer>
@@ -286,8 +277,8 @@ const UsedTrade = () => {
             />
           </Header>
           <CardGrid>
-            {trades.length > 0 ? (
-              trades.map((usedTrade) => (
+            {filteredTrades.length > 0 ? (
+              filteredTrades.map((usedTrade) => (
                 <Card 
                   key={usedTrade.id}
                   title={usedTrade.name}
@@ -310,33 +301,6 @@ const UsedTrade = () => {
             )}
           </CardGrid>
         </Main>
-      </Content>
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      <Content>
-          <Sidebar>
-          </Sidebar>
-          <Main>
-            <Header>
-              <Title>부산광역시 동래구 중고거래</Title>
-              <Button
-                title="+ 글쓰기"
-                variant="primary"
-                onClick={() => navigate("/usedTrade/used-trade-write")}
-              />
-            </Header>
-            <CardGrid>
-              {filteredTrades.map((usedTrade) => (
-                <Card 
-                  key={usedTrade.id}
-                  title={usedTrade.name}
-                  price={`${formattedPrice(usedTrade.price)} 원`}
-                  location={usedTrade.location}
-                  onClick={() => navigate(`/usedTrade/used-trade-view/${usedTrade.id}`, { state: usedTrade })}
-                  style={{ cursor: "pointer" }}
-                />
-              ))}
-            </CardGrid>
-          </Main>
       </Content>
     </Container>
   );
