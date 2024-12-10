@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import FilterBar from "../../ui/FilterBar";
 import Button from "../../ui/Button";
@@ -80,6 +80,7 @@ const NoSearchResult = styled.div`
 
 export default function AlbaPage(props) {
   const navigate = useNavigate();
+  const [userLocation, setUserLocation] = useState([{ sigungu: "해운대구", emd: "" }]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedDong, setSelectedDong] = useState("");
@@ -238,42 +239,8 @@ export default function AlbaPage(props) {
   
   return (
     <Container>
-      {/* 검색 바 */}
-      <div className="search-bar">
-        <select
-          value={selectedRegion}
-          onChange={handleRegionChange}
-          className="region-filter"
-        >
-          <option value="">전체 지역</option>
-          {regionData.map((region) => (
-            <option key={region.sigungu} value={region.sigungu}>{region.sigungu}</option>
-          ))}
-        </select>
-
-        {selectedRegion && (
-          <select
-            value={selectedDong}
-            onChange={handleDongChange}
-            className="dong-filter"
-          >
-            <option value="">전체 동</option>
-            {regionData
-              .find(region => region.sigungu === selectedRegion)
-              ?.emd.map((dong) => (
-                <option key={dong.emd} value={dong.emd}>{dong.emd}</option>
-              ))}
-          </select>
-        )}
-
-        <input
-          type="text"
-          placeholder="검색어를 입력하세요"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-      </div>
-      <SearchBar />
+      
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
       <Breadcrumb routes={routes} />
 

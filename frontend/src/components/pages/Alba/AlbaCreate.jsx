@@ -48,7 +48,6 @@ const libraries = ['places'];
 
 const AlbaCreate = () => {
   const [form, setForm] = useState({
-    creatorId: "",
     title: "",
     description: "",
     location: { sido: "부산광역시", sigungu: "", emd: "" }, // 로그인 구현될 때까지 임시 위치
@@ -262,7 +261,7 @@ const handleImageChange = async (e) => {
 
   setForm((prevForm) => ({
     ...prevForm,
-    image: imageInfo,
+    image: imageInfo ?? { url: '../../../images/default-image.png' }, // 기본 이미지 설정
   }));
 };
 
@@ -513,6 +512,17 @@ useEffect(() => {
         <div className="image-upload">
           <h3 className="section-title">이미지 업로드</h3>
           <input type="file" name="image" onChange={handleImageChange} />
+          {form.image && (
+            <img
+              src={form.image?.url}
+              alt="업로드된 이미지"
+              onError={(e) => {
+                e.target.onerror = null; // 무한 반복 방지
+                e.target.src = '../../../images/default-image.png'; // 기본 이미지 경로
+              }}
+              style={{ maxWidth: '100%', maxHeight: '200px' }} // 적절한 스타일 설정
+            />
+          )}
         </div>
 
         <textarea
