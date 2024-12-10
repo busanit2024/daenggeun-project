@@ -17,12 +17,13 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   padding: 2vw;
-  min-height: 100vh;
+  min-height: 150vh;
 `;
 
 const Content = styled.div`
   display: flex;
   flex: 1;
+  height: 100%;
   padding: 2vw; /* 화면 크기에 따라 여백 자동 조정 */
   gap: 1vw;
   width: 100%;
@@ -56,6 +57,10 @@ const Header = styled.div`
 
 const Main = styled.main`
   flex: 1; /* 남은 공간을 차지 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 0;
 `;
 
 const Title = styled.h1`
@@ -84,10 +89,6 @@ const FilterContainer = styled.div`
 
 const FilterItem = styled.div`
   margin-bottom: 16px;
-`;
-
-const LoadMoreButton = styled(Button)`
-  margin: 16px 0;
 `;
 
 const UsedTrade = () => {
@@ -318,7 +319,11 @@ const UsedTrade = () => {
             )}
           </CardGrid>
           {filteredTrades.length > visibleCount && (
-            <LoadMoreButton title="더보기" onClick={handleLoadMore} />
+            <Button 
+              title="더보기" 
+              onClick={handleLoadMore} 
+              style={{ marginTop: "20px" }}
+            />
           )}
         </Main>
       </Content>
