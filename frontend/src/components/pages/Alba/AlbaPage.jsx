@@ -1,12 +1,14 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import FilterBar from "../../ui/FilterBar";
 import Button from "../../ui/Button";
 import AlbaListItem from "../../alba/AlbaListItem";
 import RoundFilter from "../../ui/RoundFilter";
 import Breadcrumb from "../../Breadcrumb";
+import SearchBar from "../../ui/SearchBar";  
+import Radio from "../../ui/Radio";
 
 const HorizontalContainer = styled.div`
 display: flex;
@@ -80,6 +82,7 @@ const NoSearchResult = styled.div`
 
 export default function AlbaPage(props) {
   const navigate = useNavigate();
+  const [userLocation, setUserLocation] = useState([{ sigungu: "해운대구", emd: "" }]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedDong, setSelectedDong] = useState("");
@@ -238,41 +241,9 @@ export default function AlbaPage(props) {
   
   return (
     <Container>
-      {/* 검색 바 */}
-      <div className="search-bar">
-        <select
-          value={selectedRegion}
-          onChange={handleRegionChange}
-          className="region-filter"
-        >
-          <option value="">전체 지역</option>
-          {regionData.map((region) => (
-            <option key={region.sigungu} value={region.sigungu}>{region.sigungu}</option>
-          ))}
-        </select>
+      
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-        {selectedRegion && (
-          <select
-            value={selectedDong}
-            onChange={handleDongChange}
-            className="dong-filter"
-          >
-            <option value="">전체 동</option>
-            {regionData
-              .find(region => region.sigungu === selectedRegion)
-              ?.emd.map((dong) => (
-                <option key={dong.emd} value={dong.emd}>{dong.emd}</option>
-              ))}
-          </select>
-        )}
-
-        <input
-          type="text"
-          placeholder="검색어를 입력하세요"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-      </div>
       <Breadcrumb routes={routes} />
 
       <InnerContainer>
@@ -288,8 +259,8 @@ export default function AlbaPage(props) {
             <div className="filterList">
               {workTypeData.map((item) => (
                 <div key={item.id}>
-                  <input
-                    type="checkbox"
+                  <Radio
+                    type="radio"
                     id={item.name}
                     name="workType"
                     value={item.name}
@@ -307,7 +278,7 @@ export default function AlbaPage(props) {
             <div className="filterList">
               {categoryData.map((item) => (
                 <div key={item.name}>
-                  <input
+                  <Radio
                     type="radio"
                     id={item.name}
                     name="category"
@@ -364,9 +335,10 @@ export default function AlbaPage(props) {
             </div>
           </div>
         </FilterBarContainer>
-
         {/* 알바 리스트 컨테이너 */}
+
         <ListContainer>
+
           {(category !== 'all' || workType.length > 0 || workDays.length > 0 || workTime.start || workTime.end || searchTerm.trim() !== "" || selectedRegion !== "" || selectedDong !== "") &&
             <FilterContainer>
               {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
@@ -381,8 +353,11 @@ export default function AlbaPage(props) {
               {selectedRegion && <RoundFilter title={selectedRegion} variant='search' cancelIcon onClick={() => setSelectedRegion("")} />}
               {selectedDong && <RoundFilter title={selectedDong} variant='search' cancelIcon onClick={() => setSelectedDong("")} />}
               {searchTerm.trim() !== "" && <RoundFilter title={`검색어: ${searchTerm}`} variant='search' cancelIcon onClick={() => setSearchTerm("")} />}
+                
             </FilterContainer>
+            
           }
+          
 
           {albaList.length === 0 && (
             <NoSearchResult>
@@ -398,6 +373,8 @@ export default function AlbaPage(props) {
           {itemsToShow < albaList.length && (
             <Button title="더보기" onClick={handleShowMore} />
           )}
+                  <Button title="글쓰기" variant="primary" onClick={() => navigate("/alba/create")}></Button>
+
         </ListContainer>
       </InnerContainer>
     </Container>
