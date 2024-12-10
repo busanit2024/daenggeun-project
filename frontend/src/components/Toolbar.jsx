@@ -27,8 +27,6 @@ const Toolbar = () => {
         logout();
     };
     
-    const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
-
     return (
         <div className="toolbar">
             <Logo 

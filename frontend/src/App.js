@@ -38,8 +38,6 @@ import { LocationProvider } from './context/LocationContext';
 
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   return (
     <AuthProvider>
       <LocationProvider>
