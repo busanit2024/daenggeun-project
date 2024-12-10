@@ -55,14 +55,52 @@ public class CommunityService {
         communityRepository.deleteById(id);
     }
 
-    public Slice<CommunityDTO> searchPage(String sigungu, String emd, String category, Pageable pageable) {
+    public Slice<CommunityDTO> searchPage(String sigungu, String emd, String category, String searchTerm, Pageable pageable) {
+        // 카테고리가 "all"일 때
         if (Objects.equals(category, "all")) {
-            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingOrderByCreatedDateDesc(sigungu, emd, pageable);
+            // 검색어가 있을 때
+            if (searchTerm != null && !searchTerm.isEmpty()) {
+                if (emd == null || emd.isEmpty()) {
+                    // emd가 비어있을 경우 sigungu만으로 검색
+                    Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndTitleContaining(sigungu, searchTerm, pageable);
+                    return CommunityDTO.toDTO(communities);
+                }
+                // emd가 있을 경우
+                Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndTitleContaining(sigungu, emd, searchTerm, pageable);
+                return CommunityDTO.toDTO(communities);
+            }
+            // 검색어가 없을 때
+            if (emd == null || emd.isEmpty()) {
+                // emd가 비어있을 경우 sigungu만으로 검색
+                Slice<Community> communities = communityRepository.findAllByLocationSigunguContaining(sigungu, pageable);
+                return CommunityDTO.toDTO(communities);
+            }
+            // emd가 있을 경우
+            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContaining(sigungu, emd, pageable);
             return CommunityDTO.toDTO(communities);
         }
+
+        // 카테고리가 있을 때
+        if (searchTerm != null && !searchTerm.isEmpty()) {
+            if (emd == null || emd.isEmpty()) {
+                // emd가 비어있을 경우 sigungu만으로 검색
+                Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndCategoryAndTitleContaining(sigungu, category, searchTerm, pageable);
+                return CommunityDTO.toDTO(communities);
+            }
+            // emd가 있을 경우
+            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryAndTitleContaining(sigungu, emd, category, searchTerm, pageable);
+            return CommunityDTO.toDTO(communities);
+        }
+
+        // 카테고리 없을 때
+        if (emd == null || emd.isEmpty()) {
+            // emd가 비어있을 경우 sigungu만으로 검색
+            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndCategory(sigungu, category, pageable);
+            return CommunityDTO.toDTO(communities);
+        }
+
+        // emd가 있을 경우
         Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(sigungu, emd, category, pageable);
         return CommunityDTO.toDTO(communities);
     }
-
-
 }

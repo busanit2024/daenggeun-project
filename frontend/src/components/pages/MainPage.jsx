@@ -6,6 +6,7 @@ import imageData from "../../asset/imageData";
 import "../../styles/carouselOverrides.css"
 import SearchBar from "../ui/SearchBar";
 import categoryData from "../../asset/categoryData";
+import { useLocation } from "../../context/LocationContext";
 
 const Wrapper = styled.div`
     max-width: 100%; 
@@ -215,10 +216,14 @@ const SlideText = styled.span`
 `;
 
 function MainPage(props) {
+    const { location, setLocation } = useLocation(); 
     const categoryContainerRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [isAtStart, setIsAtStart] = useState(true);
     const [isAtEnd, setIsAtEnd] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState("중고거래");
+    const [selectedLocation, setSelectedLocation] = useState({ sigungu: "", emd: "" });
+    const [searchFilter, setSearchFilter] = useState({ sigungu: "", emd: "" });
 
     useEffect(() => {
         const handleScroll = () => {
@@ -245,6 +250,18 @@ function MainPage(props) {
         };
     }, []);
 
+    const handleLocationSelect = (selectedLocation) => {
+        console.log("선택된 지역:", selectedLocation);
+        const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+        setLocation({ sigungu, emd});
+        setSelectedLocation({ sigungu, emd });
+        setSearchFilter(prevFilter => ({
+            ...prevFilter,
+            sigungu: sigungu,
+            emd: emd,
+        }));
+    };
+
     const handleScrollLeft = () => {
         categoryContainerRef.current.scrollBy({
             left: -1100,
@@ -259,9 +276,13 @@ function MainPage(props) {
         });
     };
 
+    
+
     return (
         <Wrapper>
-            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
+                selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} 
+                onSelect={handleLocationSelect}/>
             <FullWidthBackground>
                 <StyledCarousel
                     showArrows={true}

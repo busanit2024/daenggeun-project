@@ -70,7 +70,7 @@ const NoResultsMessage = styled.div`
 
 const libraries = ['places'];
 
-const LocationSearchModal = ({ onSelect, onClose }) => {
+const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   const [locations, setLocations] = useState([]); // 지도 리스트
   const [busanJuso, setBusanJuso] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,7 +79,7 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries: [libraries],
+    libraries: libraries,
     language: 'ko',
     region: 'KR',
   });
@@ -128,6 +128,24 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
     );
     setFilteredLocations(filtered);
   }, [searchTerm, locations]);
+
+
+
+  const handleLocationSelect = (selectedLocation) => {
+    onSelect(selectedLocation); 
+    setSearchTerm(""); 
+    onClose(); 
+
+    if(selectedLocation){
+      const [sigungu, emd] = selectedLocation.split(",");
+      if (onSearch) {
+        onSearch(sigungu, emd); 
+      } else {
+          console.error("onSearch is not a function");
+      }
+    }
+};
+
 
   const findMyLocation = () => {
     if (!isJsApiLoaded) {
@@ -180,7 +198,7 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
         <h3>지역 검색</h3>
         <SearchInput
           type="text"
-          placeholder="구 단위 입력(ex> 해운대구)"
+          placeholder="우리 동네를 찾아보세요!"
           value={searchTerm} 
           onChange={(e) => setSearchTerm(e.target.value)} 
           onKeyDown={handleKeyDown}
@@ -197,9 +215,10 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
             Object.keys(groupedLocations).map((sigungu, index) => (
               <div key={index}>
                 <SuggestionItem onClick={() => {
-                  onSelect(sigungu); 
+                  const selectedLocation = sigungu; 
+                  onSelect(selectedLocation); 
                   setSearchTerm("");
-                  setLocations([]); 
+                  setLocations([]);
                 }}>
                   {sigungu} 
                 </SuggestionItem>
@@ -209,6 +228,7 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
                     onSelect(selectedLocation); // 선택한 지역을 부모 컴포넌트에 전달
                     setSearchTerm("");
                     setLocations([]); 
+                    handleLocationSelect(`${sigungu}, ${emd}`)
                   }}>
                     {`${sigungu}, ${emd}`} 
                   </SuggestionItem>

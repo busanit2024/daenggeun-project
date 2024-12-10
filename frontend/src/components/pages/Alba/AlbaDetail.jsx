@@ -7,6 +7,8 @@ import { HiOutlineLocationMarker } from "react-icons/hi";
 import { LiaWonSignSolid } from "react-icons/lia";
 import Breadcrumb from "../../Breadcrumb";
 import "../../../styles/AlbaStyled.css";
+import Button from "../../ui/Button";
+import styled from "styled-components";
 
 
 const AlbaDetail = () => {
@@ -15,7 +17,12 @@ const AlbaDetail = () => {
   const [job, setJob] = useState(null); // 상세 데이터 상태
   const [relatedJobs, setRelatedJobs] = useState([]); // 관련 알바 데이터 상태
   const [user, setUser] = useState(null); // 사용자 데이터 상태
+  const [post, setPost] = useState(null);
 
+  const Location = styled.p`
+  margin: 8px 0 0;
+  color: #777;
+`;
   useEffect(() => {
     // 사용자 정보 로드 (로그인 상태 확인 및 사용자 역할 확인)
     const fetchUser = async () => {
@@ -63,6 +70,7 @@ const AlbaDetail = () => {
   ];
 
   const handleEdit = () => {
+    // 수정 버튼 클릭 시 수정 페이지로 이동
     navigate(`/alba/${id}/edit`);
   };
 
@@ -87,8 +95,10 @@ const AlbaDetail = () => {
 
       {/* 상세 영역 */}
       <div className="alba-detail-container">
+        
         {/* 좌측 영역 */}
         <div className="detail-left">
+          
           <img
             src={job.image != null ? job.image.url : "default-image.png"}
             alt={job.title}
@@ -97,20 +107,27 @@ const AlbaDetail = () => {
           <div className="profile-info">
             <h2>{job.title}</h2>
             <p>시급: {job.wage}</p>
+
+        <Button type="edit-button" title="수정" variant="gray" onClick={handleEdit}/>
+        <Button type="delete-button" title="삭제" variant="danger" onClick={handleDelete}/>
           </div>
+        
         </div>
 
         {/* 우측 영역 */}
+      
         <div className="detail-right">
+        
           <div className="detail-body">
             <h2>{job.title}</h2>
+            
             <p><LiaWonSignSolid /> {job.wageType} {job.wage}</p>
             <p><HiOutlineLocationMarker /> {job.workPlace}</p>
             <p><ImCalendar /> {job.workDays}</p>
             <p><ImAlarm /> {job.workTime.start}~{job.workTime.end}</p>
 
             <h2>상세 내용</h2>
-            <p>{job.description}</p>
+            <pre>{job.description}</pre>
           </div>
 
           {/* 수정 및 삭제 버튼 (작성자와 관리자만 볼 수 있음) */}
@@ -125,14 +142,16 @@ const AlbaDetail = () => {
             <iframe
               title="location"
               src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                job.location
+                job.workPlace
               )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
               className="map-frame"
             ></iframe>
           </div>
           {job.workPlace}
         </div>
+        
       </div>
+      
 
       {/* 하단 관련 알바 리스트 */}
       <div className="related-jobs">
@@ -146,7 +165,8 @@ const AlbaDetail = () => {
                 onClick={() => navigate(`/alba/${item._id}`)}
               >
                 <h4>{item.title}</h4>
-                <p>위치: {item.location}</p>
+                
+                <p>위치: {item.workPlace}</p>
                 <p>시급: {item.wage}</p>
                 <p>
                   근무 시간: {item.workTime?.start} ~ {item.workTime?.end}
