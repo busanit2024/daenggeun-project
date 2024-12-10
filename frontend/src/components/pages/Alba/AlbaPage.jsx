@@ -8,6 +8,8 @@ import AlbaListItem from "../../alba/AlbaListItem";
 import RoundFilter from "../../ui/RoundFilter";
 import Breadcrumb from "../../Breadcrumb";
 import SearchBar from "../../ui/SearchBar";  
+import Radio from "../../ui/Radio";
+
 const HorizontalContainer = styled.div`
 display: flex;
 gap: 8px;
@@ -257,8 +259,8 @@ export default function AlbaPage(props) {
             <div className="filterList">
               {workTypeData.map((item) => (
                 <div key={item.id}>
-                  <input
-                    type="checkbox"
+                  <Radio
+                    type="radio"
                     id={item.name}
                     name="workType"
                     value={item.name}
@@ -276,7 +278,7 @@ export default function AlbaPage(props) {
             <div className="filterList">
               {categoryData.map((item) => (
                 <div key={item.name}>
-                  <input
+                  <Radio
                     type="radio"
                     id={item.name}
                     name="category"
@@ -333,9 +335,10 @@ export default function AlbaPage(props) {
             </div>
           </div>
         </FilterBarContainer>
-
         {/* 알바 리스트 컨테이너 */}
+
         <ListContainer>
+
           {(category !== 'all' || workType.length > 0 || workDays.length > 0 || workTime.start || workTime.end || searchTerm.trim() !== "" || selectedRegion !== "" || selectedDong !== "") &&
             <FilterContainer>
               {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
@@ -350,8 +353,11 @@ export default function AlbaPage(props) {
               {selectedRegion && <RoundFilter title={selectedRegion} variant='search' cancelIcon onClick={() => setSelectedRegion("")} />}
               {selectedDong && <RoundFilter title={selectedDong} variant='search' cancelIcon onClick={() => setSelectedDong("")} />}
               {searchTerm.trim() !== "" && <RoundFilter title={`검색어: ${searchTerm}`} variant='search' cancelIcon onClick={() => setSearchTerm("")} />}
+                
             </FilterContainer>
+            
           }
+          
 
           {albaList.length === 0 && (
             <NoSearchResult>
@@ -367,6 +373,8 @@ export default function AlbaPage(props) {
           {itemsToShow < albaList.length && (
             <Button title="더보기" onClick={handleShowMore} />
           )}
+                  <Button title="글쓰기" variant="primary" onClick={() => navigate("/alba/create")}></Button>
+
         </ListContainer>
       </InnerContainer>
     </Container>

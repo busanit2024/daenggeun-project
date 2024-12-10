@@ -8,6 +8,8 @@ import { LiaWonSignSolid } from "react-icons/lia";
 import Breadcrumb from "../../Breadcrumb";
 import "../../../styles/AlbaStyled.css";
 import Button from "../../ui/Button";
+import styled from "styled-components";
+
 
 const AlbaDetail = () => {
   const { id } = useParams(); // URL에서 id 가져오기
@@ -17,6 +19,10 @@ const AlbaDetail = () => {
   const [user, setUser] = useState(null); // 사용자 데이터 상태
   const [post, setPost] = useState(null);
 
+  const Location = styled.p`
+  margin: 8px 0 0;
+  color: #777;
+`;
   useEffect(() => {
     // 사용자 정보 로드 (로그인 상태 확인 및 사용자 역할 확인)
     const fetchUser = async () => {
@@ -114,6 +120,7 @@ const AlbaDetail = () => {
         
           <div className="detail-body">
             <h2>{job.title}</h2>
+            
             <p><LiaWonSignSolid /> {job.wageType} {job.wage}</p>
             <p><HiOutlineLocationMarker /> {job.workPlace}</p>
             <p><ImCalendar /> {job.workDays}</p>
@@ -158,6 +165,7 @@ const AlbaDetail = () => {
                 onClick={() => navigate(`/alba/${item._id}`)}
               >
                 <h4>{item.title}</h4>
+                
                 <p>위치: {item.workPlace}</p>
                 <p>시급: {item.wage}</p>
                 <p>

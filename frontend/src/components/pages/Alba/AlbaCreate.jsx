@@ -10,6 +10,7 @@ import styled from "styled-components";
 import axios from "axios";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
+import LocationSearchModal from "../../ui/LocationSearchModal";
 
 export const DongneSelectContainer = styled.div`
   display: flex;
@@ -62,7 +63,6 @@ const AlbaCreate = () => {
     contactNumber: "", // 연락처 추가
     doNotContact: false // 연락 받지 않기 체크박스 추가
   });
-  const [regionData, setRegionData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [wageTypeData, setWageTypeData] = useState([]); // 급여 유형 데이터 추가
   const [workPeriodData, setWorkPeriodData] = useState([]); // 일하는 기간 데이터 추가
@@ -374,6 +374,7 @@ useEffect(() => {
         />
       <Item>
         <h3>지역</h3>
+        
         <DongneSelectContainer>
           <div style={{ fontSize: '20px', color: '#666666' }}>부산광역시</div>
           <DongneSelect value={form.location.sigungu} onChange={(e) => setForm({ ...form, location: { ...form.location, sigungu: e.target.value } })}>
@@ -514,7 +515,7 @@ useEffect(() => {
           <input type="file" name="image" onChange={handleImageChange} />
           {form.image && (
             <img
-              src={form.image?.url}
+              src={form.image}
               alt="업로드된 이미지"
               onError={(e) => {
                 e.target.onerror = null; // 무한 반복 방지
@@ -535,23 +536,23 @@ useEffect(() => {
 
         <div className="company-info">
           <h3 className="section-title">업체 정보</h3>
-          <InputText
+          
+          <h4>업체 주소</h4><InputText
+            name="workPlace"
+            placeholder="ex) 서울시 강남구 강남1로"
+            value={form.workPlace}
+            onChange={handleChange}
+          /><Button type="button"  title="주소 검색" variant="primary" onClick={handleAddressSearch} />
+          <h4>업체명</h4><InputText
             name="companyName"
-            placeholder="업체명"
+            placeholder="ex) 댕근마켓"
             value={form.companyName}
             onChange={handleChange}
           />
-          
-          <Button type="button" title="주소 검색" onClick={handleAddressSearch} />
-          <InputText
-            name="workPlace"
-            placeholder="일하는 장소"
-            value={form.workPlace}
-            onChange={handleChange}
-          />
+          <h4>연락처</h4>     
           <InputText
             name="contactNumber"
-            placeholder="연락처"
+            placeholder="010-xxxx-xxxx"
             value={form.contactNumber}
             onChange={handleChange}
           />

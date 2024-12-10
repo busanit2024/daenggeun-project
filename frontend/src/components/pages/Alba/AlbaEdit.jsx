@@ -320,7 +320,7 @@ console.log("payload 결과는? ", payload);
           <h3 className="section-title">이미지 업로드</h3>
           {form.image && (
             <img
-              src={form.image}
+              src={form.image?.url}
               alt="현재 이미지"
               style={{ width: "150px", height: "150px", objectFit: "cover", marginBottom: "10px" }}
             />
