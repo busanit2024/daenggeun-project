@@ -38,7 +38,6 @@ public class UserService {
     }
 
 
-
     public User saveUserProfile(String id, String username, List<Location> userLocation, Image profileImage) {
         Optional<User> optionalUser = userRepository.findById(id); // id로 사용자 찾기
         if (optionalUser.isPresent()) {

@@ -46,10 +46,12 @@ export const Item = styled.div`
 
 const libraries = ['places'];
 
+const id = sessionStorage.getItem('uid');
 
 const AlbaCreate = () => {
   const [form, setForm] = useState({
     title: "",
+    userId: id,
     description: "",
     location: { sido: "부산광역시", sigungu: "", emd: "" }, // 로그인 구현될 때까지 임시 위치
     wage: "",
