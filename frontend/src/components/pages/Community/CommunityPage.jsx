@@ -80,8 +80,6 @@ const LoadingText = styled.div`
   }
 `;
 
-const libraries = ['places'];
-
 export default function CommunityPage(props) {
   const navigate = useNavigate();
   const [communityList, setCommunityList] = useState([]);
@@ -95,7 +93,6 @@ export default function CommunityPage(props) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState('');
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [ selectedCategory, setSelectedCategory]= useState("동네생활");
   const { location, setLocation } = useLocation();
 
