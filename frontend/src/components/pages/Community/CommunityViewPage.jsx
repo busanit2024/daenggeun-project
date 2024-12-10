@@ -9,6 +9,8 @@ import Button from "../../ui/Button";
 import styled from "styled-components";
 import FilterBar from "../../ui/FilterBar";
 import SearchBar from "../../ui/SearchBar";
+import { useLocation } from "react-router-dom";
+import { elapsedText } from "../../../utils/elapsedText";
 
 const Container = styled.div`
   display: flex;
@@ -43,9 +45,73 @@ const InnerContainer = styled.div`
   flex-grow: 1;
 `;
 
+const TagContainer = styled.div`
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666666;
+
+  & span {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+`;
+
 const ImageContainer = styled.div`
 
 `
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+`;
+
+const ProfileImage = styled.div`
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: #dcdcdc;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const MemberInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .name-wrap {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .name {
+    font-size: 16px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .nickname {
+    color: #666666;
+  }
+
+  .location {
+    color: #666666;
+  }
+
+  .desc {
+    color: #666666;
+  }
+
+`;
 
 
 const libraries = ['places'];
@@ -71,6 +137,22 @@ export default function CommunityViewPage(props) {
       });
 
     const currentLocation = useGeolocation(isJsApiLoaded);
+
+    const { member } = props;
+    const naviagte = useNavigate();
+    const location = useLocation();
+  
+    const handleClick = () => {
+      const currentPath = location.pathname;
+      const myId = sessionStorage.getItem('uid');
+      if (member?.userId === myId) {
+        naviagte('my');
+      } else if (currentPath.endsWith("members")) {
+        naviagte(`${currentPath}/${member?.userId}`);
+      } else {
+        naviagte(`members/${member?.userId}`);
+      }
+    }
     
 
     useEffect(() => {
@@ -166,6 +248,24 @@ export default function CommunityViewPage(props) {
                 </div>
                 </FilterBar>
                 <TextContainer>
+                <Wrapper>
+                <ProfileImage>
+                  {<img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt={member?.name} onError={(e) => e.target.src = '/images/defaultProfileImage.png'}/>}
+                </ProfileImage>
+                <MemberInfo>
+                  <div className="name-wrap">
+                    <div className="name">{member?.username ?? '이름'}</div>
+                  </div>
+                  <TagContainer>
+                    <span>
+                      <img height={16} src="/images/icon/location_gray.svg" alt="location" />
+                      {community.location?.emd ?? community.location?.sigungu ?? '위치 정보 없음'}
+                    </span>
+                    <span> · </span>
+                    {elapsedText(new Date(community.createdDate))}
+                  </TagContainer>
+                </MemberInfo>
+                </Wrapper>
                   <Title>{community.title}</Title>
                   <Content>{community.content}</Content>
                   <ImageContainer>
@@ -181,8 +281,6 @@ export default function CommunityViewPage(props) {
                   }
                 </ImageContainer>
                 </TextContainer>
-                
-                 {/* <CommunityDetail/> */}
             </InnerContainer>
         </Container>
         </>
