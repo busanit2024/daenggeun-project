@@ -48,16 +48,6 @@ const ProductInfo = styled.div`
   flex: 1;
 `;
 
-const ButtonWrapper = styled.div`
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    
-    &:hover {
-        background-color: #e55a13;
-    }
-`;
-
 const Title = styled.h1`
   font-size: 24px;
   margin-bottom: 10px;
@@ -197,12 +187,12 @@ const UsedTradeView = () => {
             {product.content}
           </Description>
 
-          <ButtonWrapper>
-            <Button 
-              title="거래하기" 
-              variant="primary" 
-              onClick={() => alert("거래를 시작합니다!")} />
-          </ButtonWrapper>
+          <Button 
+            title="거래하기" 
+            variant="primary" 
+            onClick={() => alert("거래를 시작합니다!")} 
+            style={{ width: "100%", marginTop: "20px" }}
+          />
         </ProductInfo>
 
       </ProductDetail>
