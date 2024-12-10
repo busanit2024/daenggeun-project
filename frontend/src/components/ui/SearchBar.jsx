@@ -29,8 +29,9 @@ const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCat
             setLocation({ sigungu, emd }); 
             setIsModalOpen(false);
             onSelect(selectedLocation); 
+
             if (typeof onSearch === 'function') {
-            onSearch(sigungu, emd);
+                onSearch(sigungu, emd);
             } else {
                 console.error("onSearch는 함수가 아닙니다.");
             }

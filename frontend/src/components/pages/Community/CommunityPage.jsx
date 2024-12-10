@@ -158,6 +158,13 @@ export default function CommunityPage(props) {
     });
   }, []);
 
+  // 필터나 지역 설정이 변경될 때마다 자동으로 검색 수행
+  useEffect(() => {
+    if (searchFilter.sigungu || searchFilter.emd || searchFilter.category !== "all") {
+      handleSearch(searchFilter.sigungu, searchFilter.emd);
+    }
+  }, [searchFilter]);
+
 
   const fetchCommunityList = async (page) => {
     try {
@@ -199,6 +206,7 @@ export default function CommunityPage(props) {
     setLocation({ sigungu, emd }); 
     setSearchFilter({ ...searchFilter, sigungu, emd }); 
     handleSearch(sigungu, emd); 
+    fetchCommunityList(0);
   };
 
 
