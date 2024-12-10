@@ -4,11 +4,11 @@ import { Outlet, useNavigate, useParams } from "react-router-dom";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
-import SearchBar from "../../ui/SearchBar";
 import Modal from "../../ui/Modal";
 import Button from "../../ui/Button";
 import styled from "styled-components";
 import FilterBar from "../../ui/FilterBar";
+import SearchBar from "../../ui/SearchBar";
 
 const Container = styled.div`
   display: flex;
@@ -52,7 +52,7 @@ const libraries = ['places'];
 
 export default function CommunityViewPage(props) {
     const navigate = useNavigate();
-    const [post, setPost] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
     const [searchFilter, setSearchFilter] = useState({ sido: "부산광역시", sigungu: "", emd: "", category: "all", sort: "" });
     const [categoryData, setCategoryData] = useState([]);
     const [busanJuso, setBusanJuso] = useState([]);
@@ -71,6 +71,7 @@ export default function CommunityViewPage(props) {
       });
 
     const currentLocation = useGeolocation(isJsApiLoaded);
+    
 
     useEffect(() => {
         fetchPost();
@@ -142,7 +143,7 @@ export default function CommunityViewPage(props) {
 
     return (
         <>
-        <SearchBar />
+        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <Breadcrumb routes={routes} />
         <Container>
             <InnerContainer>

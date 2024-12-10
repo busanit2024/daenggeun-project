@@ -87,6 +87,7 @@ export default function CommunityPage(props) {
   const navigate = useNavigate();
   const [communityList, setCommunityList] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchFilter, setSearchFilter] = useState({ sido: "부산광역시", sigungu: "", emd: "", category: "all", sort: "" });
   const [busanJuso, setBusanJuso] = useState([]);
   const [emdList, setEmdList] = useState([]);
@@ -189,7 +190,7 @@ export default function CommunityPage(props) {
 
   return (
     <>
-    <SearchBar />
+    <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
     <Breadcrumb routes={routes} />
     <Container>
       <HeadContainer>
