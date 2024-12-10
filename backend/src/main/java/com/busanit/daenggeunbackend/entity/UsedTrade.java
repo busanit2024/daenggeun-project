@@ -1,6 +1,7 @@
 package com.busanit.daenggeunbackend.entity;
 
 import com.busanit.daenggeunbackend.domain.Image;
+import com.busanit.daenggeunbackend.domain.Location;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,7 +21,7 @@ public class UsedTrade {
     private String name;    // 상품명
     private String category;    // 카테고리
     private int price;  // 가격
-    private String location;    // 거래 위치
+    private Location location;    // 거래 위치
     @CreatedDate
     private LocalDateTime createdDate;  // 생성일
     private String content; // 상세설명

@@ -91,8 +91,46 @@ const FilterItem = styled.div`
   margin-bottom: 16px;
 `;
 
+const CustomSelect = styled.select`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 16px;
+`;
+
+const EmdFilterWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+  gap: 8px;
+  max-height: ${(props) => (props.open ? '360px' : '160px')};
+  overflow-y: ${(props) => (props.open ? 'auto' : 'hidden')};
+  width: 100%;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #dcdcdc;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #f9f9f9;
+  }
+`;
+
+const MoreFilterButton = styled.div`
+  cursor: pointer;
+  color: #FF7B07;
+  font-size: 16px;
+`;
+
 const UsedTrade = () => {
   const location = useLocation();
+  const [busanJuso, setBusanJuso] = useState([]);
   const [trades, setTrades] = useState([]); // 중고거래 목록 상태
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -106,8 +144,22 @@ const UsedTrade = () => {
     tradeable: false // 거래 가능 여부
   });
   const [visibleCount, setVisibleCount] = useState(3); // 처음 보이는 카드 수
+  const [emdList, setEmdList] = useState([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const navigate = useNavigate();
+
+  const libraries = ['places'];
+
+  const { isLoaded: isJsApiLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: libraries,
+    language: 'ko',
+    region: 'KR',
+  });
+
+  const currentLocation = useGeolocation(isJsApiLoaded);
   
   useEffect(() => {
     const fetchTrades = async () => {
@@ -137,7 +189,20 @@ const UsedTrade = () => {
     };
 
     fetchTrades();
-  }, [categoryData, location.search]);
+  }, [location.search]);
+
+  useEffect(() => {
+    if (currentLocation.sigungu) {
+      setSearchFilter(prev => ({
+        ...prev,
+        sido: currentLocation.sido,
+        sigungu: currentLocation.sigungu,
+      }));
+      handleFilterChange({
+        target: { name: "sigungu", value: currentLocation.sigungu }
+      });
+    }
+  }, [currentLocation]);
 
   useEffect(() => {
     fetchFilteredUsedTrades();
@@ -147,8 +212,11 @@ const UsedTrade = () => {
     try {
       console.log("필터 요청 데이터: ", {
         category: searchFilter.category === "all" ? undefined : searchFilter.category,
-          sort: searchFilter.sort,
-          tradeable: searchFilter.tradeable
+        sort: searchFilter.sort,
+        tradeable: searchFilter.tradeable,
+        search: searchTerm,
+        sigungu: searchFilter.sigungu,
+        emd: searchFilter.emd,
       });
 
       const response = await axios.get('/api/usedTrades', {
@@ -157,18 +225,29 @@ const UsedTrade = () => {
           sort: searchFilter.sort,
           tradeable: searchFilter.tradeable ? true : null,
           search: searchTerm,
+          sigungu: searchFilter.sigungu,
+          emd: searchFilter.emd,
         },
       });
       console.log("필터링된 거래 데이터: ", response.data);
       setTrades(response.data);
     } catch (error) {
       console.error('Error fetching filtered usedTrades:', error);
+      console.error('Error fetching filtered usedTrades:', error.response ? error.response.data : error.message);
     }
   };
 
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
     console.log("필터 변경: ", name, value);
+
+    if (name === "sigungu") {
+      // sigungu가 변경될 때 emd 리스트 같이 업데이트
+      const emdList = busanJuso.find((item) => item.sigungu === value)?.emd;
+      const emdNameList = emdList?.map((item) => item.emd);
+      setEmdList(emdNameList);
+    }
+
     setSearchFilter((prevFilter) => ({
       ...prevFilter,
       [name]: type === "checkbox" ? checked : value,
@@ -211,6 +290,60 @@ const UsedTrade = () => {
                     style={{ marginRight: "5px" }}
                   />
                   거래 가능만 보기
+                </label>
+              </FilterItem>
+              <hr style={{ borderTop: "1px solid rgba(0, 0, 0, 0.1" }}/>
+              <FilterItem>
+                <label style={{ alignItems: "center", gap: "10px" }}>
+                  <h4 style={{ margin: 0 }}>
+                    위치
+                    <CustomSelect
+                      name="sigungu"
+                      value={searchFilter.sigungu}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">전지역</option>
+                      {busanJuso.map((item) => (
+                        <option key={item.sigungu} value={item.sigungu}>{item.sigungu}</option>
+                      ))}
+                    </CustomSelect>
+                  </h4>
+                  <div className="filterList">
+                    <p>{searchFilter.sido}</p>
+                    <label className="radioWrap">
+                      <Radio
+                        name="gu"
+                        value={searchFilter.sigungu}
+                        checked={searchFilter.emd === ''}
+                        onChange={() => setSearchFilter({ ...searchFilter, emd: '' })}
+                      />
+                      {searchFilter.sigungu === '' ? "전지역" : searchFilter.sigungu}
+                    </label>
+                      <EmdFilterWrap open={isFilterOpen}>
+                      {searchFilter.emd !== '' && (
+                        <label className="radioWrap">
+                          <Radio name="dong" value="" checked onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
+                          {searchFilter.emd}
+                        </label>
+                      )}
+                      {emdList && searchFilter.emd === '' && emdList.map((dong) => (
+                        <label key={dong} className="radioWrap">
+                          <Radio
+                            name="dong"
+                            value={dong}
+                            checked={searchFilter.emd === dong}
+                            onChange={() => setSearchFilter({ ...searchFilter, emd: dong })}
+                          />
+                          {dong}
+                        </label>
+                          ))}
+                        </EmdFilterWrap>
+                          {emdList && emdList.length > 5 && searchFilter.emd === '' && (
+                            <MoreFilterButton className="toggle" onClick={() => setIsFilterOpen(!isFilterOpen)}>
+                              {isFilterOpen ? "접기" : "더보기"}
+                            </MoreFilterButton>
+                          )}
+                  </div>
                 </label>
               </FilterItem>
               <hr style={{ borderTop: "1px solid rgba(0, 0, 0, 0.1" }}/>
