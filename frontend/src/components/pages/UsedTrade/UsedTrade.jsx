@@ -9,18 +9,21 @@ import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
 import SearchBar from "../../ui/SearchBar";
+import Modal from "../../ui/Modal";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
   width: 100%;
+  height: 100%;
   padding: 2vw;
+  min-height: 150vh;
 `;
 
 const Content = styled.div`
   display: flex;
   flex: 1;
+  height: 100%;
   padding: 2vw; /* 화면 크기에 따라 여백 자동 조정 */
   gap: 1vw;
   width: 100%;
@@ -54,6 +57,10 @@ const Header = styled.div`
 
 const Main = styled.main`
   flex: 1; /* 남은 공간을 차지 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 0;
 `;
 
 const Title = styled.h1`
@@ -71,7 +78,6 @@ const CardGrid = styled.div`
 const FilterContainer = styled.div`
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   max-height: 100%;
   padding: 10px;
   margin-bottom: 16px;
@@ -101,6 +107,8 @@ const UsedTrade = () => {
   });
   
   const [ selectedCategory, setSelectedCategory]= useState("중고거래");
+  const [visibleCount, setVisibleCount] = useState(3); // 처음 보이는 카드 수
+
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -181,6 +189,10 @@ const UsedTrade = () => {
   const filteredTrades = searchTerm ? trades.filter(trade => 
     trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
   ) : trades;
+
+  const handleLoadMore = () => {
+    setVisibleCount(prevCount => prevCount + 3);  // 3개씩 추가
+  };
 
   return (
     <Container>
@@ -287,7 +299,7 @@ const UsedTrade = () => {
           </Header>
           <CardGrid>
             {filteredTrades.length > 0 ? (
-              filteredTrades.map((usedTrade) => (
+              filteredTrades.slice(0, visibleCount).map((usedTrade) => (
                 <Card 
                   key={usedTrade.id}
                   title={usedTrade.name}
@@ -309,6 +321,13 @@ const UsedTrade = () => {
               <p>중고 거래가 없습니다.</p>
             )}
           </CardGrid>
+          {filteredTrades.length > visibleCount && (
+            <Button 
+              title="더보기" 
+              onClick={handleLoadMore} 
+              style={{ marginTop: "20px" }}
+            />
+          )}
         </Main>
       </Content>
     </Container>
