@@ -14,8 +14,8 @@ import Modal from "../../ui/Modal";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
   width: 100%;
+  height: 100%;
   padding: 2vw;
   min-height: 100vh;
 `;
@@ -86,6 +86,10 @@ const FilterItem = styled.div`
   margin-bottom: 16px;
 `;
 
+const LoadMoreButton = styled(Button)`
+  margin: 16px 0;
+`;
+
 const UsedTrade = () => {
   const location = useLocation();
   const [trades, setTrades] = useState([]); // 중고거래 목록 상태
@@ -100,7 +104,8 @@ const UsedTrade = () => {
     sort: "recent",
     tradeable: false // 거래 가능 여부
   });
-  
+  const [visibleCount, setVisibleCount] = useState(3); // 처음 보이는 카드 수
+
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -181,6 +186,10 @@ const UsedTrade = () => {
   const filteredTrades = searchTerm ? trades.filter(trade => 
     trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
   ) : trades;
+
+  const handleLoadMore = () => {
+    setVisibleCount(prevCount => prevCount + 3);  // 3개씩 추가
+  };
 
   return (
     <Container>
@@ -286,7 +295,7 @@ const UsedTrade = () => {
           </Header>
           <CardGrid>
             {filteredTrades.length > 0 ? (
-              filteredTrades.map((usedTrade) => (
+              filteredTrades.slice(0, visibleCount).map((usedTrade) => (
                 <Card 
                   key={usedTrade.id}
                   title={usedTrade.name}
@@ -308,6 +317,9 @@ const UsedTrade = () => {
               <p>중고 거래가 없습니다.</p>
             )}
           </CardGrid>
+          {filteredTrades.length > visibleCount && (
+            <LoadMoreButton title="더보기" onClick={handleLoadMore} />
+          )}
         </Main>
       </Content>
     </Container>
