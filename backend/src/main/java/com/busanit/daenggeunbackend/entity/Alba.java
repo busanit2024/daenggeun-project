@@ -1,6 +1,7 @@
 package com.busanit.daenggeunbackend.entity;
 
 import com.busanit.daenggeunbackend.domain.Image;
+import com.busanit.daenggeunbackend.domain.Location;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +20,7 @@ public class Alba {
 
     @Id
     private String id; // 알바 ID
-    private String creatorId; // 작성자 ID
+    private String userID; // 작성자 ID
 
 
     private String title; // 제목
@@ -33,7 +34,7 @@ public class Alba {
     private String workPeriod; // 근무 기간 (1개월 이상/ 단기)
     private List<String> workDays; // 근무요일
     private WorkTime workTime; // 근무시간
-    private String location; // 위치
+    private Location location; // 위치
     private String companyName; // 업체명
     private String workPlace; // 일하는 장소
     private String contactNumber; // 연락처
