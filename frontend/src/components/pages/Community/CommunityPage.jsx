@@ -6,11 +6,10 @@ import FilterBar from "../../ui/FilterBar";
 import CommunityListItem from "../../community/CommunityListItem"
 import Button from "../../ui/Button";
 import RoundFilter from "../../ui/RoundFilter";
-import useGeolocation from "../../../utils/useGeolocation";
-import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
 import Modal from "../../ui/Modal";
 import SearchBar from "../../ui/SearchBar";
+import { useLocation } from "../../../context/LocationContext"; 
 
 const Container = styled.div`
   display: flex;
@@ -89,42 +88,17 @@ export default function CommunityPage(props) {
   const [categoryData, setCategoryData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchFilter, setSearchFilter] = useState({ sido: "부산광역시", sigungu: "", emd: "", category: "all", sort: "" });
-  const [busanJuso, setBusanJuso] = useState([]);
-  const [emdList, setEmdList] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState("");
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(true);
   const [loading, setLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState('');
 
-  const { isLoaded: isJsApiLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries: libraries,
-    language: 'ko',
-    region: 'KR',
-  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [ selectedCategory, setSelectedCategory]= useState("동네생활");
+  const { location, setLocation } = useLocation();
 
-  const currentLocation = useGeolocation(isJsApiLoaded);
-
-  useEffect(() => {
-    axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
-      setCategoryData(response.data.filters);
-    })
-      .catch((error) => {
-        console.error("카테고리를 불러오는데 실패했습니다." + error);
-      });
-
-    axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
-      setBusanJuso(response.data.locationFilters);
-    }).catch((error) => {
-      console.error("부산 주소를 불러오는데 실패했습니다." + error);
-    });
-  }, []);
-
-  useEffect(() => {
-    setSearchFilter({ ...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu });
-  }, [currentLocation]);
 
   useEffect(() => {
     setLoading(true);
@@ -137,17 +111,45 @@ export default function CommunityPage(props) {
   useEffect(() => {
     setLoading(true);
     setSearchFilter({ ...searchFilter, emd: '' });
-    getEmdList(searchFilter.sigungu);
     setIsFilterOpen(false);
-  }, [searchFilter.sigungu, busanJuso]);
+  }, [searchFilter.sigungu]);
+
+  useEffect(() => {
+    axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
+      setCategoryData(response.data.filters);
+    })
+    .catch((error) => {
+      console.error("카테고리를 불러오는데 실패했습니다." + error);
+    });
+  }, []);
+
+  // 필터나 지역 설정이 변경될 때마다 자동으로 검색 수행
+  useEffect(() => {
+    if (searchFilter.sigungu || searchFilter.emd || searchFilter.category !== "all") {
+      handleSearch(searchFilter.sigungu, searchFilter.emd);
+    }
+  }, [searchFilter]);
+
 
   const fetchCommunityList = async (page) => {
     try {
+      const sigungu = location.sigungu || '';
+      const emd = location.emd || '';
+      const category = searchFilter.category || 'all';
+      
+      console.log("요청 파라미터 :" , {
+        sigungu: location.sigungu || searchFilter.sigungu,
+          emd: location.emd || searchFilter.emd || '',
+          category: searchFilter.category,
+          page: page,
+          size: 10,
+      });
+
       const response = await axios.get(`api/community/search`, {
         params: {
-          sigungu: searchFilter.sigungu,
-          emd: searchFilter.emd,
-          category: searchFilter.category,          
+          sigungu,
+          emd : emd || undefined,
+          category,
           page: page,
           size: 10,
         }
@@ -162,13 +164,17 @@ export default function CommunityPage(props) {
     }
   };
 
-  const getEmdList = (gu) => {
-    if (busanJuso && gu) {
-      const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
-      const emdNameList = emdList?.map((item) => item.emd);
-      setEmdList(emdNameList);
-    }
-  }
+  const handleLocationSelect = (location) => {
+    console.log("선택된 위치 :", location);
+    const [sigungu, emd] = location.split(", "); 
+
+    setLocation({ sigungu, emd }); 
+    setSearchFilter({ ...searchFilter, sigungu, emd }); 
+    handleSearch(sigungu, emd); 
+    fetchCommunityList(0);
+  };
+
+
 
   const handleMoreButton = () => {
     fetchCommunityList(page + 1);
@@ -183,6 +189,28 @@ export default function CommunityPage(props) {
     }
   };
 
+  const handleSearch = async (sigungu, emd) => {
+    setLoading(true);
+    try {
+        const response = await axios.get(`/api/community/search`, {
+            params: {
+                sigungu: location.sigungu || searchFilter.sigungu,
+                emd: location.emd || searchFilter.emd || undefined,
+                category: searchFilter.category,
+                searchTerm: searchTerm,
+                page: 0, // 첫 페이지로 검색
+                size: 10, // 한 번에 가져올 데이터 수
+            }
+        });
+        setCommunityList(response.data.content); // 검색 결과 업데이트
+        setHasNext(!response.data.last); // 다음 페이지 여부 업데이트
+    } catch (error) {
+        console.error("검색 중 오류가 발생했습니다.", error);
+    } finally {
+        setLoading(false);
+    }
+  };
+
   const routes = [
     { path: "/", name: "홈" },
     { path: "/community", name: "동네생활" },
@@ -190,11 +218,13 @@ export default function CommunityPage(props) {
 
   return (
     <>
-    <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+    <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
+        selectedCategory={selectedCategory}  setSelectedCategory={setSelectedCategory} onSelect={handleLocationSelect}
+        onSearch={handleSearch} />
     <Breadcrumb routes={routes} />
     <Container>
       <HeadContainer>
-      <h2>{`${searchFilter.sido} ${searchFilter.sigungu} ${searchFilter.emd} ${searchFilter.category === 'all' ? "" : searchFilter.category}`}{searchFilter.category === 'all' ? " 동네생활" : ""}</h2>
+      <h2>{`${searchFilter.sido} ${location.sigungu || searchFilter.sigungu} ${location.emd || ''} ${searchFilter.category === 'all' ? "" : searchFilter.category}`}{searchFilter.category === 'all' ? " 동네생활" : ""}</h2>
         <Button title="+ 글쓰기" variant="primary" onClick={handleCreateButton} />
       </HeadContainer>
       <InnerContainer>

@@ -132,8 +132,8 @@ export default function AlbaPage(props) {
       });
   }, []);
 
-  // 알바 리스트 데이터를 가져오기 위한 useEffect
-  useEffect(() => {
+   // 알바 리스트 데이터를 가져오기 위한 useEffect
+   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/api/alba`, {
@@ -179,6 +179,16 @@ export default function AlbaPage(props) {
     fetchData();
   }, [selectedRegion, selectedDong, category, workType, workDays, workTime, searchTerm]);
 
+
+  const handleLocationSelect = (selectedLocation) => {
+    const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+    setSelectedRegion(sigungu);
+    setSelectedDong(emd); 
+    console.log("Selected Region:", sigungu);
+    console.log("Selected Dong:", emd); 
+};
+
+
   const resetFilter = () => {
     setSelectedRegion("");
     setSelectedDong("");
@@ -210,19 +220,6 @@ export default function AlbaPage(props) {
     setWorkTime(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleRegionChange = (e) => {
-    setSelectedRegion(e.target.value);
-    setSelectedDong(""); // 구가 변경될 때 동 선택 초기화
-  };
-
-  const handleDongChange = (e) => {
-    setSelectedDong(e.target.value);
-  };
-
   const handleCategoryChange = (e) => {
     setCategory(e.target.value);
   };
@@ -230,6 +227,23 @@ export default function AlbaPage(props) {
   const handleShowMore = () => {
     setItemsToShow(prev => prev + 5);
   };
+
+
+  const filteredAlbaList = albaList.filter(alba => {
+    return (
+      // 지역 필터링
+      (!selectedRegion || alba.location.sigungu === selectedRegion) &&
+      (!selectedDong || alba.location.emd === selectedDong) &&
+      // 추가 필터링
+      (category === "all" || alba.category === category) &&
+      (workType.length === 0 || workType.includes(alba.workPeriod)) &&
+      (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
+      (!workTime.start || alba.workTimeStart >= workTime.start) &&
+      (!workTime.end || alba.workTimeEnd <= workTime.end) &&
+      // 검색어 필터링
+      (!searchTerm.trim() || alba.title.includes(searchTerm.trim()) || alba.description.includes(searchTerm.trim()))
+    );
+  });
 
   const routes = [
     { path: "/", name: "홈" },
@@ -357,7 +371,6 @@ export default function AlbaPage(props) {
             </FilterContainer>
             
           }
-          
 
           {albaList.length === 0 && (
             <NoSearchResult>
@@ -366,7 +379,7 @@ export default function AlbaPage(props) {
             </NoSearchResult>
           )}
 
-          {albaList.slice(0, itemsToShow).map((alba) => (
+          {filteredAlbaList.slice(0, itemsToShow).map((alba) => (
             <AlbaListItem key={alba.id} alba={alba} />
           ))}
 

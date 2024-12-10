@@ -34,52 +34,52 @@ import MemberProfile from './components/group/MemberProfile';
 import SetProfilePage from './components/pages/Login/SetProfilePage';
 import JoinRequest from './components/group/JoinRequest';
 import GroupAlbum from './components/group/GroupAlbum';
+import { LocationProvider } from './context/LocationContext';
 
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<MainPage />} />
+      <LocationProvider>
+        <Router>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<MainPage />} />
 
-            <Route path="group" element={<GroupPage />} />
-            <Route path="group/:groupId" element={<GroupViewPage />}>
-              <Route path="" element={<GroupView />} />
-              <Route path="members" element={<GroupMembers />} />
-              <Route path='members/:memberId' element={<MemberProfile />} />
-              <Route path="my" element={<MemberProfile />} />
-              <Route path="schedule" element={<GroupSchedules />} />
-              <Route path="board" element={<GroupBoard />} />
-              <Route path="requests" element={<JoinRequest />} />
-              <Route path='album' element={<GroupAlbum />} />
-            </Route>
-            <Route path="group/create" element={<GroupCreatePage />} />
-            <Route path="group/:groupId/edit" element={<GroupEditPage />} />
+              <Route path="group" element={<GroupPage />} />
+              <Route path="group/:groupId" element={<GroupViewPage />}>
+                <Route path="" element={<GroupView />} />
+                <Route path="members" element={<GroupMembers />} />
+                <Route path='members/:memberId' element={<MemberProfile />} />
+                <Route path="my" element={<MemberProfile />} />
+                <Route path="schedule" element={<GroupSchedules />} />
+                <Route path="board" element={<GroupBoard />} />
+                <Route path="requests" element={<JoinRequest />} />
+                <Route path='album' element={<GroupAlbum />} />
+              </Route>
+              <Route path="group/create" element={<GroupCreatePage />} />
+              <Route path="group/:groupId/edit" element={<GroupEditPage />} />
 
-            <Route path="alba" element={<AlbaPage />} />
-            <Route path="alba/create" element={<AlbaCreate />} />
-            <Route path="alba/:id" element={<AlbaDetail />} />
-            <Route path="alba/:id/edit" element={<AlbaEdit />} />
+              <Route path="alba" element={<AlbaPage />} />
+              <Route path="alba/create" element={<AlbaCreate />} />
+              <Route path="alba/:id" element={<AlbaDetail />} />
+              <Route path="alba/:id/edit" element={<AlbaEdit />} />
 
-            <Route path="usedTrade/used-trade" element={<UsedTrade />} />
-            <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
-            <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
-            <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
-            <Route path="login" element={<LoginPage />} />
+              <Route path="usedTrade/used-trade" element={<UsedTrade />} />
+              <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
+              <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
+              <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
+              <Route path="login" element={<LoginPage />} />
 
             <Route path="community" element={<CommunityPage />} />
             <Route path="community/write" element={<CommunityWritePage />} />
             <Route path="community/:communityId" element={<CommunityViewPage />} />
 
-            <Route path="setProfile/:userId" element={<SetProfilePage />} />
-          </Route>
-        </Routes>
-      </Router>
-
+              <Route path="setProfile/:userId" element={<SetProfilePage />} />
+            </Route>
+          </Routes>
+        </Router>
+      </LocationProvider>
     </AuthProvider>
   );
 };
