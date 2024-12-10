@@ -108,12 +108,13 @@ const UsedTradeUpdate = () => {
 
     const [isPriceNegotiable, setIsPriceNegotiable] = useState(false);
     const [name, setName] = useState(product.name || "상품명이 없습니다.");
+    const [createdDate, setCreatedDate] = useState(product.createdDate);
     const [price, setPrice] = useState(product.price ? product.price.toString() : "");
     const [content, setContent] = useState(product.content || "상세 설명이 없습니다.");
     const [locationInput, setLocationInput] = useState(product.location || "위치 정보가 없습니다.");
 
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState("여성의류");
+    const [selectedCategory, setSelectedCategory] = useState(product.category || null);
     const [selectedTradeType, setSelectedTradeType] = useState("판매하기");
 
     useEffect(() => {
@@ -130,6 +131,8 @@ const UsedTradeUpdate = () => {
                 setContent(data.content);
                 setLocationInput(data.location);
                 setIsPriceNegotiable(data.isPriceNegotiable);
+                setCreatedDate(data.createdDate);
+                setSelectedCategory(data.category);
             } catch (error) {
                 console.error('Error fetching product:', error);
             }
@@ -143,6 +146,8 @@ const UsedTradeUpdate = () => {
             setContent(product.content);
             setLocationInput(product.location);
             setIsPriceNegotiable(product.isPriceNegotiable);
+            setCreatedDate(product.createdDate);
+            setSelectedCategory(product.category);
         }
     }, [id, product]);
 
@@ -156,6 +161,7 @@ const UsedTradeUpdate = () => {
             isPriceNegotiable,
             category: selectedCategory,
             tradeType: selectedTradeType,
+            createdDate: createdDate,
         };
 
         try {
@@ -181,10 +187,13 @@ const UsedTradeUpdate = () => {
 
     const handlePriceChange = (e) => {
         let value = e.target.value.replace(/[^0-9]/g, "");
-        if (value) {
-            value = Number(value).toLocaleString();
-        }
+
         setPrice(value);
+
+        if (value) {
+            const formattedValue = Number(value).toLocaleString();
+            e.target.value = formattedValue;
+        }
     };
 
     const formattedPrice = new Intl.NumberFormat('ko-KR').format(price);    // 가격 포맷팅하기
@@ -243,17 +252,68 @@ const UsedTradeUpdate = () => {
                         }}>
                             None
                         </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("여성의류")}>
-                            여성의류
-                        </CategoryItem>
                         <CategoryItem onClick={() => selectCategory("디지털기기")}>
                             디지털기기
                         </CategoryItem>
                         <CategoryItem onClick={() => selectCategory("생활가전")}>
                             생활가전
                         </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("가구/인테리어")}>
+                            가구/인테리어
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("생활/주방")}>
+                            생활/주방
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("가구/인테리어")}>
+                            가구/인테리어
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("유아동")}>
+                            유아동
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("유아도서")}>
+                            유아도서
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("여성의류")}>
+                            여성의류
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("여성잡화")}>
+                            여성잡화
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("남성패션/잡화")}>
+                            남성패션/잡화
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("뷰티/미용")}>
+                            뷰티/미용
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("스포츠/레저")}>
+                            스포츠/레저
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("취미/게임/음반")}>
+                            취미/게임/음반
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("도서")}>
+                            도서
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("티켓/교환권")}>
+                            티켓/교환권
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("가공식품")}>
+                            가공식품
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("건강기능식품")}>
+                            건강기능식품
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("반려동물용품")}>
+                            반려동물용품
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("식물")}>
+                            식물
+                        </CategoryItem>
                         <CategoryItem onClick={() => selectCategory("기타")}>
                             기타
+                        </CategoryItem>
+                        <CategoryItem onClick={() => selectCategory("삽니다")}>
+                            삽니다
                         </CategoryItem>
                     </CategoryList>
                     </CategoryToggle>
@@ -350,6 +410,13 @@ const UsedTradeUpdate = () => {
                     <Button
                         title="취소하기"
                         variant="gray"
+                        onClick={() => {
+                            navigate(`/usedTrade/used-trade-view/${id}`);
+                        }}
+                    />
+                    <Button
+                        title="거래완료"
+                        variant="white"
                         onClick={() => {
                             navigate(`/usedTrade/used-trade-view/${id}`);
                         }}

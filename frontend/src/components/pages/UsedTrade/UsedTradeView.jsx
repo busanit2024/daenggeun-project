@@ -48,16 +48,6 @@ const ProductInfo = styled.div`
   flex: 1;
 `;
 
-const ButtonWrapper = styled.div`
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    
-    &:hover {
-        background-color: #e55a13;
-    }
-`;
-
 const Title = styled.h1`
   font-size: 24px;
   margin-bottom: 10px;
@@ -71,6 +61,12 @@ const Price = styled.p`
 const Description = styled.p`
   font-size: 16px;
   color: #555;
+`;
+
+const CategoryAndTime = styled.p`
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 10px;
 `;
 
 const MoreProducts = styled.div`
@@ -146,6 +142,27 @@ const UsedTradeView = () => {
 
   const formattedPrice = Intl.NumberFormat('ko-KR').format(product.price); // 가격 포맷팅하기
 
+  const timeAgo = (timestamp) => {
+    const now = new Date();
+    const postTime = new Date(timestamp);
+    const difference = Math.floor((now - postTime) / 1000); // 초 단위
+
+    const minutes = Math.floor(difference / 60);
+    const hours = Math.floor(difference / 3600);
+    const days = Math.floor(difference / 86400);
+    const weeks = Math.floor(difference / (86400 * 7));
+    const months = Math.floor(difference / (86400 * 30)); // 대략 30일로 계산
+    const years = Math.floor(difference / (86400 * 365)); // 대략 365일로 계산
+
+    if (difference < 60) return `${difference}초 전`;
+    if (minutes < 60) return `${minutes}분 전`;
+    if (hours < 24) return `${hours}시간 전`;
+    if (days < 7) return `${days}일 전`;
+    if (weeks < 4) return `${weeks}주 전`;
+    if (months < 12) return `${months}개월 전`;
+    return `${years}년 전`;
+};
+
   return (
     <Container>
       <Header>
@@ -161,18 +178,21 @@ const UsedTradeView = () => {
 
         <ProductInfo>
           <Title>{product.name}</Title>
+          <CategoryAndTime>
+            {product.category} | {timeAgo(product.createdDate)}
+          </CategoryAndTime>
           <Price>{formattedPrice} 원</Price>
 
           <Description>
             {product.content}
           </Description>
 
-          <ButtonWrapper>
-            <Button 
-              title="거래하기" 
-              variant="primary" 
-              onClick={() => alert("거래를 시작합니다!")} />
-          </ButtonWrapper>
+          <Button 
+            title="거래하기" 
+            variant="primary" 
+            onClick={() => alert("거래를 시작합니다!")} 
+            style={{ width: "100%", marginTop: "20px" }}
+          />
         </ProductInfo>
 
       </ProductDetail>
