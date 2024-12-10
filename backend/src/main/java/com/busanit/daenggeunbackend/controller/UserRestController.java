@@ -44,6 +44,10 @@ public class UserRestController {
         return userService.findUserByPhone(phone).orElse(null);
     }
 
+    @GetMapping("/find")
+    public User findUserUid(String uid){
+        return userService.findUserByUid(uid).orElse(null);
+    }
 
     @PostMapping("/join")
     public String joinUser(@RequestBody User user){

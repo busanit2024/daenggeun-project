@@ -1,5 +1,4 @@
 import { useOutletContext, useParams } from "react-router-dom";
-import { Container } from "./GroupPageLayout";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { calculateDate } from "../../utils/calculateDate";
@@ -8,7 +7,6 @@ import { FaEdit, FaPen } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
 import Button from "../ui/Button";
 import axios from "axios";
-
 
 const InnerContainer = styled.div`
   display: flex;
@@ -100,61 +98,43 @@ const DescContainer = styled.div`
   }
 `;
 
-const positionData = [
-  { enum: 'ADMIN', name: '모임장' },
-  { enum: 'MANAGER', name: '운영진' },
-  { enum: 'MEMBER', name: '일반멤버' },
-]
-
-export default function MemberProfile() {
-  const { group } = useOutletContext();
+export default function AlbaMemberProfile({userId}) {
   const { memberId } = useParams();
   const [member, setMember] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState('');
+  
+  
+  const id = memberId ?? sessionStorage.getItem('uid');
+  
+  useEffect( () => {
+    fetchMemberInfo(userId)
+   
+    // const member = group?.members.find((member) => member.userId === id);
+    // setMember(member);
+    // setNickname(member?.groupNickName);
+    // console.log(member);
+    
+  }, []);
 
-  useEffect(() => {
-    if (group && group.members) {
-      const id = memberId ?? sessionStorage.getItem('uid');
-      const member = group?.members.find((member) => member.userId === id);
-      setMember(member);
-      setNickname(member?.groupNickName);
-      console.log(member);
-    }
-  }, [group, memberId]);
 
-
-  const getPosition = (position) => {
-    return positionData.find((data) => data.enum === position)?.name;
-  }
-
-  const handleEditNickname = () => {
-    if (nickname === member?.groupNickName) {
-      return;
-    }
-
-    const newGroup = group;
-    newGroup.members = newGroup.members.map((m) => {
-      if (m.userId === member.userId) {
-        m.groupNickName = nickname;
-      }
-      return m;
-    });
-
-    setMember((prev) => ({ ...prev, groupNickName: nickname }));
-
-    axios.post(`/api/group/save`, newGroup).then((response) => {
+  const fetchMemberInfo = (userId) => {
+    console.log("userId",userId)
+    axios.get(`/user/find?uid=${userId}`).then((response) => {
       console.log(response.data);
-    }).catch((error) => {
-      console.error("닉네임 변경에 실패했습니다." + error);
-    });
+      setMember(response.data)
+      
+    })
+      .catch((error) => {
+        console.error("사용자 정보 불러오기에 실패했습니다." + error);
+      });    
+};
+  
 
-    setIsEditing(false);
-  }
 
 
   return (
-    <Container>
+    <>
       <InnerContainer>
         <ProfileContainer>
           <ProfilePic>
@@ -162,29 +142,15 @@ export default function MemberProfile() {
           </ProfilePic>
           <div className="nameWrap">
             <div className="name">{member?.username ?? '멤버이름'}
-             {member?.position !== 'MEMBER' && <img height={22} src={`/images/icon/group_${member?.position?.toLowerCase()}.svg`} alt={'멤버 직책'} />}
+             {member?.position !== 'MEMBER' && <img height={22} src={`/images/icon/group_${member?.position?.toLowerCase()}.svg`} alt={'매너온도'} />}
             </div>
-            {group.useNickname &&
-              <>
-                {!isEditing && (
-                  <div className="nickname">{member?.groupNickName ?? '모임 별명'}
-                    <FaPen onClick={() => setIsEditing(true)} />
-                  </div>
-                )}
-                {isEditing && (
-                  <div className="nickname-input">
-                    <InputText underline value={nickname} onChange={(e) => setNickname(e.target.value)} />
-                    <Button title={'변경'} onClick={handleEditNickname} />
-                    <Button title={'취소'} onClick={() => { setNickname(member?.groupNickName); setIsEditing(false); }} />
-                  </div>
-                )}
-              </>}
+           
 
 
           </div>
         </ProfileContainer>
 
-        <RecordContainer>
+        {/* <RecordContainer>
           <div className="recordItem">
             <div>게시글</div>
             <div>{member?.posts?.length ?? 0}</div>
@@ -203,14 +169,13 @@ export default function MemberProfile() {
           <div className="desc">소개글</div>
           <div className="moreinfo">
             <div>본인인증 완료</div>
-            <div>{getPosition(member?.position)}</div>
             <div>{calculateDate(member?.registeredDate)} 전에 가입</div>
             <div>{member?.location?.[0]?.emd ?? '지역'}</div>
           </div>
-        </DescContainer>
+        </DescContainer> */}
 
       </InnerContainer>
 
-    </Container>
+    </>
   );
 }
