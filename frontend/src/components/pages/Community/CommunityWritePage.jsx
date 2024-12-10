@@ -235,6 +235,8 @@ export default function CommunityWritePage(props) {
         setImage(prevImages => prevImages.filter((_, i) => i !== index));
     };
 
+    const userId = sessionStorage.getItem('uid');
+
     const writeCommunity = async () => {
         let imageInfo = null;
         try {
@@ -245,6 +247,7 @@ export default function CommunityWritePage(props) {
 
             const response = await axios.post("/api/community/save", {
                 ...input,
+                userId: userId,
                 images: imageInfo
             });
             alert("글이 작성되었습니다.");

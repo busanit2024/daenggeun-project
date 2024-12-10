@@ -6,7 +6,6 @@ import FilterBar from "../../ui/FilterBar";
 import CommunityListItem from "../../community/CommunityListItem"
 import Button from "../../ui/Button";
 import RoundFilter from "../../ui/RoundFilter";
-import Radio from "../../ui/Radio";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
@@ -82,44 +81,6 @@ const LoadingText = styled.div`
   }
 `;
 
-const CustomSelect = styled.select`
-  flex-grow: 1;
-  padding: 8px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  font-size: 16px;
-`;
-
-const EmdFilterWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 12px;
-  gap: 8px;
-  max-height: ${props => props.open ? '360px' : '160px'};
-  overflow-y: ${props => props.open ? 'auto' : 'hidden'};
-  width: 100%;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: #dcdcdc;
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background-color: #f9f9f9;
-  }
-
-`;
-
-const MoreFilterButton = styled.div`
-  cursor: pointer;
-  color: #FF7B07;
-  font-size: 16px;
-`;
-
 const libraries = ['places'];
 
 export default function CommunityPage(props) {
@@ -178,13 +139,6 @@ export default function CommunityPage(props) {
     getEmdList(searchFilter.sigungu);
     setIsFilterOpen(false);
   }, [searchFilter.sigungu, busanJuso]);
-
-  const resetFilter = () => {
-    setLoading(true);
-    setSearchFilter({...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu, emd: '', category: 'all', sort: ''});
-    setIsFilterOpen(false);
-    setPage(0);
-  }
 
   const fetchCommunityList = async (page) => {
     try {
