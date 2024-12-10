@@ -100,6 +100,7 @@ const UsedTrade = () => {
     tradeable: false // 거래 가능 여부
   });
   
+  const [ selectedCategory, setSelectedCategory]= useState("중고거래");
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -183,7 +184,8 @@ const UsedTrade = () => {
 
   return (
     <Container>
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} selectedCategory="중고거래" />
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
+        selectedCategory={selectedCategory}  setSelectedCategory={setSelectedCategory} />
       <Content>
         <Sidebar>
           <FilterContainer>

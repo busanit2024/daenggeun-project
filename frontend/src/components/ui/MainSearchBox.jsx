@@ -90,7 +90,7 @@ const SearchButton = styled.button`
   }
 `;
 
-const MainSearchBox = ({ searchTerm, setSearchTerm, selectedCategory }) => {
+const MainSearchBox = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCategory, onSearch }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [category, setCategory] = useState(selectedCategory);
     const navigate = useNavigate();
@@ -99,17 +99,24 @@ const MainSearchBox = ({ searchTerm, setSearchTerm, selectedCategory }) => {
 
     const handleCategorySelect = (category) => {
       setCategory(category);
+      setSelectedCategory(category);
       setIsDropdownOpen(false); 
     };
 
     const handleSearch = () => {
-        if (category === "중고거래") {
-            navigate(`/usedTrade/used-trade?search=${searchTerm}`);
-        } else if (category === "알바") {
-            navigate(`/alba?search=${searchTerm}`);
-        } else if (category === "동네생활") {
-            navigate(`/community?search=${searchTerm}`);
-        }
+      if (typeof onSearch === 'function') {
+        onSearch(searchTerm); 
+      } else {
+          console.error("onSearch는 함수가 아닙니다.");
+      };
+      
+      if (category === "중고거래") {
+          navigate(`/usedTrade/used-trade?search=${searchTerm}`);
+      } else if (category === "알바") {
+          navigate(`/alba?search=${searchTerm}`);
+      } else if (category === "동네생활") {
+          navigate(`/community?search=${searchTerm}`);
+      }
     }
 
     return (

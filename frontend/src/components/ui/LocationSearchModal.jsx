@@ -70,7 +70,7 @@ const NoResultsMessage = styled.div`
 
 const libraries = ['places'];
 
-const LocationSearchModal = ({ onSelect, onClose }) => {
+const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   const [locations, setLocations] = useState([]); // 지도 리스트
   const [busanJuso, setBusanJuso] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,7 +79,7 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries: ['places'],
+    libraries: libraries,
     language: 'ko',
     region: 'KR',
   });
@@ -135,6 +135,15 @@ const LocationSearchModal = ({ onSelect, onClose }) => {
     onSelect(selectedLocation); 
     setSearchTerm(""); 
     onClose(); 
+
+    if(selectedLocation){
+      const [sigungu, emd] = selectedLocation.split(",");
+      if (onSearch) {
+        onSearch(sigungu, emd); 
+      } else {
+          console.error("onSearch is not a function");
+      }
+    }
 };
 
 

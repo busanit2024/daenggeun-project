@@ -130,8 +130,8 @@ export default function AlbaPage(props) {
       });
   }, []);
 
-  // 알바 리스트 데이터를 가져오기 위한 useEffect
-  useEffect(() => {
+   // 알바 리스트 데이터를 가져오기 위한 useEffect
+   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/api/alba`, {
@@ -146,13 +146,37 @@ export default function AlbaPage(props) {
             searchTerm: searchTerm.trim() !== "" ? searchTerm : undefined,
           }
         });
-        setAlbaList(response.data);
+        console.log(response.data)
+        // 필터링 결과가 있는 경우에만 albaList를 업데이트
+        const filteredList = response.data.filter(alba => {
+
+          console.log("alba: ", alba);
+          console.log("workTime.start: ", workTime.start);
+          console.log("workTime.end: ", workTime.end);
+          console.log("alba.workTimeStart >= workTime.start: ", '"' + alba.workTimeStart + '"' >= '"' + workTime.start + '"');
+          console.log("alba.workTimeEnd <= workTime.end", '"' + alba.workTimeEnd + '"' >= '"' + workTime.end + '"');
+
+          return (
+            (!selectedRegion || alba.region === selectedRegion) &&
+            (!selectedDong || alba.dong === selectedDong) &&
+            (category === "all" || alba.category === category) &&
+            (workType.length === 0 || workType.includes(alba.workPeriod)) &&
+            (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
+            (!workTime.start || '"' + alba.workTimeStart + '"' >= '"' + workTime.start + '"') &&
+            (!workTime.end || '"' + alba.workTimeEnd + '"' >= '"' + workTime.end + '"') &&
+            (!searchTerm.trim() || alba.title.includes(searchTerm.trim()) || alba.description.includes(searchTerm.trim()))
+          );
+        });
+
+        console.log("filteredList: ", filteredList)
+        setAlbaList(filteredList);
       } catch (error) {
         console.error("알바 리스트를 불러오는데 실패했습니다." + error);
       }
     };
     fetchData();
   }, [selectedRegion, selectedDong, category, workType, workDays, workTime, searchTerm]);
+
 
   const handleLocationSelect = (selectedLocation) => {
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
