@@ -9,6 +9,7 @@ import Breadcrumb from "../../Breadcrumb";
 import "../../../styles/AlbaStyled.css";
 import Button from "../../ui/Button";
 import styled from "styled-components";
+import AlbaMemberProfile from "../../alba/AlbaMemberProfile";
 
 
 const AlbaDetail = () => {
@@ -38,6 +39,7 @@ const AlbaDetail = () => {
     const fetchJob = async () => {
       try {
         const response = await axios.get(`/api/alba/${id}`);
+        console.log("fetchjob",response.data)
         setJob(response.data);
       } catch (error) {
         console.error("글 조회 중 오류 발생:", error);
@@ -105,13 +107,13 @@ const AlbaDetail = () => {
             className="detail-image"
           />
           <div className="profile-info">
-            <h2>{job.title}</h2>
-            <p>시급: {job.wage}</p>
-
+            {/* <h2>{job.title}</h2>
+            <p>시급: {job.wage}</p> */}
+          <AlbaMemberProfile userId={job.userId}/>
+        
+          </div>
         <Button type="edit-button" title="수정" variant="gray" onClick={handleEdit}/>
         <Button type="delete-button" title="삭제" variant="danger" onClick={handleDelete}/>
-          </div>
-        
         </div>
 
         {/* 우측 영역 */}

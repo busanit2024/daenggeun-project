@@ -20,7 +20,7 @@ public class Alba {
 
     @Id
     private String id; // 알바 ID
-    private String userID; // 작성자 ID
+    private String userId; // 작성자 ID
 
 
     private String title; // 제목
