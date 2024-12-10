@@ -40,12 +40,13 @@ public class CommunityRestController {
 
     @GetMapping("/search")
     private Slice<CommunityDTO> searchCommunities(@RequestParam String sigungu,
-                                                  @RequestParam String emd,
+                                                  @RequestParam(required = false) String emd,
                                                   @RequestParam String category,
+                                                  @RequestParam String searchTerm,
                                                   @RequestParam int page,
                                                   @RequestParam int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return communityService.searchPage(sigungu, emd, category, pageable);
+        return communityService.searchPage(sigungu, emd != null ? emd : "", category, searchTerm, pageable);
     }
 
 }

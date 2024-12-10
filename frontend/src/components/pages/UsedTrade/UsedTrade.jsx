@@ -105,6 +105,8 @@ const UsedTrade = () => {
     sort: "recent",
     tradeable: false // 거래 가능 여부
   });
+  
+  const [ selectedCategory, setSelectedCategory]= useState("중고거래");
   const [visibleCount, setVisibleCount] = useState(3); // 처음 보이는 카드 수
 
   const navigate = useNavigate();
@@ -194,7 +196,8 @@ const UsedTrade = () => {
 
   return (
     <Container>
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
+        selectedCategory={selectedCategory}  setSelectedCategory={setSelectedCategory} />
       <Content>
         <Sidebar>
           <FilterContainer>
