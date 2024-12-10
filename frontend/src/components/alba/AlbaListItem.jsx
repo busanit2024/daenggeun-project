@@ -99,7 +99,7 @@ export default function AlbaListItem({ alba }) {
         <Title>{alba.title}</Title>
         <Location>
         {alba.companyName ? `${alba.companyName} · ` : ''}
-        {alba.location ? `${alba.location}· ` : ''}
+        {alba.location ? `${alba.location.emd}· ` : ''}
         {elapsedText(new Date(alba.createdAt))}
         </Location>
         <Category>{alba.wage}</Category>
