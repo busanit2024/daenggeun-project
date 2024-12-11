@@ -1,6 +1,7 @@
 import { FaExclamationCircle, FaRegComment } from "react-icons/fa";
 import { FaRegThumbsUp } from "react-icons/fa6";
 import styled from "styled-components";
+import { calculateDate } from "../../utils/calculateDate";
 
 const Wrapper = styled.div`
   display: flex;
@@ -18,6 +19,11 @@ const Wrapper = styled.div`
   .title {
     font-weight: normal;
     font-size: 16px;
+
+    -webkit-line-clamp: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: ellipsis;
   }
 `;
 
@@ -41,27 +47,27 @@ const Buttons = styled.div`
 `;
 
 export default function PostListItem (props) {
-  const { post } = props;
+  const { post, onClick } = props;
 
   return (
-    <Wrapper>
+    <Wrapper onClick={onClick}>
       {/* <div className="private"><FaExclamationCircle />모임에게만 공개된 게시글이에요.</div> */}
-      <div className="title">제목</div>
+      <div className="title">{post?.content ?? '게시글 내용'}</div>
 
       <Info>
-        <span>작성자</span>
+        <span>{post?.user?.username ?? '작성자'}</span>
         <span> · </span>
-        <span>작성일</span>
+        <span>{post?.createdDate ? calculateDate(post.createdDate) + ' 전' : '작성일' }</span>
         <span> · </span>
-        <span>게시판이름</span>
+        <span>{post?.board ?? '게시판이름'}</span>
       </Info>
 
       <Buttons>
         <div>
-          <FaRegThumbsUp />6
+          <FaRegThumbsUp /> {post?.likeUsers ? post.likeUsers.length : 0}
         </div>
         <div>
-          <FaRegComment />3
+          <FaRegComment /> {post?.comments ? post.comments.length : 0}
         </div>
         </Buttons>
 

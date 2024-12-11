@@ -143,6 +143,7 @@ function LoginPage() {
                 setUid(user.uid);
 
                 navigate("/"); // 기존 사용자 로그인 후 홈으로 이동
+                window.location.reload();
             } else {
                 // 새로운 사용자 추가
                 let uniqueCode;
