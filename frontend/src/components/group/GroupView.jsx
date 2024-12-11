@@ -1,11 +1,12 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MemberListItem from "./MemberListItem";
 import ScheduleListItem from "./ScheduleListItem";
 import PostListItem from "./PostListItem";
 import RoundFilter from "../ui/RoundFilter";
 import { Container, InnerContainer, GridContainer } from "./GroupPageLayout";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
+import axios from "axios";
 
 
 const AlbumContainer = styled.div`
@@ -24,7 +25,16 @@ const AlbumItem = styled.div`
   position: relative;
   cursor: pointer;
 
+  &:hover {
+    filter: brightness(0.9);
+
+    & img {
+      transform: scale(1.1);
+    }
+  }
+
   img {
+    transition: all 0.3s;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -48,8 +58,33 @@ const PostContainer = styled.div`
 
 export default function GroupView() {
   const naviagte = useNavigate();
-  const { group } = useOutletContext();
-  const [selectedBoard, setSelectedBoard] = useState('전체');
+  const { group, membersLoaded } = useOutletContext();
+  const [selectedBoard, setSelectedBoard] = useState('all');
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    if (!membersLoaded) return;
+    axios.get(`/api/group/board/${group.id}`, {params: {
+      boardName: selectedBoard,
+      page: 0,
+      size: 4,
+    }}).then((response) => {
+      const newPosts = response.data.content;
+      const postsWithUser = newPosts.map((post) => {
+        const user = group.members.find((member) => member.userId === post.userId);
+        return {
+          ...post,
+          user: user,
+        };
+      });
+      setPosts(postsWithUser);
+    }).catch((error) => {
+      console.error('게시글을 불러오는데 실패했습니다.' + error);
+    });
+  }, [group, membersLoaded, selectedBoard]);
+
+
+
 
   return (
     <Container>
@@ -61,18 +96,11 @@ export default function GroupView() {
           </Link>
         </div>
         <AlbumContainer>
-          <AlbumItem>
-            <img src="/images/default_group_image.jpg" alt="앨범 이미지" />
-          </AlbumItem>
-          <AlbumItem>
-            <img src="/images/default_group_image.jpg" alt="앨범 이미지" />
-          </AlbumItem>
-          <AlbumItem>
-            <img src="/images/default_group_image.jpg" alt="앨범 이미지" />
-          </AlbumItem>
-          <AlbumItem>
-            <img src="/images/default_group_image.jpg" alt="앨범 이미지" />
-          </AlbumItem>
+          {posts?.filter((post) => post?.images?.length > 0).slice(0, 4).map((post) => (
+            <AlbumItem key={post.id} onClick={() => naviagte(`board/${post.id}`)}>
+              <img src={post.images[0].url} alt={post.id} />
+            </AlbumItem>
+          ))}
         </AlbumContainer>
       </InnerContainer>
       <InnerContainer className="innerContainer">
@@ -110,16 +138,16 @@ export default function GroupView() {
           </Link>
         </div>
         <BoardContainer>
-          <RoundFilter title="전체" variant={selectedBoard === '전체' ? 'boardSelected' : 'board'} onClick={() => setSelectedBoard('전체')} />
+          <RoundFilter title="전체" variant={selectedBoard === 'all' ? 'boardSelected' : 'board'} onClick={() => setSelectedBoard('all')} />
           {group.boards?.map((board) => (
             <RoundFilter key={board} title={board} variant={selectedBoard === board ? 'boardSelected' : 'board'} onClick={() => setSelectedBoard(board)} />
 
           ))}
         </BoardContainer>
         <PostContainer>
-          <PostListItem />
-          <PostListItem />
-          <PostListItem />
+          {posts.map((post) => (
+            <PostListItem key={post.id} post={post} onClick={() => naviagte(`board/${post.id}`)} />
+          ))}
         </PostContainer>
 
       </InnerContainer>
