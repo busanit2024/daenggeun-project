@@ -154,7 +154,7 @@ export default function CommunityWritePage(props) {
         title: "",
         content: "",
         category: "",
-        location: { sido: "부산광역시", sigungu: "부산진구", emd: "부전동"}
+        location: { sido: "부산광역시", sigungu: "", emd: ""}
     });
 
     const [image, setImage] = useState([]);
@@ -192,21 +192,20 @@ export default function CommunityWritePage(props) {
     }, [input]);
 
     useEffect(() => {
-        getEmdList(input.location.sigungu);
-    }, [input.location.sigungu]);
-
-    const getEmdList = (sigungu) => {
-        if (busanJuso) {
-            const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
-            const emdNameList = emdList?.map((item) => item.emd);
-            setInput({ ...input, location: { ...input.location, emd: emdNameList[0] } });
-            setLocationData({ ...locationData, emd: emdNameList });
-        }
-    };
+      setSearchFilter({ ...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu });
+    }, [currentLocation]);
 
     useEffect(() => {
-        setSearchFilter({ ...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu });
-      }, [currentLocation]);
+      // 현재 위치가 로드되면 searchFilter를 업데이트합니다.
+      if (currentLocation) {
+          setSearchFilter(prevFilter => ({
+              ...prevFilter,
+              sido: currentLocation.sido,
+              sigungu: currentLocation.sigungu,
+              emd: currentLocation.emd // 현재 위치의 읍면동도 추가
+          }));
+      }
+    }, [currentLocation]);
 
     const validateInput = () => {
         const newCheck = { title: false, content: false, category: false};
@@ -261,20 +260,20 @@ export default function CommunityWritePage(props) {
     const categoryDescriptions = {
         "맛집": `${searchFilter.emd} 근처 맛집에 대한 이야기를 들려주세요.`,
         "반려동물": "귀여운 반려동물을 자랑해주세요. 잃어버린 동물은 [분실/실종]에 올려주세요.",
-        "운동": `${input.location.emd} 근처 이웃과 러닝, 헬스, 테니스 등 운동 이야기를 나눠보세요.`,
-        "생활/편의": `${input.location.emd} 근처 세탁소, 프린트, 청소업체 등 생활에 도움 되는 이야기를 들려주세요.`,
-        "분실/실종": `무언가를 잃어버리셨나요? ${input.location.emd} 근처 이웃에게 도움을 요청해부세요.`,
-        "병원/약국": `${input.location.emd} 근처 병원, 약국 정보를 나눠보세요.`,
+        "운동": `${searchFilter.emd} 근처 이웃과 러닝, 헬스, 테니스 등 운동 이야기를 나눠보세요.`,
+        "생활/편의": `${searchFilter.emd} 근처 세탁소, 프린트, 청소업체 등 생활에 도움 되는 이야기를 들려주세요.`,
+        "분실/실종": `무언가를 잃어버리셨나요? ${searchFilter.emd} 근처 이웃에게 도움을 요청해부세요.`,
+        "병원/약국": `${searchFilter.emd} 근처 병원, 약국 정보를 나눠보세요.`,
         "고민/사연": "고민을 나누고 따뜻한 위로를 받아요.",
-        "동네친구": `${input.location.emd} 근처에서 취미, 관심사가 비슷한 친구를 찾아봐요.`,
-        "이사/시공": `${input.location.emd} 근처 용달, 인테리어 시공 정보를 나눠보세요.`,
-        "주거/부동산": `${input.location.emd} 근처 부동산 정보, 거주 후기를 공유해보세요. 거래 게시글은 노출이 제한될 수 있어요.`,
+        "동네친구": `${searchFilter.emd} 근처에서 취미, 관심사가 비슷한 친구를 찾아봐요.`,
+        "이사/시공": `${searchFilter.emd} 근처 용달, 인테리어 시공 정보를 나눠보세요.`,
+        "주거/부동산": `${searchFilter.emd} 근처 부동산 정보, 거주 후기를 공유해보세요. 거래 게시글은 노출이 제한될 수 있어요.`,
         "교육": "학원, 과외, 교육과 관련된 이야기를 나눠보세요.",
         "취미": "취미생활에 대해 이야기를 나눠보세요.",
-        "동네사건사고": `${input.location.emd}에 일어난 사건사고를 이웃에게 공유해보세요. 잃어버린 동물은 [분실/실종]에 올려주세요.`,
-        "동네풍경":`${input.location.emd}에서 볼 수 있는 멋진 풍경과 매력을 이웃과 공유해보세요.`,
-        "미용": `${input.location.emd} 근처 헤어, 피부, 네일 등 미용 정보를 나눠보세요.`,
-        "임신/육아": `${input.location.emd} 근처 이웃과 임신, 육아 이야기를 나눠보세요.`,
+        "동네사건사고": `${searchFilter.emd}에 일어난 사건사고를 이웃에게 공유해보세요. 잃어버린 동물은 [분실/실종]에 올려주세요.`,
+        "동네풍경":`${searchFilter.emd}에서 볼 수 있는 멋진 풍경과 매력을 이웃과 공유해보세요.`,
+        "미용": `${searchFilter.emd} 근처 헤어, 피부, 네일 등 미용 정보를 나눠보세요.`,
+        "임신/육아": `${searchFilter.emd} 근처 이웃과 임신, 육아 이야기를 나눠보세요.`,
         "일반": "자유롭게 이야기를 나눠보세요.",
     }
 
@@ -311,7 +310,9 @@ export default function CommunityWritePage(props) {
 
             <Item>
                 <InputContainer full height="500px">
-                    <Textarea placeholder={`${input.location.emd} 이웃과 이야기를 나눠보세요.\n${categoryDescriptions[input.category]}`} onChange={(e) => setInput({ ...input, content: e.target.value })} />
+                    <Textarea placeholder={input.category
+        ? `${categoryDescriptions[input.category]}`
+        : `${searchFilter.emd} 이웃과 이야기를 나눠보세요.\n#맛집 #반려동물 #미용...`} onChange={(e) => setInput({ ...input, content: e.target.value })} />
                 </InputContainer>
                 <div style={{display: 'flex'}}>
                     <InputCheckMessage>{inputCheck.content && "내용을 10자 이상 입력해주세요."}</InputCheckMessage>
