@@ -135,7 +135,7 @@ const MoreFilterButton = styled.div`
 
 const CardGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1vw;
   width: 100%;
 `;
@@ -161,7 +161,7 @@ export default function UsedTrade(props) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [visibleCount, setVisibleCount] = useState(9); // 한 번에 보이는 카드의 최대 수
+  const [visibleCount, setVisibleCount] = useState(3); // 한 번에 보이는 카드의 최대 수
   const [selectedCategory, setSelectedCategory] = useState("중고거래");
   // const [location, setLocation] = useState(location.state);
 
@@ -261,7 +261,7 @@ export default function UsedTrade(props) {
   };
 
   const handleMoreButton = () => {
-    setVisibleCount(prevCount => prevCount + 9);
+    setVisibleCount(prevCount => prevCount + 3);
   };
 
   const formattedPrice = (price) => {
