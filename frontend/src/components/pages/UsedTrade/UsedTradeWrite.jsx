@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import styled from "styled-components";
 import Button from "../../ui/Button";
 import InputText from "../../ui/InputText";
 import ImageUpload from "./ImageUpload";
 import { useNavigate } from "react-router-dom";
+import Breadcrumb from "../../Breadcrumb";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import useGeolocation from "../../../utils/useGeolocation";
+import { Item } from "../Group/GroupCreatePage";
+import axios from "axios";
 
 const ButtonContainer = styled.div`
     display: inline-flex;
@@ -100,9 +105,38 @@ const TradeButton = styled(Button)`
     transition: all 0.3s ease;
 `;
 
+const Select = styled.select`
+    padding: 8px 16px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: inherit;
+
+    &:focus {
+        border: 1px solid #000000;
+        outline: none;
+    }
+`;
+
+const libraries = ['places'];
+
 const UsedTradeWrite = () => {
+    const { isLoaded, isJsApiLoaded } = useJsApiLoader({
+        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+        libraries: libraries,
+        language: 'ko',
+        region: 'KR',
+    });
+
+    const currentLocation = useGeolocation(isJsApiLoaded);
+    const [busanJuso, setBusanJuso] = useState([]);
+    const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
+    const [selectedGu, setSelectedGu] = useState("");
+    const [selectedDong, setSelectedDong] = useState("");
+
     const [isPriceNegotiable, setIsPriceNegotiable] = useState(false);  // 체크박스는 기본적으로 체크 X
     const [location, setLocation] = useState("");
+
     const [content, setContent] = useState("");
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
@@ -110,7 +144,63 @@ const UsedTradeWrite = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedTradeType, setSelectedTradeType] = useState("판매하기");
     const [isGiveable, setIsGiveable] = useState(false);
+
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // 부산의 구와 동 정보 가져오기
+        axios.get('/api/data/filter?name=busanJuso')
+            .then((response) => {
+                const juso = response.data.locationFilters;
+                setBusanJuso(juso);
+                const guList = juso.map((item) => item.sigungu);
+                setLocationData((prevLocationData) => ({
+                    ...prevLocationData,
+                    sigungu: guList,
+                }));
+            })
+            .catch((error) => {
+                console.error("동네 리스트를 불러오는 데 실패했습니다." + error);
+            });
+    }, []);
+
+    useEffect(() => {
+        // 사용자의 현재 위치를 반영
+        if (currentLocation.sigungu) {
+            setSelectedGu(currentLocation.sigungu);
+            setLocation(`${currentLocation.sigungu} ${selectedDong}`);
+        }
+    }, [currentLocation]);
+
+    const getEmdList = (sigungu) => {
+        if (busanJuso) {
+            const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
+            const emdNameList = emdList?.map((item) => item.emd);
+            setLocationData((prevLocationData) => ({
+                ...prevLocationData,
+                emd: emdNameList,
+            }));
+        }
+    };
+
+    const handleGuChange = (e) => {
+        const value = e.target.value;
+        setSelectedGu(value);
+        setSelectedDong(""); // 동 초기화
+        getEmdList(value); // 선택한 구에 대한 동 리스트 가져오기
+    };
+
+    const handleDongChange = (e) => {
+        const value = e.target.value;
+        setSelectedDong(value);
+        setLocation(`${selectedGu} ${value}`); // 선택된 구와 동을 기반으로 위치 설정
+    };
+
+    useEffect(() => {
+        if (selectedGu && selectedDong) {
+            setLocation(`${selectedGu} ${selectedDong}`);
+        }
+    }, [selectedGu, selectedDong]);
 
     const handlePriceChange = (e) => {
         // 입력값을 숫자만 허용
@@ -160,8 +250,10 @@ const UsedTradeWrite = () => {
             return;
         }
 
+        const userId = sessionStorage.getItem('uid');
+
         const usedTradeData = {
-            userId: "사용자 ID", // 실제 사용자 id로 나중에 대체
+            userId: userId, // 실제 사용자 id로 나중에 대체
             name: name,
             category: selectedCategory || "카테고리 없음",
             price: parseInt(price.replace(/[^0-9]/g, ""), 10),
@@ -174,7 +266,7 @@ const UsedTradeWrite = () => {
             isGiveable: isGiveable, // 나눔 신청 가능 여부
             isGived: selectedTradeType, // 판매, 나눔 여부
             tradeble: true,  // 거래 가능 여부
-            bookmarkUsers: []
+            bookmarkUsers: [],
         };
 
         console.log("isPriceNegotiable:", isPriceNegotiable);
@@ -196,7 +288,7 @@ const UsedTradeWrite = () => {
                 const createdUsedTrade = await response.json();
                 console.log('Trade created:', createdUsedTrade);
                 alert("등록되었습니다.");
-                navigate("/usedTrade/used-trade");  // 중고거래 등록 후 목록 페이지로 이동
+                navigate("/usedTrade");  // 중고거래 등록 후 목록 페이지로 이동
             } else {
                 console.error('Failed to create trade');
                 alert("등록에 실패했습니다.");
@@ -207,9 +299,14 @@ const UsedTradeWrite = () => {
         }
     };
 
+    const routes = [
+        { path: "/", name: "홈" },
+        { path: "/usedTradeWrite", name: "중고거래 작성" },
+      ];
+
     return (
         <Container>
-            <h1>중고거래 등록</h1>
+            <Breadcrumb routes={routes} />
             <Form>
                 <ImageUpload />
                 <InputContainer>
@@ -377,11 +474,26 @@ const UsedTradeWrite = () => {
 
                 <InputContainer>
                     <h3>거래 희망 장소</h3>
-                    <InputText 
-                        placeholder="거래 희망 장소" 
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                    />
+                    <div style={{ marginBottom: "10px" }}>
+                        <label>
+                            구 선택 : <Select value={selectedGu} onChange={handleGuChange}>
+                                <option value="" disabled>구를 선택하세요</option>
+                                {locationData.sigungu.map((item) => (
+                                    <option key={item} value={item}>{item}</option>
+                                ))}
+                            </Select>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            동 선택 : <Select value={selectedDong} onChange={handleDongChange} disabled={!selectedGu}>
+                                <option value="" disabled>동을 선택하세요</option>
+                                {locationData.emd.map((item) => (
+                                    <option key={item} value={item}>{item}</option>
+                                ))}
+                            </Select>
+                        </label>
+                    </div>
                 </InputContainer>
             </Form>
 
@@ -404,7 +516,7 @@ const UsedTradeWrite = () => {
                         title="취소하기"
                         variant="gray"
                         onClick={() => {
-                            navigate("/usedTrade/used-trade");
+                            navigate("/usedTrade");
                         }}
                     />
                 </div>

@@ -37,7 +37,7 @@ const Toolbar = () => {
                 <nav>
                     <ul className="nav-links">
                         <li>
-                            <a href="/usedTrade/used-trade">중고거래</a>
+                            <a href="/usedTrade">중고거래</a>
                         </li>
                         <li>
                             <a href="/alba">알바</a>

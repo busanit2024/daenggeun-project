@@ -21,7 +21,7 @@ public class UsedTrade {
     private String name;    // 상품명
     private String category;    // 카테고리
     private int price;  // 가격
-    private Location location;    // 거래 위치
+    private String location;    // 거래 위치
     @CreatedDate
     private LocalDateTime createdDate;  // 생성일
     private String content; // 상세설명
@@ -32,4 +32,6 @@ public class UsedTrade {
     private boolean isGived;    // 판매, 나눔 여부
     private boolean tradeable;  // 거래 가능 여부
     private List<String> bookmarkUsers; // 북마크 사용자
+    // 거래 희망 장소
+    private String tradePlace;
 }
