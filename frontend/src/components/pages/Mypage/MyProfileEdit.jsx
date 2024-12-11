@@ -5,7 +5,9 @@ import { ProfileBox, Wrapper } from "./MyPageMain";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Button from "../../ui/Button";
-import { singleFileUpload } from "../../../firebase";
+import { deleteFile, singleFileUpload } from "../../../firebase";
+import useGetUserId from "../../../utils/useGetUserId";
+import LocationSearchModal from "../../ui/LocationSearchModal";
 
 const EditNickname = styled.input`
     padding: 8px;
@@ -80,6 +82,20 @@ const UserInfoBox = styled.div`
     }
 `;
 
+const InputBox = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+
+
+    & .inputInner {
+        display: flex;
+        gap: 24px;
+        padding: 24px 0px;
+    }
+`;
+
 
 
 
@@ -87,6 +103,23 @@ export default function MyProfileEdit(props) {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [profileImage, setProfileImage] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleLocationSelect = (selectedLocation) => {
+        if (typeof selectedLocation === 'string') {
+            const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+
+            const locationObject = {
+                sigungu: sigungu,
+                emd: emd
+            };
+
+            setUser((prev) => ({ ...prev, location: [locationObject] }));
+            setIsModalOpen(false);
+        } else {
+            console.error("선택된 위치가 문자열이 아닙니다:", selectedLocation);
+        }
+    };
 
     useEffect(() => {
         const uid = sessionStorage.getItem('uid');
@@ -112,7 +145,30 @@ export default function MyProfileEdit(props) {
     }
 
     const handleUpdate = async () => {
-        /// 프로필 업데이트
+        singleFileUpload(profileImage).then( async (response) => {
+            if (user.profileImage) {
+            await deleteFile(user.profileImage.filename);
+            }
+            const newProfileImage = response;
+            axios.post(`/user/profileSave/${user.id}`, 
+                {
+                    id: user.id,
+                    uid: user.uid,
+                    username: user.username,
+                    userLocation: user.location,
+                    profileImage: newProfileImage,
+                }
+            ).then((response) => {
+                console.log(response.data);
+                alert('회원정보가 수정되었습니다.');
+                navigate('/mypage');
+            }).catch((error) => { 
+                console.error('회원정보 수정 중 오류 발생:', error);
+                alert('회원정보 수정에 실패했습니다. 다시 시도해 주세요.');
+            });
+        }).catch((error) => {
+            console.error('이미지 업로드 중 오류 발생:', error);
+        });
     }
 
 
@@ -142,10 +198,29 @@ export default function MyProfileEdit(props) {
                 </div>
             </UserInfoBox>
 
-            <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '24px 120px' }}>
-                <label htmlFor="email">이메일</label> 
-                <InputText id='email' grow value={user?.email ?? ''} placeholder="등록할 이메일을 입력하세요." />
-            </div>
+            <InputBox>
+
+                <div className="inputInner">
+                    <h3 delay="1s">내 동네 설정하기</h3>
+                    <InputText
+                        value={user?.location?.map(loc => `${loc.sigungu}, ${loc.emd ?? ''}`).join(", ")}
+                        onClick={() => setIsModalOpen(true)}
+                        placeholder="지역이나 동네로 검색하기"
+                        readOnly
+                    />
+                    {isModalOpen && (
+                        <LocationSearchModal onSelect={handleLocationSelect} onClose={() => setIsModalOpen(false)} />
+                    )}
+
+                </div>
+                {/* <div className="inputInner">
+                    <h3>이메일</h3>
+                    <InputText id='email' value={user?.email ?? ''} placeholder="등록할 이메일을 입력하세요." />
+                </div> */}
+
+            </InputBox>
+
+
 
             <div style={{ width: '100%', display: 'flex', padding: '24px 120px' }}>
                 <Button title="저장" grow onClick={handleUpdate} variant="primary" />

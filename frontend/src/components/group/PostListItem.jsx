@@ -55,7 +55,7 @@ export default function PostListItem (props) {
       <div className="title">{post?.content ?? '게시글 내용'}</div>
 
       <Info>
-        <span>{post?.user?.username ?? '작성자'}</span>
+        <span>{post?.user?.username ?? '작성자'} {post?.user?.groupNickName ? `(${post?.user?.groupNickName})` : ''}</span>
         <span> · </span>
         <span>{post?.createdDate ? calculateDate(post.createdDate) + ' 전' : '작성일' }</span>
         <span> · </span>

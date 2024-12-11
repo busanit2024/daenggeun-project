@@ -2,6 +2,7 @@ package com.busanit.daenggeunbackend.service;
 
 import com.busanit.daenggeunbackend.domain.Image;
 import com.busanit.daenggeunbackend.domain.Location;
+import com.busanit.daenggeunbackend.domain.UserDTO;
 import com.busanit.daenggeunbackend.entity.User;
 import com.busanit.daenggeunbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
