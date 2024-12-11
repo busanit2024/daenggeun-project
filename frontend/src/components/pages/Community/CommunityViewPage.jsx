@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
@@ -8,8 +8,6 @@ import Modal from "../../ui/Modal";
 import Button from "../../ui/Button";
 import styled from "styled-components";
 import FilterBar from "../../ui/FilterBar";
-import SearchBar from "../../ui/SearchBar";
-import { useLocation } from "react-router-dom";
 import { elapsedText } from "../../../utils/elapsedText";
 
 const Container = styled.div`
@@ -20,17 +18,20 @@ const Container = styled.div`
 
 const TextContainer = styled.div`
   flex: 1;
+  margin-top: 24px;
 `;
 
 const Title = styled.h2`
   font-size: 20px;
   font-style: normal;
   margin: 0;
+  margin-top: 10px;
 `;
 
 const Content = styled.p`
   font-size: 15px;
   margin: 0;
+  margin-top: 10px;
 
   display: -webkit-box;
   // -webkit-line-clamp: 1;
@@ -118,14 +119,11 @@ const libraries = ['places'];
 
 export default function CommunityViewPage(props) {
     const navigate = useNavigate();
-    const [searchTerm, setSearchTerm] = useState("");
     const [searchFilter, setSearchFilter] = useState({ sido: "부산광역시", sigungu: "", emd: "", category: "all", sort: "" });
     const [categoryData, setCategoryData] = useState([]);
+    const [member, setMember] = useState(null);
     const [busanJuso, setBusanJuso] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [page, setPage] = useState(0);
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
-    const [emdList, setEmdList] = useState([]);
     const { communityId } = useParams();
     const [community, setCommunity] = useState({});
     const { isLoaded: isJsApiLoaded } = useJsApiLoader({
@@ -137,22 +135,6 @@ export default function CommunityViewPage(props) {
       });
 
     const currentLocation = useGeolocation(isJsApiLoaded);
-
-    const { member } = props;
-    const naviagte = useNavigate();
-    const location = useLocation();
-  
-    const handleClick = () => {
-      const currentPath = location.pathname;
-      const myId = sessionStorage.getItem('uid');
-      if (member?.userId === myId) {
-        naviagte('my');
-      } else if (currentPath.endsWith("members")) {
-        naviagte(`${currentPath}/${member?.userId}`);
-      } else {
-        naviagte(`members/${member?.userId}`);
-      }
-    }
     
 
     useEffect(() => {
@@ -175,48 +157,44 @@ export default function CommunityViewPage(props) {
       }, []);
     
     useEffect(() => {
-    setSearchFilter({ ...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu });
-    }, [currentLocation]);
+      setSearchFilter({ ...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu });
+      }, [currentLocation]);
 
-    const fetchPost = () => {
-      axios.get(`/api/community/view/${communityId}`).then((response) => {
-        setCommunity(response.data);
-        console.log(response.data);
-    })
-    .catch((error) => {
-        console.error("동네생활 정보를 불러오는데 실패했습니다." + error);
-    });
-  };
+      const fetchPost = () => {
+        axios.get(`/api/community/view/${communityId}`).then((response) => {
+          setCommunity(response.data);
+          console.log(response.data);
+          fetchMemberInfo(response.data.userId);
+      })
+      .catch((error) => {
+          console.error("동네생활 정보를 불러오는데 실패했습니다." + error);
+      });
+    };
 
     useEffect(() => {
-    setLoading(true);
-    if (searchFilter.sigungu) {
-        fetchPost();
-    }
+      setLoading(true);
+      if (searchFilter.sigungu) {
+          fetchPost();
+      }
     }, [searchFilter]);
 
 
     useEffect(() => {
-    setLoading(true);
-    setSearchFilter({ ...searchFilter, emd: '' });
-    getEmdList(searchFilter.sigungu);
-    setIsFilterOpen(false);
+      setLoading(true);
+      setSearchFilter({ ...searchFilter, emd: '' });
     }, [searchFilter.sigungu, busanJuso]);
-    
-    const resetFilter = () => {
-    setLoading(true);
-    setSearchFilter({...searchFilter, sido: currentLocation.sido, sigungu: currentLocation.sigungu, emd: '', category: 'all', sort: ''});
-    setIsFilterOpen(false);
-    setPage(0);
-    }
 
-    const getEmdList = (gu) => {
-        if (busanJuso && gu) {
-          const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
-          const emdNameList = emdList?.map((item) => item.emd);
-          setEmdList(emdNameList);
-        }
-      };
+    const fetchMemberInfo = (communityUserId) => {
+      console.log("userId",communityUserId)
+      axios.get(`/user/find?uid=${communityUserId}`).then((response) => {
+        console.log(response.data);
+        setMember(response.data)
+        
+      })
+        .catch((error) => {
+          console.error("사용자 정보 불러오기에 실패했습니다." + error);
+        });    
+    };
 
     const routes = [
     { path: "/community", name: "동네생활" },
@@ -225,7 +203,6 @@ export default function CommunityViewPage(props) {
 
     return (
         <>
-        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <Breadcrumb routes={routes} />
         <Container>
             <InnerContainer>
@@ -254,7 +231,7 @@ export default function CommunityViewPage(props) {
                 </ProfileImage>
                 <MemberInfo>
                   <div className="name-wrap">
-                    <div className="name">{member?.username ?? '이름'}</div>
+                    <div className="name">{member?.username ?? ''}</div>
                   </div>
                   <TagContainer>
                     <span>
