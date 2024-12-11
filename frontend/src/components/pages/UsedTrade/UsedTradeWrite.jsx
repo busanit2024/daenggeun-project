@@ -122,6 +122,7 @@ const libraries = ['places'];
 
 const UsedTradeWrite = () => {
     const { isLoaded, isJsApiLoaded } = useJsApiLoader({
+        id: 'google-map-script',
         googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
         libraries: libraries,
         language: 'ko',
@@ -253,11 +254,13 @@ const UsedTradeWrite = () => {
         const userId = sessionStorage.getItem('uid');
 
         const usedTradeData = {
-            userId: userId, // 실제 사용자 id로 나중에 대체
+            userId: userId,
             name: name,
             category: selectedCategory || "카테고리 없음",
             price: parseInt(price.replace(/[^0-9]/g, ""), 10),
             location: location,
+            sigungu: selectedGu,
+            emd: selectedDong,
             content: content,
             createdDate: new Date().toISOString(),
             images: [],
@@ -348,9 +351,6 @@ const UsedTradeWrite = () => {
                         </CategoryItem>
                         <CategoryItem onClick={() => selectCategory("생활/주방")}>
                             생활/주방
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("가구/인테리어")}>
-                            가구/인테리어
                         </CategoryItem>
                         <CategoryItem onClick={() => selectCategory("유아동")}>
                             유아동

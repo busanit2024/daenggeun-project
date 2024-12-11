@@ -49,8 +49,8 @@ const FilterContainer = styled.div`
 const CategoryItem = styled.label`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px;
+  gap: 8px;
+  padding: 5px;
 
   &:hover {
     input[type="radio"] {
@@ -58,8 +58,6 @@ const CategoryItem = styled.label`
     }
   }
 `;
-
-
 
 const NoSearchResult = styled.div`
   display: flex;
@@ -137,7 +135,7 @@ const MoreFilterButton = styled.div`
 
 const CardGrid = styled.div`
   display: grid;
-  grid-template-column: repeat(auto-fill, minmax(clamp(100px, 20vw, 250px), 1fr));
+  grid-template-columns: repeat(3, 1fr));
   gap: 1vw;
   width: 100%;
 `;
@@ -163,8 +161,9 @@ export default function UsedTrade(props) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [visibleCount, setVisibleCount] = useState(9); // 한 번에 보이는 카드의 수
+  const [visibleCount, setVisibleCount] = useState(9); // 한 번에 보이는 카드의 최대 수
   const [selectedCategory, setSelectedCategory] = useState("중고거래");
+  // const [location, setLocation] = useState(location.state);
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -232,6 +231,7 @@ export default function UsedTrade(props) {
           category: searchFilter.category,
           tradeble: searchFilter.tradeble,
           page: page,
+          size: 10,
         },
       });
 
@@ -261,8 +261,7 @@ export default function UsedTrade(props) {
   };
 
   const handleMoreButton = () => {
-    fetchTradeList(page + 1);
-    setPage(page + 1);
+    setVisibleCount(prevCount => prevCount + 9);
   };
 
   const formattedPrice = (price) => {
@@ -273,6 +272,19 @@ export default function UsedTrade(props) {
   const filteredTrades = searchTerm ? tradeList.filter(trade => 
     trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
   ) : tradeList;
+
+  const locationFilteredTrades = filteredTrades.filter(trade => {
+    // 전지역 선택 시 모든 거래 보여주기
+    if (searchFilter.sigungu === "" && searchFilter.emd === "") {
+      return true;
+    }
+
+    // 특정 구와 동이 선택된 경우
+    const locationMatches = trade.location.includes(searchFilter.sigungu);
+    const emdMatches = searchFilter.emd === "" || trade.location.includes(searchFilter.emd);
+
+    return locationMatches && emdMatches;
+  });
 
   const routes = [
     { path: "/", name: "홈" },
@@ -400,50 +412,52 @@ export default function UsedTrade(props) {
           </FilterBar>
 
           <ListContainer>
-  {loading ? (
-    <LoadingText>
-      <h3>중고거래를 찾는 중이에요.</h3>
-    </LoadingText>
-  ) : (
-    <>
-      {tradeList.length === 0 ? (
-        <NoSearchResult>
-          <h3>{`${searchFilter.emd ? searchFilter.emd : searchFilter.sigungu} 근처에 중고거래가 없어요.`}</h3>
-          <p>다른 조건으로 검색해주세요.</p>
-        </NoSearchResult>
-      ) : (
-        <CardGrid>
-          {(filteredTrades.length > 0 ? filteredTrades : tradeList).slice(0, visibleCount).map((usedTrade) => (
-            <Card 
-              key={usedTrade.id}
-              title={usedTrade.name}
-              price={`${formattedPrice(usedTrade.price)} 원`}
-              location={`${usedTrade.sigungu} ${usedTrade.emd}`}
-              onClick={() =>
-                navigate(
-                  `/usedTradeView/${usedTrade.id}`,
-                  {
-                    state: {
-                      ...usedTrade,
-                      category: usedTrade.category,
-                      createdAt: usedTrade.createdDate,
-                      tradeable: usedTrade.tradeable,
-                      isNegotiable: usedTrade.isNegotiable,
-                      isGiveable: usedTrade.selectedTradeType,
-                      isGived: usedTrade.isGived,
-                    }
-                  }
-                )
-              }
-            />
-          ))}
-        </CardGrid>
-      )}
-      {!loading && hasNext && <Button title="더보기" onClick={handleMoreButton} />}
-    </>
-  )}
-</ListContainer>
-
+            {loading ? (
+              <LoadingText>
+                <h3>중고거래를 찾는 중이에요.</h3>
+              </LoadingText>
+            ) : (
+              <>
+                {locationFilteredTrades.length === 0 ? (
+                  <NoSearchResult>
+                    <h3>{`${searchFilter.emd ? searchFilter.emd : searchFilter.sigungu} 근처에 중고거래가 없어요.`}</h3>
+                    <p>다른 조건으로 검색해주세요.</p>
+                  </NoSearchResult>
+                ) : (
+                  <CardGrid>
+                    {(locationFilteredTrades.length > 0 ? locationFilteredTrades : tradeList).slice(0, visibleCount).map((usedTrade) => (
+                      <Card 
+                        key={usedTrade.id}
+                        title={usedTrade.name}
+                        price={`${formattedPrice(usedTrade.price)} 원`}
+                        location={usedTrade.location}
+                        onClick={() =>
+                          navigate(
+                            `/usedTradeView/${usedTrade.id}`,
+                            {
+                              state: {
+                                ...usedTrade,
+                                category: usedTrade.category,
+                                createdAt: usedTrade.createdDate,
+                                tradeable: usedTrade.tradeable,
+                                location: usedTrade.location,
+                                isNegotiable: usedTrade.isNegotiable,
+                                isGiveable: usedTrade.selectedTradeType,
+                                isGived: usedTrade.isGived,
+                              }
+                            }
+                          )
+                        }
+                      />
+                    ))}
+                  </CardGrid>
+                )}
+                {!loading && locationFilteredTrades.length > visibleCount && hasNext && (
+                  <Button title="더보기" onClick={handleMoreButton} />
+                )}
+              </>
+            )}
+          </ListContainer>
 
         </InnerContainer>
 
