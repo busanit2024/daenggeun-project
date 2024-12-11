@@ -37,6 +37,8 @@ import GroupAlbum from './components/group/GroupAlbum';
 import GroupBoardWrite from './components/group/GroupBoardWrite';
 import { LocationProvider } from './context/LocationContext';
 import GroupBoardView from './components/group/GroupBoardView';
+import MyPageMain from './components/pages/Mypage/MyPageMain';
+import MyProfileEdit from './components/pages/Mypage/MyProfileEdit';
 
 
 function App() {
@@ -48,19 +50,19 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<MainPage />} />
 
-            <Route path="group" element={<GroupPage />} />
-            <Route path="group/:groupId" element={<GroupViewPage />}>
-              <Route path="" element={<GroupView />} />
-              <Route path="members" element={<GroupMembers />} />
-              <Route path='members/:memberId' element={<MemberProfile />} />
-              <Route path="my" element={<MemberProfile />} />
-              <Route path="schedule" element={<GroupSchedules />} />
-              <Route path="board" element={<GroupBoard />} />
-              <Route path='board/write' element={<GroupBoardWrite />} />
-              <Route path='board/:postId' element={<GroupBoardView />} />
-              <Route path='board/:postId/edit' element={<GroupBoardWrite />} />
-              <Route path="requests" element={<JoinRequest />} />
-              <Route path='album' element={<GroupAlbum />} />
+              <Route path="group" element={<GroupPage />} />
+              <Route path="group/:groupId" element={<GroupViewPage />}>
+                <Route path="" element={<GroupView />} />
+                <Route path="members" element={<GroupMembers />} />
+                <Route path='members/:memberId' element={<MemberProfile />} />
+                <Route path="my" element={<MemberProfile />} />
+                <Route path="schedule" element={<GroupSchedules />} />
+                <Route path="board" element={<GroupBoard />} />
+                <Route path='board/write' element={<GroupBoardWrite />} />
+                <Route path='board/:postId' element={<GroupBoardView />} />
+                <Route path='board/:postId/edit' element={<GroupBoardWrite />} />
+                <Route path="requests" element={<JoinRequest />} />
+                <Route path='album' element={<GroupAlbum />} />
               </Route>
               <Route path="group/create" element={<GroupCreatePage />} />
               <Route path="group/:groupId/edit" element={<GroupEditPage />} />
@@ -79,6 +81,8 @@ function App() {
               <Route path="community" element={<CommunityPage />} />
               <Route path="community/write" element={<CommunityWritePage />} />
 
+              <Route path='mypage' element={<MyPageMain />} />
+              <Route path='mypage/edit' element={<MyProfileEdit />} />
               <Route path="setProfile/:userId" element={<SetProfilePage />} />
             </Route>
           </Routes>

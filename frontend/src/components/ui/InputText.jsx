@@ -6,6 +6,7 @@ const StyledInput = styled.input`
     border : 1px solid #ccc;
     border-radius : 5px;
     font-size : 16px;
+    flex-grow: ${props => props.grow ? 1 : 0};
 
     ${props => {
         if (props.underline) {
