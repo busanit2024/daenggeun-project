@@ -35,7 +35,11 @@ import MemberProfile from './components/group/MemberProfile';
 import SetProfilePage from './components/pages/Login/SetProfilePage';
 import JoinRequest from './components/group/JoinRequest';
 import GroupAlbum from './components/group/GroupAlbum';
+import GroupBoardWrite from './components/group/GroupBoardWrite';
 import { LocationProvider } from './context/LocationContext';
+import GroupBoardView from './components/group/GroupBoardView';
+import MyPageMain from './components/pages/Mypage/MyPageMain';
+import MyProfileEdit from './components/pages/Mypage/MyProfileEdit';
 
 
 function App() {
@@ -55,6 +59,9 @@ function App() {
                 <Route path="my" element={<MemberProfile />} />
                 <Route path="schedule" element={<GroupSchedules />} />
                 <Route path="board" element={<GroupBoard />} />
+                <Route path='board/write' element={<GroupBoardWrite />} />
+                <Route path='board/:postId' element={<GroupBoardView />} />
+                <Route path='board/:postId/edit' element={<GroupBoardWrite />} />
                 <Route path="requests" element={<JoinRequest />} />
                 <Route path='album' element={<GroupAlbum />} />
               </Route>
@@ -77,6 +84,8 @@ function App() {
             <Route path="community/:communityId" element={<CommunityViewPage />} />
             <Route path="communityEdit/:communityId" element={<CommunityEditPage />} />
 
+              <Route path='mypage' element={<MyPageMain />} />
+              <Route path='mypage/edit' element={<MyProfileEdit />} />
               <Route path="setProfile/:userId" element={<SetProfilePage />} />
             </Route>
           </Routes>
