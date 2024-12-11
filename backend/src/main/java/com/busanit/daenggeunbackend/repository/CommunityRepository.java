@@ -36,4 +36,6 @@ public interface CommunityRepository extends MongoRepository<Community, String> 
 
     // sigungu와 emd로 검색
     Slice<Community> findAllByLocationSigunguContainingAndLocationEmdContaining(String locationSigungu, String locationEmd, Pageable pageable);
+
+    Slice<Community> findByUserId(String userId, Pageable pageable);
 }
