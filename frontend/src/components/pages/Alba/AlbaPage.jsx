@@ -1,12 +1,14 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import FilterBar from "../../ui/FilterBar";
 import Button from "../../ui/Button";
 import AlbaListItem from "../../alba/AlbaListItem";
 import RoundFilter from "../../ui/RoundFilter";
 import Breadcrumb from "../../Breadcrumb";
+import SearchBar from "../../ui/SearchBar";  
+import Radio from "../../ui/Radio";
 
 const HorizontalContainer = styled.div`
 display: flex;
@@ -80,6 +82,7 @@ const NoSearchResult = styled.div`
 
 export default function AlbaPage(props) {
   const navigate = useNavigate();
+  const [userLocation, setUserLocation] = useState([{ sigungu: "해운대구", emd: "" }]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedDong, setSelectedDong] = useState("");
@@ -129,8 +132,8 @@ export default function AlbaPage(props) {
       });
   }, []);
 
-  // 알바 리스트 데이터를 가져오기 위한 useEffect
-  useEffect(() => {
+   // 알바 리스트 데이터를 가져오기 위한 useEffect
+   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`/api/alba`, {
@@ -176,6 +179,16 @@ export default function AlbaPage(props) {
     fetchData();
   }, [selectedRegion, selectedDong, category, workType, workDays, workTime, searchTerm]);
 
+
+  const handleLocationSelect = (selectedLocation) => {
+    const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+    setSelectedRegion(sigungu);
+    setSelectedDong(emd); 
+    console.log("Selected Region:", sigungu);
+    console.log("Selected Dong:", emd); 
+};
+
+
   const resetFilter = () => {
     setSelectedRegion("");
     setSelectedDong("");
@@ -207,19 +220,6 @@ export default function AlbaPage(props) {
     setWorkTime(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleRegionChange = (e) => {
-    setSelectedRegion(e.target.value);
-    setSelectedDong(""); // 구가 변경될 때 동 선택 초기화
-  };
-
-  const handleDongChange = (e) => {
-    setSelectedDong(e.target.value);
-  };
-
   const handleCategoryChange = (e) => {
     setCategory(e.target.value);
   };
@@ -227,6 +227,23 @@ export default function AlbaPage(props) {
   const handleShowMore = () => {
     setItemsToShow(prev => prev + 5);
   };
+
+
+  const filteredAlbaList = albaList.filter(alba => {
+    return (
+      // 지역 필터링
+      (!selectedRegion || alba.location.sigungu === selectedRegion) &&
+      (!selectedDong || alba.location.emd === selectedDong) &&
+      // 추가 필터링
+      (category === "all" || alba.category === category) &&
+      (workType.length === 0 || workType.includes(alba.workPeriod)) &&
+      (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
+      (!workTime.start || alba.workTimeStart >= workTime.start) &&
+      (!workTime.end || alba.workTimeEnd <= workTime.end) &&
+      // 검색어 필터링
+      (!searchTerm.trim() || alba.title.includes(searchTerm.trim()) || alba.description.includes(searchTerm.trim()))
+    );
+  });
 
   const routes = [
     { path: "/", name: "홈" },
@@ -238,41 +255,9 @@ export default function AlbaPage(props) {
   
   return (
     <Container>
-      {/* 검색 바 */}
-      <div className="search-bar">
-        <select
-          value={selectedRegion}
-          onChange={handleRegionChange}
-          className="region-filter"
-        >
-          <option value="">전체 지역</option>
-          {regionData.map((region) => (
-            <option key={region.sigungu} value={region.sigungu}>{region.sigungu}</option>
-          ))}
-        </select>
+      
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-        {selectedRegion && (
-          <select
-            value={selectedDong}
-            onChange={handleDongChange}
-            className="dong-filter"
-          >
-            <option value="">전체 동</option>
-            {regionData
-              .find(region => region.sigungu === selectedRegion)
-              ?.emd.map((dong) => (
-                <option key={dong.emd} value={dong.emd}>{dong.emd}</option>
-              ))}
-          </select>
-        )}
-
-        <input
-          type="text"
-          placeholder="검색어를 입력하세요"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
-      </div>
       <Breadcrumb routes={routes} />
 
       <InnerContainer>
@@ -288,8 +273,8 @@ export default function AlbaPage(props) {
             <div className="filterList">
               {workTypeData.map((item) => (
                 <div key={item.id}>
-                  <input
-                    type="checkbox"
+                  <Radio
+                    type="radio"
                     id={item.name}
                     name="workType"
                     value={item.name}
@@ -307,7 +292,7 @@ export default function AlbaPage(props) {
             <div className="filterList">
               {categoryData.map((item) => (
                 <div key={item.name}>
-                  <input
+                  <Radio
                     type="radio"
                     id={item.name}
                     name="category"
@@ -364,9 +349,10 @@ export default function AlbaPage(props) {
             </div>
           </div>
         </FilterBarContainer>
-
         {/* 알바 리스트 컨테이너 */}
+
         <ListContainer>
+
           {(category !== 'all' || workType.length > 0 || workDays.length > 0 || workTime.start || workTime.end || searchTerm.trim() !== "" || selectedRegion !== "" || selectedDong !== "") &&
             <FilterContainer>
               {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
@@ -381,7 +367,9 @@ export default function AlbaPage(props) {
               {selectedRegion && <RoundFilter title={selectedRegion} variant='search' cancelIcon onClick={() => setSelectedRegion("")} />}
               {selectedDong && <RoundFilter title={selectedDong} variant='search' cancelIcon onClick={() => setSelectedDong("")} />}
               {searchTerm.trim() !== "" && <RoundFilter title={`검색어: ${searchTerm}`} variant='search' cancelIcon onClick={() => setSearchTerm("")} />}
+                
             </FilterContainer>
+            
           }
 
           {albaList.length === 0 && (
@@ -391,13 +379,15 @@ export default function AlbaPage(props) {
             </NoSearchResult>
           )}
 
-          {albaList.slice(0, itemsToShow).map((alba) => (
+          {filteredAlbaList.slice(0, itemsToShow).map((alba) => (
             <AlbaListItem key={alba.id} alba={alba} />
           ))}
 
           {itemsToShow < albaList.length && (
             <Button title="더보기" onClick={handleShowMore} />
           )}
+                  <Button title="글쓰기" variant="primary" onClick={() => navigate("/alba/create")}></Button>
+
         </ListContainer>
       </InnerContainer>
     </Container>

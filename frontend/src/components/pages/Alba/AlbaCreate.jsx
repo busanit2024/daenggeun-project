@@ -3,16 +3,57 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../ui/Button";
 import InputText from "../../ui/InputText";
 import RoundFilter from "../../ui/RoundFilter";
+import { singleFileUpload } from "../../../firebase";
+import Radio from "../../ui/Radio";
 import "../../../styles/AlbaStyled.css";
 import styled from "styled-components";
 import axios from "axios";
-import { singleFileUpload } from "../../../firebase";
+import useGeolocation from "../../../utils/useGeolocation";
+import { useJsApiLoader } from "@react-google-maps/api";
+import LocationSearchModal from "../../ui/LocationSearchModal";
+
+export const DongneSelectContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: center;
+`;
+export const DongneSelect = styled.select`
+padding: 12px;
+border: 2px solid #cccccc;
+border-radius: 8px;
+font-size: 18px;
+font-family: inherit;
+flex-grow: 1;
+`;
+
+export const Item = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+  
+  .checkbox-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  h2 {
+    margin-top: 24px;
+  }
+`;
+
+const libraries = ['places'];
+
+const id = sessionStorage.getItem('uid');
 
 const AlbaCreate = () => {
   const [form, setForm] = useState({
-    creatorId: "",
     title: "",
-    description: "",    
+    userId: id,
+    description: "",
+    location: { sido: "부산광역시", sigungu: "", emd: "" }, // 로그인 구현될 때까지 임시 위치
     wage: "",
     workDays: [],
     negotiable: false,    
@@ -24,12 +65,23 @@ const AlbaCreate = () => {
     contactNumber: "", // 연락처 추가
     doNotContact: false // 연락 받지 않기 체크박스 추가
   });
-
-  const [regionData, setRegionData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [wageTypeData, setWageTypeData] = useState([]); // 급여 유형 데이터 추가
   const [workPeriodData, setWorkPeriodData] = useState([]); // 일하는 기간 데이터 추가
+  const [busanJuso, setBusanJuso] = useState(null);
+  const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
+
   const navigate = useNavigate();
+
+
+  const { isLoaded: isJsApiLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: libraries,
+    language: 'ko',
+    region: 'KR',
+  });
+
 
 
   const StyledRoundFilter = styled(RoundFilter)`
@@ -47,6 +99,50 @@ const AlbaCreate = () => {
     flex-wrap: wrap;
   `;
 
+
+  useEffect(() => {
+    // axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
+    //   setCategoryData(response.data.filters);
+    // }).catch((error) => {
+    //   console.error("카테고리를 불러오는데 실패했습니다." + error);
+    // });
+
+    // axios.get(`/api/data/filter?name=groupRange`).then((response) => {
+    //   setRangeData(response.data.filters);
+    // }).catch((error) => {
+    //   console.error("동네 범위를 불러오는데 실패했습니다." + error);
+    // });
+
+    axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
+      const juso = response.data.locationFilters;
+      setBusanJuso(juso);
+      const guList = juso?.map((item) => item.sigungu);
+
+      setLocationData((prevLocationData) => ({
+        ...prevLocationData,
+        sigungu: guList,
+      }));
+
+    }).catch((error) => {
+      console.error("동네 리스트를 불러오는데 실패했습니다." + error);
+    });
+  }, []);
+  // // 지역 데이터 가져오기
+  // useEffect(() => {
+  //   const fetchBusanJuso = async () => {
+  //     try {
+  //       const response = await axios.get("/api/data/filter?name=busanJuso");
+  //       console.log(response.data)
+  //       setBusanJuso(response.data.locationFilters || []);
+  //     } catch (error) {
+  //       console.error("Failed to fetch busanJuso data:", error);
+  //     }
+  //   };
+
+  //   fetchBusanJuso();
+  // }, []);
+
+  
   // 카테고리 데이터 가져오기
   useEffect(() => {
     const fetchCategoryData = async () => {
@@ -85,6 +181,27 @@ const AlbaCreate = () => {
     };
     fetchWorkPeriodData();
   }, []);
+
+
+  const getEmdList = (sigungu) => {
+    console.log(typeof sigungu)
+    console.log("busanJuso", busanJuso)
+    if (busanJuso) {
+      const emdList = busanJuso.find((item) => item.sigungu == sigungu)?.emd;
+      //const emdList = busanJuso.find(sigungu).emd;
+      
+      console.log("emdList",emdList)
+      const emdNameList = emdList?.map((item) => item.emd);
+      console.log("emdNameList",emdNameList)
+      setLocationData({ ...locationData, emd: emdNameList });
+      if (currentLocation.emd !== "") {
+        setForm({ ...form, location: { ...form.location, emd: currentLocation.emd } });
+      } else {
+        setForm({ ...form, location: { ...form.location, emd: emdNameList?.[0] } });
+      }
+    }
+  };
+
 
   // 입력값 변경 핸들러
   const handleChange = (e) => {
@@ -146,7 +263,7 @@ const handleImageChange = async (e) => {
 
   setForm((prevForm) => ({
     ...prevForm,
-    image: imageInfo,
+    image: imageInfo ?? { url: '../../../images/default-image.png' }, // 기본 이미지 설정
   }));
 };
 
@@ -161,9 +278,24 @@ const handleImageChange = async (e) => {
       },
     }).open();
 };
-  
 
 
+const currentLocation = useGeolocation(isJsApiLoaded);
+
+useEffect(() => {
+  getEmdList(form.location.sigungu);
+}, [form.location.sigungu]);
+
+
+useEffect(() => {
+  if (busanJuso) {
+    if (currentLocation.sigungu) {
+      setForm({ ...form, location: { ...form.location, sigungu: currentLocation.sigungu } });
+    } else {
+      setForm({ ...form, location: { ...form.location, sigungu: locationData.sigungu?.[0] } });
+    }
+  }
+}, [currentLocation, busanJuso]);
 
   useEffect(() => {
     // Daum Postcode script 추가
@@ -229,6 +361,9 @@ const handleImageChange = async (e) => {
     });
   };
 
+
+  
+
   return (
     <div className="container">
       <h1 className="title">알바 글 작성</h1>
@@ -239,6 +374,55 @@ const handleImageChange = async (e) => {
           value={form.title}
           onChange={handleChange}
         />
+      <Item>
+        <h3>지역</h3>
+        
+        <DongneSelectContainer>
+          <div style={{ fontSize: '20px', color: '#666666' }}>부산광역시</div>
+          <DongneSelect value={form.location.sigungu} onChange={(e) => setForm({ ...form, location: { ...form.location, sigungu: e.target.value } })}>
+            {
+              locationData.sigungu?.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+          </DongneSelect>
+          <DongneSelect value={form.location.emd} onChange={(e) => setForm({ ...form, location: { ...form.location, emd: e.target.value } })}>
+            {locationData.emd?.map((item) => (
+              <option key={item} value={item}>{item}</option>
+            ))}
+          </DongneSelect>
+        </DongneSelectContainer>
+
+      </Item>
+
+        {/* <div>지역</div>
+        <div>
+          <DongneSelectContainer>
+            <DongneSelect
+              name="sigungu"
+              value={form.location.sigungu || ""}
+              onChange={handleChange}
+            >
+              <option value="">시군구 선택</option>
+              {regionData.map((region) => (
+                <option key={region} value={region}>
+                  {region}
+                </option>
+              ))}
+            </DongneSelect>
+            <DongneSelect
+              name="emd"
+              value={form.location.emd || ""}
+              onChange={handleChange}
+            >
+              <option value="">읍면동 선택</option>
+              {regionData.map((emd) => (
+                <option key={emd} value={emd}>
+                  {emd}
+                </option>
+              ))}
+            </DongneSelect>
+          </DongneSelectContainer>
+        </div> */}
 
         <div className="category-selection">
           <h3 className="section-title">하는 일</h3>
@@ -323,7 +507,7 @@ const handleImageChange = async (e) => {
         </div>
         <InputText
           name="wage"
-          placeholder="10,030 원"
+          placeholder="2024년 최저 시급 : 10,030 원"
           value={form.wage}
           onChange={handleChange}
         />
@@ -331,11 +515,22 @@ const handleImageChange = async (e) => {
         <div className="image-upload">
           <h3 className="section-title">이미지 업로드</h3>
           <input type="file" name="image" onChange={handleImageChange} />
+          {form.image && (
+            <img
+              src={form.image}
+              alt="업로드된 이미지"
+              onError={(e) => {
+                e.target.onerror = null; // 무한 반복 방지
+                e.target.src = '../../../images/default-image.png'; // 기본 이미지 경로
+              }}
+              style={{ maxWidth: '100%', maxHeight: '200px' }} // 적절한 스타일 설정
+            />
+          )}
         </div>
 
         <textarea
           name="description"
-          placeholder="상세 내용"
+          placeholder="상세 내용을 입력해주세요."
           value={form.description}
           onChange={handleChange}
           className="textarea"
@@ -343,27 +538,27 @@ const handleImageChange = async (e) => {
 
         <div className="company-info">
           <h3 className="section-title">업체 정보</h3>
-          <InputText
+          
+          <h4>업체 주소</h4><InputText
+            name="workPlace"
+            placeholder="ex) 서울시 강남구 강남1로"
+            value={form.workPlace}
+            onChange={handleChange}
+          /><Button type="button"  title="주소 검색" variant="primary" onClick={handleAddressSearch} />
+          <h4>업체명</h4><InputText
             name="companyName"
-            placeholder="업체명"
+            placeholder="ex) 댕근마켓"
             value={form.companyName}
             onChange={handleChange}
           />
-          
-          <Button type="button" title="주소 검색" onClick={handleAddressSearch} />
-          <InputText
-            name="workPlace"
-            placeholder="일하는 장소"
-            value={form.workPlace}
-            onChange={handleChange}
-          />
+          <h4>연락처</h4>     
           <InputText
             name="contactNumber"
-            placeholder="연락처"
+            placeholder="010-xxxx-xxxx"
             value={form.contactNumber}
             onChange={handleChange}
           />
-          <label>
+          <p><label>
             <input
               type="checkbox"
               name="doNotContact"
@@ -371,7 +566,7 @@ const handleImageChange = async (e) => {
               onChange={handleChange}
             />
             연락 받지 않기
-          </label>
+          </label></p>
         </div>
 
         <Button type="submit" title="작성 완료" variant="primary" />
