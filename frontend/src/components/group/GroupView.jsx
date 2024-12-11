@@ -24,17 +24,9 @@ const AlbumItem = styled.div`
   overflow: hidden;
   position: relative;
   cursor: pointer;
-
-  &:hover {
-    filter: brightness(0.9);
-
-    & img {
-      transform: scale(1.1);
-    }
-  }
+  border: 1px solid #e0e0e0;
 
   img {
-    transition: all 0.3s;
     width: 100%;
     height: 100%;
     object-fit: cover;
