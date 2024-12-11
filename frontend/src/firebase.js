@@ -48,6 +48,9 @@ const compressImage = async (file) => {
 };
 
 const singleFileUpload = async (file) => {
+  if (file.filename) {
+    return {url: file.url, filename: file.filename};
+  }
   const compressedFile = await compressImage(file);
   const imageFile = await makeDataUrl(compressedFile);
   const uuid = uuidv4();
