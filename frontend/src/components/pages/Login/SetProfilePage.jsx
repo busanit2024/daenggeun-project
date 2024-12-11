@@ -184,6 +184,7 @@ export default function SetProfilePage(props) {
             });
             alert("프로필이 성공적으로 저장되었습니다.");
             navigate("/"); 
+            window.location.reload();
         } catch (error) {
             console.error("프로필 저장 중 오류 발생:", error);
             alert("프로필 저장에 실패했습니다.");

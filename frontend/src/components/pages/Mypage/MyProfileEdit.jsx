@@ -155,6 +155,7 @@ export default function MyProfileEdit(props) {
                     id: user.id,
                     uid: user.uid,
                     username: user.username,
+                    email: user.email,
                     userLocation: user.location,
                     profileImage: newProfileImage,
                 }
@@ -213,10 +214,10 @@ export default function MyProfileEdit(props) {
                     )}
 
                 </div>
-                {/* <div className="inputInner">
+                <div className="inputInner">
                     <h3>이메일</h3>
                     <InputText id='email' value={user?.email ?? ''} placeholder="등록할 이메일을 입력하세요." />
-                </div> */}
+                </div>
 
             </InputBox>
 
