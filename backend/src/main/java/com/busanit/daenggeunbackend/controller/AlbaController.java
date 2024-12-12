@@ -45,6 +45,32 @@ public class AlbaController {
         return ResponseEntity.ok(alba);
     }
 
+    // 검색데이터 가져오기
+    @GetMapping("/search")
+    public ResponseEntity<List<Alba>> searchAlba(
+        @RequestParam(required = false) String sigungu,
+        @RequestParam(required = false) String emd,
+        @RequestParam(required = false) String category,
+        @RequestParam(required = false) String searchTerm,
+        @RequestParam(required = false) String workPeriod,
+        @RequestParam(required = false) List<String> workDays,
+        @RequestParam(required = false) String start,
+        @RequestParam(required = false) String end,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        try {
+            List<Alba> results = albaService.searchAlba(
+                sigungu, emd, category, searchTerm, 
+                workPeriod, workDays, start, end, 
+                page, size
+            );
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     // 알바 데이터 생성
     @PostMapping
     public ResponseEntity<Alba> createAlba(@RequestBody Alba alba) {

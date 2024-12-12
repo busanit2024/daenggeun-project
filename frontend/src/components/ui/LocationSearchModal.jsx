@@ -4,6 +4,7 @@ import axios from "axios";
 import Button from "./Button";
 import useGeolocation from "../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
+import { useArea } from "../../context/AreaContext";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -24,7 +25,7 @@ const ModalContent = styled.div`
   border-radius: 8px;
   width: 400px;
   max-height: 80vh; 
-  min-height: 400px;
+  min-height: 475px;
   overflow-y: auto; 
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 `;
@@ -68,6 +69,40 @@ const NoResultsMessage = styled.div`
   color: #999;
 `;
 
+const MyLocationsContainer = styled.div`
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #E9EBF0;
+`;
+
+const MyLocationsTitle = styled.h4`
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #666;
+`;
+
+const LocationsWrapper = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const LocationChip = styled.div`
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid ${props => props.isActive ? '#FF7B07' : '#E9EBF0'};
+  background: ${props => props.isActive ? '#FFF5ED' : 'white'};
+  color: ${props => props.isActive ? '#FF7B07' : '#333'};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+
+  &:hover {
+    background: #FFF5ED;
+  }
+`;
+
 const libraries = ['places'];
 
 const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
@@ -75,6 +110,9 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   const [busanJuso, setBusanJuso] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredLocations, setFilteredLocations] = useState([]); // 필터링된 위치 리스트
+  const [userLocations, setUserLocations] = useState([]);
+  const { area } = useArea();
+  const uid = sessionStorage.getItem('uid');
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -143,22 +181,43 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
     setFilteredLocations(filtered);
   }, [searchTerm, locations, busanJuso]);
 
+  // 사용자 동네 정보 가져오기
+  useEffect(() => {
+    const fetchUserLocations = async () => {
+      if (!uid) return;
+      
+      try {
+        const response = await axios.get(`/user/${uid}`);
+        if (response.data.location) {
+          setUserLocations(response.data.location);
+        }
+      } catch (error) {
+        console.error("동네 정보를 불러오는데 실패했습니다:", error);
+      }
+    };
 
+    fetchUserLocations();
+  }, [uid]);
 
   const handleLocationSelect = (selectedLocation) => {
-    onSelect(selectedLocation); 
-    setSearchTerm(""); 
-    onClose(); 
+    if(selectedLocation) {
+      const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+      
+      // 부모 컴포넌트에 선택된 위치 전달
+      onSelect(selectedLocation);
+      
+      // 검색창 초기화
+      setSearchTerm("");
+      
+      // 모달 닫기
+      onClose();
 
-    if(selectedLocation){
-      const [sigungu, emd] = selectedLocation.split(",");
+      // 검색 실행 (필요한 경우)
       if (onSearch) {
-        onSearch(sigungu, emd); 
-      } else {
-          console.error("onSearch is not a function");
+        onSearch(sigungu, emd);
       }
     }
-};
+  };
 
 
   const findMyLocation = () => {
@@ -225,6 +284,7 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
         />
           
         <Suggestions>
+          {/* 기존 검색 결과 유지 */}
           {Object.keys(groupedLocations).length > 0 ? (
             Object.keys(groupedLocations).map((sigungu, index) => (
               <div key={index}>
@@ -238,10 +298,10 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
                 </SuggestionItem>
                 {groupedLocations[sigungu].map((emd, emdIndex) => (
                   <SuggestionItem key={emdIndex} onClick={() => {
-                    const selectedLocation = `${sigungu}, ${emd}`; // 문자열로 변환
-                    onSelect(selectedLocation); // 선택한 지역을 부모 컴포넌트에 전달
+                    const selectedLocation = `${sigungu}, ${emd}`;
+                    onSelect(selectedLocation);
                     setSearchTerm("");
-                    setLocations([]); 
+                    setLocations([]);
                     handleLocationSelect(`${sigungu}, ${emd}`)
                   }}>
                     {`${sigungu}, ${emd}`} 
@@ -254,6 +314,26 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
           )}
         </Suggestions>
 
+        {/* 내 동네 목록 - 하단에 수평으로 표시 */}
+        {uid && userLocations.length > 0 && (
+          <MyLocationsContainer>
+            <MyLocationsTitle>내 동네</MyLocationsTitle>
+            <LocationsWrapper>
+              {userLocations.map((location, index) => (
+                <LocationChip
+                  key={index}
+                  isActive={area.sigungu === location.sigungu && area.emd === location.emd}
+                  onClick={() => handleLocationSelect(`${location.sigungu}${location.emd ? `, ${location.emd}` : ''}`)}
+                >
+                  {location.sigungu}{location.emd ? ` ${location.emd}` : ''}
+                  {area.sigungu === location.sigungu && area.emd === location.emd && (
+                    <span>✓</span>
+                  )}
+                </LocationChip>
+              ))}
+            </LocationsWrapper>
+          </MyLocationsContainer>
+        )}
       </ModalContent>
     </ModalOverlay>
   );

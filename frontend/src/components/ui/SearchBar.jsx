@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import RoundFilter from "./RoundFilter";
 import MainSearchBox from "./MainSearchBox";
 import styled from "styled-components";
 import LocationSearchModal from "./LocationSearchModal";
 import { useArea } from "../../context/AreaContext";
+import axios from "axios";
 
 const SearchWrapper = styled.div`
   display: flex;
@@ -19,8 +20,40 @@ const StyledRoundFilter = styled(RoundFilter)`
 
 const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCategory, onSelect , onSearch}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [userLocation, setUserLocation] = useState([{ sigungu: "해운대구", emd: "" }]);
     const { area, setArea } = useArea();
+    const uid = sessionStorage.getItem('uid');
+
+    useEffect(() => {
+        const fetchUserLocation = async () => {
+            try {
+                const response = await axios.get(`/user/${uid}`);
+                const userLocations = response.data.location || [];
+                
+                if (userLocations[0]) {
+                    setArea({
+                        sigungu: userLocations[0].sigungu,
+                        emd: userLocations[0].emd
+                    });
+                } else if (userLocations[1]) {
+                    setArea({
+                        sigungu: userLocations[1].sigungu,
+                        emd: userLocations[1].emd
+                    });
+                }
+            } catch (error) {
+                console.error("위치 정보를 불러오는데 실패했습니다:", error);
+            }
+        };
+
+        if (uid) {
+            fetchUserLocation();
+        } else {
+            setArea({
+                sigungu: "부산진구",
+                emd: ""
+            });
+        }
+    }, [uid, setArea]);
 
     const handleLocationSelect = (selectedLocation) => {
         if (typeof selectedLocation === 'string') {

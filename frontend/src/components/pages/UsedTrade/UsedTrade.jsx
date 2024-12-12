@@ -4,12 +4,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import FilterBar from "../../ui/FilterBar";
 import Button from "../../ui/Button";
-import RoundFilter from "../../ui/RoundFilter";
 import Radio from "../../ui/Radio";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
-import Modal from "../../ui/Modal";
 import SearchBar from "../../ui/SearchBar";
 import Card from "../../ui/Card";
 
@@ -164,7 +162,7 @@ export default function UsedTrade(props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(3); // 한 번에 보이는 카드의 최대 수
   const [selectedCategory, setSelectedCategory] = useState("중고거래");
-  // const [location, setLocation] = useState(location.state);
+
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -180,7 +178,6 @@ export default function UsedTrade(props) {
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const term = query.get('search');
-    console.log("가져온 searchTerm:", term);
     
     if (term) {
       setSearchTerm(term);
@@ -191,12 +188,46 @@ export default function UsedTrade(props) {
   }, [location.search]);
 
   useEffect(() => {
-    axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
-      setBusanJuso(response.data.locationFilters);
-    }).catch((error) => {
-      console.error("부산 주소를 불러오는데 실패했습니다." + error);
-    });
-  }, []);
+    const uid = sessionStorage.getItem('uid');
+    setLoading(true);
+
+    // 모든 초기 데이터를 병렬로 가져오기
+    Promise.all([
+      axios.get(`/api/data/filter?name=busanJuso`),
+      // 사용자 위치 정보 가져오기 (로그인된 경우만)
+      uid ? axios.get(`/user/${uid}`) : Promise.resolve(null)
+    ])
+      .then(([busanJusoResponse, userResponse]) => {
+        const locationFilters = busanJusoResponse.data.locationFilters;
+        setBusanJuso(locationFilters);
+
+        if (userResponse && userResponse.data.location?.length > 0) {
+          const defaultLocation = userResponse.data.location[0];
+          setSearchFilter(prev => ({
+            ...prev,
+            sido: "부산광역시",
+            sigungu: defaultLocation.sigungu,
+            emd: defaultLocation.emd || ''
+          }));
+        }
+        
+        fetchTradeList(0);
+      })
+      .catch(error => {
+        console.error("초기 데이터 로딩 실패:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []); // 컴포넌트 마운트 시 한 번만 실행
+
+  useEffect(() => {
+    if (busanJuso && searchFilter.sigungu) {
+      const emdList = busanJuso.find((item) => item.sigungu === searchFilter.sigungu)?.emd;
+      const emdNameList = emdList?.map((item) => item.emd) || [];
+      setEmdList(emdNameList);
+    }
+  }, [searchFilter.sigungu, busanJuso]);
 
   useEffect(() => {
     if (currentLocation.sido && currentLocation.sigungu) {
@@ -250,7 +281,7 @@ export default function UsedTrade(props) {
         },
       });
 
-      console.log(response.data);
+      //console.log(response.data);
       //setTradeList(response.data);
 
       const newTradeList = response.data;
@@ -258,7 +289,7 @@ export default function UsedTrade(props) {
       setHasNext(!response.data.last);
       setLoading(false);
     } catch (error) {
-      console.error("중고거래 리스트를 불러오는데 실패했습니다." + error);
+      console.error("중고거래 리스를 불러오는데 실패했습니다." + error);
       setLoading(false);
     }
   };
@@ -308,13 +339,13 @@ export default function UsedTrade(props) {
   };
 
   const handleLocationSelect = (selectedLocation) => {
-    console.log("선택된 위치:", selectedLocation);
+    console.log("선택 위치:", selectedLocation);
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
     
     setSearchFilter(prev => ({
       ...prev,
       sigungu,
-      emd: emd || '' 
+      emd: emd || ''
     }));
 
     fetchTradeList(0);
@@ -411,7 +442,7 @@ export default function UsedTrade(props) {
               <h4 className="title">카테고리</h4>
               <CategoryList show={isCategoryOpen}>
                 {[
-                    "디지털기기",
+                    "전자기기",
                     "생활가전",
                     "가구/인테리어",
                     "생활/주방",
