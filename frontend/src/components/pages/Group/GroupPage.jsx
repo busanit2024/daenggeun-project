@@ -267,6 +267,10 @@ export default function GroupPage(props) {
     }));
 };
 
+const handleSearch = (searchTerm) => {
+  console.log("검색어:", searchTerm);
+};
+
 
   const routes = [
     { path: "/", name: "홈" },
@@ -275,9 +279,13 @@ export default function GroupPage(props) {
 
   return (
     <>
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm}
-        selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory}
-        onSelect={handleLocationSelect} />
+      <SearchBar 
+      searchTerm={searchTerm} 
+      setSearchTerm={setSearchTerm}
+      selectedCategory={selectedCategory} 
+      setSelectedCategory={setSelectedCategory}
+      onSelect={handleLocationSelect}
+      onSearch={handleSearch} />
       <Breadcrumb routes={routes} />
       <Container>
         <HeadContainer>
