@@ -15,8 +15,9 @@ import UsedTradeWrite from './components/pages/UsedTrade/UsedTradeWrite';
 import UsedTradeUpdate from './components/pages/UsedTrade/UsedTradeUpdate';
 
 import CommunityPage from './components/pages/Community/CommunityPage';
-// import CommunityViewPage from './components/pages/Community/CommunityViewPage';
+import CommunityViewPage from './components/pages/Community/CommunityViewPage';
 import CommunityWritePage from './components/pages/Community/CommunityWritePage';
+import CommunityEditPage from './components/pages/Community/CommunityEditPage';
 
 import LoginPage from './components/pages/Login/LoginPage';
 import MainPage from './components/pages/MainPage';
@@ -83,8 +84,10 @@ function App() {
               <Route path="usedTradeUpdate/:id" element={<UsedTradeUpdate />} />
               <Route path="login" element={<LoginPage />} />
 
-              <Route path="community" element={<CommunityPage />} />
-              <Route path="community/write" element={<CommunityWritePage />} />
+            <Route path="community" element={<CommunityPage />} />
+            <Route path="community/write" element={<CommunityWritePage />} />
+            <Route path="community/:communityId" element={<CommunityViewPage />} />
+            <Route path="communityEdit/:communityId" element={<CommunityEditPage />} />
 
               <Route path='mypage' element={<MyPageMain />} >
                 <Route path="" element={<MyPageList />} />

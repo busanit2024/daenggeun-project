@@ -80,50 +80,13 @@ const LoadingText = styled.div`
   }
 `;
 
-const CustomSelect = styled.select`
-  flex-grow: 1;
-  padding: 8px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  font-size: 16px;
-`;
-
-const EmdFilterWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 12px;
-  gap: 8px;
-  max-height: ${props => props.open ? '360px' : '160px'};
-  overflow-y: ${props => props.open ? 'auto' : 'hidden'};
-  width: 100%;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: #dcdcdc;
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background-color: #f9f9f9;
-  }
-
-`;
-
-const MoreFilterButton = styled.div`
-  cursor: pointer;
-  color: #FF7B07;
-  font-size: 16px;
-`;
-
 export default function CommunityPage(props) {
   const navigate = useNavigate();
   const routerLocation = useLocation();
   const { area, setArea } = useArea();
   const [communityList, setCommunityList] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchFilter, setSearchFilter] = useState({ sido: "부산광역시", sigungu: "", emd: "", category: "all", sort: "" });
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(true);
@@ -131,7 +94,6 @@ export default function CommunityPage(props) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState('');
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [ selectedCategory, setSelectedCategory]= useState("동네생활");
 
   // URL의 쿼리 파라미터에서 검색어 가져오기
