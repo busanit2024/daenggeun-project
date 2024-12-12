@@ -2,6 +2,7 @@ package com.busanit.daenggeunbackend.service;
 
 import com.busanit.daenggeunbackend.domain.Image;
 import com.busanit.daenggeunbackend.domain.Location;
+import com.busanit.daenggeunbackend.domain.UserDTO;
 import com.busanit.daenggeunbackend.entity.User;
 import com.busanit.daenggeunbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +39,12 @@ public class UserService {
     }
 
 
-    public User saveUserProfile(String id, String username, List<Location> userLocation, Image profileImage) {
+    public User saveUserProfile(String id, String username, String email, List<Location> userLocation, Image profileImage) {
         Optional<User> optionalUser = userRepository.findById(id); // id로 사용자 찾기
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setUsername(username);
+            user.setEmail(email);
             user.setLocation(userLocation); // Location 객체로 변환 필요
             user.setProfileImage(profileImage);
             return userRepository.save(user);
