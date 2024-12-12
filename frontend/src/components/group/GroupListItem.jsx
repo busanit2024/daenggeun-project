@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -71,14 +72,29 @@ const Description = styled.p`
 
 export default function GroupListItem({ group }) {
   const navigate = useNavigate();
+  const uid = sessionStorage.getItem('uid');
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    if (!uid) return;
+    if (group.members?.find((member) => member.userId === uid)?.position === 'ADMIN') {
+      setIsOwner(true);
+    }
+  }, [uid]);
+
+
   return (
     <Container key={group.id} onClick={() => navigate(`/group/${group.id}`)}>
       <ImageContainer>
 
-          <img className="group-image" src={group.image?.url ?? '/images/defaultGroupImage.png'} alt={group.title} onError={(e) => e.target.src = '/images/defaultGroupImage.png'}/>
+        <img className="group-image" src={group.image?.url ?? '/images/defaultGroupImage.png'} alt={group.title} onError={(e) => e.target.src = '/images/defaultGroupImage.png'} />
       </ImageContainer>
       <TextContainer>
-        <Title>{group.title}</Title>
+        <Title style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>{group.title}
+          {isOwner && <span>
+            <img height={16} src="/images/icon/group_admin.svg" alt="모임장" />
+          </span>}
+        </Title>
         <Description>{group.description}</Description>
         <TagContainer>
           <span>
