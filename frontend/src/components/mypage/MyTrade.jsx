@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ListContainer } from "../pages/Mypage/MyPageMain";
 import Card from "../ui/Card";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import axios from "axios";
+import Button from "../ui/Button";
 
 const GridContainer = styled.div`
   display: grid;
@@ -10,22 +12,43 @@ const GridContainer = styled.div`
   gap: 16px;
 `;
 
-const usedTrade = {
-  id: 1,
-  name: '중고거래 상품 이름',
-  price: 10000,
-  location: '동네',
-  category: '카테고리',
-  createdDate: '2021-09-01',
-  tradeable: true,
-  isNegotiable: true,
-  selectedTradeType: '판매',
-  isGived: false
-}
-
 export default function MyTrade() {
   const navigate = useNavigate();
   const [trades, setTrades] = useState([]);
+  const [uid, setUid] = useState('');
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+
+  useEffect(() => {
+    setUid(sessionStorage.getItem('uid'));
+  }, []);
+
+  useEffect(() => {
+    if (!uid) return;
+    fetchMyTrade(0);
+  }, [uid]);
+
+  const fetchMyTrade = (page) => {
+    axios.get(`/api/usedTrades/my`, {
+      params:
+      {
+        userId: uid,
+        page: page,
+        size: 8,
+      }
+    }).then((response) => {
+      const newTrades = response.data.content;
+      setTrades((prev) => (page === 0 ? newTrades : [...prev, ...newTrades]));
+      setHasNext(!response.data.last);
+    }).catch((error) => {
+      console.error('모임을 불러오는데 실패했습니다.' + error);
+    });
+  };
+
+  const handleNext = () => {
+    fetchMyTrade(page + 1);
+    setPage(page + 1);
+  };
 
   const formattedPrice = (price) => {
     return new Intl.NumberFormat('ko-KR').format(price);
@@ -35,26 +58,29 @@ export default function MyTrade() {
     <ListContainer>
       <h3>내 판매내역</h3>
       <GridContainer>
-        <Card
-          key={usedTrade.id}
-          title={usedTrade.name}
-          price={`${formattedPrice(usedTrade.price)} 원`}
-          location={usedTrade.location}
-          onClick={() => navigate(`/usedTrade/used-trade-view/${usedTrade.id}`,
-            {
-              state:
+        {trades.map((trade) => (
+          <Card
+            key={trade.id}
+            title={trade.name}
+            price={`${formattedPrice(trade.price)} 원`}
+            location={trade.location}
+            onClick={() => navigate(`/usedTrade/used-trade-view/${trade.id}`,
               {
-                ...usedTrade, category: usedTrade.category,
-                createdAt: usedTrade.createdDate,
-                tradeable: usedTrade.tradeable,
-                isNegotiable: usedTrade.isNegotiable,
-                isGiveable: usedTrade.selectedTradeType,
-                isGived: usedTrade.isGived
-              }
-            })}
-          style={{ cursor: "pointer" }}
-        />
+                state:
+                {
+                  ...trade, category: trade.category,
+                  createdAt: trade.createdDate,
+                  tradeable: trade.tradeable,
+                  isNegotiable: trade.isNegotiable,
+                  isGiveable: trade.selectedTradeType,
+                  isGived: trade.isGived
+                }
+              })}
+            style={{ cursor: "pointer" }}
+          />
+        ))}
       </GridContainer>
+      {hasNext && <Button title='더보기' onClick={handleNext} />}
     </ListContainer>
   );
 }

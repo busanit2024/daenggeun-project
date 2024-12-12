@@ -3,6 +3,8 @@ package com.busanit.daenggeunbackend.service;
 import com.busanit.daenggeunbackend.entity.UsedTrade;
 import com.busanit.daenggeunbackend.repository.UsedTradeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +68,10 @@ public class UsedTradeService {
     // 검색 결과
     public List<UsedTrade> searchUsedTrades(String keyword) {
         return usedTradeRepository.findByContentContainingOrNameContaining(keyword, keyword);
+    }
+
+    public Slice<UsedTrade> findByUserId(String userId, Pageable pageable) {
+        return usedTradeRepository.findByUserId(userId, pageable);
     }
 
     

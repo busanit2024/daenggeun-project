@@ -61,7 +61,7 @@ export default function MyCommunity() {
       {communityList.map((community) => (
         <CommunityListItem community={community} key={community.id} />
       ))}
-      <Button title={'더보기'} onClick={handleNext} />
+      {hasNext && <Button title={'더보기'} onClick={handleNext} /> }
     </ListContainer>
   );
 }

@@ -17,8 +17,8 @@ const dummyData = {
     sigungu: '구'
   },
   category: '카테고리',
-  }
-  
+}
+
 
 
 export default function MyGroup() {
@@ -29,34 +29,35 @@ export default function MyGroup() {
 
   useEffect(() => {
     setUid(sessionStorage.getItem('uid'));
-  } ,[]);
+  }, []);
 
   useEffect(() => {
     if (!uid) return;
     fetchMyGroup(0);
   }, [uid]);
 
-    const fetchMyGroup = (page) => {
-      axios.get(`/api/group/search`, {params: 
-        {
-          uid: uid,
-          category: 'all',
-          sigungu: '',
-          emd: '',
-          sort: '',
-          page: page,
-          size: 5,
-        }
-      }).then((response) => {
-        const newGroups = response.data.content;
-        setGroups((prev) => (page === 0 ? newGroups : [...prev, ...newGroups]));
-        setHasNext(!response.data.last);
-      }).catch((error) => { 
-        console.error('모임을 불러오는데 실패했습니다.' + error);
-      });
-    };
+  const fetchMyGroup = (page) => {
+    axios.get(`/api/group/search`, {
+      params:
+      {
+        uid: uid,
+        category: 'all',
+        sigungu: '',
+        emd: '',
+        sort: '',
+        page: page,
+        size: 5,
+      }
+    }).then((response) => {
+      const newGroups = response.data.content;
+      setGroups((prev) => (page === 0 ? newGroups : [...prev, ...newGroups]));
+      setHasNext(!response.data.last);
+    }).catch((error) => {
+      console.error('모임을 불러오는데 실패했습니다.' + error);
+    });
+  };
 
-    const handleNext = () => {  
+  const handleNext = () => {
     fetchMyGroup(page + 1);
     setPage(page + 1);
   };
@@ -67,7 +68,7 @@ export default function MyGroup() {
       {groups.map((group) => (
         <GroupListItem group={group} />
       ))}
-      <Button title='더보기' onClick={handleNext} />
+      {hasNext && <Button title='더보기' onClick={handleNext} />}
     </ListContainer>
   );
 }
