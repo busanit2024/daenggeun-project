@@ -10,6 +10,7 @@ import { calculateDate } from "../../utils/calculateDate";
 import { ButtonContainer } from "../pages/Group/GroupCreatePage";
 import { FaCalendar } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
 const ViewHeader = styled.div`
   margin-top: 16px;
@@ -190,15 +191,21 @@ const ParticipantContainer = styled.div`
 }
 `;
 
+const library = ['places'];
 
 export default function GroupScheduleView() {
   const { group, membersLoaded } = useOutletContext();
   const naviagte = useNavigate();
   const { postId } = useParams();
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: library,
+  });
   const [member, setMember] = useState([]);
   const [post, setPost] = useState({});
   const [isMyPost, setIsMyPost] = useState(false);
   const [date, setDate] = useState({});
+  const [markerPosition, setMarkerPosition] = useState(null);
 
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -234,6 +241,20 @@ export default function GroupScheduleView() {
       console.error('게시글을 불러오는데 실패했습니다.' + error);
     });
   }, [postId, membersLoaded]);
+
+  useEffect(() => {
+    if (isLoaded && post.location) {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ address: post.location }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          const location = results[0].geometry.location;
+          setMarkerPosition({ lat: location.lat(), lng: location.lng() });
+        } else {
+          console.error('장소를 찾을 수 없습니다.' + status);
+        }
+      });
+    }
+  }, [isLoaded, post.location]);
 
 
   const handleDelete = () => {
@@ -271,10 +292,12 @@ export default function GroupScheduleView() {
       alert('로그인이 필요합니다.');
       return;
     }
-    axios.get(`/api/group/schedule/assign`, {params: {
-      scheduleId: post.id,
-      userId: userId,
-    }}).then((response) => {
+    axios.get(`/api/group/schedule/assign`, {
+      params: {
+        scheduleId: post.id,
+        userId: userId,
+      }
+    }).then((response) => {
       alert('일정에 참여했어요.');
       window.location.reload();
     }).catch((error) => {
@@ -287,7 +310,7 @@ export default function GroupScheduleView() {
     <Container>
       <InnerContainer>
         <div>
-        <TitleWrap>
+          <TitleWrap>
             <span className={post?.closed ? 'closed' : 'open'}>{post?.closed ? '종료' : '모집중'}</span>
             <span className="title">{post?.title ?? '게시글 제목'}</span>
           </TitleWrap>
@@ -313,7 +336,7 @@ export default function GroupScheduleView() {
             </Info>
           </ViewHeader>
 
-          
+
 
         </div>
         <Content>
@@ -329,22 +352,25 @@ export default function GroupScheduleView() {
           </div>
 
 
-            {post?.content ?? '게시글 내용'}
-            {post?.images?.length > 0 && <ImageContainer>
-              {post?.images?.map((image) => (
-                <img key={image.filename} src={image.url} alt="게시글 이미지" />
-              ))}
-            </ImageContainer>
-            }
-            <div className="detail-map">
-              <iframe
-                title="location"
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(post?.location)}&t=&z=15&ie=UTF8&iwloc=&output=embed&markers=${encodeURIComponent(post?.location)}`}
-                className="map-frame"
-              ></iframe>
-              <div className="location">{post?.location}</div>
-            </div>
-          
+          {post?.content ?? '게시글 내용'}
+          {post?.images?.length > 0 && <ImageContainer>
+            {post?.images?.map((image) => (
+              <img key={image.filename} src={image.url} alt="게시글 이미지" />
+            ))}
+          </ImageContainer>
+          }
+          <div className="detail-map">
+          {isLoaded &&
+              <GoogleMap
+                mapContainerStyle={{ width: '100%', height: '260px' }}
+            center={markerPosition || { lat: 0, lng: 0 }}
+            zoom={15}
+              >
+                {markerPosition && <Marker position={markerPosition} />}
+              </GoogleMap> }
+            <div className="location">{post?.location}</div>
+          </div>
+
         </Content>
 
         <ParticipantContainer>
