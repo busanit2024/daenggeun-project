@@ -58,6 +58,7 @@ public class Group {
 
   public static Group toEntity(GroupDTO groupDTO) {
     GroupBuilder builder = Group.builder()
+            .userId(groupDTO.getUserId())
             .title(groupDTO.getTitle())
             .image(groupDTO.getImage())
             .description(groupDTO.getDescription())

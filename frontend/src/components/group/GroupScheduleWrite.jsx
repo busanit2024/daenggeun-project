@@ -6,14 +6,10 @@ import { useEffect, useState } from "react";
 import Button from "../ui/Button";
 import axios from "axios";
 import { deleteFile, deleteFiles, multipleFileUpload } from "../../firebase";
+import InputText from "../ui/InputText";
+import { FaRegCalendar, FaUsers } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
 
-const CustomSelect = styled.select`
-  flex-grow: 1;
-  padding: 8px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  font-size: 16px;
-`;
 
 const WriteHeader = styled.div`
 margin-top: 16px;
@@ -63,9 +59,57 @@ border-bottom: 1px solid #e0e0e0;
   }
 `;
 
+const TitleInput = styled.input`
+  flex-grow: 1;
+  padding: 8px;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: bold;
+`;
+
+const OptionContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 16px 8px;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .addressSearch {
+    display: flex;
+    width: 60%;
+    gap: 8px;
+    align-items: center;
+  }
+
+`;
+
+const DateInput = styled.input`
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-family: inherit;
+`;
+
+const NumberInput = styled.input`
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-family: inherit;
+  width: 60px;
+  text-align: right;
+`;
+
 const CustomTextArea = styled.textarea`
   width: 100%;
-  height: 400px;
+  height: 200px;
   padding: 8px;
   border: none;
   outline: none;
@@ -139,7 +183,7 @@ const ImagePreview = styled.div`
 `;
 
 
-export default function GroupBoardWrite() {
+export default function GroupScheduleWrite() {
   const { postId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -153,11 +197,26 @@ export default function GroupBoardWrite() {
   const [input, setInput] = useState({
     groupId: group.id,
     userId: '',
+    title: '',
     content: '',
-    board: group.boards?.[0],
-    isPrivate: false,
     images: [],
+    date: '',
+    isClosed: false,
+    location: '',
+    maxMember: 4,
   });
+
+  useEffect(() => {
+    // Daum Postcode script 추가
+    const script = document.createElement("script");
+    script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.async = true;
+    document.body.appendChild(script);
+  
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
     setIsEditing(currentPath.includes('edit'));
@@ -165,16 +224,13 @@ export default function GroupBoardWrite() {
 
   useEffect(() => {
     if (isEditing) {
-      axios.get(`/api/group/board/post/${postId}`, {params: {
+      axios.get(`/api/group/schedule/view/${postId}`, {params: {
         view: false,
       }}).then((response) => {
         const post = response.data;
         setInput((prev) => ({
           ...prev,
-          content: post.content,
-          board: post.board,
-          isPrivate: post.isPrivate,
-          images: post.images,
+          ...post,
           id: postId,
         }));
         setImages(post.images);
@@ -228,18 +284,24 @@ export default function GroupBoardWrite() {
   }
 
   const handleUpload = async () => {
-
     try {
+      let participants = [];
+      if (isEditing) {
+        participants = input?.participants ?? [];
+      } else {
+        participants = [member.userId];
+      }
       await deleteFiles(deleteImages);
       multipleFileUpload(images).then((images) => {
         setInput((prev) => ({ ...prev, images }));
-        axios.post('/api/group/board/write', {
+        axios.post('/api/group/schedule/save', {
           ...input,
+          participants,
           images,
         }).then((response) => {
           console.log(response.data);
-          alert(`게시글을 ${isEditing ? '수정' : '작성'}했어요.`);
-          navigate('/group/' + group.id + '/board');
+          alert(`일정을 ${isEditing ? '수정했어요.' : '만들었어요.'}`);
+          navigate('/group/' + group.id + '/schedule');
         }).catch((error) => {
           console.error('서버 저장에 실패했습니다.' + error);
           deleteFiles(images.map((image) => image.filename));
@@ -248,17 +310,25 @@ export default function GroupBoardWrite() {
         console.error('이미지 업로드에 실패했습니다.' + error);
       });
     } catch (error) {
-      console.error('글쓰기에 실패했습니다.' + error);
-      alert(`${isEditing ? '게시글 수정' : '글쓰기'}에 실패했습니다. 다시 시도해주세요.`);
+      console.error('일정 만들기에 실패했습니다.' + error);
+      alert(`${isEditing ? '일정 수정' : '일정 만들기'}에 실패했습니다. 다시 시도해주세요.`);
     }
   };
+
+  const handleAddressSearch = (e) => {
+    new window.daum.Postcode({
+      oncomplete: function (data) {
+        setInput((prev) => ({ ...prev, location: data.address }));
+      },
+    }).open();
+};
 
 
   return (
     <Container>
       <InnerContainer>
         <div>
-          <h3 className="title">{isEditing ? '게시글 수정하기' : '글쓰기' }</h3>
+          <h3 className="title">{isEditing ? '일정 수정하기' : '일정 만들기'}</h3>
           <p>{group.title}</p>
 
           {loading && <div>사용자 정보 로딩중...</div>}
@@ -270,32 +340,44 @@ export default function GroupBoardWrite() {
                   <img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/defaultProfileImage.png'} alt="프로필 이미지" />
                 </div>
 
-                <div className="profile-name">
-                  <span>{member?.username}</span>
-                  <span>{group.useNickname && `(${member?.groupNickName})`}</span>
-
-                </div>
-              </div>
-
-              <div className="options">
-                <CustomSelect name="board" id="board" value={input.board} onChange={(e) => setInput((prev) => ({ ...prev, board: e.target.value }))}>
-                  {
-                    group.boards?.map((board) => (
-                      <option key={board} value={board}>{board}</option>
-                    ))
-                  }
-                </CustomSelect>
-                <div className="switch">
-                  <label htmlFor="private">멤버만 공개</label>
-                  <Switch id="private" value={input.isPrivate} onChange={(e) => setInput((prev) => ({ ...prev, isPrivate: e.target.checked }))} />
-                </div>
-
+                <TitleInput underline value={input.title} onChange={(e) => setInput((prev) => ({ ...prev, title: e.target.value }))} placeholder="멤버들과 어떤 활동을 할까요?" />
               </div>
             </WriteHeader>
           )}
         </div>
 
-        <CustomTextArea value={input.content} onChange={(e) => setInput((prev) => ({ ...prev, content: e.target.value }))} placeholder="질문이나 이야기를 남겨보세요." />
+        <div style={{display: 'flex', flexDirection: 'column', marginTop: '-24px'}}>
+          <OptionContainer>
+            <span>
+              <FaRegCalendar />
+              날짜 및 시간
+            </span>
+            <DateInput type="datetime-local" value={input.date} onChange={(e) => setInput((prev) => ({ ...prev, date: e.target.value }))} />
+          </OptionContainer>
+
+          <OptionContainer>
+            <span>
+              <FaLocationDot />
+              장소</span>
+            <div className="addressSearch">
+              <InputText grow value={input.location} onChange={(e) => setInput((prev) => ({ ...prev, location: e.target.value }))} placeholder="장소를 입력해주세요." />
+              <Button title="검색" onClick={handleAddressSearch} />
+            </div>
+          </OptionContainer>
+
+          <OptionContainer>
+            <span>
+              <FaUsers />
+              인원
+            </span>
+            <div>
+              <NumberInput type="number" value={input.maxMember} onChange={(e) => setInput((prev) => ({ ...prev, maxMember: e.target.value }))} />
+              명
+            </div>
+          </OptionContainer>
+        </div>
+
+        <CustomTextArea value={input.content} onChange={(e) => setInput((prev) => ({ ...prev, content: e.target.value }))} placeholder="활동에 대한 설명을 추가해주세요." />
 
         <ImageUpload>
           <CustomFileUpload type="file" id="image" multiple onChange={handleImageUpload} />
@@ -318,7 +400,7 @@ export default function GroupBoardWrite() {
 
         </ImageUpload>
 
-        <Button title={`${isEditing ? '수정하기' : '글쓰기'}`} variant='primary' onClick={handleUpload}></Button>
+        <Button title={`${isEditing ? '수정하기' : '완료'}`} variant='primary' onClick={handleUpload}></Button>
 
       </InnerContainer>
 

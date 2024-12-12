@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class GroupDTO {
     private String id;
+    private String userId;
     private String title;
     private Image image;
     private String description;
@@ -39,6 +40,7 @@ public class GroupDTO {
   public static GroupDTO toDTO(Group group) {
     GroupDTOBuilder builder = GroupDTO.builder();
     builder.id(group.getId());
+    builder.userId(group.getUserId());
     builder.title(group.getTitle());
     builder.image(group.getImage());
     builder.description(group.getDescription());

@@ -125,6 +125,7 @@ export default function MyProfileEdit(props) {
         const uid = sessionStorage.getItem('uid');
         if (!uid) return;
         axios.get(`/user/${uid}`).then((response) => {
+            console.log(response.data);
             setUser(response.data);
             console.log(response.data);
         }).catch((error) => {
@@ -204,7 +205,7 @@ export default function MyProfileEdit(props) {
                 <div className="inputInner">
                     <h3 delay="1s">내 동네 설정하기</h3>
                     <InputText
-                        value={user?.location?.map(loc => `${loc.sigungu}, ${loc.emd ?? ''}`).join(", ")}
+                        value={`${user?.location?.[0].sigungu}${user?.location?.[0].emd ? `, ${user?.location?.[0].emd}` : ''}`}
                         onClick={() => setIsModalOpen(true)}
                         placeholder="지역이나 동네로 검색하기"
                         readOnly

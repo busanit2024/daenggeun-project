@@ -9,6 +9,9 @@ import com.busanit.daenggeunbackend.service.UsedTradeService;
 import jakarta.servlet.Filter;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -97,6 +100,14 @@ public class UsedTradeController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    //내가 올린 거래 목록
+    @GetMapping("/my")
+    public ResponseEntity<Slice<UsedTrade>> getMyTrade(@RequestParam String userId, @RequestParam int page, @RequestParam int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Slice<UsedTrade> trades = usedTradeService.findByUserId(userId, pageable);
+        return ResponseEntity.ok(trades);
     }
 
     @PostMapping("/images")
