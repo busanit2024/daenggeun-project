@@ -6,6 +6,7 @@ import com.busanit.daenggeunbackend.entity.FilterData;
 import com.busanit.daenggeunbackend.entity.UsedTrade;
 import com.busanit.daenggeunbackend.service.FilterDataService;
 import com.busanit.daenggeunbackend.service.UsedTradeService;
+import com.google.api.Http;
 import jakarta.servlet.Filter;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/usedTrades")
 public class UsedTradeController {
@@ -32,14 +35,20 @@ public class UsedTradeController {
     @Autowired
     private FilterDataService filterDataService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UsedTrade> createUsedTrade(
-            @RequestBody UsedTrade usedTrade,
-            @RequestParam("images") MultipartFile imageFile) {
+            @RequestPart("usedTrade") UsedTrade usedTrade,
+            @RequestParam("files") MultipartFile imageFiles) {
         System.out.println("Received POST request with data: " + usedTrade);
-        usedTrade.setTradeable(true);
-        UsedTrade createdUsedTrade = usedTradeService.createUsedTrade(usedTrade, imageFile);
-        return ResponseEntity.ok(createdUsedTrade);
+
+        try {
+            usedTrade.setTradeable(true);
+            UsedTrade createdUsedTrade = usedTradeService.createUsedTrade(usedTrade, imageFiles);
+            return ResponseEntity.ok(createdUsedTrade);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
@@ -102,7 +111,7 @@ public class UsedTradeController {
         }
     }
 
-    //내가 올린 거래 목록
+    // 내가 올린 거래 목록
     @GetMapping("/my")
     public ResponseEntity<Slice<UsedTrade>> getMyTrade(@RequestParam String userId, @RequestParam int page, @RequestParam int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -110,15 +119,16 @@ public class UsedTradeController {
         return ResponseEntity.ok(trades);
     }
 
-    @PostMapping("/images")
+    @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<Image>> uploadImages(@RequestParam("files") MultipartFile[] files) {
         List<Image> images = new ArrayList<>();
-        String uploadDir = "uploads/"; // 파일 저장 경로
+        String uploadDir = new File(System.getProperty("user.dir")).getAbsolutePath() + "/uploads/"; // 파일 저장 경로
 
         for (MultipartFile file : files) {
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             File dest = new File(uploadDir + fileName);
             try {
+                dest.getParentFile().mkdirs();
                 file.transferTo(dest); // 파일 저장
 
                 // Image 객체 생성 및 설정

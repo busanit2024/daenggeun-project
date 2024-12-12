@@ -22,8 +22,12 @@ public class UsedTradeService {
     @Transactional
     public UsedTrade createUsedTrade(UsedTrade usedTrade, MultipartFile imageFile) {
         try {
-            byte[] imageBytes = imageFile.getBytes();
-            usedTrade.setImageData(imageBytes);
+            if (imageFile != null && !imageFile.isEmpty()) {
+                byte[] imageBytes = imageFile.getBytes();
+                usedTrade.setImageData(imageBytes);
+            } else {
+                // 기본 이미지 처리
+            }
             return usedTradeRepository.save(usedTrade);
         } catch (IOException e) {
             throw new RuntimeException("이미지 업로드에 실패했습니다.", e);

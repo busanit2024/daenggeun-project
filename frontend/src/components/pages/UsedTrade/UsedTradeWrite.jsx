@@ -282,71 +282,34 @@ const UsedTradeWrite = () => {
         setIsCategoryOpen(false);   // 선택 후 드롭다운 닫기
     };
 
-    
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         let hasError = false;
-
-        // 초기화
-        setNameError("");
-        setPriceError("");
-        setLocationError("");
-
+    
+        // 유효성 검사
         if (!name) {
             setNameError("제목을 입력해주세요!");
             hasError = true;
         }
-    
         if (!location) {
             setLocationError("거래 희망 장소를 선택해주세요!");
             hasError = true;
         }
-    
         if (!price) {
             setPriceError("가격을 입력해주세요!");
             hasError = true;
         }
+        if (hasError) return;
     
-        if (hasError) {
-            return; // 에러가 있으면 제출하지 않음
-        }
-
-        const confirmSubmit = window.confirm("중고거래 악용을 막기 위해 거래 희망 장소는\n수정할 수 없게 되어있습니다.\n정말로 등록하시겠습니까?");
+        const confirmSubmit = window.confirm("악용을 방지하기 위해 거래 희망 장소는\n수정이 불가합니다. 정말로 등록하시겠습니까?");
         if (!confirmSubmit) return;
-
+    
         const userId = sessionStorage.getItem('uid');
-
-        // 이미지 업로드
-        let imageUrls = [];
-        if (uploadedImages.length > 0) {
-            const formData = new FormData();
-            uploadedImages.forEach((img) => {
-                formData.append('files', img); // 이미지 파일 추가
-            });
-
-            try {
-                const response = await fetch('/api/usedTrades/images', {
-                    method: 'POST',
-                    body: formData,
-                });
-                if (response.ok) {
-                    const uploadedImageData = await response.json(); // 서버에서 반환된 Image 객체 리스트
-                    imageUrls = uploadedImageData.map(img => img.url); // URL만 추출
-                } else {
-                    alert("이미지 업로드에 실패했습니다.");
-                    console.log('Image upload failed:', response.statusText);
-                    return;
-                }
-            } catch (error) {
-                console.error('Error uploading images:', error);
-                alert("이미지 업로드 중 오류가 발생했습니다.");
-                return;
-            }
-        }
-
-        const usedTradeData = {
+    
+        // FormData 생성
+        const formData = new FormData();
+        formData.append('usedTrade', new Blob([JSON.stringify({
             userId: userId,
             name: name,
             category: selectedCategory || "카테고리 없음",
@@ -356,38 +319,34 @@ const UsedTradeWrite = () => {
             emd: selectedDong,
             content: content,
             createdDate: new Date().toISOString(),
-            images: imageUrls,
-            views: 0,   // 조회수는 일단 0으로 지정
-            isNegotiable: isPriceNegotiable,    // 네고 가능 여부
-            isGiveable: isGiveable, // 나눔 신청 가능 여부
-            isGived: selectedTradeType, // 판매, 나눔 여부
-            tradeble: true,  // 거래 가능 여부
+            views: 0,
+            isNegotiable: isPriceNegotiable,
+            isGiveable: isGiveable,
+            isGived: selectedTradeType,
+            tradeble: true,
             bookmarkUsers: [],
-        };
-
-        console.log("isPriceNegotiable:", isPriceNegotiable);
-        console.log("isGiveable:", isGiveable);
-        console.log("selectedTradeType:", selectedTradeType);
-
-        console.log("usedTradeData: ", usedTradeData);
-
+        })], { type: 'application/json' }));
+    
+        // 이미지가 있을 경우 추가
+        if (uploadedImages.length > 0) {
+            uploadedImages.forEach((img) => {
+                formData.append('files', img); // 이미지 파일 추가
+            });
+        }
+    
         try {
             const response = await fetch('/api/usedTrades', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(usedTradeData),
+                body: formData,
             });
-            console.log(usedTradeData);
             if (response.ok) {
                 const createdUsedTrade = await response.json();
-                console.log('Trade created:', createdUsedTrade);
                 alert("등록되었습니다.");
-                navigate("/usedTrade");  // 중고거래 등록 후 목록 페이지로 이동
+                navigate("/usedTrade");
             } else {
-                console.error('Failed to create trade');
-                alert("등록에 실패했습니다.");
+                const errorMessage = await response.text();
+                console.error('Failed to create trade:', errorMessage);
+                alert("등록에 실패했습니다: " + errorMessage);
             }
         } catch (error) {
             console.error('Error', error);

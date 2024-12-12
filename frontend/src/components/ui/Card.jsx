@@ -34,9 +34,16 @@ const Location = styled.p`
     margin: 4px 0 0;
 `
 
-const Card = ({ title, price, location, onClick }) => {
+const image = styled.img`
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+`;
+
+const Card = ({ title, price, location, onClick, imageUrl }) => {
     return (
         <CardContainer onClick={onClick} style={{cursor: "pointer"}}>
+            {imageUrl && <image src={imageUrl} alt={title} />}
             <ImagePlaceholder />
             <Info>
                 <Title>{title}</Title>

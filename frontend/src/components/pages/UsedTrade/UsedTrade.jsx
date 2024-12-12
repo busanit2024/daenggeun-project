@@ -498,6 +498,7 @@ export default function UsedTrade(props) {
                                 isNegotiable: usedTrade.isNegotiable,
                                 isGiveable: usedTrade.selectedTradeType,
                                 isGived: usedTrade.isGived,
+                                imageData: usedTrade.imageData,
                               }
                             }
                           )
