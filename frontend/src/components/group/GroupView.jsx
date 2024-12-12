@@ -53,6 +53,7 @@ export default function GroupView() {
   const { group, membersLoaded } = useOutletContext();
   const [selectedBoard, setSelectedBoard] = useState('all');
   const [posts, setPosts] = useState([]);
+  const [schedules, setSchedules] = useState([]);
 
   useEffect(() => {
     if (!membersLoaded) return;
@@ -73,6 +74,25 @@ export default function GroupView() {
     }).catch((error) => {
       console.error('게시글을 불러오는데 실패했습니다.' + error);
     });
+
+    axios.get(`/api/group/schedule/${group.id}`, {params: {
+      closed: false,
+      page: 0,
+      size: 4,
+    }}).then((response) => {
+      const newPosts = response.data.content;
+      const postsWithUser = newPosts.map((post) => {
+        const user = group.members.find((member) => member.userId === post.userId);
+        return {
+          ...post,
+          user: user,
+        };
+      });
+      setSchedules(postsWithUser);
+    }).catch((error) => {
+      console.error('모집중인 일정을 불러오는데 실패했습니다.' + error);
+    });
+
   }, [group, membersLoaded, selectedBoard]);
 
 
@@ -116,10 +136,9 @@ export default function GroupView() {
           </Link>
         </div>
         <GridContainer>
-          <ScheduleListItem />
-          <ScheduleListItem />
-          <ScheduleListItem />
-          <ScheduleListItem />
+          {schedules.map((schedule) => (
+            <ScheduleListItem key={schedule.id} schedule={schedule} onClick={() => naviagte(`schedule/${schedule.id}`)} />
+          ))}
         </GridContainer>
       </InnerContainer>
       <InnerContainer className="innerContainer">

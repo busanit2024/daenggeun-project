@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FaExclamationCircle, FaRegClock } from "react-icons/fa";
 import styled from "styled-components";
 
@@ -8,7 +9,7 @@ const Wrapper = styled.div`
   cursor: pointer;
 `;
 
-const Date = styled.div`
+const DateWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -91,36 +92,55 @@ const Image = styled.div`
 
 
 export default function ScheduleListItem(props) {
-  const { schedule } = props;
+  const { schedule, onClick } = props;
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    const ampm = hour < 12 ? '오전' : '오후';
+    const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+    const time = `${ampm} ${formattedHour}:${minute < 10 ? '0' + minute : minute}`;
+    return { year, month, day, time };
+  }
+
+  const date = formatDate(schedule?.date);
 
   return (
-    <Wrapper>
-      <div style={{display: 'flex', gap: '16px'}}>
-        <Date>
-          <div className="month">11월</div>
-          <div className="date">27</div>
-        </Date>
+    <Wrapper onClick={onClick}>
+      <div style={{ display: 'flex', gap: '16px' }}>
+        <DateWrapper>
+          <div className="month">{date.month}</div>
+          <div className="date">{date.day}</div>
+        </DateWrapper>
         <Info>
-          {/* <div className="private"><FaExclamationCircle />모임에게만 공개된 일정이에요.</div> */}
-          <div className="title">일정 제목</div>
+          {schedule.isPrivate && <div className="private"><FaExclamationCircle />모임에게만 공개된 일정이에요.</div>}
+          <div className="title">{schedule.title}</div>
           <div className="state">
-            <span className="open">모집중</span>
-            <span className="close">마감</span>
+            {schedule.closed ? <span className="close">마감</span> : <span className="open">모집중</span>}
           </div>
           <div className="tags">
             <span>
               <FaRegClock />
-              오전 11:00</span>
+              {date.time}</span>
             <span>
               <img height={18} src="/images/icon/people_gray.svg" />
-              0/0명</span>
+              {schedule.participants?.length || 0}
+              /
+              {schedule.maxMember || 0}
+              명
+              </span>
           </div>
         </Info>
       </div>
 
 
       <Image>
-        <img src="/images/default_group_image.jpg" alt="모임 이미지" />
+        {schedule.images?.length > 0 && <img src={schedule.images[0].url} alt="모임 이미지" />}
       </Image>
 
     </Wrapper>
