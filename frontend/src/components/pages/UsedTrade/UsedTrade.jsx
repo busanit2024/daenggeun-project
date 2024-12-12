@@ -4,12 +4,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import FilterBar from "../../ui/FilterBar";
 import Button from "../../ui/Button";
-import RoundFilter from "../../ui/RoundFilter";
 import Radio from "../../ui/Radio";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
-import Modal from "../../ui/Modal";
 import SearchBar from "../../ui/SearchBar";
 import Card from "../../ui/Card";
 
@@ -164,7 +162,6 @@ export default function UsedTrade(props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(3); // 한 번에 보이는 카드의 최대 수
   const [selectedCategory, setSelectedCategory] = useState("중고거래");
-  // const [location, setLocation] = useState(location.state);
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
