@@ -1,5 +1,6 @@
 package com.busanit.daenggeunbackend.repository;
 
+import com.busanit.daenggeunbackend.domain.ScheduleDTO;
 import com.busanit.daenggeunbackend.entity.Schedule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

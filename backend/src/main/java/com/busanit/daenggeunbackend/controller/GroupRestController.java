@@ -157,4 +157,19 @@ public class GroupRestController {
     Pageable pageable = PageRequest.of(page, size);
     return groupService.getScheduleSlice(groupId, closed, pageable);
   }
+
+  @GetMapping("/schedule/view/{postId}")
+  private ScheduleDTO getSchedule(@PathVariable String postId, @RequestParam boolean view) {
+    return groupService.getSchedule(postId, view);
+  }
+
+  @PostMapping("/schedule/delete")
+  private void deleteSchedule(@RequestBody ScheduleDTO scheduleDTO) {
+    groupService.deleteSchedule(scheduleDTO);
+  }
+
+  @GetMapping("/schedule/assign")
+  private void assignSchedule(@RequestParam String scheduleId, @RequestParam String userId) {
+    groupService.assignSchedule(scheduleId, userId);
+  }
 }

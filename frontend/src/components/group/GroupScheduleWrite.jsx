@@ -223,22 +223,21 @@ export default function GroupScheduleWrite() {
   }, [currentPath]);
 
   useEffect(() => {
-    // if (isEditing) {
-    //   axios.get(`/api/group/board/post/${postId}`).then((response) => {
-    //     const post = response.data;
-    //     setInput((prev) => ({
-    //       ...prev,
-    //       content: post.content,
-    //       board: post.board,
-    //       isPrivate: post.isPrivate,
-    //       images: post.images,
-    //       id: postId,
-    //     }));
-    //     setImages(post.images);
-    //   }).catch((error) => {
-    //     console.error('게시글을 불러오는데 실패했습니다.' + error);
-    //   });
-    // }
+    if (isEditing) {
+      axios.get(`/api/group/schedule/view/${postId}`, {params: {
+        view: false,
+      }}).then((response) => {
+        const post = response.data;
+        setInput((prev) => ({
+          ...prev,
+          ...post,
+          id: postId,
+        }));
+        setImages(post.images);
+      }).catch((error) => {
+        console.error('게시글을 불러오는데 실패했습니다.' + error);
+      });
+    }
   }, [isEditing]);
 
   useEffect(() => {

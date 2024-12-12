@@ -108,7 +108,7 @@ export default function ScheduleListItem(props) {
     return { year, month, day, time };
   }
 
-  const date = formatDate(schedule.date);
+  const date = formatDate(schedule?.date);
 
   return (
     <Wrapper onClick={onClick}>
