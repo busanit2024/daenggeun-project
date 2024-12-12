@@ -152,6 +152,11 @@ export default function MemberProfile() {
     setIsEditing(false);
   }
 
+  const checkMyProfile = () => {
+    const uid = sessionStorage.getItem('uid');
+    return uid === member?.userId;
+  }
+
 
   return (
     <Container>
@@ -168,7 +173,7 @@ export default function MemberProfile() {
               <>
                 {!isEditing && (
                   <div className="nickname">{member?.groupNickName ?? '모임 별명'}
-                    <FaPen onClick={() => setIsEditing(true)} />
+                    {checkMyProfile() && <FaPen onClick={() => setIsEditing(true)} /> }
                   </div>
                 )}
                 {isEditing && (

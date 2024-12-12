@@ -65,10 +65,16 @@ export default function MyGroup() {
   return (
     <ListContainer>
       <h3>참여중인 모임</h3>
-      {groups.map((group) => (
-        <GroupListItem group={group} />
-      ))}
-      {hasNext && <Button title='더보기' onClick={handleNext} />}
+      {groups.length === 0 && <div>참여중인 모임이 없어요.</div>}
+
+      {groups.length > 0 &&
+        <>
+          {groups.map((group) => (
+            <GroupListItem group={group} />
+          ))}
+          {hasNext && <Button title='더보기' onClick={handleNext} />}
+        </>
+      }
     </ListContainer>
   );
 }

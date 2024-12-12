@@ -57,30 +57,35 @@ export default function MyTrade() {
   return (
     <ListContainer>
       <h3>내 판매내역</h3>
-      <GridContainer>
-        {trades.map((trade) => (
-          <Card
-            key={trade.id}
-            title={trade.name}
-            price={`${formattedPrice(trade.price)} 원`}
-            location={trade.location}
-            onClick={() => navigate(`/usedTrade/used-trade-view/${trade.id}`,
-              {
-                state:
-                {
-                  ...trade, category: trade.category,
-                  createdAt: trade.createdDate,
-                  tradeable: trade.tradeable,
-                  isNegotiable: trade.isNegotiable,
-                  isGiveable: trade.selectedTradeType,
-                  isGived: trade.isGived
-                }
-              })}
-            style={{ cursor: "pointer" }}
-          />
-        ))}
-      </GridContainer>
-      {hasNext && <Button title='더보기' onClick={handleNext} />}
+      {trades.length === 0 && <div>판매내역이 없어요.</div>}
+      {trades.length > 0 &&
+        <>
+          <GridContainer>
+            {trades.map((trade) => (
+              <Card
+                key={trade.id}
+                title={trade.name}
+                price={`${formattedPrice(trade.price)} 원`}
+                location={trade.location}
+                onClick={() => navigate(`/usedTrade/used-trade-view/${trade.id}`,
+                  {
+                    state:
+                    {
+                      ...trade, category: trade.category,
+                      createdAt: trade.createdDate,
+                      tradeable: trade.tradeable,
+                      isNegotiable: trade.isNegotiable,
+                      isGiveable: trade.selectedTradeType,
+                      isGived: trade.isGived
+                    }
+                  })}
+                style={{ cursor: "pointer" }}
+              />
+            ))}
+          </GridContainer>
+          {hasNext && <Button title='더보기' onClick={handleNext} />}
+        </>
+      }
     </ListContainer>
   );
 }
