@@ -39,18 +39,18 @@ public class UserService {
     }
 
 
-    public User saveUserProfile(String id, String username, String email, List<Location> userLocation, Image profileImage) {
-        Optional<User> optionalUser = userRepository.findById(id); // id로 사용자 찾기
+    public User saveUserProfile(String uid, String username, String email, List<Location> userLocation, Image profileImage) {
+        Optional<User> optionalUser = userRepository.findByUid(uid); // id 대신 uid로 사용자 찾기
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setUsername(username);
             user.setEmail(email);
-            user.setLocation(userLocation); // Location 객체로 변환 필요
+            user.setLocation(userLocation);
             user.setProfileImage(profileImage);
             return userRepository.save(user);
         }
         return null;
-        }
+    }
 
     public List<User> findByUidIn(List<String> uids){
         return userRepository.findByUidIn(uids);

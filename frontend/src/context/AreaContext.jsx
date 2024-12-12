@@ -12,4 +12,4 @@ export const AreaProvider = ({ children }) => {
     );
 };
 
-export const useArea = () => useContext(AreaContext);
+export const useArea = () => useContext(AreaContext); 
