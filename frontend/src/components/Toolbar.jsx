@@ -26,6 +26,15 @@ const Toolbar = () => {
         setIsLoggedIn(false);
         logout();
     };
+
+    const handleNavigation = (path, category) => {
+        navigate(`${path}`, { 
+            state: { 
+                fromToolbar: true,
+                category: category 
+            } 
+        });
+    };
     
     return (
         <div className="toolbar">
@@ -37,18 +46,21 @@ const Toolbar = () => {
                 <nav>
                     <ul className="nav-links">
                         <li>
-                            <a href="/usedTrade">중고거래</a>
+                            <a onClick={() => handleNavigation('/usedTrade','중고거래')}
+                               style={{ cursor: 'pointer' }}>중고거래</a>
                         </li>
                         <li>
-                            <a href="/alba">알바</a>
+                            <a onClick={() => handleNavigation('/alba', '알바')} 
+                               style={{ cursor: 'pointer' }}>알바</a>
                         </li>
                         <li>
-                            <a href="/community">동네생활</a>
+                            <a onClick={() => handleNavigation('/community', '동네생활')} 
+                               style={{ cursor: 'pointer' }}>동네생활</a>
                         </li>
                         <li>
                             <a href="/group">모임</a>
                         </li>
-                        </ul>
+                    </ul>
                 </nav>
                 <div className="auth-links">
                     {isLoggedIn ? (

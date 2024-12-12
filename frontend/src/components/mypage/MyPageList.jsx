@@ -42,56 +42,56 @@ export default function MyPageList() {
                 </div>
 
 
-            </ProfileBox>
+        </ProfileBox>
 
-            {/* 나의 거래  */}
-            <ProfileBox>
-                <p>나의 거래</p>
-                <div className="innerContainer">
-                    {/* <div className="innerTitle">
-                        <FaRegHeart />
-                        <span>관심목록</span>
-                    </div> */}
-                    <div className="innerTitle" onClick={() => navigate("trade")}>
-                        <FaReceipt />
-                        <span>판매내역</span>
-                    </div>
-                    {/* <div className="innerTitle">
-                        <FaShoppingBasket />
-                        <span>구매내역</span>
-                    </div> */}
-
+        {/* 나의 거래  */}
+        <ProfileBox>
+            <p>나의 거래</p>
+            <div className="innerContainer">
+                {/* <div className="innerTitle">
+                    <FaRegHeart />
+                    <span>관심목록</span>
+                </div> */}
+                <div className="innerTitle" onClick={() => navigate("trade")}>
+                    <FaReceipt />
+                    <span>판매내역</span>
                 </div>
-            </ProfileBox>
+                {/* <div className="innerTitle">
+                    <FaShoppingBasket />
+                    <span>구매내역</span>
+                </div> */}
 
-            <ProfileBox>
-                <p>나의 활동</p>
-                <div className="innerContainer">
-                    <div className="innerTitle" onClick={() => navigate("community")}>
-                        <FaFileSignature />
-                        <span>내 동네생활 글</span>
-                    </div>
+            </div>
+        </ProfileBox>
 
-                    <div className="innerTitle" onClick={() => navigate("group")}>
-                        <FaUsers />
-                        <span>참여중인 모임</span>
-                    </div>
+        <ProfileBox>
+            <p>나의 활동</p>
+            <div className="innerContainer">
+                <div className="innerTitle" onClick={() => navigate("community")}>
+                    <FaFileSignature />
+                    <span>내 동네생활 글</span>
                 </div>
-            </ProfileBox>
-            <ProfileBox>
-                <p>설정</p>
-                <div className="innerContainer">
-                    <div className="innerTitle" onClick={() => navigate("location")}>
-                        <FaLocationDot />
-                        <span>내 동네 설정</span>
-                    </div>
 
-                    <div className="innerTitle">
-                        <FaLocationCrosshairs />
-                        <span>동네 인증하기</span>
-                    </div>
+                <div className="innerTitle" onClick={() => navigate("group")}>
+                    <FaUsers />
+                    <span>참여중인 모임</span>
                 </div>
-            </ProfileBox>
+            </div>
+        </ProfileBox>
+        <ProfileBox>
+            <p>설정</p>
+            <div className="innerContainer">
+                <div className="innerTitle" onClick={() => navigate("location")}>
+                    <FaLocationDot />
+                    <span>내 동네 설정</span>
+                </div>
+
+                <div className="innerTitle">
+                    <FaLocationCrosshairs />
+                    <span>동네 인증하기</span>
+                </div>
+            </div>
+        </ProfileBox>
     </>
   );
 }
