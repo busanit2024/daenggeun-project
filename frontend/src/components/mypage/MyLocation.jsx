@@ -4,6 +4,7 @@ import { ListContainer } from "../pages/Mypage/MyPageMain";
 import LocationSearchModal from "../ui/LocationSearchModal";
 import Button from "../ui/Button";
 import axios from "axios";
+import { useArea } from "../../context/AreaContext";
 
 const LocationButtonsContainer = styled.div`
   display: flex;
@@ -21,6 +22,7 @@ export default function MyLocation() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);  // 현재 선택 중인 버튼의 인덱스
   const uid = sessionStorage.getItem('uid');
+  const { setArea } = useArea();
 
   useEffect(() => {
     const fetchUserLocations = async () => {
@@ -49,12 +51,10 @@ export default function MyLocation() {
     let updatedLocations;
     
     if (selectedIndex !== null) {
-      // 기존 위치 수정
       updatedLocations = locations.map((loc, idx) => 
         idx === selectedIndex ? newLocation : loc
       );
     } else {
-      // 새 위치 추가
       updatedLocations = [...locations, newLocation];
     }
 
@@ -63,6 +63,10 @@ export default function MyLocation() {
         location: updatedLocations
       });
       setLocations(updatedLocations);
+      
+      if (selectedIndex === 0 || (!selectedIndex && updatedLocations.length === 1)) {
+        setArea({ sigungu, emd });
+      }
     } catch (error) {
       console.error("동네 설정에 실패했습니다:", error);
     }
