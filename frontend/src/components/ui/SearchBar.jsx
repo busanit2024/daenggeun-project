@@ -3,7 +3,7 @@ import RoundFilter from "./RoundFilter";
 import MainSearchBox from "./MainSearchBox";
 import styled from "styled-components";
 import LocationSearchModal from "./LocationSearchModal";
-import { useLocation } from "../../context/LocationContext";
+import { useLocation } from "../../context/AreaContext";
 
 const SearchWrapper = styled.div`
   display: flex;

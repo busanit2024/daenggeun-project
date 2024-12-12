@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
 
-const LocationContext = createContext();
+const AreaContext = createContext();
 
-export const LocationProvider = ({ children }) => {
+export const AreaProvider = ({ children }) => {
     const [location, setLocation] = useState({ sigungu: "해운대구", emd: "" }); 
 
     return (

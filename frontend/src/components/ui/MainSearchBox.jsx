@@ -103,20 +103,16 @@ const MainSearchBox = ({ searchTerm, setSearchTerm, selectedCategory, setSelecte
       setIsDropdownOpen(false); 
     };
 
+
     const handleSearch = () => {
-      if (typeof onSearch === 'function') {
-        onSearch(searchTerm); 
-      } else {
-          console.error("onSearch는 함수가 아닙니다.");
-      };
-      
-      if (category === "중고거래") {
-          navigate(`/usedTrade/used-trade?search=${searchTerm}`);
-      } else if (category === "알바") {
-          navigate(`/alba?search=${searchTerm}`);
-      } else if (category === "동네생활") {
-          navigate(`/community?search=${searchTerm}`);
-      }
+        onSearch(searchTerm);
+        if (category === "중고거래") {
+            navigate(`/usedTrade/used-trade?search=${searchTerm}`);
+        } else if (category === "알바") {
+            navigate(`/alba?search=${searchTerm}`);
+        } else if (category === "동네생활") {
+            navigate(`/community?search=${searchTerm}`);
+        }
     }
 
     return (
