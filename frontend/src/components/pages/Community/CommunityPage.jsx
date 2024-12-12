@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import FilterBar from "../../ui/FilterBar";
 import CommunityListItem from "../../community/CommunityListItem"
@@ -9,7 +9,7 @@ import RoundFilter from "../../ui/RoundFilter";
 import Breadcrumb from "../../Breadcrumb";
 import Modal from "../../ui/Modal";
 import SearchBar from "../../ui/SearchBar";
-import { useLocation } from "../../../context/LocationContext"; 
+import { useArea } from "../../../context/AreaContext";
 
 const Container = styled.div`
   display: flex;
@@ -120,6 +120,8 @@ const MoreFilterButton = styled.div`
 
 export default function CommunityPage(props) {
   const navigate = useNavigate();
+  const routerLocation = useLocation();
+  const { area, setArea } = useArea();
   const [communityList, setCommunityList] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [searchFilter, setSearchFilter] = useState({ sido: "부산광역시", sigungu: "", emd: "", category: "all", sort: "" });
@@ -131,22 +133,19 @@ export default function CommunityPage(props) {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [ selectedCategory, setSelectedCategory]= useState("동네생활");
-  const { location, setLocation } = useLocation();
-  const { search } = useLocation(); 
 
-  
-   // URL의 쿼리 파라미터에서 검색어 가져오기
+  // URL의 쿼리 파라미터에서 검색어 가져오기
   useEffect(() => {
-    const query = new URLSearchParams(location.search);
+    const query = new URLSearchParams(routerLocation.search);
     const term = query.get('search');
     console.log("가져온 searchTerm", term)
     if (term) {
-      setSearchTerm(term); // URL에서 검색어 설정
-      handleSearch(term); // 자동으로 검색 수행
+      setSearchTerm(term);
+      handleSearch(term);
     } else {
-      fetchCommunityList(0); // 기본 데이터 로드
+      fetchCommunityList(0);
     }
-  }, [search]);
+  }, [routerLocation.search]);
 
   // 필터나 지역 설정이 변경될 때마다 자동으로 검색 수행
   useEffect(() => {
@@ -155,11 +154,20 @@ export default function CommunityPage(props) {
     }
   }, [searchFilter]);
 
+  // 카테고리 데이터 불러오기
+  useEffect(() => {
+    axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
+      setCategoryData(response.data.filters);
+    })
+    .catch((error) => {
+      console.error("카테고리를 불러오는데 실패했습니다." + error);
+    });
+  }, []);
 
   const fetchCommunityList = async (page) => {
     try {
-      const sigungu = location.sigungu || '';
-      const emd = location.emd || '';
+      const sigungu = area.sigungu || '';
+      const emd = area.emd || '';
       const category = searchFilter.category || 'all';
 
       const response = await axios.get(`api/community/search`, {
@@ -181,13 +189,13 @@ export default function CommunityPage(props) {
     }
   };
 
-  const handleLocationSelect = (location) => {
-    console.log("선택된 위치 :", location);
-    const [sigungu, emd] = location.split(", "); 
+  const handleLocationSelect = (selectedLocation) => {
+    console.log("선택된 위치 :", selectedLocation);
+    const [sigungu, emd] = selectedLocation.split(", ");
 
-    setLocation({ sigungu, emd }); 
-    setSearchFilter({ ...searchFilter, sigungu, emd }); 
-    handleSearch(sigungu, emd); 
+    setArea({ sigungu, emd });
+    setSearchFilter({ ...searchFilter, sigungu, emd });
+    handleSearch(sigungu, emd);
     fetchCommunityList(0);
   };
 
@@ -211,16 +219,16 @@ export default function CommunityPage(props) {
     try {
         const response = await axios.get(`/api/community/search`, {
             params: {
-                sigungu: location.sigungu || searchFilter.sigungu,
-                emd: location.emd || searchFilter.emd || undefined,
+                sigungu: area.sigungu || searchFilter.sigungu,
+                emd: area.emd || searchFilter.emd || undefined,
                 category: searchFilter.category,
                 searchTerm: searchTerm,
-                page: 0, // 첫 페이지로 검색
-                size: 10, // 한 번에 가져올 데이터 수
+                page: 0,
+                size: 10,
             }
         });
-        setCommunityList(response.data.content); // 검색 결과 업데이트
-        setHasNext(!response.data.last); // 다음 페이지 여부 업데이트
+        setCommunityList(response.data.content);
+        setHasNext(!response.data.last);
     } catch (error) {
         console.error("검색 중 오류가 발생했습니다.", error);
     } finally {
@@ -241,7 +249,7 @@ export default function CommunityPage(props) {
     <Breadcrumb routes={routes} />
       <Container>
         <HeadContainer>
-          <h2>{`${searchFilter.sido} ${location.sigungu || searchFilter.sigungu} ${location.emd || ''} ${searchFilter.category === 'all' ? "" : searchFilter.category}`}{searchFilter.category === 'all' ? " 동네생활" : ""}</h2>
+          <h2>{`${searchFilter.sido} ${area.sigungu || searchFilter.sigungu} ${area.emd || ''} ${searchFilter.category === 'all' ? "" : searchFilter.category}`}{searchFilter.category === 'all' ? " 동네생활" : ""}</h2>
           <Button title="+ 글쓰기" variant="primary" onClick={handleCreateButton} />
         </HeadContainer>
         <InnerContainer>

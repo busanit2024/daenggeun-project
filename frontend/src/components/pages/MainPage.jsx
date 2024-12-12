@@ -6,7 +6,7 @@ import imageData from "../../asset/imageData";
 import "../../styles/carouselOverrides.css"
 import SearchBar from "../ui/SearchBar";
 import categoryData from "../../asset/categoryData";
-import { useLocation } from "../../context/LocationContext";
+import { useArea } from "../../context/AreaContext";
 
 const Wrapper = styled.div`
     max-width: 100%; 
@@ -216,7 +216,7 @@ const SlideText = styled.span`
 `;
 
 function MainPage(props) {
-    const { location, setLocation } = useLocation(); 
+    const { area, setArea } = useArea(); 
     const categoryContainerRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [isAtStart, setIsAtStart] = useState(true);
@@ -253,7 +253,7 @@ function MainPage(props) {
     const handleLocationSelect = (selectedLocation) => {
         console.log("선택된 지역:", selectedLocation);
         const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-        setLocation({ sigungu, emd});
+        setArea({ sigungu, emd});
         setSelectedLocation({ sigungu, emd });
         setSearchFilter(prevFilter => ({
             ...prevFilter,
@@ -276,13 +276,21 @@ function MainPage(props) {
         });
     };
 
-    
+    const handleSearch = (searchTerm) => {
+        console.log("검색어:", searchTerm);
+        // 필요한 검색 로직 추가
+    };
 
     return (
         <Wrapper>
-            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
-                selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} 
-                onSelect={handleLocationSelect}/>
+            <SearchBar 
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm} 
+                selectedCategory={selectedCategory} 
+                setSelectedCategory={setSelectedCategory} 
+                onSelect={handleLocationSelect}
+                onSearch={handleSearch} 
+            />
             <FullWidthBackground>
                 <StyledCarousel
                     showArrows={true}

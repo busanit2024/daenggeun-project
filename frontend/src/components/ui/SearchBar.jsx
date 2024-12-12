@@ -3,7 +3,7 @@ import RoundFilter from "./RoundFilter";
 import MainSearchBox from "./MainSearchBox";
 import styled from "styled-components";
 import LocationSearchModal from "./LocationSearchModal";
-import { useLocation } from "../../context/AreaContext";
+import { useArea } from "../../context/AreaContext";
 
 const SearchWrapper = styled.div`
   display: flex;
@@ -20,13 +20,13 @@ const StyledRoundFilter = styled(RoundFilter)`
 const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCategory, onSelect , onSearch}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [userLocation, setUserLocation] = useState([{ sigungu: "해운대구", emd: "" }]);
-    const { location, setLocation } = useLocation();
+    const { area, setArea } = useArea();
 
     const handleLocationSelect = (selectedLocation) => {
         if (typeof selectedLocation === 'string') {
             const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
         
-            setLocation({ sigungu, emd }); 
+            setArea({ sigungu, emd }); 
             setIsModalOpen(false);
             onSelect(selectedLocation); 
 
@@ -45,7 +45,7 @@ const SearchBar = ({ searchTerm, setSearchTerm, selectedCategory, setSelectedCat
             <StyledRoundFilter 
                 LocationIcon 
                 variant="location" 
-                title={`${location.sigungu}${location.emd ? `, ${location.emd}` : ''}`}
+                title={`${area.sigungu}${area.emd ? `, ${area.emd}` : ''}`}
                 onClick={() => setIsModalOpen(true)} />
             {isModalOpen && (
                 <LocationSearchModal 
