@@ -79,7 +79,7 @@ public class UserRestController {
         }
 
         // id를 사용하여 사용자 프로필 저장
-        User updatedUser = userService.saveUserProfile(id, request.getUsername(), locations, profileImage);
+        User updatedUser = userService.saveUserProfile(id, request.getUsername(), request.getEmail(), locations, profileImage);
 
         if (updatedUser != null) {
             System.out.println("ID: " + id);

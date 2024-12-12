@@ -2,11 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Button from "../../ui/Button";
-import RoundFilter from "../../ui/RoundFilter";
-import { FaFileSignature, FaList, FaMapPin, FaReceipt, FaRegHeart, FaRegListAlt, FaShoppingBasket, FaUsers } from "react-icons/fa";
-import { FaLocationCrosshairs, FaLocationDot, FaLocationPin, FaMapLocationDot } from "react-icons/fa6";
-import { useNavigate } from "react-router-dom";
-import { calculateDate } from "../../../utils/calculateDate";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export const Wrapper = styled.div`
     display: flex;
@@ -23,7 +19,7 @@ export const Wrapper = styled.div`
     }
 `;
 
-const UserInfoBox = styled.div`
+export const UserInfoBox = styled.div`
     display: flex;
     align-items: center;
     gap: 36px;
@@ -41,7 +37,7 @@ const UserInfoBox = styled.div`
             height: 120px;
             overflow: hidden;
             border-radius: 50%;
-            background-color: #dcdcdc;
+            border: 1px solid #e0e0e0;
 
             img {
             width: 100%;
@@ -97,19 +93,30 @@ export const ProfileBox = styled.div`
             display: flex;
             align-items: center;
             gap: 8px;
+            cursor: pointer;
+
+            &:hover {
+                color: #666666;
+            }
         }
     }
 `;
 
+export const ListContainer = styled.div`
+    border-top: 1px solid #dcdcdc;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 36px;
 
-const mannerTemp = {
-    worst: { min: 0, max: 12.5, label: 'worst' },
-    bad: { min: 12.5, max: 30, label: 'bad' },
-    defTemp: { min: 30, max: 37.5, label: 'defTemp' },
-    warm: { min: 37.5, max: 42, label: 'warm' },
-    good: { min: 42, max: 50, label: 'good' },
-    hot: { min: 50, max: 99, label: 'hot' },
-}
+    & h3 {
+        align-self: start;
+        font-size: 24px;
+        margin-bottom: 24px;
+    }
+`;
 
 
 export default function MyPageMain(props) {
@@ -120,29 +127,12 @@ export default function MyPageMain(props) {
         const uid = sessionStorage.getItem('uid');
         if (!uid) return;
         axios.get(`/user/${uid}`).then((response) => {
-            console.log(response.data); 
+            console.log(response.data);
             setUser(response.data);
         }).catch((error) => {
             console.error('사용자 정보를 불러오는데 실패했습니다.' + error);
         });
     }, []);
-
-    const getMannerTemp = (temp) => {
-        if (temp >= mannerTemp.worst.min && temp < mannerTemp.worst.max) {
-            return 'worst';
-        } else if (temp >= mannerTemp.bad.min && temp < mannerTemp.bad.max) {
-            return 'bad';
-        } else if (temp >= mannerTemp.defTemp.min && temp < mannerTemp.defTemp.max) {
-            return 'defTemp';
-        } else if (temp >= mannerTemp.warm.min && temp < mannerTemp.warm.max) {
-            return 'warm';
-        } else if (temp >= mannerTemp.good.min && temp < mannerTemp.good.max) {
-            return 'good';
-        } else if (temp >= mannerTemp.hot.min && temp < mannerTemp.hot.max) {
-            return 'hot';
-        }
-    }
-
 
     return (
         <Wrapper>
@@ -162,64 +152,7 @@ export default function MyPageMain(props) {
                 </div>
             </UserInfoBox>
 
-            <ProfileBox>
-                <div className="mannerTemp">
-                    <p>매너온도</p>
-                    <RoundFilter variant={getMannerTemp(user?.mannerTemp ?? 36.5)} title={`${user?.mannerTemp ?? '36.5'}℃`} />
-                </div>
-
-
-            </ProfileBox>
-
-            {/* 나의 거래  */}
-            <ProfileBox>
-                <p>나의 거래</p>
-                <div className="innerContainer">
-                    <div className="innerTitle">
-                        <FaRegHeart />
-                        <span>관심목록</span>
-                    </div>
-                    <div className="innerTitle">
-                        <FaReceipt />
-                        <span>판매내역</span>
-                    </div>
-                    <div className="innerTitle">
-                        <FaShoppingBasket />
-                        <span>구매내역</span>
-                    </div>
-
-                </div>
-            </ProfileBox>
-
-            <ProfileBox>
-                <p>나의 활동</p>
-                <div className="innerContainer">
-                    <div className="innerTitle">
-                        <FaFileSignature />
-                        <span>내 동네생활 글</span>
-                    </div>
-
-                    <div className="innerTitle">
-                        <FaUsers />
-                        <span>참여중인 모임</span>
-                    </div>
-                </div>
-            </ProfileBox>
-            <ProfileBox>
-                <p>설정</p>
-                <div className="innerContainer">
-                    <div className="innerTitle">
-                        <FaLocationDot />
-                        <span>내 동네 설정</span>
-                    </div>
-
-                    <div className="innerTitle">
-                        <FaLocationCrosshairs />
-                        <span>동네 인증하기</span>
-                    </div>
-                </div>
-            </ProfileBox>
-
+            <Outlet context={{ user }} />
 
         </Wrapper>
     );
