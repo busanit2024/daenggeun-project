@@ -103,7 +103,6 @@ const MainSearchBox = ({ searchTerm, setSearchTerm, selectedCategory, setSelecte
       setIsDropdownOpen(false); 
     };
 
-
     const handleSearch = () => {
         onSearch(searchTerm);
         if (category === "중고거래") {
