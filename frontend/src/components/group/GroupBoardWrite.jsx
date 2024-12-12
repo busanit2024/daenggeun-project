@@ -165,7 +165,9 @@ export default function GroupBoardWrite() {
 
   useEffect(() => {
     if (isEditing) {
-      axios.get(`/api/group/board/post/${postId}`).then((response) => {
+      axios.get(`/api/group/board/post/${postId}`, {params: {
+        view: false,
+      }}).then((response) => {
         const post = response.data;
         setInput((prev) => ({
           ...prev,
