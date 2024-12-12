@@ -36,7 +36,7 @@ import SetProfilePage from './components/pages/Login/SetProfilePage';
 import JoinRequest from './components/group/JoinRequest';
 import GroupAlbum from './components/group/GroupAlbum';
 import GroupBoardWrite from './components/group/GroupBoardWrite';
-import { LocationProvider } from './context/LocationContext';
+import { AreaProvider } from './context/AreaContext';
 import GroupBoardView from './components/group/GroupBoardView';
 import MyPageMain from './components/pages/Mypage/MyPageMain';
 import MyProfileEdit from './components/pages/Mypage/MyProfileEdit';
@@ -52,7 +52,7 @@ import GroupScheduleView from './components/group/GroupScheduleView';
 function App() {
   return (
     <AuthProvider>
-      <LocationProvider>
+      <AreaProvider>
         <Router>
           <Routes>
             <Route element={<Layout />}>
@@ -106,7 +106,7 @@ function App() {
             </Route>
           </Routes>
         </Router>
-      </LocationProvider>
+      </AreaProvider>
     </AuthProvider>
   );
 };

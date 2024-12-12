@@ -123,11 +123,25 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
 
   // 검색어가 변경될 때마다 필터링된 위치 업데이트
   useEffect(() => {
+    if (searchTerm) {
+      const allLocations = busanJuso.flatMap(locationFilter => {
+        if (locationFilter && locationFilter.sigungu) {
+          return locationFilter.emd.map(e => ({
+            sigungu: locationFilter.sigungu,
+            emd: e.emd
+          }));
+        }
+        return [];
+      });
+      setLocations(allLocations);
+    }
+
+    // 필터링 로직
     const filtered = locations.filter(location => 
       location.sigungu.includes(searchTerm) || location.emd.includes(searchTerm)
     );
     setFilteredLocations(filtered);
-  }, [searchTerm, locations]);
+  }, [searchTerm, locations, busanJuso]);
 
 
 

@@ -42,7 +42,7 @@ public class CommunityRestController {
     private Slice<CommunityDTO> searchCommunities(@RequestParam String sigungu,
                                                   @RequestParam(required = false) String emd,
                                                   @RequestParam String category,
-                                                  @RequestParam String searchTerm,
+                                                  @RequestParam(required = false) String searchTerm,
                                                   @RequestParam int page,
                                                   @RequestParam int size) {
         Pageable pageable = PageRequest.of(page, size);
