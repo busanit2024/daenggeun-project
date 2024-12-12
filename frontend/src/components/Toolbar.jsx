@@ -37,7 +37,7 @@ const Toolbar = () => {
                 <nav>
                     <ul className="nav-links">
                         <li>
-                            <a href="/usedTrade/used-trade">중고거래</a>
+                            <a href="/usedTrade">중고거래</a>
                         </li>
                         <li>
                             <a href="/alba">알바</a>
@@ -52,10 +52,10 @@ const Toolbar = () => {
                 </nav>
                 <div className="auth-links">
                     {isLoggedIn ? (
-                        <>
-                            <button onClick={handleLogout}>로그아웃</button>
-                            <a href="/mypage">마이페이지</a>
-                        </>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                            <button  onClick={handleLogout}>로그아웃</button>
+                            <button onClick={() => navigate("/mypage")}>마이페이지</button>
+                        </div>
                     ) : (
                         <button onClick={() => navigate("/login")}>로그인 / 회원가입</button>
                     )}

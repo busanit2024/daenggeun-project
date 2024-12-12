@@ -62,21 +62,21 @@ public class CommunityService {
             if (searchTerm != null && !searchTerm.isEmpty()) {
                 if (emd == null || emd.isEmpty()) {
                     // emd가 비어있을 경우 sigungu만으로 검색
-                    Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndTitleContaining(sigungu, searchTerm, pageable);
+                    Slice<Community> communities = communityRepository.findByLocationSigunguAndSearchTerm(sigungu, searchTerm, pageable);
                     return CommunityDTO.toDTO(communities);
                 }
                 // emd가 있을 경우
-                Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndTitleContaining(sigungu, emd, searchTerm, pageable);
+                Slice<Community> communities = communityRepository.findByLocationAndSearchTerm(sigungu, emd, searchTerm, pageable);
                 return CommunityDTO.toDTO(communities);
             }
             // 검색어가 없을 때
             if (emd == null || emd.isEmpty()) {
                 // emd가 비어있을 경우 sigungu만으로 검색
-                Slice<Community> communities = communityRepository.findAllByLocationSigunguContaining(sigungu, pageable);
+                Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingOrderByCreatedDateDesc(sigungu, pageable);
                 return CommunityDTO.toDTO(communities);
             }
             // emd가 있을 경우
-            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContaining(sigungu, emd, pageable);
+            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingOrderByCreatedDateDesc(sigungu, emd, pageable);
             return CommunityDTO.toDTO(communities);
         }
 
@@ -84,23 +84,28 @@ public class CommunityService {
         if (searchTerm != null && !searchTerm.isEmpty()) {
             if (emd == null || emd.isEmpty()) {
                 // emd가 비어있을 경우 sigungu만으로 검색
-                Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndCategoryAndTitleContaining(sigungu, category, searchTerm, pageable);
+                Slice<Community> communities = communityRepository.findByLocationSigunguAndCategoryAndSearchTerm(sigungu, category, searchTerm, pageable);
                 return CommunityDTO.toDTO(communities);
             }
             // emd가 있을 경우
-            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryAndTitleContaining(sigungu, emd, category, searchTerm, pageable);
+            Slice<Community> communities = communityRepository.findByLocationAndCategoryAndSearchTerm(sigungu, emd, category, searchTerm, pageable);
             return CommunityDTO.toDTO(communities);
         }
 
-        // 카테고리 없을 때
+        // 검색어 없이 카테고리만 있을 때
         if (emd == null || emd.isEmpty()) {
             // emd가 비어있을 경우 sigungu만으로 검색
-            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndCategory(sigungu, category, pageable);
+            Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndCategoryOrderByCreatedDateDesc(sigungu, category, pageable);
             return CommunityDTO.toDTO(communities);
         }
 
         // emd가 있을 경우
-        Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategory(sigungu, emd, category, pageable);
+        Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByCreatedDateDesc(sigungu, emd, category, pageable);
+        return CommunityDTO.toDTO(communities);
+    }
+
+    public Slice<CommunityDTO> findByUserId(String userId, Pageable pageable) {
+        Slice<Community> communities = communityRepository.findByUserId(userId, pageable);
         return CommunityDTO.toDTO(communities);
     }
 }

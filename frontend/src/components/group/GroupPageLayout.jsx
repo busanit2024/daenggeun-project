@@ -284,9 +284,15 @@ export default function GroupPageLayout(props) {
     { path: `/group/${group.id}`, name: group.title },
     { path: `/group/${group.id}/members`, name: '전체 멤버' },
     { path: `/group/${group.id}/members/:memberId`, name: '멤버 프로필' },
-    { path: `/group/${group.id}/schedule`, name: '전체 일정' },
     { path: `/group/${group.id}/album`, name: '모임 앨범' },
+    { path: `/group/${group.id}/schedule`, name: '전체 일정' },
+    { path: `/group/${group.id}/schedule/write`, name: '일정 만들기' },
+    { path: `/group/${group.id}/schedule/:postId/edit`, name: '일정 수정하기' },
+    { path: `/group/${group.id}/schedule/:postId`, name: '일정 상세보기' },
     { path: `/group/${group.id}/board`, name: '모임 게시판' },
+    { path: `/group/${group.id}/board/write`, name: '글쓰기' },
+    { path: `/group/${group.id}/board/:postId/edit`, name: '게시글 수정하기' },
+    { path: `/group/${group.id}/board/:postId`, name: '게시글 상세보기' },
     { path: `/group/${group.id}/my`, name: '내 모임 프로필' },
     { path: `/group/${group.id}/requests`, name: '가입 신청' },
   ];
@@ -325,7 +331,7 @@ export default function GroupPageLayout(props) {
             {!isMember && <Button title={submitted ? '가입신청 중' : group.maxMember >= group.members?.length ? '멤버 수 상한에 도달했어요' : '모임 가입하기'} disabled={submitted || group.maxMember >= group.members?.length}  variant="primary" onClick={handleJoinButton} />}
             {isAdmin &&
               <>
-                <Button title={`모임 가입 신청 ${getPendingRequests()}건`} onClick={() => navigate(`/group/${group.id}/requests`)} />
+                { group.requireApproval &&  <Button title={`모임 가입 신청 ${getPendingRequests()}건`} onClick={() => navigate(`/group/${group.id}/requests`)} /> }
                 <ButtonGroup>
                   <Button title="모임 수정" grow onClick={() => navigate(`/group/${group.id}/edit`)} />
                   <Button title="모임 삭제" grow onClick={() => setModalOpen('delete')} />

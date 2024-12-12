@@ -1,9 +1,13 @@
 package com.busanit.daenggeunbackend.service;
 
 import com.busanit.daenggeunbackend.domain.GroupDTO;
-import com.busanit.daenggeunbackend.entity.Group;
-import com.busanit.daenggeunbackend.entity.GroupMember;
+import com.busanit.daenggeunbackend.domain.GroupPostDTO;
+import com.busanit.daenggeunbackend.domain.ScheduleDTO;
+import com.busanit.daenggeunbackend.entity.*;
+import com.busanit.daenggeunbackend.repository.GroupPostRepository;
 import com.busanit.daenggeunbackend.repository.GroupRepository;
+import com.busanit.daenggeunbackend.repository.ScheduleRepository;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -28,9 +32,12 @@ import static org.springframework.data.mongodb.core.query.TypedCriteriaExtension
 @RequiredArgsConstructor
 public class GroupService {
   private final GroupRepository groupRepository;
+  private final GroupPostRepository groupPostRepository;
 
   @Autowired
   private MongoTemplate mongoTemplate;
+  @Autowired
+  private ScheduleRepository scheduleRepository;
 
   public List<GroupDTO> findAll() {
      List<Group> groups = groupRepository.findAll();
@@ -230,4 +237,244 @@ public class GroupService {
     requestStatusChange(Group.Status.REJECTED, group, joinRequest.getUserId());
     groupRepository.save(group);
   }
+
+  //게시판
+  @Transactional
+  public void savePost(GroupPostDTO groupPostDTO) {
+    Group group = groupRepository.findById(groupPostDTO.getGroupId()).orElse(null);
+    if (group == null) {
+      throw new RuntimeException("Group not found");
+    }
+
+    String currentId = groupPostDTO.getId();
+    GroupPost currentpost = null;
+    if (currentId != null) {
+      currentpost = groupPostRepository.findById(currentId).orElse(null);
+    }
+    if (currentpost != null) {
+      groupPostDTO.setCreatedDate(currentpost.getCreatedDate());
+      groupPostRepository.save(GroupPost.toEntity(groupPostDTO));
+      return;
+    }
+
+    GroupPost post = groupPostRepository.save(GroupPost.toEntity(groupPostDTO));
+    String id = post.getId();
+
+    List<String> posts = group.getPosts();
+    if (posts == null) {
+      posts = new ArrayList<>();
+    }
+    if (!posts.contains(id)) {
+      posts.add(id);
+      group.setPosts(posts);
+    }
+
+    List<GroupMember> members = group.getMembers();
+    GroupMember currentMember = members.stream().filter(groupMember -> groupMember.getUserId().equals(post.getUserId())).findFirst().orElse(null);
+    List<String> memberPosts = currentMember.getPosts();
+    if (memberPosts == null) {
+      memberPosts = new ArrayList<>();
+    }
+
+    if (!memberPosts.contains(id)) {
+      memberPosts.add(id);
+      currentMember.setPosts(memberPosts);
+      members.remove(currentMember);
+      members.add(currentMember);
+      group.setMembers(members);
+    }
+
+    groupRepository.save(group);
+  }
+
+  public Slice<GroupPostDTO> getGroupPostSlice(String groupId, String boardName, Pageable pageable) {
+    Criteria criteria = Criteria.where("groupId").is(groupId);
+    if (!boardName.equals("all")) {
+      criteria.and("board").in(List.of(boardName));
+    }
+
+    MatchOperation matchOperation = Aggregation.match(criteria);
+    SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Direction.DESC, "createdDate"));
+
+    Aggregation aggregation = Aggregation.newAggregation(matchOperation, sortOperation);
+
+    List<GroupPost> results = mongoTemplate.aggregate(aggregation, "groupPost", GroupPost.class).getMappedResults();
+    boolean hasNext = results.size() == pageable.getPageSize();
+
+    Slice<GroupPost> groupPosts = new SliceImpl<>(results, pageable, hasNext);
+    return GroupPostDTO.toDTO(groupPosts);
+  }
+
+  public GroupPostDTO getGroupPost(String postId, Boolean view) {
+    GroupPost post = groupPostRepository.findById(postId).orElse(null);
+    if (post == null) {
+      throw new RuntimeException("Post not found");
+    }
+    if (view) {
+      int currentView = post.getView();
+      post.setView(currentView + 1);
+      groupPostRepository.save(post);
+    }
+    return GroupPostDTO.toDTO(post);
+  }
+
+  @Transactional
+  public void deletePost(GroupPostDTO groupPostDTO) {
+    groupPostRepository.delete(GroupPost.toEntity(groupPostDTO));
+    Group group = groupRepository.findById(groupPostDTO.getGroupId()).orElse(null);
+    if (group == null) {
+      throw new RuntimeException("Group not found");
+    }
+    List<String> posts = group.getPosts();
+    if (posts.contains(groupPostDTO.getId())) {
+      posts.remove(groupPostDTO.getId());
+      group.setPosts(posts);
+    }
+
+    List<GroupMember> members = group.getMembers();
+    GroupMember currentMember = members.stream().filter(groupMember -> groupMember.getUserId().equals(groupPostDTO.getUserId())).findFirst().orElse(null);
+    List<String> memberPosts = currentMember.getPosts();
+
+    if (memberPosts != null && memberPosts.contains(groupPostDTO.getId())) {
+      memberPosts.remove(groupPostDTO.getId());
+      currentMember.setPosts(memberPosts);
+      members.remove(currentMember);
+      members.add(currentMember);
+      group.setMembers(members);
+    }
+
+    groupRepository.save(group);
+  }
+
+  @Transactional
+  public void saveSchedule(ScheduleDTO scheduleDTO) {
+    Group group = groupRepository.findById(scheduleDTO.getGroupId()).orElse(null);
+    if (group == null) {
+      throw new RuntimeException("Group not found");
+    }
+
+    String currentId = scheduleDTO.getId();
+    Schedule currentSchedule = null;
+    if (currentId != null) {
+      currentSchedule = scheduleRepository.findById(currentId).orElse(null);
+    }
+    if (currentSchedule != null) {
+      scheduleDTO.setCreatedDate(currentSchedule.getCreatedDate());
+      scheduleRepository.save(Schedule.toEntity(scheduleDTO));
+      return;
+    }
+
+    Schedule schedule = scheduleRepository.save(Schedule.toEntity(scheduleDTO));
+    String id = schedule.getId();
+
+    List<String> schedules = group.getSchedules();
+    if (schedules == null) {
+      schedules = new ArrayList<>();
+    }
+    if (!schedules.contains(id)) {
+      schedules.add(id);
+      group.setSchedules(schedules);
+    }
+
+    List<GroupMember> members = group.getMembers();
+    GroupMember currentMember = members.stream().filter(groupMember -> groupMember.getUserId().equals(scheduleDTO.getUserId())).findFirst().orElse(null);
+    List<String> memberAssigns = currentMember.getAssigns();
+    if (memberAssigns == null) {
+      memberAssigns = new ArrayList<>();
+    }
+    if (!memberAssigns.contains(id)) {
+      memberAssigns.add(id);
+      currentMember.setAssigns(memberAssigns);
+      members.remove(currentMember);
+      members.add(currentMember);
+      group.setMembers(members);
+    }
+
+    groupRepository.save(group);
+  }
+
+  public Slice<ScheduleDTO> getScheduleSlice(String groupId, boolean closed, Pageable pageable) {
+    Slice<Schedule> schedules = scheduleRepository.findByGroupIdAndClosed(groupId, closed, pageable);
+    return ScheduleDTO.toDTO(schedules);
+  }
+
+  public ScheduleDTO getSchedule(String id, Boolean view) {
+    Schedule schedule = scheduleRepository.findById(id).orElse(null);
+    if (schedule == null) {
+      throw new RuntimeException("Schedule not found");
+    }
+    if (view) {
+      int currentView = schedule.getViews();
+      schedule.setViews(currentView + 1);
+      scheduleRepository.save(schedule);
+    }
+    return ScheduleDTO.toDTO(schedule);
+  }
+
+  @Transactional
+  public void deleteSchedule(ScheduleDTO scheduleDTO) {
+    scheduleRepository.delete(Schedule.toEntity(scheduleDTO));
+    Group group = groupRepository.findById(scheduleDTO.getGroupId()).orElse(null);
+    if (group == null) {
+      throw new RuntimeException("Group not found");
+    }
+    List<String> schedules = group.getSchedules();
+    if (schedules != null && schedules.contains(scheduleDTO.getId())) {
+      schedules.remove(scheduleDTO.getId());
+      group.setSchedules(schedules);
+    }
+
+    List<GroupMember> members = group.getMembers();
+    GroupMember currentMember = members.stream().filter(groupMember -> groupMember.getUserId().equals(scheduleDTO.getUserId())).findFirst().orElse(null);
+    List<String> memberAssigns = currentMember.getAssigns();
+    if (memberAssigns != null && memberAssigns.contains(scheduleDTO.getId())) {
+      memberAssigns.remove(scheduleDTO.getId());
+      currentMember.setAssigns(memberAssigns);
+      members.remove(currentMember);
+      members.add(currentMember);
+      group.setMembers(members);
+    }
+
+    groupRepository.save(group);
+  }
+
+  @Transactional
+  public void assignSchedule(String scheduleId, String userId) {
+    Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+    if (schedule == null) {
+      throw new RuntimeException("Schedule not found");
+    }
+    List<String> participants = schedule.getParticipants();
+    if (participants == null) {
+      participants = new ArrayList<>();
+    }
+    if (!participants.contains(userId)) {
+      participants.add(userId);
+    }
+    schedule.setParticipants(participants);
+    scheduleRepository.save(schedule);
+
+    Group group = groupRepository.findById(schedule.getGroupId()).orElse(null);
+    if (group == null) {
+      throw new RuntimeException("Group not found");
+    }
+    List<GroupMember> members = group.getMembers();
+    GroupMember member = members.stream().filter(groupMember -> groupMember.getUserId().equals(userId)).findFirst().orElse(null);
+    List<String> memberAssigns = member.getAssigns();
+    if (memberAssigns == null) {
+      memberAssigns = new ArrayList<>();
+    }
+    if (!memberAssigns.contains(scheduleId)) {
+      memberAssigns.add(scheduleId);
+    }
+    member.setAssigns(memberAssigns);
+
+    members.remove(member);
+    members.add(member);
+    group.setMembers(members);
+
+    groupRepository.save(group);
+  }
+
+
 }

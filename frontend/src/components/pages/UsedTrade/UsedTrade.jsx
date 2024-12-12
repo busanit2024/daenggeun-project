@@ -1,337 +1,521 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import Card from "../../ui/Card";
-import { useNavigate, useLocation } from "react-router-dom";
-import Button from "../../ui/Button";
 import axios from "axios";
+import { Children, useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import styled from "styled-components";
+import FilterBar from "../../ui/FilterBar";
+import Button from "../../ui/Button";
+import RoundFilter from "../../ui/RoundFilter";
 import Radio from "../../ui/Radio";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
-import SearchBar from "../../ui/SearchBar";
 import Modal from "../../ui/Modal";
+import SearchBar from "../../ui/SearchBar";
+import Card from "../../ui/Card";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
-  padding: 2vw;
-  min-height: 150vh;
 `;
 
-const Content = styled.div`
-  display: flex;
-  flex: 1;
-  height: 100%;
-  padding: 2vw; /* 화면 크기에 따라 여백 자동 조정 */
-  gap: 1vw;
-  width: 100%;
-
-  /* Flexbox 동적 레이아웃 */
-  @media (max-width: 768px) {
-    flex-direction: column; /* 화면이 작아질수록 세로 배치 */
-  }
-`;
-
-const Sidebar = styled.aside`
-  flex: 0 0 20%; /* 가로폭의 20% 차지 */
-  max-width: 250px; /* 최대 너비 제한 */
-  min-width: 150px; /* 최소 너비 제한 */
-  max-height: calc(100vh - 100px);
-
-  @media (max-width: 768px) {
-    flex: 0 0 auto;
-    width: 100%;
-    margin-bottom: 16px;
-    max-height: none;
-  }
-`;
-
-const Header = styled.div`
+const HeadContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  width: 100%;
+  padding: 16px 0px;
 `;
 
-const Main = styled.main`
-  flex: 1; /* 남은 공간을 차지 */
+const InnerContainer = styled.div`
+  display: flex;
+  width: 100%;
+  flex-grow: 1;
+`;
+
+const ListContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  min-height: 0;
-`;
-
-const Title = styled.h1`
-  font-size: clamp(16px, 2vw, 24px); /* 최소 16px, 최대 24px */
-  margin-bottom: 16px;
-`;
-
-const CardGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(clamp(100px, 20vw, 250px), 1fr));
-  gap: 1vw;
+  gap: 28px;
   width: 100%;
+  padding: 0 16px;
 `;
 
 const FilterContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  max-height: 100%;
-  padding: 10px;
-  margin-bottom: 16px;
+  gap: 8px;
+`;
 
-  @media (max-width: 768px) {
-    max-height: none;
+const CategoryItem = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+
+  &:hover {
+    input[type="radio"] {
+      background-color: #e0e0e0;
+    }
   }
 `;
 
-const FilterItem = styled.div`
-  margin-bottom: 16px;
+const NoSearchResult = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 88px 0;
+  & h3 {
+    margin: 0;
+  }
+
+  & p {
+    margin: 0;
+    color: #666666;
+  }
 `;
 
-const UsedTrade = () => {
-  const location = useLocation();
-  const [trades, setTrades] = useState([]); // 중고거래 목록 상태
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [categoryData, setCategoryData] = useState([]);
-  const [searchFilter, setSearchFilter] = useState({
-    sido: "부산광역시", 
-    sigungu: "", 
-    emd: "", 
-    category: "all", 
-    sort: "recent",
-    tradeable: false // 거래 가능 여부
-  });
-  
-  const [ selectedCategory, setSelectedCategory]= useState("중고거래");
-  const [visibleCount, setVisibleCount] = useState(3); // 처음 보이는 카드 수
+const LoadingText = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 88px 0;
+  & h3 {
+    margin: 0;
+  }
 
+  & p {
+    margin: 0;
+    color: #666666;
+  }
+`;
+
+const CustomSelect = styled.select`
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 16px;
+`;
+
+const EmdFilterWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+  gap: 8px;
+  max-height: ${props => props.open ? '360px' : '160px'};
+  overflow-y: ${props => props.open ? 'auto' : 'hidden'};
+  width: 100%;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #dcdcdc;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #f9f9f9;
+  }
+
+`;
+
+const MoreFilterButton = styled.div`
+  cursor: pointer;
+  color: #FF7B07;
+  font-size: 16px;
+`;
+
+const CardGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1vw;
+  width: 100%;
+`;
+
+const libraries = ['places'];
+
+export default function UsedTrade(props) {
   const navigate = useNavigate();
-  
+  const location = useLocation();
+  const [tradeList, setTradeList] = useState([]); // 중고거래 목록
+  const [searchFilter, setSearchFilter] = useState({
+    sido: "부산광역시",
+    sigungu: "",
+    emd: "",
+    sort: "recent",
+    category: "all",
+    tradeble: true,
+  });
+  const [busanJuso, setBusanJuso] = useState([]);
+  const [emdList, setEmdList] = useState([]);
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [visibleCount, setVisibleCount] = useState(3); // 한 번에 보이는 카드의 최대 수
+  const [selectedCategory, setSelectedCategory] = useState("중고거래");
+  // const [location, setLocation] = useState(location.state);
+
+  const { isLoaded: isJsApiLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: libraries,
+    language: 'ko',
+    region: 'KR',
+  });
+
+  const currentLocation = useGeolocation(isJsApiLoaded);
+
+  // URL의 쿼리 파라미터에서 검색어 가져오기
   useEffect(() => {
-    const fetchTrades = async () => {
-      setLoading(true);
-      try {
-        // 처음부터 모든 중고 거래 데이터 가져오기
-        // const tradesResponse = await axios.get('/api/usedTrades');
-        // setTrades(tradesResponse.data);
-        await fetchFilteredUsedTrades();
-
-        const query = new URLSearchParams(location.search);
-        const search = query.get('search');
-        if (search) {
-          setSearchTerm(search);  // URL에서 검색어 가져오기
-        }
-
-        // 필터 카테고리 데이터 가져오기
-        const categoryResponse = await axios.get(`/api/usedTrades/data/filter?categoryName=usedTradeCategory`);
-        setCategoryData(categoryResponse.data.filters);
-      } catch (error) {
-        console.error("데이터를 불러오는 데 실패했습니다.", error.response ? error.response.data : error.message);
-        console.error('Error fetching trades:', error);
-        setLoading(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTrades();
-  }, [categoryData, location.search]);
+    const query = new URLSearchParams(location.search);
+    const term = query.get('search');
+    console.log("가져온 searchTerm:", term);
+    
+    if (term) {
+      setSearchTerm(term);
+      fetchTradeList(0, term);
+    } else {
+      fetchTradeList(0);
+    }
+  }, [location.search]);
 
   useEffect(() => {
-    fetchFilteredUsedTrades();
+    axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
+      setBusanJuso(response.data.locationFilters);
+    }).catch((error) => {
+      console.error("부산 주소를 불러오는데 실패했습니다." + error);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (currentLocation.sido && currentLocation.sigungu) {
+      setSearchFilter((prev) => ({ ...prev, sido: currentLocation.sido, sigungu: currentLocation.sigungu }));
+    }
+  }, [currentLocation.sigungu]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchTradeList(0);
   }, [searchFilter]);
 
-  const fetchFilteredUsedTrades = async () => {
-    try {
-      console.log("필터 요청 데이터: ", {
-        category: searchFilter.category === "all" ? undefined : searchFilter.category,
-          sort: searchFilter.sort,
-          tradeable: searchFilter.tradeable
-      });
+  useEffect(() => {
+    setLoading(true);
+    setSearchFilter((prev) => ({ ...prev, emd: '' }));
+    getEmdList(searchFilter.sigungu);
+    setIsFilterOpen(false);
+  }, [searchFilter.sigungu, busanJuso]);
 
-      const response = await axios.get('/api/usedTrades', {
+  const resetFilter = () => {
+    setLoading(true);
+    setSearchFilter((prev) => ({ ...prev, sido: currentLocation.sido, sigungu: currentLocation.sigungu, emd: '', sort: '', category: '' }));
+    setIsFilterOpen(false);
+    setPage(0);
+  };
+
+  const CategoryList = ({ show, children }) => (
+    <div style={{ display: show ? 'block' : 'none' }}>
+      {children}
+    </div>
+  );
+
+  const selectCategory = (category) => {
+    setSearchFilter((prev) => ({
+      ...prev,
+      category: category,
+    }));
+  };
+
+  const fetchTradeList = async (page, searchKeyword = '') => {
+    try {
+      const response = await axios.get(`/api/usedTrades`, {
         params: {
-          category: searchFilter.category === "all" ? undefined : searchFilter.category,
+          sigungu: searchFilter.sigungu,
+          emd: searchFilter.emd,
           sort: searchFilter.sort,
-          tradeable: searchFilter.tradeable ? true : null,
-          search: searchTerm,
+          category: searchFilter.category,
+          tradeble: searchFilter.tradeble,
+          page: page,
+          size: 10,
         },
       });
-      console.log("필터링된 거래 데이터: ", response.data);
-      setTrades(response.data);
+
+      console.log(response.data);
+      //setTradeList(response.data);
+
+      const newTradeList = response.data;
+      setTradeList((prevTrades) => (page === 0 ? newTradeList : [...prevTrades, ...newTradeList]));
+      setHasNext(!response.data.last);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching filtered usedTrades:', error);
+      console.error("중고거래 리스트를 불러오는데 실패했습니다." + error);
+      setLoading(false);
     }
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    console.log("필터 변경: ", name, value);
-    setSearchFilter((prevFilter) => ({
-      ...prevFilter,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+  const getEmdList = (gu) => {
+    if (busanJuso) {
+      if (!gu) {
+        setEmdList([]);
+      } else {
+        const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
+        const emdNameList = emdList?.map((item) => item.emd);
+        setEmdList(emdNameList);
+      }
+    }
   };
-  
+
+  const handleMoreButton = () => {
+    setVisibleCount(prevCount => prevCount + 3);
+  };
+
   const formattedPrice = (price) => {
     return new Intl.NumberFormat('ko-KR').format(price);
   }
 
-  if (loading) {
-    return <p>로딩 중...</p>
-  }
-
-  // 검색어 필터링
-  const filteredTrades = searchTerm ? trades.filter(trade => 
-    trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
-  ) : trades;
-
-  const handleLoadMore = () => {
-    setVisibleCount(prevCount => prevCount + 3);  // 3개씩 추가
+  const handleSearch = async (searchTerm) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`/api/usedTrades`, {
+        params: {
+          sigungu: searchFilter.sigungu,
+          emd: searchFilter.emd,
+          sort: searchFilter.sort,
+          category: searchFilter.category,
+          tradeble: searchFilter.tradeble,
+          searchTerm: searchTerm,
+          page: 0,
+          size: 10,
+        }
+      });
+      setTradeList(response.data);
+      setHasNext(!response.data.last);
+    } catch (error) {
+      console.error("검색 중 오류가 발생했습니다.", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const handleLocationSelect = (selectedLocation) => {
+    console.log("선택된 위치:", selectedLocation);
+    const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+    
+    setSearchFilter(prev => ({
+      ...prev,
+      sigungu,
+      emd: emd || '' 
+    }));
+
+    fetchTradeList(0);
+  };
+
+  // 검색어 필터링
+  const filteredTrades = searchTerm ? tradeList.filter(trade => 
+    trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
+  ) : tradeList;
+
+  const locationFilteredTrades = filteredTrades.filter(trade => {
+    // 전지역 선택 시 모든 거래 보여주기
+    if (searchFilter.sigungu === "" && searchFilter.emd === "") {
+      return true;
+    }
+
+    // 특정 구와 동이 선택된 경우
+    const locationMatches = trade.location.includes(searchFilter.sigungu);
+    const emdMatches = searchFilter.emd === "" || trade.location.includes(searchFilter.emd);
+
+    return locationMatches && emdMatches;
+  });
+
+  const routes = [
+    { path: "/", name: "홈" },
+    { path: "/usedTrade", name: "중고거래" },
+  ];
+
   return (
-    <Container>
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
-        selectedCategory={selectedCategory}  setSelectedCategory={setSelectedCategory} />
-      <Content>
-        <Sidebar>
-          <FilterContainer>
-            <h3>필터</h3>
-            <p />
-            <form>
-              <FilterItem>
-                <label>
-                  <input
-                    type="checkbox"
-                    name="tradeable"
-                    checked={searchFilter.tradeable}
-                    onChange={handleFilterChange}
-                    style={{ marginRight: "5px" }}
-                  />
-                  거래 가능만 보기
+    <>
+    <SearchBar
+     searchTerm = {searchTerm} 
+     setSearchTerm = {setSearchTerm}
+     selectedCategory={selectedCategory}
+     setSelectedCategory={setSelectedCategory}
+     onSelect={handleLocationSelect}
+     onSearch={handleSearch}
+    />
+      <Breadcrumb routes={routes} />
+      <Container>
+        <HeadContainer>
+          <h2>{`${searchFilter.sido} ${searchFilter.sigungu || ''} ${searchFilter.emd || ''} 중고거래`}</h2>
+          <Button 
+            title="+ 글쓰기" 
+            variant="primary" 
+            onClick={() => navigate("/usedTradeWrite")} 
+          />
+        </HeadContainer>
+        <InnerContainer>
+          <FilterBar>
+            <div className="filterBarHeader">
+              <h3 className="title">필터</h3>
+              <div className="reset" onClick={resetFilter}>초기화</div>
+            </div>
+            <div className="filterItem">
+              <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center' }}>지역
+                <CustomSelect value={searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.value })}>
+                  <option value="">전지역</option>
+                  {busanJuso.map((item) => (
+                    <option key={item.sigungu} value={item.sigungu}>{item.sigungu}</option>
+                  ))}
+                </CustomSelect>
+              </h4>
+
+              <div className="filterList">
+                <p>{searchFilter.sido}</p>
+                <label className="radioWrap">
+                  <Radio name="gu" value={searchFilter.sigungu} checked={searchFilter.emd === ''} onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
+                  {searchFilter.sigungu === '' ? "전지역" : searchFilter.sigungu}
                 </label>
-              </FilterItem>
-              <hr style={{ borderTop: "1px solid rgba(0, 0, 0, 0.1" }}/>
-              <FilterItem>
-                <h4 style={{ marginTop: "30px", marginBottom: "20px", fontSize: "17px" }}>카테고리</h4>
-                <label style={{ display: "block", marginBottom: "10px" }}>
-                  <Radio
-                    name="category"
-                    value="all"
-                    checked={searchFilter.category === "all"}
-                    onChange={handleFilterChange}
-                    style={{ marginRight: "5px" }}
-                  />
-                  <span style={{ marginLeft: "5px" }}>전체</span>
-                </label>
+                <EmdFilterWrap open={isFilterOpen}>
+                  {searchFilter.emd !== '' &&
+                    <label className="radioWrap">
+                      <Radio name="dong" value="" checked onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
+                      {searchFilter.emd}
+                    </label>
+                  }
+                  {(emdList && searchFilter.emd === '') && emdList.map((dong) => (
+                    <label key={dong} className="radioWrap">
+                      <Radio name="dong" value={dong} checked={searchFilter.emd === dong} onChange={() => setSearchFilter({ ...searchFilter, emd: dong })} />
+                      {dong}
+                    </label>
+                  ))}
+                </EmdFilterWrap>
+                {
+                  (emdList && emdList.length > 5 && searchFilter.emd === '') &&
+                  <MoreFilterButton className="toggle" onClick={() => setIsFilterOpen(!isFilterOpen)}>{isFilterOpen ? "접기" : "더보기"}</MoreFilterButton>
+                }
+
+              </div>
+            </div>
+            
+            <div className="filterItem">
+              <h4 className="title">카테고리</h4>
+              <CategoryList show={isCategoryOpen}>
                 {[
-                  "디지털기기",
-                  "생활가전",
-                  "가구/인테리어",
-                  "생활/주방",
-                  "유아동",
-                  "유아도서",
-                  "여성의류",
-                  "여성잡화",
-                  "남성패션/잡화",
-                  "뷰티/미용",
-                  "스포츠/레저",
-                  "취미/게임/음반",
-                  "도서",
-                  "티켓/교환권",
-                  "가공식품",
-                  "건강기능식품",
-                  "반려동물용품",
-                  "식물",
-                  "기타",
-                  "삽니다"
-                ].map((category) => (
-                  <label key={category} style={{ display: "block", marginTop: "10px" }}>
+                    "디지털기기",
+                    "생활가전",
+                    "가구/인테리어",
+                    "생활/주방",
+                    "유아동",
+                    "유아도서",
+                    "여성의류",
+                    "여성잡화",
+                    "남성패션/잡화",
+                    "뷰티/미용",
+                    "스포츠/레저",
+                    "취미/게임/음반",
+                    "도서",
+                    "티켓/교환권",
+                    "가공식품",
+                    "건강기능식품",
+                    "반려동물용품",
+                    "식물",
+                    "기타",
+                    "삽니다"
+                ].map(category => (
+                  <CategoryItem key={category} className="radioWrap">
                     <Radio
                       name="category"
                       value={category}
                       checked={searchFilter.category === category}
-                      onChange={handleFilterChange}
+                      onChange={() => selectCategory(category)}
                     />
-                    <span style={{ marginLeft: "5px" }}>{category}</span>
-                  </label>
+                    {category}
+                  </CategoryItem>
                 ))}
-              </FilterItem>
-              <hr style={{ borderTop: "1px solid rgba(0, 0, 0, 0.1" }}/>
-              <FilterItem>
-                <h4 style={{ marginTop: "30px", marginBottom: "20px", fontSize: "17px" }}>정렬</h4>
-                <label style={{ display: "block", marginBottom: "10px" }}>
-                  <Radio
-                    name="sort"
-                    value="recent"
-                    checked={searchFilter.sort === "recent"}
-                    onChange={handleFilterChange}
-                  />
-                  최신순
-                </label>
-                <label>
-                  <Radio
-                    name="sort"
-                    value="price"
-                    checked={searchFilter.sort === "price"}
-                    onChange={handleFilterChange}
-                    style={{ marginRight: "10px" }}
-                  />
-                  가격순
-                </label>
-              </FilterItem>
-            </form>
-          </FilterContainer>
-        </Sidebar>
-        <Main>
-          <Header>
-            <Title>부산광역시 동래구 중고거래</Title>
-            <Button
-              title="+ 글쓰기"
-              variant="primary"
-              onClick={() => navigate("/usedTrade/used-trade-write")}
-            />
-          </Header>
-          <CardGrid>
-            {filteredTrades.length > 0 ? (
-              filteredTrades.slice(0, visibleCount).map((usedTrade) => (
-                <Card 
-                  key={usedTrade.id}
-                  title={usedTrade.name}
-                  price={`${formattedPrice(usedTrade.price)} 원`}
-                  location={usedTrade.location}
-                  onClick={() => navigate(`/usedTrade/used-trade-view/${usedTrade.id}`,
-                     { state: 
-                      {...usedTrade, category: usedTrade.category, 
-                        createdAt: usedTrade.createdDate, 
-                        tradeable: usedTrade.tradeable,
-                        isNegotiable: usedTrade.isNegotiable,
-                        isGiveable: usedTrade.selectedTradeType,
-                        isGived: usedTrade.isGived
-                      } })}
-                  style={{ cursor: "pointer" }}
-                />
-              ))
-            ) : (
-              <p>중고 거래가 없습니다.</p>
-            )}
-          </CardGrid>
-          {filteredTrades.length > visibleCount && (
-            <Button 
-              title="더보기" 
-              onClick={handleLoadMore} 
-              style={{ marginTop: "20px" }}
-            />
-          )}
-        </Main>
-      </Content>
-    </Container>
-  );
-};
+              </CategoryList>
+            </div>
+            <div className="filterItem">
+              <h4 className="title">정렬</h4>
+              <label className="radioWrap">
+                <Radio 
+                  name="sort" 
+                  value="recent" 
+                  checked={searchFilter.sort === 'recent'} 
+                  onChange={(e) => setSearchFilter({ ...searchFilter, sort: 'recent' })} />
+                최신순
+              </label>
+              <label className="radioWrap">
+                <Radio 
+                  name="sort" 
+                  value="name" 
+                  checked={searchFilter.sort === 'price'} 
+                  onChange={(e) => setSearchFilter({ ...searchFilter, sort: 'price' })} />
+                가격순
+              </label>
+            </div>
+          </FilterBar>
 
-export default UsedTrade;
+          <ListContainer>
+            {loading ? (
+              <LoadingText>
+                <h3>중고거래를 찾는 중이에요.</h3>
+              </LoadingText>
+            ) : (
+              <>
+                {locationFilteredTrades.length === 0 ? (
+                  <NoSearchResult>
+                    <h3>{`${searchFilter.emd ? searchFilter.emd : searchFilter.sigungu} 근처에 중고거래가 없어요.`}</h3>
+                    <p>다른 조건으로 검색해주세요.</p>
+                  </NoSearchResult>
+                ) : (
+                  <CardGrid>
+                    {(locationFilteredTrades.length > 0 ? locationFilteredTrades : tradeList).slice(0, visibleCount).map((usedTrade) => (
+                      <Card 
+                        key={usedTrade.id}
+                        title={usedTrade.name}
+                        price={`${formattedPrice(usedTrade.price)} 원`}
+                        location={usedTrade.location}
+                        onClick={() =>
+                          navigate(
+                            `/usedTradeView/${usedTrade.id}`,
+                            {
+                              state: {
+                                ...usedTrade,
+                                category: usedTrade.category,
+                                createdAt: usedTrade.createdDate,
+                                tradeable: usedTrade.tradeable,
+                                location: usedTrade.location,
+                                isNegotiable: usedTrade.isNegotiable,
+                                isGiveable: usedTrade.selectedTradeType,
+                                isGived: usedTrade.isGived,
+                              }
+                            }
+                          )
+                        }
+                      />
+                    ))}
+                  </CardGrid>
+                )}
+                {!loading && locationFilteredTrades.length > visibleCount && hasNext && (
+                  <Button title="더보기" onClick={handleMoreButton} />
+                )}
+              </>
+            )}
+          </ListContainer>
+
+        </InnerContainer>
+
+      </Container>
+    </>
+  );
+}
