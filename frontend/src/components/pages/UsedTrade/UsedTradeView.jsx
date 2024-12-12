@@ -29,16 +29,24 @@ const BackButton = styled.button`
   cursor: pointer;
 `;
 
-const ProductDetail = styled.div`
+const Product = styled.div`
   display: flex;
   gap: 20px;
+  flex-direction: row;
+`;
+
+const ProductDetail = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   margin-bottom: 40px;
+  width: 100%;
 `;
 
 const ProductImage = styled.div`
-  flex: 1;
+  flex: 2;
   background: #eaeaea;
-  height: 300px;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -57,11 +65,18 @@ const Title = styled.h1`
 const Price = styled.p`
   font-size: 20px;
   margin-bottom: 20px;
+  font-weight: bold;
 `;
+
+const Location = styled.p`
+  font-size: 14px;
+  margin-bottom: 20px;
+`
 
 const Description = styled.p`
   font-size: 16px;
   color: #555;
+  border: 1px solid #ccc;
 `;
 
 const CategoryAndTime = styled.p`
@@ -174,33 +189,37 @@ const UsedTradeView = () => {
           <Button onClick={handleDelete} title="삭제하기" variant="danger" />
         </ButtonGroup>
       </Header>
-      <ProductDetail>
-        <ProductImage>상품 사진</ProductImage>
-        <AlbaMemberProfile 
-          userId={product.userId}
-          
-        />
-
-        <ProductInfo>
-          <Title>{product.name}</Title>
-          <CategoryAndTime>
-            {product.category} | {timeAgo(product.createdDate)}
-          </CategoryAndTime>
-          <Price>{formattedPrice} 원</Price>
-
-          <Description>
-            {product.content}
-          </Description>
-
-          <Button 
-            title="거래하기" 
-            variant="primary" 
-            onClick={() => alert("거래를 시작합니다!")} 
-            style={{ width: "100%", marginTop: "20px" }}
+      <Product>
+        <ProductDetail>
+          <ProductImage>상품 사진</ProductImage>
+          <AlbaMemberProfile 
+            userId={product.userId}
           />
-        </ProductInfo>
+        </ProductDetail>
 
-      </ProductDetail>
+        <ProductDetail>
+          <ProductInfo>
+            <Title>{product.name}</Title>
+            <CategoryAndTime>
+              {product.category} | {timeAgo(product.createdDate)}
+            </CategoryAndTime>
+            <Price>{formattedPrice} 원</Price>
+            <Location>{product.location}</Location>
+
+            <Description>
+              {product.content}
+            </Description>
+
+            <Button 
+              title="거래하기" 
+              variant="primary" 
+              onClick={() => alert("거래를 시작합니다!")} 
+              style={{ width: "100%", marginTop: "20px" }}
+            />
+          </ProductInfo>
+        </ProductDetail>
+      </Product>
+      
       <MoreProducts>
         <h3>이 판매자의 다른 상품</h3>
 

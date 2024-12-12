@@ -388,6 +388,7 @@ const UsedTradeUpdate = () => {
                         placeholder="거래 희망 장소" 
                         value={locationInput}
                         onChange={(e) => setLocationInput(e.target.value)}
+                        readOnly
                     />
                 </InputContainer>
             </Form>

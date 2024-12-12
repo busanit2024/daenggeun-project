@@ -5,8 +5,11 @@ import com.busanit.daenggeunbackend.repository.UsedTradeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.plaf.ListUI;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -14,8 +17,15 @@ public class UsedTradeService {
     @Autowired
     private UsedTradeRepository usedTradeRepository;
 
-    public UsedTrade createUsedTrade(UsedTrade usedTrade) {
-        return usedTradeRepository.save(usedTrade);
+    @Transactional
+    public UsedTrade createUsedTrade(UsedTrade usedTrade, MultipartFile imageFile) {
+        try {
+            byte[] imageBytes = imageFile.getBytes();
+            usedTrade.setImageData(imageBytes);
+            return usedTradeRepository.save(usedTrade);
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+        }
     }
 
     public List<UsedTrade> getAllUsedTrade() {

@@ -34,4 +34,6 @@ public class UsedTrade {
     private List<String> bookmarkUsers; // 북마크 사용자
     // 거래 희망 장소
     private String tradePlace;
+    private byte[] imageData;
+
 }

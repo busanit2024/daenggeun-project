@@ -1,6 +1,7 @@
 package com.busanit.daenggeunbackend.controller;
 
 import com.busanit.daenggeunbackend.domain.FilterDataDTO;
+import com.busanit.daenggeunbackend.domain.Image;
 import com.busanit.daenggeunbackend.entity.FilterData;
 import com.busanit.daenggeunbackend.entity.UsedTrade;
 import com.busanit.daenggeunbackend.service.FilterDataService;
@@ -8,9 +9,14 @@ import com.busanit.daenggeunbackend.service.UsedTradeService;
 import jakarta.servlet.Filter;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,10 +30,12 @@ public class UsedTradeController {
     private FilterDataService filterDataService;
 
     @PostMapping
-    public ResponseEntity<UsedTrade> createUsedTrade(@RequestBody UsedTrade usedTrade) {
+    public ResponseEntity<UsedTrade> createUsedTrade(
+            @RequestBody UsedTrade usedTrade,
+            @RequestParam("images") MultipartFile imageFile) {
         System.out.println("Received POST request with data: " + usedTrade);
         usedTrade.setTradeable(true);
-        UsedTrade createdUsedTrade = usedTradeService.createUsedTrade(usedTrade);
+        UsedTrade createdUsedTrade = usedTradeService.createUsedTrade(usedTrade, imageFile);
         return ResponseEntity.ok(createdUsedTrade);
     }
 
@@ -90,4 +98,30 @@ public class UsedTradeController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping("/images")
+    public ResponseEntity<List<Image>> uploadImages(@RequestParam("files") MultipartFile[] files) {
+        List<Image> images = new ArrayList<>();
+        String uploadDir = "uploads/"; // 파일 저장 경로
+
+        for (MultipartFile file : files) {
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            File dest = new File(uploadDir + fileName);
+            try {
+                file.transferTo(dest); // 파일 저장
+
+                // Image 객체 생성 및 설정
+                Image image = new Image();
+                image.setFilename(fileName); // 파일 이름 설정
+                image.setFilePath(dest.getAbsolutePath()); // 서버 내 파일 경로 설정
+                image.setUrl("/uploads/" + fileName); // 클라이언트에서 접근할 URL 설정
+                images.add(image); // 리스트에 추가
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+        return ResponseEntity.ok(images); // Image 객체 리스트 반환
+    }
+
 }

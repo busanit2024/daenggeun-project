@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumb from "../../Breadcrumb";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import useGeolocation from "../../../utils/useGeolocation";
-import { Item } from "../Group/GroupCreatePage";
 import axios from "axios";
 
 const ButtonContainer = styled.div`
@@ -98,6 +97,11 @@ const CategoryItem = styled.div`
     }
 `;
 
+const ErrorText = styled.small`
+    color: red;
+    margin-top: 5px;
+`;
+
 const TradeButton = styled(Button)`
     background-color: ${props => (props.active ? "#000000" : "#dcdcdc")};
     color: ${props => (props.active ? "#ffffff" : "#000000")};
@@ -145,6 +149,12 @@ const UsedTradeWrite = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedTradeType, setSelectedTradeType] = useState("판매하기");
     const [isGiveable, setIsGiveable] = useState(false);
+    const [uploadedImages, setUploadedImages] = useState([]);
+
+    // 이름, 장소, 가격 작성 유무 판단
+    const [nameError, setNameError] = useState("");
+    const [priceError, setPriceError] = useState("");
+    const [locationError, setLocationError] = useState("");
 
     const navigate = useNavigate();
 
@@ -184,17 +194,40 @@ const UsedTradeWrite = () => {
         }
     };
 
+    const handleNameChange = (e) => {
+        setName(e.target.value);
+        if (!e.target.value) {
+            setNameError("제목을 입력해주세요!");
+        } else {
+            setNameError("");
+        }
+    };
+
     const handleGuChange = (e) => {
         const value = e.target.value;
         setSelectedGu(value);
         setSelectedDong(""); // 동 초기화
         getEmdList(value); // 선택한 구에 대한 동 리스트 가져오기
+        if (!e.target.value) {
+            setLocationError("거래 희망 장소를 골라주세요!");
+        } else {
+            setLocationError("");
+        }
     };
 
     const handleDongChange = (e) => {
         const value = e.target.value;
         setSelectedDong(value);
         setLocation(`${selectedGu} ${value}`); // 선택된 구와 동을 기반으로 위치 설정
+        if (!e.target.value) {
+            setLocationError("거래 희망 장소를 골라주세요!");
+        } else {
+            setLocationError("");
+        }
+    };
+
+    const handleImageChange = (images) => {
+        setUploadedImages(images);
     };
 
     useEffect(() => {
@@ -213,6 +246,12 @@ const UsedTradeWrite = () => {
         }
 
         setPrice(value);
+
+        if (!value) {
+            setPriceError("가격을 입력해주세요!");
+        } else {
+            setPriceError("");
+        }
     };
 
     const handleCheckboxChange = (e) => {
@@ -243,15 +282,69 @@ const UsedTradeWrite = () => {
         setIsCategoryOpen(false);   // 선택 후 드롭다운 닫기
     };
 
+    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!name || !location || !price) {
-            alert("제목과 가격, 거래 희망 장소를 입력해주세요!");
-            return;
+        let hasError = false;
+
+        // 초기화
+        setNameError("");
+        setPriceError("");
+        setLocationError("");
+
+        if (!name) {
+            setNameError("제목을 입력해주세요!");
+            hasError = true;
+        }
+    
+        if (!location) {
+            setLocationError("거래 희망 장소를 선택해주세요!");
+            hasError = true;
+        }
+    
+        if (!price) {
+            setPriceError("가격을 입력해주세요!");
+            hasError = true;
+        }
+    
+        if (hasError) {
+            return; // 에러가 있으면 제출하지 않음
         }
 
+        const confirmSubmit = window.confirm("중고거래 악용을 막기 위해 거래 희망 장소는\n수정할 수 없게 되어있습니다.\n정말로 등록하시겠습니까?");
+        if (!confirmSubmit) return;
+
         const userId = sessionStorage.getItem('uid');
+
+        // 이미지 업로드
+        let imageUrls = [];
+        if (uploadedImages.length > 0) {
+            const formData = new FormData();
+            uploadedImages.forEach((img) => {
+                formData.append('files', img); // 이미지 파일 추가
+            });
+
+            try {
+                const response = await fetch('/api/usedTrades/images', {
+                    method: 'POST',
+                    body: formData,
+                });
+                if (response.ok) {
+                    const uploadedImageData = await response.json(); // 서버에서 반환된 Image 객체 리스트
+                    imageUrls = uploadedImageData.map(img => img.url); // URL만 추출
+                } else {
+                    alert("이미지 업로드에 실패했습니다.");
+                    console.log('Image upload failed:', response.statusText);
+                    return;
+                }
+            } catch (error) {
+                console.error('Error uploading images:', error);
+                alert("이미지 업로드 중 오류가 발생했습니다.");
+                return;
+            }
+        }
 
         const usedTradeData = {
             userId: userId,
@@ -263,7 +356,7 @@ const UsedTradeWrite = () => {
             emd: selectedDong,
             content: content,
             createdDate: new Date().toISOString(),
-            images: [],
+            images: imageUrls,
             views: 0,   // 조회수는 일단 0으로 지정
             isNegotiable: isPriceNegotiable,    // 네고 가능 여부
             isGiveable: isGiveable, // 나눔 신청 가능 여부
@@ -311,7 +404,7 @@ const UsedTradeWrite = () => {
         <Container>
             <Breadcrumb routes={routes} />
             <Form>
-                <ImageUpload />
+                <ImageUpload onImageChange={handleImageChange} />
                 <InputContainer>
                 <Form>
                     <CategoryToggle>
@@ -406,8 +499,10 @@ const UsedTradeWrite = () => {
                 <InputText 
                     placeholder="제목" 
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={handleNameChange}
+                    style={{ borderColor: nameError ? 'red' : '#ccc' }}
                 />
+                {nameError && <ErrorText>{nameError}</ErrorText>}
 
                 <div>
                     <h3 style={{ marginBottom: "10px" }}>거래 방식</h3>
@@ -441,7 +536,10 @@ const UsedTradeWrite = () => {
                         value={selectedTradeType === "나눔하기" ? "0" : price}
                         onChange={handlePriceChange}
                         disabled={selectedTradeType === "나눔하기"}
+                        style={{ borderColor: priceError ? 'red' : '#ccc' }}
                     /> 원
+                    <br />
+                    {priceError && <ErrorText>{priceError}</ErrorText>}
                     <br />
 
                     {/* 체크박스 추가 */}
@@ -474,7 +572,7 @@ const UsedTradeWrite = () => {
 
                 <InputContainer>
                     <h3>거래 희망 장소</h3>
-                    <div style={{ marginBottom: "10px" }}>
+                    <div style={{ marginBottom: "10px", borderColor: locationError ? 'red' : '#ccc' }}>
                         <label>
                             구 선택 : <Select value={selectedGu} onChange={handleGuChange}>
                                 <option value="" disabled>구를 선택하세요</option>
@@ -484,7 +582,8 @@ const UsedTradeWrite = () => {
                             </Select>
                         </label>
                     </div>
-                    <div>
+                    {locationError && <ErrorText>{locationError}</ErrorText>}
+                    <div style={{ marginBottom: "10px", borderColor: locationError ? 'red' : '#ccc' }}>
                         <label>
                             동 선택 : <Select value={selectedDong} onChange={handleDongChange} disabled={!selectedGu}>
                                 <option value="" disabled>동을 선택하세요</option>
@@ -494,6 +593,7 @@ const UsedTradeWrite = () => {
                             </Select>
                         </label>
                     </div>
+                    {locationError && <ErrorText>{locationError}</ErrorText>}
                 </InputContainer>
             </Form>
 
