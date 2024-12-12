@@ -144,7 +144,7 @@ export default function GroupPage(props) {
   const [modalOpen, setModalOpen] = useState('');
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("동네생활");
-  const [selectedLocation, setSelectedLocation] = useState({ sigungu: "해운대구", emd: "" });
+  const [selectedLocation, setSelectedLocation] = useState({ sigungu: "부산진구", emd: "" });
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',

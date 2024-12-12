@@ -60,6 +60,13 @@ public class UserService {
         return userRepository.findByUniqueCodeIn(uniqueCodes);
     }
 
+    public User updateLocation(String uid, List<Location> locations) {
+        User user = userRepository.findByUid(uid)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setLocation(locations);
+        return userRepository.save(user);
+    }
+
 
 
 
