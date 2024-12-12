@@ -212,7 +212,7 @@ const SlideText = styled.span`
     left: 25%;
     transform: translateX(-50%);
     top : 50px;
-    font-family : SBAggroB;
+    font-family : 'SBAggroB';
 `;
 
 function MainPage(props) {
