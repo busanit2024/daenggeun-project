@@ -7,7 +7,7 @@ import RoundFilter from "../../ui/RoundFilter";
 import { singleFileUpload } from "../../../firebase";
 import Radio from "../../ui/Radio";
 import Switch from "../../ui/Switch";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import { useJsApiLoader } from "@react-google-maps/api";
 import useGeolocation from "../../../utils/useGeolocation";
 import InputText from "../../ui/InputText";

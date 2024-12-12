@@ -4,23 +4,6 @@ import GroupListItem from "../group/GroupListItem";
 import axios from "axios";
 import Button from "../ui/Button";
 
-const dummyData = {
-  id: 1,
-  title: '모임 이름',
-  image: {
-    url: '/images/defaultGroupImage.png',
-    filename: 'defaultGroupImage.png'
-  },
-  description: '모임 설명',
-  location: {
-    emd: '동네',
-    sigungu: '구'
-  },
-  category: '카테고리',
-}
-
-
-
 export default function MyGroup() {
   const [groups, setGroups] = useState([]);
   const [uid, setUid] = useState('');

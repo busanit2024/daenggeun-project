@@ -386,7 +386,7 @@ const onLoad = (autocomplete) => {
             <WriteHeader>
               <div className="profile">
                 <div className="profile-image">
-                  <img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/defaultProfileImage.png'} alt="프로필 이미지" />
+                  <img src={member?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} alt="프로필 이미지" />
                 </div>
 
                 <TitleInput underline value={input.title} onChange={(e) => setInput((prev) => ({ ...prev, title: e.target.value }))} placeholder="멤버들과 어떤 활동을 할까요?" />

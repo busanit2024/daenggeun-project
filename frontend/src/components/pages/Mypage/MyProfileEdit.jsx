@@ -137,7 +137,7 @@ export default function MyProfileEdit(props) {
         if (profileImage) {
             return URL.createObjectURL(profileImage);
         }
-        return user?.profileImage?.url ?? '/images/defaultProfileImage.png';
+        return user?.profileImage?.url ?? '/images/default/defaultProfileImage.png';
     }
 
     const handleProfileImageChange = (e) => {
@@ -182,7 +182,7 @@ export default function MyProfileEdit(props) {
             <UserInfoBox>
                 <div className="profileImageWrap">
                     <div className="profileImage">
-                        <img src={getProfileImageUrl()} alt={user?.username} onError={(e) => e.target.src = '/images/defaultProfileImage.png'} />
+                        <img src={getProfileImageUrl()} alt={user?.username} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} />
                     </div>
                     <CustomFileInput type="file" accept="image/*" id="profileImage" onChange={handleProfileImageChange} />
                     <label htmlFor="profileImage">

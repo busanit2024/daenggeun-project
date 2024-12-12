@@ -139,7 +139,7 @@ export default function MyPageMain(props) {
             <h1>마이페이지</h1>
             <UserInfoBox>
                 <div className="profileImage">
-                    <img src={user?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt={user?.username} onError={(e) => e.target.src = '/images/defaultProfileImage.png'} />
+                    <img src={user?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} alt={user?.username} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} />
                 </div>
 
                 <div className="userInfo">

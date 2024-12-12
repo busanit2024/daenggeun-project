@@ -118,10 +118,10 @@ export default function ScheduleListItem(props) {
           <div className="date">{date.day}</div>
         </DateWrapper>
         <Info>
-          {schedule.isPrivate && <div className="private"><FaExclamationCircle />모임에게만 공개된 일정이에요.</div>}
-          <div className="title">{schedule.title}</div>
+          {schedule?.isPrivate && <div className="private"><FaExclamationCircle />모임에게만 공개된 일정이에요.</div>}
+          <div className="title">{schedule?.title}</div>
           <div className="state">
-            {schedule.closed ? <span className="close">마감</span> : <span className="open">모집중</span>}
+            {schedule?.closed ? <span className="close">마감</span> : <span className="open">모집중</span>}
           </div>
           <div className="tags">
             <span>

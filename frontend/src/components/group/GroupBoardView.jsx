@@ -144,7 +144,7 @@ export default function GroupBoardView() {
           <ViewHeader>
             <div className="profile">
               <div className="profile-image">
-                <img src={post?.user?.profileImage?.url ?? '/images/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/defaultProfileImage.png'} alt="프로필 이미지" />
+                <img src={post?.user?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} alt="프로필 이미지" />
               </div>
 
               <div className="profile-name">

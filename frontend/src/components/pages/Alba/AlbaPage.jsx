@@ -6,7 +6,7 @@ import FilterBar from "../../ui/FilterBar";
 import Button from "../../ui/Button";
 import AlbaListItem from "../../alba/AlbaListItem";
 import RoundFilter from "../../ui/RoundFilter";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import SearchBar from "../../ui/SearchBar";  
 import Radio from "../../ui/Radio";
 import LocationSearchModal from "../../ui/LocationSearchModal";

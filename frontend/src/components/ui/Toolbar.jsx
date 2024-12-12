@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
-import "./ui/Button";
+import { AuthContext } from "../../context/AuthContext";
+import "./Button";
 import { useNavigate } from "react-router-dom";
-import "../styles/Toolbar.css";
-import Logo from "./ui/Logo";
+import "../../styles/Toolbar.css";
+import Logo from "./Logo";
 
 const Toolbar = () => {
     const { logout } = useContext(AuthContext);

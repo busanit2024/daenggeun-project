@@ -87,7 +87,7 @@ export default function GroupListItem({ group }) {
     <Container key={group.id} onClick={() => navigate(`/group/${group.id}`)}>
       <ImageContainer>
 
-        <img className="group-image" src={group.image?.url ?? '/images/defaultGroupImage.png'} alt={group.title} onError={(e) => e.target.src = '/images/defaultGroupImage.png'} />
+        <img className="group-image" src={group.image?.url ?? '/images/default/defaultGroupImage.png'} alt={group.title} onError={(e) => e.target.src = '/images/default/defaultGroupImage.png'} />
       </ImageContainer>
       <TextContainer>
         <Title style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>{group.title}

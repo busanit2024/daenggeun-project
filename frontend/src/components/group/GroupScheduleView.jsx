@@ -318,7 +318,7 @@ export default function GroupScheduleView() {
           <ViewHeader>
             <div className="profile">
               <div className="profile-image">
-                <img src={post?.user?.profileImage?.url ?? '/images/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/defaultProfileImage.png'} alt="프로필 이미지" />
+                <img src={post?.user?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} alt="프로필 이미지" />
               </div>
 
               <div className="profile-name">
@@ -389,7 +389,7 @@ export default function GroupScheduleView() {
               return (
                 <div className="member" key={participant}>
                   <div className="profile-image">
-                    <img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt="프로필 이미지" onError={(e) => e.target.src = '/images/defaultProfileImage.png'} />
+                    <img src={member?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} alt="프로필 이미지" onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} />
                   </div>
                   <div className="name">{member?.username}</div>
                 </div>

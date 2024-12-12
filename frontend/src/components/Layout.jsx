@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
-import Toolbar from "./components/Toolbar";
+import Toolbar from "./ui/Toolbar";
 import styled from "styled-components";
-import Footer from "./components/ui/Footer";
+import Footer from "./ui/Footer";
 
 const Container = styled.div`
   display: flex;

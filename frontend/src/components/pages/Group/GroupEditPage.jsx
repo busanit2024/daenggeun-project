@@ -8,7 +8,7 @@ import { deleteFile, singleFileUpload } from "../../../firebase";
 import InputText from "../../ui/InputText";
 import Switch from "../../ui/Switch";
 import Radio from "../../ui/Radio";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import { Container, ButtonContainer, Item, InputContainer, Input, Textarea, TextLength, RadioContainer, SelectBoxContainer, SelectBox, FileInputContainer, InputCheckMessage, DongneSelectContainer, DongneSelect } from "./GroupCreatePage";
 
 

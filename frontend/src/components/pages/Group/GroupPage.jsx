@@ -8,7 +8,7 @@ import GroupListItem from "../../group/GroupListItem";
 import RoundFilter from "../../ui/RoundFilter";
 import Radio from "../../ui/Radio";
 import { useJsApiLoader } from "@react-google-maps/api";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import Modal from "../../ui/Modal";
 import SearchBar from "../../ui/SearchBar";
 import Switch from "../../ui/Switch";

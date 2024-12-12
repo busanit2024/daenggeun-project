@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import logoOnly from '../../images/logo.png'; 
-import logoWithText from '../../images/Daangn_Signature_RGB.png';
 
 const StyledLogo = styled.img`
    width : 100px;
    height: 65px;
    cursor : pointer;
 `;
+
+const logoOnly = '/images/logo/logo.png';
+const logoWithText = '/images/logo/Daangn_Signature_RGB.png';
 
 const Logo = ({variant, onClick}) => {
     let logoSrc;

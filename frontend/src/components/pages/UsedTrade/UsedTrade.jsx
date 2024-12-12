@@ -7,7 +7,7 @@ import Button from "../../ui/Button";
 import Radio from "../../ui/Radio";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import SearchBar from "../../ui/SearchBar";
 import Card from "../../ui/Card";
 
