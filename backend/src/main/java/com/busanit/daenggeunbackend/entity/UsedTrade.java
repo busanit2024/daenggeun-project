@@ -1,6 +1,7 @@
 package com.busanit.daenggeunbackend.entity;
 
 import com.busanit.daenggeunbackend.domain.Image;
+import com.busanit.daenggeunbackend.domain.Location;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,4 +32,6 @@ public class UsedTrade {
     private boolean isGived;    // 판매, 나눔 여부
     private boolean tradeable;  // 거래 가능 여부
     private List<String> bookmarkUsers; // 북마크 사용자
+    // 거래 희망 장소
+    private String tradePlace;
 }
