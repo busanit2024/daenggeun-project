@@ -2,11 +2,14 @@ package com.busanit.daenggeunbackend.service;
 
 import com.busanit.daenggeunbackend.domain.GroupDTO;
 import com.busanit.daenggeunbackend.domain.GroupPostDTO;
+import com.busanit.daenggeunbackend.domain.ScheduleDTO;
 import com.busanit.daenggeunbackend.entity.Group;
 import com.busanit.daenggeunbackend.entity.GroupMember;
 import com.busanit.daenggeunbackend.entity.GroupPost;
+import com.busanit.daenggeunbackend.entity.Schedule;
 import com.busanit.daenggeunbackend.repository.GroupPostRepository;
 import com.busanit.daenggeunbackend.repository.GroupRepository;
+import com.busanit.daenggeunbackend.repository.ScheduleRepository;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,8 @@ public class GroupService {
 
   @Autowired
   private MongoTemplate mongoTemplate;
+  @Autowired
+  private ScheduleRepository scheduleRepository;
 
   public List<GroupDTO> findAll() {
      List<Group> groups = groupRepository.findAll();
@@ -343,4 +348,58 @@ public class GroupService {
 
     groupRepository.save(group);
   }
+
+  @Transactional
+  public void saveSchedule(ScheduleDTO scheduleDTO) {
+    Group group = groupRepository.findById(scheduleDTO.getGroupId()).orElse(null);
+    if (group == null) {
+      throw new RuntimeException("Group not found");
+    }
+
+    String currentId = scheduleDTO.getId();
+    Schedule currentSchedule = null;
+    if (currentId != null) {
+      currentSchedule = scheduleRepository.findById(currentId).orElse(null);
+    }
+    if (currentSchedule != null) {
+      scheduleDTO.setCreatedDate(currentSchedule.getCreatedDate());
+      scheduleRepository.save(Schedule.toEntity(scheduleDTO));
+      return;
+    }
+
+    Schedule schedule = scheduleRepository.save(Schedule.toEntity(scheduleDTO));
+    String id = schedule.getId();
+
+    List<String> schedules = group.getSchedules();
+    if (schedules == null) {
+      schedules = new ArrayList<>();
+    }
+    if (!schedules.contains(id)) {
+      schedules.add(id);
+      group.setSchedules(schedules);
+    }
+
+    List<GroupMember> members = group.getMembers();
+    GroupMember currentMember = members.stream().filter(groupMember -> groupMember.getUserId().equals(scheduleDTO.getUserId())).findFirst().orElse(null);
+    List<String> memberAssigns = currentMember.getAssigns();
+    if (memberAssigns == null) {
+      memberAssigns = new ArrayList<>();
+    }
+    if (!memberAssigns.contains(id)) {
+      memberAssigns.add(id);
+      currentMember.setAssigns(memberAssigns);
+      members.remove(currentMember);
+      members.add(currentMember);
+      group.setMembers(members);
+    }
+
+    groupRepository.save(group);
+  }
+
+  public Slice<ScheduleDTO> getScheduleSlice(String groupId, boolean closed, Pageable pageable) {
+    Slice<Schedule> schedules = scheduleRepository.findByGroupIdAndClosed(groupId, closed, pageable);
+    return ScheduleDTO.toDTO(schedules);
+  }
+
+
 }

@@ -2,6 +2,7 @@ package com.busanit.daenggeunbackend.controller;
 
 import com.busanit.daenggeunbackend.domain.GroupDTO;
 import com.busanit.daenggeunbackend.domain.GroupPostDTO;
+import com.busanit.daenggeunbackend.domain.ScheduleDTO;
 import com.busanit.daenggeunbackend.entity.Group;
 import com.busanit.daenggeunbackend.entity.GroupMember;
 import com.busanit.daenggeunbackend.entity.User;
@@ -144,5 +145,16 @@ public class GroupRestController {
   @PostMapping("/board/delete")
   private void deletePost(@RequestBody GroupPostDTO groupPostDTO) {
     groupService.deletePost(groupPostDTO);
+  }
+
+  @PostMapping("/schedule/save")
+  private void writeSchedule(@RequestBody ScheduleDTO scheduleDTO) {
+    groupService.saveSchedule(scheduleDTO);
+  }
+
+  @GetMapping("/schedule/{groupId}")
+  private Slice<ScheduleDTO> getSchedule(@PathVariable String groupId, @RequestParam boolean closed, @RequestParam int page, @RequestParam int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return groupService.getScheduleSlice(groupId, closed, pageable);
   }
 }

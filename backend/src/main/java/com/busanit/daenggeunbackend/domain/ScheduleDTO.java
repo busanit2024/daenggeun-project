@@ -22,7 +22,7 @@ public class ScheduleDTO {
   private List<Image> images;
   private LocalDateTime date; //일정 날짜 시간
   private int maxMember; //최대 인원수
-  private boolean isClosed; //종료 여부
+  private boolean closed; //종료 여부
   private String location;
   private int views; //조회수
   private List<String> participants; //참여 유저 id
@@ -40,7 +40,7 @@ public class ScheduleDTO {
             .images(schedule.getImages())
             .date(schedule.getDate())
             .maxMember(schedule.getMaxMember())
-            .isClosed(schedule.isClosed())
+            .closed(schedule.isClosed())
             .location(schedule.getLocation())
             .views(schedule.getViews())
             .participants(schedule.getParticipants())
@@ -54,7 +54,7 @@ public class ScheduleDTO {
     return schedules.stream().map(ScheduleDTO::toDTO).toList();
   }
 
-  public static Slice<ScheduleDTO> toSliceDTO(Slice<Schedule> schedules) {
+  public static Slice<ScheduleDTO> toDTO(Slice<Schedule> schedules) {
     return schedules.map(ScheduleDTO::toDTO);
   }
 

@@ -285,29 +285,35 @@ export default function GroupScheduleWrite() {
   }
 
   const handleUpload = async () => {
-
-    // try {
-      // await deleteFiles(deleteImages);
-    //   multipleFileUpload(images).then((images) => {
-    //     setInput((prev) => ({ ...prev, images }));
-    //     axios.post('/api/group/board/write', {
-    //       ...input,
-    //       images,
-    //     }).then((response) => {
-    //       console.log(response.data);
-    //       alert(`게시글을 ${isEditing ? '수정' : '작성'}했어요.`);
-    //       navigate('/group/' + group.id + '/board');
-    //     }).catch((error) => {
-    //       console.error('서버 저장에 실패했습니다.' + error);
-    //       deleteFiles(images.map((image) => image.filename));
-    //     });
-    //   }).catch((error) => {
-    //     console.error('이미지 업로드에 실패했습니다.' + error);
-    //   });
-    // } catch (error) {
-    //   console.error('글쓰기에 실패했습니다.' + error);
-    //   alert(`${isEditing ? '게시글 수정' : '글쓰기'}에 실패했습니다. 다시 시도해주세요.`);
-    // }
+    try {
+      let participants = [];
+      if (isEditing) {
+        participants = input?.participants ?? [];
+      } else {
+        participants = [member.userId];
+      }
+      await deleteFiles(deleteImages);
+      multipleFileUpload(images).then((images) => {
+        setInput((prev) => ({ ...prev, images }));
+        axios.post('/api/group/schedule/save', {
+          ...input,
+          participants,
+          images,
+        }).then((response) => {
+          console.log(response.data);
+          alert(`일정을 ${isEditing ? '수정했어요.' : '만들었어요.'}`);
+          navigate('/group/' + group.id + '/schedule');
+        }).catch((error) => {
+          console.error('서버 저장에 실패했습니다.' + error);
+          deleteFiles(images.map((image) => image.filename));
+        });
+      }).catch((error) => {
+        console.error('이미지 업로드에 실패했습니다.' + error);
+      });
+    } catch (error) {
+      console.error('일정 만들기에 실패했습니다.' + error);
+      alert(`${isEditing ? '일정 수정' : '일정 만들기'}에 실패했습니다. 다시 시도해주세요.`);
+    }
   };
 
   const handleAddressSearch = (e) => {

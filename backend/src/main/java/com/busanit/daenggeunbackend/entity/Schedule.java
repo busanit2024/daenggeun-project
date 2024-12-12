@@ -28,7 +28,7 @@ public class Schedule {
   private List<Image> images;
   private LocalDateTime date; //일정 날짜 시간
   private int maxMember; //최대 인원수
-  private boolean isClosed; //종료 여부
+  private boolean closed; //종료 여부
   private String location;
   private int views; //조회수
   private List<String> participants; //참여 유저 id
@@ -46,7 +46,7 @@ public class Schedule {
             .images(dto.getImages())
             .date(dto.getDate())
             .maxMember(dto.getMaxMember())
-            .isClosed(dto.isClosed())
+            .closed(dto.isClosed())
             .location(dto.getLocation())
             .views(dto.getViews())
             .participants(dto.getParticipants())

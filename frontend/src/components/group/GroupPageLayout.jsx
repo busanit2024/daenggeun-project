@@ -288,6 +288,7 @@ export default function GroupPageLayout(props) {
     { path: `/group/${group.id}/schedule`, name: '전체 일정' },
     { path: `/group/${group.id}/schedule/write`, name: '일정 만들기' },
     { path: `/group/${group.id}/schedule/:postId/edit`, name: '일정 수정하기' },
+    { path: `/group/${group.id}/schedule/:postId`, name: '일정 상세보기' },
     { path: `/group/${group.id}/board`, name: '모임 게시판' },
     { path: `/group/${group.id}/board/write`, name: '글쓰기' },
     { path: `/group/${group.id}/board/:postId/edit`, name: '게시글 수정하기' },
