@@ -52,7 +52,6 @@ const AlbaEdit = () => {
   const [busanJuso, setBusanJuso] = useState(null);
   const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
 
-
   const StyledRoundFilter = styled(RoundFilter)`
     padding: 4px 8px;
     margin: 4px;
@@ -160,7 +159,7 @@ const AlbaEdit = () => {
     console.log("busanJuso data:", busanJuso);
   }, [form, busanJuso]);
 
-  
+
   const getEmdList = (sigungu) => {
     if (!busanJuso || !sigungu) return; // busanJuso, sigungu가 없으면 실행 중지
     const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
@@ -362,13 +361,7 @@ const AlbaEdit = () => {
           </HorizontalContainer>
         </div>
 
-        <textarea
-          name="description"
-          placeholder="상세 내용"
-          value={form.description}
-          onChange={handleChange}
-          className="textarea"
-        ></textarea>
+       
 
         <div className="work-period">
           <h3 className="section-title">일하는 기간</h3>
@@ -379,6 +372,20 @@ const AlbaEdit = () => {
                 title={item.name}
                 variant={form.workPeriod === item.name ? "selected" : "category"}
                 onClick={() => handleWorkPeriodChange(item.name)}
+              />
+            ))}
+          </HorizontalContainer>
+        </div>
+
+        <div className="work-days">
+          <h3 className="section-title">요일 선택</h3>
+          <HorizontalContainer>
+            {"월화수목금토일".split("").map((day) => (
+              <StyledRoundFilter
+                key={day}
+                title={day}
+                variant={form.workDays.includes(day) ? "selected" : "category"}
+                onClick={() => handleWorkDayChange(day)}
               />
             ))}
           </HorizontalContainer>
@@ -442,24 +449,35 @@ const AlbaEdit = () => {
           <input type="file" name="image" onChange={handleImageChange} />
         </div>
 
-        <div className="company-info">
+        <textarea
+          name="description"
+          placeholder="상세 내용"
+          value={form.description}
+          onChange={handleChange}
+          className="textarea"
+        ></textarea>
+
+
+
+<div className="company-info">
           <h3 className="section-title">업체 정보</h3>
-          <InputText
+          
+          <h4>업체 주소</h4><InputText
+            name="workPlace"
+            placeholder="ex) 서울시 강남구 강남1로"
+            value={form.workPlace}
+            onChange={handleChange}
+          /><Button type="button"  title="주소 검색" variant="primary" onClick={handleAddressSearch} />
+          <h4>업체명</h4><InputText
             name="companyName"
-            placeholder="업체명"
+            placeholder="ex) 댕근마켓"
             value={form.companyName}
             onChange={handleChange}
           />
-          <Button type="button" title="주소 검색" onClick={handleAddressSearch} />
-          <InputText
-            name="workPlace"
-            placeholder="일하는 장소"
-            value={form.location?.workPlace|| ""} // location이 null이 아니면 접근
-            onChange={handleChange}
-          />
+          <h4>연락처</h4>     
           <InputText
             name="contactNumber"
-            placeholder="연락처"
+            placeholder="010-xxxx-xxxx"
             value={form.contactNumber}
             onChange={handleChange}
           />

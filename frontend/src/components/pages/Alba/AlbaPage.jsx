@@ -87,7 +87,7 @@ export default function AlbaPage(props) {
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedDong, setSelectedDong] = useState("");
   const [workType, setWorkType] = useState([]);
-  const [category, setCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [workDays, setWorkDays] = useState([]);
   const [workTime, setWorkTime] = useState({ start: "", end: "" });
   const [albaList, setAlbaList] = useState([]);
@@ -140,7 +140,7 @@ export default function AlbaPage(props) {
           params: {
             gu: selectedRegion || undefined,
             dong: selectedDong || undefined,
-            category: category !== "all" ? category : undefined,
+            category: selectedCategory !== "all" ? selectedCategory : undefined,
             workPeriod: workType.length > 0 ? workType.join(",") : undefined,
             workDays: workDays.length > 0 ? workDays.join(",") : undefined,
             start: workTime.start || undefined,
@@ -161,7 +161,7 @@ export default function AlbaPage(props) {
           return (
             (!selectedRegion || alba.region === selectedRegion) &&
             (!selectedDong || alba.dong === selectedDong) &&
-            (category === "all" || alba.category === category) &&
+            (selectedCategory === "all" || alba.selectedCategory === selectedCategory) &&
             (workType.length === 0 || workType.includes(alba.workPeriod)) &&
             (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
             (!workTime.start || '"' + alba.workTimeStart + '"' >= '"' + workTime.start + '"') &&
@@ -177,7 +177,7 @@ export default function AlbaPage(props) {
       }
     };
     fetchData();
-  }, [selectedRegion, selectedDong, category, workType, workDays, workTime, searchTerm]);
+  }, [selectedRegion, selectedDong, selectedCategory, workType, workDays, workTime, searchTerm]);
 
 
   const handleLocationSelect = (selectedLocation) => {
@@ -192,7 +192,7 @@ export default function AlbaPage(props) {
   const resetFilter = () => {
     setSelectedRegion("");
     setSelectedDong("");
-    setCategory("all");
+    setSelectedCategory("all");
     setWorkType([]);
     setWorkDays([]);
     setWorkTime({ start: "", end: "" });
@@ -221,8 +221,9 @@ export default function AlbaPage(props) {
   };
 
   const handleCategoryChange = (e) => {
-    setCategory(e.target.value);
+    setSelectedCategory(e.target.value);
   };
+  
 
   const handleShowMore = () => {
     setItemsToShow(prev => prev + 5);
@@ -235,7 +236,7 @@ export default function AlbaPage(props) {
       (!selectedRegion || alba.location.sigungu === selectedRegion) &&
       (!selectedDong || alba.location.emd === selectedDong) &&
       // 추가 필터링
-      (category === "all" || alba.category === category) &&
+      (selectedCategory === "all" || alba.category === selectedCategory) &&
       (workType.length === 0 || workType.includes(alba.workPeriod)) &&
       (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
       (!workTime.start || alba.workTimeStart >= workTime.start) &&
@@ -298,7 +299,7 @@ export default function AlbaPage(props) {
                     name="category"
                     value={item.name}
                     onChange={handleCategoryChange}
-                    checked={item.name === category}
+                    checked={item.name === selectedCategory}
                   />
                   <label htmlFor={item.name}>{item.name}</label>
                 </div>
@@ -353,9 +354,9 @@ export default function AlbaPage(props) {
 
         <ListContainer>
 
-          {(category !== 'all' || workType.length > 0 || workDays.length > 0 || workTime.start || workTime.end || searchTerm.trim() !== "" || selectedRegion !== "" || selectedDong !== "") &&
+          {(selectedCategory !== 'all' || workType.length > 0 || workDays.length > 0 || workTime.start || workTime.end || searchTerm.trim() !== "" || selectedRegion !== "" || selectedDong !== "") &&
             <FilterContainer>
-              {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
+              {selectedCategory !== 'all' && <RoundFilter title={selectedCategory} variant='search' cancelIcon onClick={() => setSelectedCategory('all')} />}
               {workType.map((type) => (
                 <RoundFilter key={type} title={workTypeData.find(item => item.name === type)?.name} variant='search' cancelIcon onClick={() => handleWorkTypeChange(type)} />
               ))}

@@ -110,7 +110,6 @@ const AlbaDetail = () => {
             {/* <h2>{job.title}</h2>
             <p>시급: {job.wage}</p> */}
           <AlbaMemberProfile userId={job.userId}/>
-        
           </div>
         <Button type="edit-button" title="수정" variant="gray" onClick={handleEdit}/>
         <Button type="delete-button" title="삭제" variant="danger" onClick={handleDelete}/>
@@ -183,5 +182,6 @@ const AlbaDetail = () => {
     </div>
   );
 };
+
 
 export default AlbaDetail;
