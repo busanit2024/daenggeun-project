@@ -77,10 +77,10 @@ function App() {
               <Route path="alba/:id" element={<AlbaDetail />} />
               <Route path="alba/:id/edit" element={<AlbaEdit />} />
 
-              <Route path="usedTrade/used-trade" element={<UsedTrade />} />
-              <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
-              <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
-              <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
+              <Route path="usedTrade" element={<UsedTrade />} />
+              <Route path="usedTradeView/:id" element={<UsedTradeView />} />
+              <Route path="usedTradeWrite" element={<UsedTradeWrite />} />
+              <Route path="usedTradeUpdate/:id" element={<UsedTradeUpdate />} />
               <Route path="login" element={<LoginPage />} />
 
               <Route path="community" element={<CommunityPage />} />
