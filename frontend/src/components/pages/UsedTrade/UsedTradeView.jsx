@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
+import AlbaMemberProfile from "../../alba/AlbaMemberProfile";
 
 const Container = styled.div`
   width: 90%;
@@ -130,7 +131,7 @@ const UsedTradeView = () => {
 
       if (response.ok) {
         alert("삭제가 완료되었습니다.");
-        navigate("/usedTrade/used-trade");
+        navigate("/usedTrade");
       } else {
         alert("해당 물품을 삭제하는 데 실패했습니다.");
       }
@@ -168,13 +169,17 @@ const UsedTradeView = () => {
       <Header>
         <h2>상품 상세 페이지</h2>
         <ButtonGroup>
-          <BackButton onClick={() => navigate("/usedTrade/used-trade")}>뒤로 가기</BackButton>
-          <Button onClick={() => navigate(`/usedTrade/used-trade-update/${id}`, { state: product })} title="수정하기" variant="primary" />
+          <BackButton onClick={() => navigate("/usedTrade")}>뒤로 가기</BackButton>
+          <Button onClick={() => navigate(`/usedTradeUpdate/${id}`, { state: product })} title="수정하기" variant="primary" />
           <Button onClick={handleDelete} title="삭제하기" variant="danger" />
         </ButtonGroup>
       </Header>
       <ProductDetail>
         <ProductImage>상품 사진</ProductImage>
+        <AlbaMemberProfile 
+          userId={product.userId}
+          
+        />
 
         <ProductInfo>
           <Title>{product.name}</Title>

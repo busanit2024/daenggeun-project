@@ -175,7 +175,7 @@ const UsedTradeUpdate = () => {
 
             if (response.ok) {
                 alert("수정이 완료되었습니다.");
-                navigate(`/usedTrade/used-trade-view/${id}`);
+                navigate(`/usedTradeView/${id}`);
             } else {
                 alert("수정에 실패했습니다.");
             }
@@ -411,14 +411,14 @@ const UsedTradeUpdate = () => {
                         title="취소하기"
                         variant="gray"
                         onClick={() => {
-                            navigate(`/usedTrade/used-trade-view/${id}`);
+                            navigate(`/usedTradeView/${id}`);
                         }}
                     />
                     <Button
                         title="거래완료"
                         variant="white"
                         onClick={() => {
-                            navigate(`/usedTrade/used-trade-view/${id}`);
+                            navigate(`/usedTradeView/${id}`);
                         }}
                     />
                 </div>

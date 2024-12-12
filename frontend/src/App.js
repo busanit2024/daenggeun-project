@@ -40,6 +40,11 @@ import { LocationProvider } from './context/LocationContext';
 import GroupBoardView from './components/group/GroupBoardView';
 import MyPageMain from './components/pages/Mypage/MyPageMain';
 import MyProfileEdit from './components/pages/Mypage/MyProfileEdit';
+import MyCommunity from './components/mypage/MyCommunity';
+import MyLocation from './components/mypage/MyLocation';
+import MyTrade from './components/mypage/MyTrade';
+import MyGroup from './components/mypage/MyGroup';
+import MyPageList from './components/mypage/MyPageList';
 
 
 function App() {
@@ -73,10 +78,10 @@ function App() {
               <Route path="alba/:id" element={<AlbaDetail />} />
               <Route path="alba/:id/edit" element={<AlbaEdit />} />
 
-              <Route path="usedTrade/used-trade" element={<UsedTrade />} />
-              <Route path="usedTrade/used-trade-view/:id" element={<UsedTradeView />} />
-              <Route path="usedTrade/used-trade-write" element={<UsedTradeWrite />} />
-              <Route path="usedTrade/used-trade-update/:id" element={<UsedTradeUpdate />} />
+              <Route path="usedTrade" element={<UsedTrade />} />
+              <Route path="usedTradeView/:id" element={<UsedTradeView />} />
+              <Route path="usedTradeWrite" element={<UsedTradeWrite />} />
+              <Route path="usedTradeUpdate/:id" element={<UsedTradeUpdate />} />
               <Route path="login" element={<LoginPage />} />
 
             <Route path="community" element={<CommunityPage />} />
@@ -84,7 +89,13 @@ function App() {
             <Route path="community/:communityId" element={<CommunityViewPage />} />
             <Route path="communityEdit/:communityId" element={<CommunityEditPage />} />
 
-              <Route path='mypage' element={<MyPageMain />} />
+              <Route path='mypage' element={<MyPageMain />} >
+                <Route path="" element={<MyPageList />} />
+                <Route path='community' element={<MyCommunity />} />
+                <Route path='location' element={<MyLocation />} />
+                <Route path='trade' element={<MyTrade />} />
+                <Route path='group' element={<MyGroup />} />
+              </Route>
               <Route path='mypage/edit' element={<MyProfileEdit />} />
               <Route path="setProfile/:userId" element={<SetProfilePage />} />
             </Route>

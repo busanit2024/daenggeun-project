@@ -49,4 +49,10 @@ public class CommunityRestController {
         return communityService.searchPage(sigungu, emd != null ? emd : "", category, searchTerm, pageable);
     }
 
+    @GetMapping("/myCommunity/{userId}")
+    public Slice<CommunityDTO> getMyCommunities(@PathVariable String userId, @RequestParam int page, @RequestParam int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return communityService.findByUserId(userId, pageable);
+    }
+
 }

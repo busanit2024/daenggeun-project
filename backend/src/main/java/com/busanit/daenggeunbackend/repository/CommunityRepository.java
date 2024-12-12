@@ -35,7 +35,13 @@ public interface CommunityRepository extends MongoRepository<Community, String> 
     Slice<Community> findAllByLocationSigunguContainingOrderByCreatedDateDesc(String locationSigungu, Pageable pageable);
 
     // sigungu와 emd로 검색
+
     Slice<Community> OrderByCreatedDateDesc(String locationSigungu, String locationEmd, Pageable pageable);
 
     Slice<Community> findAllByLocationSigunguContainingAndLocationEmdContainingOrderByCreatedDateDesc(String sigungu, String emd, Pageable pageable);
+
+    Slice<Community> findAllByLocationSigunguContainingAndLocationEmdContaining(String locationSigungu, String locationEmd, Pageable pageable);
+
+    Slice<Community> findByUserId(String userId, Pageable pageable);
+
 }

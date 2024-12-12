@@ -103,4 +103,9 @@ public class CommunityService {
         Slice<Community> communities = communityRepository.findAllByLocationSigunguContainingAndLocationEmdContainingAndCategoryOrderByCreatedDateDesc(sigungu, emd, category, pageable);
         return CommunityDTO.toDTO(communities);
     }
+
+    public Slice<CommunityDTO> findByUserId(String userId, Pageable pageable) {
+        Slice<Community> communities = communityRepository.findByUserId(userId, pageable);
+        return CommunityDTO.toDTO(communities);
+    }
 }

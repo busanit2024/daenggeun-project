@@ -13,6 +13,7 @@ public class UserProfileRequestDTO {
     private String id;
     private String uid;
     private String username;
+    private String email;
     private List<LocationDTO> userLocation;
     private Image profileImage;
 }
