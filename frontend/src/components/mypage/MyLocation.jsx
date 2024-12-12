@@ -5,6 +5,7 @@ import LocationSearchModal from "../ui/LocationSearchModal";
 import Button from "../ui/Button";
 import axios from "axios";
 import { useArea } from "../../context/AreaContext";
+import Modal from "../ui/Modal";
 
 const LocationButtonsContainer = styled.div`
   display: flex;
@@ -15,14 +16,17 @@ const LocationButtonsContainer = styled.div`
 const LocationButton = styled(Button)`
   flex: 1;
   height: 48px;
+  position: relative;
 `;
 
 export default function MyLocation() {
   const [locations, setLocations] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(null);  // 현재 선택 중인 버튼의 인덱스
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const uid = sessionStorage.getItem('uid');
   const { setArea } = useArea();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState(null);
 
   useEffect(() => {
     const fetchUserLocations = async () => {
@@ -80,21 +84,55 @@ export default function MyLocation() {
     setIsModalOpen(true);
   };
 
+  const handleDelete = async (index) => {
+    setDeleteIndex(index);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const updatedLocations = locations.filter((_, idx) => idx !== deleteIndex);
+      
+      await axios.patch(`/user/${uid}/location`, {
+        location: updatedLocations
+      });
+      
+      setLocations(updatedLocations);
+      
+      if (deleteIndex === 0 && updatedLocations.length > 0) {
+        const { sigungu, emd } = updatedLocations[0];
+        setArea({ sigungu, emd });
+      }
+    } catch (error) {
+      console.error("동네 삭제에 실패했습니다:", error);
+    }
+    
+    setShowDeleteConfirm(false);
+    setDeleteIndex(null);
+  };
+
   return (
     <>
       <ListContainer>
-        <h3>내 동네 설정</h3>
+        <h3>내 동네 설정하기</h3>
         <LocationButtonsContainer>
-          <LocationButton
-            variant={locations[0] ? "primary" : "gray"}
-            title={locations[0] ? `${locations[0].sigungu}${locations[0].emd ? ` ${locations[0].emd}` : ''}` : "+ 동네 추가"}
-            onClick={() => handleButtonClick(locations[0] ? 0 : null)}
-          />
-          <LocationButton
-            variant={locations[1] ? "primary" : "gray"}
-            title={locations[1] ? `${locations[1].sigungu}${locations[1].emd ? ` ${locations[1].emd}` : ''}` : "+ 동네 추가"}
-            onClick={() => handleButtonClick(locations[1] ? 1 : null)}
-          />
+          {[0, 1].map((index) => (
+            <LocationButton
+              key={index}
+              variant={locations[index] ? "primary" : "gray"}
+              title={locations[index] ? 
+                `${locations[index].sigungu}${locations[index].emd ? ` ${locations[index].emd}` : ''} ×` : 
+                "+ 동네 추가"
+              }
+              onClick={(e) => {
+                if (locations[index] && e.target.textContent.includes('×')) {
+                  handleDelete(index);
+                } else {
+                  handleButtonClick(locations[index] ? index : null);
+                }
+              }}
+            />
+          ))}
         </LocationButtonsContainer>
       </ListContainer>
 
@@ -106,6 +144,20 @@ export default function MyLocation() {
             setSelectedIndex(null);
           }}
         />
+      )}
+
+      {showDeleteConfirm && (
+        <Modal 
+          title="동네 삭제" 
+          isOpen={showDeleteConfirm} 
+          onClose={() => setShowDeleteConfirm(false)}
+        >
+          <h3>이 동네를 삭제하시겠습니까?</h3>
+          <div className="buttonWrap">
+            <Button title="삭제" variant="primary" onClick={confirmDelete} />
+            <Button title="취소" onClick={() => setShowDeleteConfirm(false)} />
+          </div>
+        </Modal>
       )}
     </>
   );
