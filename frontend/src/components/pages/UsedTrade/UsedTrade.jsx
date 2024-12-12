@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Children, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import FilterBar from "../../ui/FilterBar";
 import Button from "../../ui/Button";
@@ -144,6 +144,7 @@ const libraries = ['places'];
 
 export default function UsedTrade(props) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [tradeList, setTradeList] = useState([]); // 중고거래 목록
   const [searchFilter, setSearchFilter] = useState({
     sido: "부산광역시",
@@ -174,6 +175,20 @@ export default function UsedTrade(props) {
   });
 
   const currentLocation = useGeolocation(isJsApiLoaded);
+
+  // URL의 쿼리 파라미터에서 검색어 가져오기
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const term = query.get('search');
+    console.log("가져온 searchTerm:", term);
+    
+    if (term) {
+      setSearchTerm(term);
+      fetchTradeList(0, term);
+    } else {
+      fetchTradeList(0);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
@@ -221,7 +236,7 @@ export default function UsedTrade(props) {
     }));
   };
 
-  const fetchTradeList = async (page) => {
+  const fetchTradeList = async (page, searchKeyword = '') => {
     try {
       const response = await axios.get(`/api/usedTrades`, {
         params: {
@@ -268,6 +283,43 @@ export default function UsedTrade(props) {
     return new Intl.NumberFormat('ko-KR').format(price);
   }
 
+  const handleSearch = async (searchTerm) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`/api/usedTrades`, {
+        params: {
+          sigungu: searchFilter.sigungu,
+          emd: searchFilter.emd,
+          sort: searchFilter.sort,
+          category: searchFilter.category,
+          tradeble: searchFilter.tradeble,
+          searchTerm: searchTerm,
+          page: 0,
+          size: 10,
+        }
+      });
+      setTradeList(response.data);
+      setHasNext(!response.data.last);
+    } catch (error) {
+      console.error("검색 중 오류가 발생했습니다.", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLocationSelect = (selectedLocation) => {
+    console.log("선택된 위치:", selectedLocation);
+    const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+    
+    setSearchFilter(prev => ({
+      ...prev,
+      sigungu,
+      emd: emd || '' 
+    }));
+
+    fetchTradeList(0);
+  };
+
   // 검색어 필터링
   const filteredTrades = searchTerm ? tradeList.filter(trade => 
     trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
@@ -298,11 +350,13 @@ export default function UsedTrade(props) {
      setSearchTerm = {setSearchTerm}
      selectedCategory={selectedCategory}
      setSelectedCategory={setSelectedCategory}
+     onSelect={handleLocationSelect}
+     onSearch={handleSearch}
     />
       <Breadcrumb routes={routes} />
       <Container>
         <HeadContainer>
-          <h2>{`${searchFilter.sido} ${searchFilter.sigungu} ${searchFilter.emd} 중고거래`}</h2>
+          <h2>{`${searchFilter.sido} ${searchFilter.sigungu || ''} ${searchFilter.emd || ''} 중고거래`}</h2>
           <Button 
             title="+ 글쓰기" 
             variant="primary" 

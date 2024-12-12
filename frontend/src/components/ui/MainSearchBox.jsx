@@ -107,7 +107,7 @@ const MainSearchBox = ({ searchTerm, setSearchTerm, selectedCategory, setSelecte
     const handleSearch = () => {
         onSearch(searchTerm);
         if (category === "중고거래") {
-            navigate(`/usedTrade/used-trade?search=${searchTerm}`);
+            navigate(`/usedTrade?search=${searchTerm}`);
         } else if (category === "알바") {
             navigate(`/alba?search=${searchTerm}`);
         } else if (category === "동네생활") {
