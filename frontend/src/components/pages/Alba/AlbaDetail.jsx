@@ -10,7 +10,7 @@ import "../../../styles/AlbaStyled.css";
 import Button from "../../ui/Button";
 import styled from "styled-components";
 import AlbaMemberProfile from "../../alba/AlbaMemberProfile";
-
+import AlbaListItem from "../../alba/AlbaListItem";
 
 const AlbaDetail = () => {
   const { id } = useParams(); // URL에서 id 가져오기
@@ -157,7 +157,7 @@ const AlbaDetail = () => {
 
       {/* 하단 관련 알바 리스트 */}
       <div className="related-jobs">
-        <h2>관련 알바 리스트</h2>
+        <h2>알바 리스트</h2>
         <div className="alba-list-full">
           {relatedJobs.length > 0 ? (
             relatedJobs.map((item) => (

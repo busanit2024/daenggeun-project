@@ -8,11 +8,28 @@ import styled from "styled-components";
 import axios from "axios";
 import { singleFileUpload } from "../../../firebase";
 
+export const DongneSelectContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: center;
+`;
+
+export const DongneSelect = styled.select`
+  padding: 12px;
+  border: 2px solid #cccccc;
+  border-radius: 8px;
+  font-size: 18px;
+  font-family: inherit;
+  flex-grow: 1;
+`;
+
+
 const AlbaEdit = () => {
   const { id } = useParams(); // URL과에서 ID 추작
   const navigate = useNavigate(); // 페이지 이동 hook
   const [form, setForm] = useState({
     title: "",
+    location: { sido: "부산광역시", sigungu: "", emd: "" }, // 기본값 추가
     description: "",
     wage: "",
     workDays: [],
@@ -32,6 +49,9 @@ const AlbaEdit = () => {
   const [categoryData, setCategoryData] = useState([]);
   const [wageTypeData, setWageTypeData] = useState([]); // 급여 유형 데이터 추가
   const [workPeriodData, setWorkPeriodData] = useState([]); // 일하는 기간 데이터 추가
+  const [busanJuso, setBusanJuso] = useState(null);
+  const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
+
 
   const StyledRoundFilter = styled(RoundFilter)`
     padding: 4px 8px;
@@ -48,6 +68,28 @@ const AlbaEdit = () => {
     flex-wrap: wrap;
   `;
 
+
+  // 동네 리스트 가져오기
+  useEffect(() => {
+    const fetchLocationData = async () => {
+      try {
+        const response = await axios.get(`/api/data/filter?name=busanJuso`);
+        const juso = response.data.locationFilters;
+        setBusanJuso(juso);
+        const guList = juso?.map((item) => item.sigungu);
+
+        setLocationData((prevLocationData) => ({
+          ...prevLocationData,
+          sigungu: guList,
+        }));
+      } catch (error) {
+        console.error("동네 리스트를 불러오는데 실패했습니다:", error);
+      }
+    };
+    fetchLocationData();
+  }, []);
+
+
   // 기존 데이터 불러오기
   useEffect(() => {
     const fetchJob = async () => {
@@ -55,7 +97,9 @@ const AlbaEdit = () => {
         const response = await axios.get(`/api/alba/${id}`); // GET 요청으로 기존 데이터 조회
         const data = response.data || {};
         setForm({
+          ...form, //초기 form 상태 유지
           ...data,
+          location: data.location || {sido: "부산광역시", sigungu: "", emd: ""}, //기본값 설정
           startTime: data.workTime?.start || "",
           endTime: data.workTime?.end || ""
         }); // 응답 데이터를 상태에 설정, null 방지 및 workTime 데이터 설정
@@ -65,6 +109,12 @@ const AlbaEdit = () => {
     };
     fetchJob();
   }, [id]);
+
+  useEffect(() => {
+    if (busanJuso && form.location.sigungu) {
+      getEmdList(form.location.sigungu);
+    }
+  }, [form.location.sigungu, busanJuso]);
 
   // 카테고리 데이터 가져오기
   useEffect(() => {
@@ -105,6 +155,33 @@ const AlbaEdit = () => {
     fetchWorkPeriodData();
   }, []);
 
+  useEffect(() => {
+    console.log("form state:", form);
+    console.log("busanJuso data:", busanJuso);
+  }, [form, busanJuso]);
+
+  
+  const getEmdList = (sigungu) => {
+    if (!busanJuso || !sigungu) return; // busanJuso, sigungu가 없으면 실행 중지
+    const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
+    const emdNameList = emdList?.map((item) => item.emd);
+
+    setLocationData((prevLocationData) => ({
+      ...prevLocationData,
+      emd: emdNameList,
+    }));
+
+    setForm((prevForm) => ({
+      ...prevForm,
+      location: { ...prevForm.location, emd: emdNameList?.[0] || "" },
+    }));
+  };
+
+  useEffect(() => {
+  if (form.location.sigungu) {
+    getEmdList(form.location.sigungu);
+  }
+}, [form.location.sigungu, busanJuso]);
 
   useEffect(() => {
     // Daum Postcode script 추가
@@ -124,6 +201,11 @@ const AlbaEdit = () => {
     const { name, value, type, checked } = e.target;
     if (type === "checkbox") {
       setForm({ ...form, [name]: checked });
+    } else if (name === "sigungu" || name === "emd") {
+      setForm((prevForm) => ({
+        ...prevForm,
+        location: { ...prevForm.location, [name]: value },
+      }));
     } else {
       setForm({ ...form, [name]: value });
     }
@@ -193,7 +275,6 @@ const AlbaEdit = () => {
   // 폼 제출 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const payload = {
       ...form,
       workTime: {
@@ -201,25 +282,16 @@ const AlbaEdit = () => {
         end: form.endTime,
       },
     };
-console.log("payload 결과는? ", payload);
-    // Remove any properties that shouldn't be part of the payload (like undefined or unnecessary values)
-    const cleanedPayload = Object.fromEntries(
-      Object.entries(payload).filter(([_, v]) => v !== undefined && v !== null)
-    );
+
     try {
-      await axios.put(`/api/alba/${id}`, cleanedPayload, {
+      await axios.put(`/api/alba/${id}`, payload, {
         headers: { "Content-Type": "application/json" },
       });
       alert("수정이 완료되었습니다.");
-      navigate(`/alba/${id}`); // 상세 페이지로 이동
+      navigate(`/alba/${id}`);
     } catch (error) {
-      if (error.response && error.response.status === 405) {
-        console.error("지원되지 않는 메서드입니다. PUT 메서드가 허용되지 않는 경우입니다:", error);
-        alert("지원되지 않는 메서드입니다. 관리자에게 문의하세요.");
-      } else {
-        console.error("수정 중 오류 발생:", error);
-        alert("수정 중 문제가 발생했습니다. 다시 시도해주세요.");
-      }
+      console.error("수정 중 오류 발생:", error);
+      alert("수정 중 문제가 발생했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -233,6 +305,48 @@ console.log("payload 결과는? ", payload);
           value={form.title}
           onChange={handleChange}
         />
+
+<div className="location-selection">
+          <h3 className="section-title">지역</h3>
+          <DongneSelectContainer>
+            <div style={{ fontSize: "20px", color: "#666666" }}>부산광역시</div>
+            
+            {form.location.sigungu && (
+            <DongneSelect
+            value={form.location.sigungu}
+            onChange={(e) => {
+              const sigungu = e.target.value;
+              setForm((prevForm) => ({
+                ...prevForm,
+                location: { ...prevForm.location, sigungu },
+              }));
+            }}
+          >
+              {locationData.sigungu?.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </DongneSelect>
+            )}
+            <DongneSelect
+              value={form.location.emd}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  location: { ...form.location, emd: e.target.value },
+                })
+              }
+            >
+              {locationData.emd?.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </DongneSelect>
+          </DongneSelectContainer>
+        </div>
+
 
         <div className="category-selection">
           <h3 className="section-title">하는 일</h3>
@@ -340,7 +454,7 @@ console.log("payload 결과는? ", payload);
           <InputText
             name="workPlace"
             placeholder="일하는 장소"
-            value={form.workPlace}
+            value={form.location?.workPlace|| ""} // location이 null이 아니면 접근
             onChange={handleChange}
           />
           <InputText
