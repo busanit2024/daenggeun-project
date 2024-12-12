@@ -71,9 +71,9 @@ const Content = styled.p`
 
 export default function CommunityListItem({ community }) {
   const navigate = useNavigate();
-  const firstImage = community.images?.length > 0 ? community.images[0].url : '/images/defaultGroupImage.png';
+  const firstImage = community.images?.length > 0 ? community.images?.[0]?.url : '/images/defaultGroupImage.png';
   return (
-    <Container key={community.id} onClick={() => navigate(`/community/${community.id}`)}>
+    <Container key={community.id} onClick={() => navigate(`/community/${community?.id}`)}>
       
       <TextContainer>
         <Title>{community.title}</Title>
@@ -81,7 +81,7 @@ export default function CommunityListItem({ community }) {
         <TagContainer>
           <span>
             <img height={16} src="/images/icon/location_gray.svg" alt="location" />
-            {community.location.emd ?? community.location.sigungu}</span>
+            {community.location?.emd ?? community.location?.sigungu}</span>
           <span> · </span>
           <span>{community.category}</span>
           <span> · </span>
@@ -92,7 +92,7 @@ export default function CommunityListItem({ community }) {
       <ImageContainer>
         <img
           className="community-image"
-          src={community.images?.length > 0 ? community.images[0].url : '/images/defaultGroupImage.png'}
+          src={community.images?.length > 0 ? community.images?.[0]?.url : '/images/defaultGroupImage.png'}
           alt={community.title}
           onError={(e) => e.target.src = '/images/defaultGroupImage.png'}
         />

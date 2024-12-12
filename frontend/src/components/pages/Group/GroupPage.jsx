@@ -11,6 +11,8 @@ import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
 import Modal from "../../ui/Modal";
+import SearchBar from "../../ui/SearchBar";
+import Switch from "../../ui/Switch";
 
 const Container = styled.div`
   display: flex;
@@ -140,6 +142,9 @@ export default function GroupPage(props) {
   const [loading, setLoading] = useState(true);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("동네생활");
+  const [selectedLocation, setSelectedLocation] = useState({ sigungu: "해운대구", emd: "" });
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -148,8 +153,6 @@ export default function GroupPage(props) {
     language: 'ko',
     region: 'KR',
   });
-
-  const currentLocation = useGeolocation(isJsApiLoaded);
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -167,16 +170,16 @@ export default function GroupPage(props) {
   }, []);
 
   useEffect(() => {
-    console.log(currentLocation);
-    if (currentLocation.sido && currentLocation.sigungu) {
-      setSearchFilter((prev) => ({ ...prev, sido: currentLocation.sido, sigungu: currentLocation.sigungu }));
+    console.log(selectedLocation);
+    if (selectedLocation.sigungu) {
+      setSearchFilter((prev) => ({ ...prev, sigungu: selectedLocation.sigungu }));
     }
-  }, [currentLocation.sigungu]);
+  }, [selectedLocation.sigungu]);
 
   useEffect(() => {
     setLoading(true);
-    if (categoryData.length > 0 && busanJuso.length > 0 ) {
-    fetchGroupList(0);
+    if (categoryData.length > 0 && busanJuso.length > 0) {
+      fetchGroupList(0);
     }
   }, [searchFilter]);
 
@@ -189,7 +192,7 @@ export default function GroupPage(props) {
 
   const resetFilter = () => {
     setLoading(true);
-    setSearchFilter((prev) => ({ ...prev, sido: currentLocation.sido, sigungu: currentLocation.sigungu, emd: '', category: 'all', sort: '', uid: '' }));
+    setSearchFilter((prev) => ({ ...prev, sido: selectedLocation.sido, sigungu: selectedLocation.sigungu, emd: '', category: 'all', sort: '', uid: '' }));
     setIsFilterOpen(false);
     setPage(0);
   }
@@ -253,6 +256,17 @@ export default function GroupPage(props) {
     }
   };
 
+  const handleLocationSelect = (selectedLocation) => {
+    console.log("선택된 지역:", selectedLocation);
+    const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+    setSelectedLocation({ sigungu, emd });
+    setSearchFilter(prevFilter => ({
+        ...prevFilter,
+        sigungu: sigungu,
+        emd: emd ?? '',
+    }));
+};
+
 
   const routes = [
     { path: "/", name: "홈" },
@@ -261,12 +275,15 @@ export default function GroupPage(props) {
 
   return (
     <>
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm}
+        selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory}
+        onSelect={handleLocationSelect} />
       <Breadcrumb routes={routes} />
       <Container>
         <HeadContainer>
           <h2>{`${searchFilter.sido} ${searchFilter.sigungu} ${searchFilter.emd} ${searchFilter.uid ? '나의' : ''} ${searchFilter.category === 'all' ? "" : searchFilter.category} 모임`}</h2>
           <div style={{ display: 'flex', gap: '8px' }}>
-            {sessionStorage.getItem('uid') && <Button title="내 모임" onClick={handleMyGroupFilter} /> }
+            {sessionStorage.getItem('uid') && <Button title="내 모임" onClick={handleMyGroupFilter} />}
             <Button title="모임 만들기" variant="primary" onClick={handleCreateButton} />
           </div>
         </HeadContainer>
@@ -277,13 +294,11 @@ export default function GroupPage(props) {
               <div className="reset" onClick={resetFilter}>초기화</div>
             </div>
             <div className="filterItem">
-              <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center' }}>지역
-                <CustomSelect value={searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.value })}>
-                  <option value="">전지역</option>
-                  {busanJuso.map((item) => (
-                    <option key={item.sigungu} value={item.sigungu}>{item.sigungu}</option>
-                  ))}
-                </CustomSelect>
+              <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>지역
+                <div className="switchWrap" style={{display: 'flex', gap: '4px', alignItems: 'center', fontWeight: 'normal'}}>
+                <Switch id="all" checked={!searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.checked ? '' : selectedLocation.sigungu })} />
+                <label htmlFor="all">전지역</label>
+                </div>
               </h4>
 
               <div className="filterList">

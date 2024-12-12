@@ -47,7 +47,7 @@ export default function GroupViewPage(props) {
 
   return (
     <GroupPageLayout group={group}>
-      <Outlet context={{ group, ...props }} />
+      <Outlet context={{ membersLoaded, group, ...props }} />
     </GroupPageLayout>
   );
 
