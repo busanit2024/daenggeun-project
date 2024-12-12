@@ -44,6 +44,8 @@ import MyLocation from './components/mypage/MyLocation';
 import MyTrade from './components/mypage/MyTrade';
 import MyGroup from './components/mypage/MyGroup';
 import MyPageList from './components/mypage/MyPageList';
+import GroupScheduleWrite from './components/group/GroupScheduleWrite';
+import GroupScheduleView from './components/group/GroupScheduleView';
 
 
 function App() {
@@ -66,6 +68,9 @@ function App() {
                 <Route path='board/write' element={<GroupBoardWrite />} />
                 <Route path='board/:postId' element={<GroupBoardView />} />
                 <Route path='board/:postId/edit' element={<GroupBoardWrite />} />
+                <Route path='schedule/write' element={<GroupScheduleWrite />} />
+                <Route path='schedule/:postId' element={<GroupScheduleView />} />
+                <Route path='schedule/:postId/edit' element={<GroupScheduleWrite />} />
                 <Route path="requests" element={<JoinRequest />} />
                 <Route path='album' element={<GroupAlbum />} />
               </Route>
