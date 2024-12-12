@@ -200,19 +200,24 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   }, [uid]);
 
   const handleLocationSelect = (selectedLocation) => {
-    onSelect(selectedLocation); 
-    setSearchTerm(""); 
-    onClose(); 
+    if(selectedLocation) {
+      const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+      
+      // 부모 컴포넌트에 선택된 위치 전달
+      onSelect(selectedLocation);
+      
+      // 검색창 초기화
+      setSearchTerm("");
+      
+      // 모달 닫기
+      onClose();
 
-    if(selectedLocation){
-      const [sigungu, emd] = selectedLocation.split(",");
+      // 검색 실행 (필요한 경우)
       if (onSearch) {
-        onSearch(sigungu, emd); 
-      } else {
-          console.error("onSearch is not a function");
+        onSearch(sigungu, emd);
       }
     }
-};
+  };
 
 
   const findMyLocation = () => {
