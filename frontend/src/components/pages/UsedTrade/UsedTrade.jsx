@@ -337,9 +337,10 @@ export default function UsedTrade(props) {
   };
 
   const getImageUrl = (imageData) => {
+    console.log("이미지 데이터: ", imageData);
     // 이미지 데이터가 존재하고 유효한 경우에만 URL로 변환
-    if (imageData && imageData.length > 0) {
-      return `data:image/png;base64,${imageData}`; // 이미지 데이터가 배열일 경우 첫 번째 요소 사용
+    if (imageData != null) {
+      return imageData[0].url; // 이미지 데이터가 배열일 경우 첫 번째 요소 사용
     }
     return null; // 이미지 데이터가 없거나 유효하지 않으면 null 반환
   };
@@ -601,7 +602,7 @@ export default function UsedTrade(props) {
                     {(locationFilteredTrades.length > 0 ? locationFilteredTrades : tradeList).slice(0, visibleCount).map((usedTrade) => (
                       <Card 
                         key={usedTrade.id}
-                        imageUrl={getImageUrl(usedTrade.imageData)}
+                        imageUrl={getImageUrl(usedTrade.images)}
                         title={usedTrade.name}
                         price={`${formattedPrice(usedTrade.price)} 원`}
                         location={usedTrade.location}
@@ -618,7 +619,7 @@ export default function UsedTrade(props) {
                                 selectedTradeType: usedTrade.selectedTradeType,
                                 isNegotiable: usedTrade.isNegotiable,
                                 isGiveable: usedTrade.selectedTradeType,
-                                imageData: usedTrade.imageData,
+                                images: usedTrade.images,
                               }
                             }
                           )

@@ -8,7 +8,7 @@ import Breadcrumb from "../../ui/Breadcrumb";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import useGeolocation from "../../../utils/useGeolocation";
 import axios from "axios";
-import imageData from "../../../asset/imageData";
+import { singleFileUpload } from "../../../firebase";
 import UsedTrade from "./UsedTrade";
 
 const ButtonContainer = styled.div`
@@ -229,8 +229,9 @@ const UsedTradeWrite = () => {
         }
     };
 
-    const handleImageChange = (images) => {
-        setUploadedImages(images);
+    const handleImageChange = async (newImages) => {
+        const uploadedFiles = await Promise.all(newImages.map(files => singleFileUpload(files))); // Firebase에 업로드
+        setUploadedImages(uploadedFiles); // 상태 업데이트
     };
 
     useEffect(() => {
@@ -334,7 +335,7 @@ const UsedTradeWrite = () => {
             selectedTradeType: selectedTradeType,
             tradeble: tradeable,
             bookmarkUsers: [],
-            imageData: uploadedImages,
+            images: uploadedImages,
         })], { type: 'application/json' }));
 
         // 데이터 로그 출력
@@ -355,7 +356,7 @@ const UsedTradeWrite = () => {
             if (response.ok) {
                 const createdUsedTrade = await response.json();
                 alert("등록되었습니다.");
-                navigate("/usedTrade", { state: formData });
+                navigate("/usedTrade", { state: createdUsedTrade });
             } else {
                 const errorMessage = await response.text();
                 console.error('Failed to create trade:', errorMessage);

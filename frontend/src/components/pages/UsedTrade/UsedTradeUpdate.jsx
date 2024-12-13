@@ -4,7 +4,7 @@ import Button from "../../ui/Button";
 import InputText from "../../ui/InputText";
 import ImageUpload from "./ImageUpload";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { singleFileUpload } from "../../../firebase";
+import { deleteFile, singleFileUpload } from "../../../firebase";
 import imageData from "../../../asset/imageData";
 
 const ButtonContainer = styled.div`
@@ -118,7 +118,7 @@ const UsedTradeUpdate = () => {
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(product.category || null);
     const [selectedTradeType, setSelectedTradeType] = useState(product.isGiveable ? "나눔하기" : "판매하기");
-    const [uploadedImages, setUploadedImages] = useState(product.imageData || []);
+    const [uploadedImages, setUploadedImages] = useState(product.images || []);
 
     // const getImageUrl = (imageData) => {
     //     // 이미지 데이터가 존재하고 유효한 경우에만 URL로 변환
@@ -139,6 +139,7 @@ const UsedTradeUpdate = () => {
                     throw new Error('상품을 가져오는 데 실패했습니다.');
                 }
                 const data = await response.json();
+                console.log("data:", data);
                 setName(data.name);
                 setPrice(data.price.toString());
                 setContent(data.content);
@@ -147,7 +148,7 @@ const UsedTradeUpdate = () => {
                 setIsGiveable(data.isGiveable || false);
                 setCreatedDate(data.createdDate);
                 setSelectedCategory(data.category);
-                setUploadedImages(data.imageData || []);
+                setUploadedImages(data.images || []);
                 setSelectedTradeType(data.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
             } catch (error) {
                 console.error('Error fetching product:', error);
@@ -155,8 +156,12 @@ const UsedTradeUpdate = () => {
         };
 
         if (!product.name) {
+            console.log("11111111");
             fetchProductInfo();
         } else {
+            console.log("22222");
+            console.log("product", product);
+
             setName(product.name);
             setPrice(product.price.toString());
             setContent(product.content);
@@ -165,13 +170,15 @@ const UsedTradeUpdate = () => {
             setIsGiveable(product.isGiveable || false);
             setCreatedDate(product.createdDate);
             setSelectedCategory(product.category);
-            setUploadedImages(product.uploadedImages);
+            setUploadedImages(product.images);
             setSelectedTradeType(product.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
         }
     }, [id, product]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        console.log("업로드한 사진: ", uploadedImages);
         const updatedProduct = {
             name: name,
             price: parseInt(price.replace(/[^0-9]/g, ""), 10),
@@ -181,7 +188,7 @@ const UsedTradeUpdate = () => {
             isGiveable: selectedTradeType === "나눔하기", // selectedTradeType에 따라 isGiveable 결정
             category: selectedCategory,
             createdDate: createdDate,
-            imageData: uploadedImages,
+            images: uploadedImages,
         };
 
         try {
@@ -241,15 +248,44 @@ const UsedTradeUpdate = () => {
     };
 
     const handleImageChange = async (newImages) => {
-        const uploadedFiles = await Promise.all(newImages.map(files => singleFileUpload(files))); // Firebase에 업로드
+        console.log("newImages", newImages)
+        
+        // 이전 파일 삭제 처리
+        const removedImages = newImages.filter(
+            (image) => !newImages.some((newImage) => newImage.filename === image.filename)
+        );
+
+        console.log("removedImages", removedImages)
+        for (const removedImage of removedImages) {
+            if (removedImage?.filename) {
+                await deleteFile(removedImage.filename);
+                console.log(`Deleted file: ${removedImage.filename}`);
+            }
+        }
+
+        // 새 파일 업로드 처리
+        const uploadedFiles = await Promise.all(
+            newImages.map((file) => singleFileUpload(file))
+        );
+        
         setUploadedImages(uploadedFiles); // 상태 업데이트
+        
+        // let imageInfo = newImages;
+        // if (newImages?.filename !== imageInfo.filename) {
+        //     await deleteFile(newImages?.filename);
+        //     setUploadedImages(imageInfo);
+        //     console.log("이전 파일 삭제");
+        //   }
+
+        // const uploadedFiles = await Promise.all(newImages.map(files => singleFileUpload(files))); // Firebase에 업로드
+        // setUploadedImages(uploadedFiles); // 상태 업데이트
     };
 
     return (
         <Container>
             <h1>중고거래 수정</h1>
             <Form>
-                <ImageUpload onImageChange={handleImageChange} />
+                <ImageUpload img={uploadedImages} onImageChange={handleImageChange} />
                 <InputContainer>
                 <Form>
                     <CategoryToggle>

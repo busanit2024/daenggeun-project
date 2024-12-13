@@ -199,8 +199,8 @@ const UsedTradeView = () => {
       <Product>
         <ProductDetail>
           <ProductImage>
-            {product.imageData ? (
-              <StyledImage src={`data:image/png;base64,${product.imageData}`} alt="상품 이미지" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+            {product.images ? (
+              <StyledImage src={product.images[0].url} alt="상품 이미지" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
             ) : (
               "이미지가 없습니다."
             )}
