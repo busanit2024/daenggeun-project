@@ -1,10 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import GroupPageLayout from "../../group/GroupPageLayout";
 
 export default function GroupViewPage(props) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { groupId } = useParams();
   const [group, setGroup] = useState({});
   const [membersLoaded, setMembersLoaded] = useState(false);
@@ -44,6 +45,10 @@ export default function GroupViewPage(props) {
       } );
     }
   }, [group]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [location]);
 
   return (
     <GroupPageLayout group={group}>

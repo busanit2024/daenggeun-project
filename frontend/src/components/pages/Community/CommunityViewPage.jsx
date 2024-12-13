@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import Modal from "../../ui/Modal";
 import Button from "../../ui/Button";
 import styled from "styled-components";
@@ -235,7 +235,7 @@ export default function CommunityViewPage(props) {
               <div className="filterItem">
                   <div className="filterList">
                   <label className="radioWrap" onClick={() => setSearchFilter({...searchFilter, category: '인기글'})} style={{ fontWeight: searchFilter.category === '인기글' ? 'bold' : 'normal' }}>
-                      <img src="/images/favorite.png" style={{ height: '20px', width: '20px', marginRight: '-6px' }} />
+                      <img src="/images/icon/favorite.png" style={{ height: '20px', width: '20px', marginRight: '-6px' }} />
                       인기글
                   </label>
                   <label className="radioWrap" onClick={() => setSearchFilter({...searchFilter, category: 'all'})} style={{ fontWeight: searchFilter.category === 'all' ? 'bold' : 'normal' }}>
@@ -252,7 +252,7 @@ export default function CommunityViewPage(props) {
               <TextContainer>
                 <Wrapper>
                   <ProfileImage>
-                    {<img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt={member?.name} onError={(e) => e.target.src = '/images/defaultProfileImage.png'}/>}
+                    {<img src={member?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} alt={member?.name} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'}/>}
                   </ProfileImage>
                   <MemberInfo>
                     <div className="name-wrap">

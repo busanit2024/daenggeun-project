@@ -61,10 +61,10 @@ const RadioWrapper = styled.label`
 
 
 export default function Radio(props) {
-  const { value, name, checked, defaultChecked, onChange, big } = props;
+  const { value, name, id, checked, defaultChecked, onChange, big } = props;
     return (
         <RadioWrapper big={big}>
-            <input type="radio" name={name} value={value} defaultChecked={defaultChecked} checked={checked} onChange={onChange} />
+            <input type="radio" name={name} id={id} value={value} defaultChecked={defaultChecked} checked={checked} onChange={onChange} />
             <span className="checkmark"></span>
         </RadioWrapper>
     );

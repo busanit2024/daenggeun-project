@@ -71,7 +71,8 @@ const Content = styled.p`
 
 export default function CommunityListItem({ community }) {
   const navigate = useNavigate();
-  const firstImage = community.images?.length > 0 ? community.images?.[0]?.url : '/images/defaultGroupImage.png';
+  const firstImage = community.images?.length > 0 ? community.images?.[0]?.url : '/images/default/defaultGroupImage.png';
+
   return (
     <Container key={community.id} onClick={() => navigate(`/community/${community?.id}`)}>
       
@@ -92,9 +93,9 @@ export default function CommunityListItem({ community }) {
       <ImageContainer>
         <img
           className="community-image"
-          src={community.images?.length > 0 ? community.images?.[0]?.url : '/images/defaultGroupImage.png'}
+          src={community.images?.length > 0 ? community.images?.[0]?.url : '/images/default/defaultGroupImage.png'}
           alt={community.title}
-          onError={(e) => e.target.src = '/images/defaultGroupImage.png'}
+          onError={(e) => e.target.src = '/images/default/defaultGroupImage.png'}
         />
       </ImageContainer>
     </Container>

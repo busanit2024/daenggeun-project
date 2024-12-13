@@ -2,14 +2,14 @@ import { useLocation, useNavigate, useOutletContext, useParams } from "react-rou
 import { Container, InnerContainer } from "./GroupPageLayout";
 import styled from "styled-components";
 import Switch from "../ui/Switch";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "../ui/Button";
 import axios from "axios";
 import { deleteFile, deleteFiles, multipleFileUpload } from "../../firebase";
 import InputText from "../ui/InputText";
 import { FaRegCalendar, FaUsers } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
-
+import { Autocomplete, GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
 const WriteHeader = styled.div`
 margin-top: 16px;
@@ -75,6 +75,7 @@ const OptionContainer = styled.div`
   justify-content: space-between;
   border-bottom: 1px solid #e0e0e0;
   padding: 16px 8px;
+  width: 100%;
 
   span {
     display: flex;
@@ -82,13 +83,44 @@ const OptionContainer = styled.div`
     gap: 4px;
   }
 
+  .address {
+    width: 100%;
+    display: flex;
+  align-items: center;
+  justify-content: space-between;
+  }
+
+
   .addressSearch {
     display: flex;
     width: 60%;
     gap: 8px;
     align-items: center;
+
+    div {
+      width: 100%;
+    }
+
+    input {
+      width: 100%;
+    }
   }
 
+  .detail-map {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .location {
+      padding: 24px;
+    }
+
+    .map-frame {
+      width: 100%;
+      height: 200px;
+      border: none;
+    }
+  }
 `;
 
 const DateInput = styled.input`
@@ -182,6 +214,7 @@ const ImagePreview = styled.div`
   }
 `;
 
+const library = ['places'];
 
 export default function GroupScheduleWrite() {
   const { postId } = useParams();
@@ -189,11 +222,17 @@ export default function GroupScheduleWrite() {
   const location = useLocation();
   const currentPath = location.pathname;
   const { group, membersLoaded } = useOutletContext();
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: library,
+  });
   const [member, setMember] = useState([]);
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [deleteImages, setDeleteImages] = useState([]);
+  const autocompleteRef = useRef(null);
+  const [markerPosition, setMarkerPosition] = useState(null);
   const [input, setInput] = useState({
     groupId: group.id,
     userId: '',
@@ -207,16 +246,18 @@ export default function GroupScheduleWrite() {
   });
 
   useEffect(() => {
-    // Daum Postcode script 추가
-    const script = document.createElement("script");
-    script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
-    script.async = true;
-    document.body.appendChild(script);
-  
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+    if (isLoaded && input.location) {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ address: input.location }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          const location = results[0].geometry.location;
+          setMarkerPosition({ lat: location.lat(), lng: location.lng() });
+        } else {
+          console.error('장소를 찾을 수 없습니다.' + status);
+        }
+      });
+    }
+  }, [isLoaded, input.location]);
 
   useEffect(() => {
     setIsEditing(currentPath.includes('edit'));
@@ -315,13 +356,21 @@ export default function GroupScheduleWrite() {
     }
   };
 
-  const handleAddressSearch = (e) => {
-    new window.daum.Postcode({
-      oncomplete: function (data) {
-        setInput((prev) => ({ ...prev, location: data.address }));
-      },
-    }).open();
+
+const handlePlaceChanged = () => {
+  const place = autocompleteRef.current?.getPlace();
+  if (place && place.geometry) {
+    const location = place.geometry.location;
+    setInput((prev) => ({ ...prev, location: place.formatted_address }));
+    setMarkerPosition({ lat: location.lat(), lng: location.lng() });
+  }
+  
 };
+
+const onLoad = (autocomplete) => {
+  autocompleteRef.current = autocomplete;
+}
+
 
 
   return (
@@ -337,7 +386,7 @@ export default function GroupScheduleWrite() {
             <WriteHeader>
               <div className="profile">
                 <div className="profile-image">
-                  <img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/defaultProfileImage.png'} alt="프로필 이미지" />
+                  <img src={member?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} alt="프로필 이미지" />
                 </div>
 
                 <TitleInput underline value={input.title} onChange={(e) => setInput((prev) => ({ ...prev, title: e.target.value }))} placeholder="멤버들과 어떤 활동을 할까요?" />
@@ -355,15 +404,38 @@ export default function GroupScheduleWrite() {
             <DateInput type="datetime-local" value={input.date} onChange={(e) => setInput((prev) => ({ ...prev, date: e.target.value }))} />
           </OptionContainer>
 
-          <OptionContainer>
-            <span>
+          <OptionContainer style={{flexDirection: 'column',}}>
+            <div className="address">
+              <span>
               <FaLocationDot />
               장소</span>
             <div className="addressSearch">
-              <InputText grow value={input.location} onChange={(e) => setInput((prev) => ({ ...prev, location: e.target.value }))} placeholder="장소를 입력해주세요." />
-              <Button title="검색" onClick={handleAddressSearch} />
+              {isLoaded && <Autocomplete
+                apiKey={process.env.REACT_APP_GOOGLE_MAP_API_KEY}
+                onPlaceChanged={handlePlaceChanged}
+                onLoad={onLoad}
+              >
+                <InputText value={input.location} onChange={(e) => setInput((prev) => ({ ...prev, location: e.target.value }))} placeholder="장소를 입력해주세요." />
+              </Autocomplete> }
+
+              
             </div>
+            </div>
+            <div className="detail-map">
+            {isLoaded &&
+              <GoogleMap
+                mapContainerStyle={{ width: '100%', height: '260px' }}
+            center={markerPosition || { lat: 0, lng: 0 }}
+            zoom={15}
+              >
+                {markerPosition && <Marker position={markerPosition} />}
+              </GoogleMap> }
+              <div className="location">{autocompleteRef.current?.getPlace()?.name}</div>
+            </div>
+            
           </OptionContainer>
+
+          
 
           <OptionContainer>
             <span>

@@ -6,8 +6,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Button from "../../ui/Button";
 import { deleteFile, singleFileUpload } from "../../../firebase";
-import useGetUserId from "../../../utils/useGetUserId";
-import LocationSearchModal from "../../ui/LocationSearchModal";
 
 const EditNickname = styled.input`
     padding: 8px;
@@ -92,7 +90,7 @@ const InputBox = styled.div`
     & .inputInner {
         display: flex;
         gap: 24px;
-        padding: 24px 0px;
+        padding: 24px 36px;
     }
 `;
 
@@ -103,23 +101,6 @@ export default function MyProfileEdit(props) {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [profileImage, setProfileImage] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const handleLocationSelect = (selectedLocation) => {
-        if (typeof selectedLocation === 'string') {
-            const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-
-            const locationObject = {
-                sigungu: sigungu,
-                emd: emd
-            };
-
-            setUser((prev) => ({ ...prev, location: [locationObject] }));
-            setIsModalOpen(false);
-        } else {
-            console.error("선택된 위치가 문자열이 아닙니다:", selectedLocation);
-        }
-    };
 
     useEffect(() => {
         const uid = sessionStorage.getItem('uid');
@@ -137,7 +118,7 @@ export default function MyProfileEdit(props) {
         if (profileImage) {
             return URL.createObjectURL(profileImage);
         }
-        return user?.profileImage?.url ?? '/images/defaultProfileImage.png';
+        return user?.profileImage?.url ?? '/images/default/defaultProfileImage.png';
     }
 
     const handleProfileImageChange = (e) => {
@@ -146,12 +127,15 @@ export default function MyProfileEdit(props) {
     }
 
     const handleUpdate = async () => {
-        singleFileUpload(profileImage).then( async (response) => {
-            if (user.profileImage) {
-            await deleteFile(user.profileImage.filename);
+        singleFileUpload(profileImage).then(async (response) => {
+            let newProfileImage = user.profileImage;
+            if (response !== null && user.profileImage !== null) {
+                await deleteFile(user.profileImage.filename);
             }
-            const newProfileImage = response;
-            axios.post(`/user/profileSave/${user.id}`, 
+            if (response) {
+                newProfileImage = response;
+            }
+            axios.post(`/user/profileSave/${user.uid}`,
                 {
                     id: user.id,
                     uid: user.uid,
@@ -164,7 +148,7 @@ export default function MyProfileEdit(props) {
                 console.log(response.data);
                 alert('회원정보가 수정되었습니다.');
                 navigate('/mypage');
-            }).catch((error) => { 
+            }).catch((error) => {
                 console.error('회원정보 수정 중 오류 발생:', error);
                 alert('회원정보 수정에 실패했습니다. 다시 시도해 주세요.');
             });
@@ -182,7 +166,7 @@ export default function MyProfileEdit(props) {
             <UserInfoBox>
                 <div className="profileImageWrap">
                     <div className="profileImage">
-                        <img src={getProfileImageUrl()} alt={user?.username} onError={(e) => e.target.src = '/images/defaultProfileImage.png'} />
+                        <img src={getProfileImageUrl()} alt={user?.username} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} />
                     </div>
                     <CustomFileInput type="file" accept="image/*" id="profileImage" onChange={handleProfileImageChange} />
                     <label htmlFor="profileImage">
@@ -201,20 +185,6 @@ export default function MyProfileEdit(props) {
             </UserInfoBox>
 
             <InputBox>
-
-                <div className="inputInner">
-                    <h3 delay="1s">내 동네 설정하기</h3>
-                    <InputText
-                        value={`${user?.location?.[0].sigungu}${user?.location?.[0].emd ? `, ${user?.location?.[0].emd}` : ''}`}
-                        onClick={() => setIsModalOpen(true)}
-                        placeholder="지역이나 동네로 검색하기"
-                        readOnly
-                    />
-                    {isModalOpen && (
-                        <LocationSearchModal onSelect={handleLocationSelect} onClose={() => setIsModalOpen(false)} />
-                    )}
-
-                </div>
                 <div className="inputInner">
                     <h3>이메일</h3>
                     <InputText id='email' value={user?.email ?? ''} placeholder="등록할 이메일을 입력하세요." />

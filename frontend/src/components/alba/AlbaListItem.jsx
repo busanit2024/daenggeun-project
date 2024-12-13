@@ -90,11 +90,12 @@ export default function AlbaListItem({ alba }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     navigate(`/alba/${alba.id}`);
   };
 
   return (
-    <ListItemContainer onClick={handleClick}>
+    <ListItemContainer onClick={handleClick}  >
       <DetailsContainer>
         <Title>{alba.title}</Title>
         <Location>

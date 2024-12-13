@@ -7,6 +7,10 @@ import { FaEdit, FaPen } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
 import Button from "../ui/Button";
 import axios from "axios";
+import RoundFilter from "../ui/RoundFilter";
+import MyPageList from "../mypage/MyPageList";
+
+
 
 const InnerContainer = styled.div`
   display: flex;
@@ -24,6 +28,12 @@ const ProfileContainer = styled.div`
   
   .nameWrap {
     display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .mannerTempWrap{
+  display: flex;
     flex-direction: column;
     gap: 4px;
   }
@@ -100,15 +110,17 @@ const DescContainer = styled.div`
 
 export default function AlbaMemberProfile({userId}) {
   const { memberId } = useParams();
+  console.log("useParams memberId:", memberId);
   const [member, setMember] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState('');
-  
+  const [user, setUser] = useState(null); // 사용자 데이터 상태
+
   
   const id = memberId ?? sessionStorage.getItem('uid');
-  
+  console.log("sessionStorage uid:", sessionStorage.getItem('uid'));
   useEffect( () => {
-    fetchMemberInfo(userId)
+    fetchMemberInfo(userId);
    
     // const member = group?.members.find((member) => member.userId === id);
     // setMember(member);
@@ -119,17 +131,43 @@ export default function AlbaMemberProfile({userId}) {
 
 
   const fetchMemberInfo = (userId) => {
-    console.log("userId",userId)
+    console.log("userId:",userId);
     axios.get(`/user/find?uid=${userId}`).then((response) => {
-      console.log(response.data);
-      setMember(response.data)
-      
-    })
-      .catch((error) => {
+      console.log("Member 정보:",response.data);
+      setMember(response.data);
+      }).catch((error) => {
         console.error("사용자 정보 불러오기에 실패했습니다." + error);
       });    
 };
   
+console.log("member.location:", member?.location);
+console.log("member.location.emd:", member?.location?.emd);
+
+
+const mannerTemp = {
+  worst: { min: 0, max: 12.5, label: 'worst' },
+  bad: { min: 12.5, max: 30, label: 'bad' },
+  defTemp: { min: 30, max: 37.5, label: 'defTemp' },
+  warm: { min: 37.5, max: 42, label: 'warm' },
+  good: { min: 42, max: 50, label: 'good' },
+  hot: { min: 50, max: 99, label: 'hot' },
+}
+const getMannerTemp = (temp) => {
+  if (temp >= mannerTemp.worst.min && temp < mannerTemp.worst.max) {
+      return 'worst';
+  } else if (temp >= mannerTemp.bad.min && temp < mannerTemp.bad.max) {
+      return 'bad';
+  } else if (temp >= mannerTemp.defTemp.min && temp < mannerTemp.defTemp.max) {
+      return 'defTemp';
+  } else if (temp >= mannerTemp.warm.min && temp < mannerTemp.warm.max) {
+      return 'warm';
+  } else if (temp >= mannerTemp.good.min && temp < mannerTemp.good.max) {
+      return 'good';
+  } else if (temp >= mannerTemp.hot.min && temp < mannerTemp.hot.max) {
+      return 'hot';
+  }
+}
+
 
 
 
@@ -138,42 +176,25 @@ export default function AlbaMemberProfile({userId}) {
       <InnerContainer>
         <ProfileContainer>
           <ProfilePic>
-            <img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt="프로필 이미지" onError={(e) => e.target.src = '/images/defaultProfileImage.png'} />
+            <img src={member?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} alt="프로필 이미지" onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} />
           </ProfilePic>
           <div className="nameWrap">
-            <div className="name">{member?.username ?? '멤버이름'}
-             {member?.position !== 'MEMBER' && <img height={22} src={`/images/icon/group_${member?.position?.toLowerCase()}.svg`} alt={'매너온도'} />}
-            </div>
-           
-
-
+          <div className="name">            
+            {member?.username ?? "멤버이름"}<br></br>
+            <>
+            {member?.location
+                              ?.find(item => item.emd) // emd 필드가 있는 첫 번째 요소 찾기,당 요소의 emd 값 출력, 없으면 "지역" 출력
+                              ?.emd || "지역"} 
+            </>
           </div>
+          </div>
+
+          <div className="mannerTempWrap">{member?.position !== "MEMBER" && (
+              <p className="nannerTemp"><RoundFilter variant={getMannerTemp(user?.mannerTemp ?? 36.5)} title={`${user?.mannerTemp ?? '36.5'}℃`} />매너온도</p>
+            )}
+          </div>
+
         </ProfileContainer>
-
-        {/* <RecordContainer>
-          <div className="recordItem">
-            <div>게시글</div>
-            <div>{member?.posts?.length ?? 0}</div>
-          </div>
-          <div className="recordItem">
-            <div>댓글</div>
-            <div>{member?.comments?.length ?? 0}</div>
-          </div>
-          <div className="recordItem">
-            <div>참여한 일정</div>
-            <div>{member?.assigns?.length ?? 0}</div>
-          </div>
-        </RecordContainer>
-
-        <DescContainer>
-          <div className="desc">소개글</div>
-          <div className="moreinfo">
-            <div>본인인증 완료</div>
-            <div>{calculateDate(member?.registeredDate)} 전에 가입</div>
-            <div>{member?.location?.[0]?.emd ?? '지역'}</div>
-          </div>
-        </DescContainer> */}
-
       </InnerContainer>
 
     </>

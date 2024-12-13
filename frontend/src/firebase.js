@@ -48,6 +48,9 @@ const compressImage = async (file) => {
 };
 
 const singleFileUpload = async (file) => {
+  if (!file) {
+    return null;
+  }
   if (file.filename) {
     return {url: file.url, filename: file.filename};
   }

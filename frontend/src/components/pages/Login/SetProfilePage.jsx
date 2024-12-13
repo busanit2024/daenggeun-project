@@ -14,17 +14,20 @@ const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding: 20px;  
+    padding: 40px;  
     align-items: center;
+    background-color: #FFF9F5;
+    font-family:noto-sans
 `;
 
 const TextContainer = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: left;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 48px;
 `;
 
-// 애니메이션 정의
 const fadeInUp = keyframes`
     0% {
         transform: translateY(20px);
@@ -38,32 +41,40 @@ const fadeInUp = keyframes`
 
 const AnimatedH3 = styled.h3`
     animation: ${fadeInUp} 0.5s ease forwards;
-    animation-delay: ${(props) => props.delay || '0s'}; // 지연 시간 설정
+    animation-delay: ${(props) => props.delay || '0s'};
+    color: #FF7B07;
+    font-size: 24px;
+    margin: 16px 0;
 `;
 
 const AnimatedH4 = styled.h4`
     animation: ${fadeInUp} 0.5s ease forwards;
-    animation-delay: ${(props) => props.delay || '0.5s'}
+    animation-delay: ${(props) => props.delay || '0.5s'};
+    color: #666;
+    font-weight: normal;
+    line-height: 1.6;
+    margin: 8px 0;
 `;
 
 const Spacing = styled.div`
-    margin: 5px 0;
+    margin: 12px 0;
 `;
 
 const ProfileImageWrapper = styled.div`
     position: relative;
-    width: 150px;
-    height: 150px;
-    border-radius: 75px;
+    width: 180px;
+    height: 180px;
+    border-radius: 90px;
     overflow: hidden;
-    border: 2px solid #eee;
-    margin: 20px 0;
+    border: 3px solid #FFE8D6;
+    margin: 24px 0;
     cursor: pointer;
-    transition: border-color 0.2s ease;
-    z-index: 1;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
     &:hover {
-        border-color: #ddd;
+        border-color: #FF7B07;
+        transform: translateY(-2px);
     }
 `;
 
@@ -71,33 +82,105 @@ const ProfileImage = styled.img`
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: scale(1.05);
+    }
 `;
+
 
 const DefaultProfileImage = styled.div`
     width: 100%;
     height: 100%;
-    background-color: #f0f0f0;
+    background-color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 50px;
-    color: #999;
+    font-size: 64px;
+    color: #FFE8D6;
+    transition: all 0.3s ease;
+
+    &:hover {
+        color: #FF7B07;
+        background-color: #FFF9F5;
+    }
+`;
+
+const ImageOverlay = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+
+    ${ProfileImageWrapper}:hover & {
+        opacity: 1;
+    }
 `;
 
 const ImageDeleteButton = styled.button`
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(0, 0, 0, 0.5);
+    background: #FF7B07;
     color: white;
-    border: none;
+    border: 2px solid white;
     border-radius: 50%;
-    width: 25px;
-    height: 25px;
+    width: 40px;
+    height: 40px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 24px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: #FF8D2B;
+        transform: rotate(90deg);
+    }
+`;
+
+const StyledInputText = styled(InputText)`
+    width: 320px;
+    padding: 16px;
+    border: 2px solid #FFE8D6;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+
+    &:focus {
+        border-color: #FF7B07;
+        box-shadow: 0 0 0 4px rgba(255, 123, 7, 0.1);
+    }
+
+    &::placeholder {
+        color: #999;
+    }
+`;
+
+const StyledButton = styled(Button)`
+    padding: 16px;
+    margin-top: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+`;
+
+const FormContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    width: 400px;
 `;
 
 export default function SetProfilePage(props) {
@@ -117,7 +200,7 @@ export default function SetProfilePage(props) {
             
             const locationObject = {
                 sigungu: sigungu,
-                emd: emd
+                emd: emd || ''
             };
 
             setUserLocation([locationObject]);
@@ -201,53 +284,59 @@ export default function SetProfilePage(props) {
                     내 동네를 설정하고 시작해보세요!
                 </AnimatedH4>
             </TextContainer>
-            <Spacing />
-            <AnimatedH3 delay="1s">내 동네 설정하기</AnimatedH3>
-            <InputText
-                value={userLocation.map(loc => `${loc.sigungu}, ${loc.emd}`).join(", ")} 
-                onClick={() => setIsModalOpen(true)}
-                placeholder="지역이나 동네로 검색하기"
-                readOnly 
-                onChange={(e) => { }}
-            />
-            {isModalOpen && (
-                <LocationSearchModal onSelect={handleLocationSelect} onClose={() => setIsModalOpen(false)} />
-            )}
-            <Spacing />
-            <AnimatedH3 delay="1.5s">프로필 설정하기</AnimatedH3>
-            <Spacing />
-            <ProfileImageWrapper onClick={() => fileInput.current?.click()}>
-                {previewImage ? (
-                    <>
-                        <ProfileImage src={previewImage} alt="프로필 이미지" />
-                        <ImageDeleteButton onClick={(e) => {
-                            e.stopPropagation();
-                            handleImageDelete();
-                        }}>×</ImageDeleteButton>
-                    </>
-                ) : (
-                    <DefaultProfileImage>
-                        📷
-                    </DefaultProfileImage>
+            <FormContainer>
+                <AnimatedH3 delay="1s">내 동네 설정하기</AnimatedH3>
+                <StyledInputText
+                    value={userLocation.map(loc => loc.emd? `${loc.sigungu}, ${loc.emd}` : loc.sigungu).join(", ")} 
+                    onClick={() => setIsModalOpen(true)}
+                    placeholder="지역이나 동네로 검색하기"
+                    readOnly 
+                />
+                {isModalOpen && (
+                    <LocationSearchModal onSelect={handleLocationSelect} onClose={() => setIsModalOpen(false)} />
                 )}
-            </ProfileImageWrapper>
-            <input
-                type="file"
-                ref={fileInput}
-                style={{ display: "none" }}
-                onChange={handleImageChange}
-            />
-            <Spacing />
-            <InputText 
-                value={username} 
-                onChange={(e) => setUsername(e.target.value)} 
-                placeholder="닉네임을 입력하세요"  
-            />
-            <Spacing />
-            <Button
-                title="댕근 시작하기"
+                <Spacing />
+                <AnimatedH3 delay="1.5s">프로필 설정하기</AnimatedH3>
+                <ProfileImageWrapper onClick={() => fileInput.current?.click()}>
+                    {previewImage ? (
+                        <>
+                            <ProfileImage src={previewImage} alt="프로필 이미지" />
+                            <ImageOverlay>
+                                <ImageDeleteButton 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleImageDelete();
+                                    }}
+                                >
+                                    ×
+                                </ImageDeleteButton>
+                            </ImageOverlay>
+                        </>
+                    ) : (
+                        <DefaultProfileImage>
+                            📷
+                        </DefaultProfileImage>
+                    )}
+                </ProfileImageWrapper>
+                <input
+                    type="file"
+                    ref={fileInput}
+                    style={{ display: "none" }}
+                    onChange={handleImageChange}
+                    accept="image/*"
+                />
+                <StyledInputText 
+                    value={username} 
+                    onChange={(e) => setUsername(e.target.value)} 
+                    placeholder="닉네임을 입력하세요"  
+                />                
+            </FormContainer>
+            <StyledButton
                 onClick={handleStart}
-                variant="primary" 
+                title="댕근 시작하기"
+                variant="primary"
+                width="400px"
+                style={{ marginTop: '20px' }}
             />
         </Wrapper>
     );
