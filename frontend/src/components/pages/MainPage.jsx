@@ -7,6 +7,7 @@ import "../../styles/carouselOverrides.css"
 import SearchBar from "../ui/SearchBar";
 import categoryData from "../../asset/categoryData";
 import { useArea } from "../../context/AreaContext";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
     max-width: 100%; 
@@ -32,8 +33,8 @@ const CategoryWrapper = styled.div`
     align-items: start;
     justify-content: center;
     margin-top: 24px;
-    width: 100vh;
-    min-width: 1280px;
+    width: 100%;
+    max-width: 1280px;
     padding: 0 64px;
 
     
@@ -127,6 +128,7 @@ const Category = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 
 
     & .category-image {
@@ -160,6 +162,9 @@ const StyledCarousel = styled(Carousel)`
     width: 100%;
     margin: 0;
     margin-top : 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     .carousel .control-arrow {
         background-color:transparent;
@@ -178,11 +183,13 @@ const StyledCarousel = styled(Carousel)`
     }
 
     .carousel .control-arrow.control-prev {
-        left : 10px;
+        justify-self: start;
+        padding-left: 64px;
     }
 
     .carousel .control-arrow.control-next {
-        right : 10px;
+        justify-self: end;
+        padding-right: 64px;
     }
 
     .carousel .control-arrow svg {
@@ -192,30 +199,51 @@ const StyledCarousel = styled(Carousel)`
 
 const Slide = styled.div`
     width: 100%; 
-    height: 650px; 
+    height: 470px; 
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
+    background-color: ${props => props.color};
 `;
 
-const SlideImage = styled.img`
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover;
-`;
-
-const SlideText = styled.span`
+const SlideImage = styled.div`
+    max-width: 1280px;
+    display: flex;
     position: absolute; 
+    width: 100%;
+    height: 100%;
+
+    img {
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover;
+    }
+`;
+
+const SlideText = styled.div`
+    padding: 0 64px;
+    max-width: 1280px;
+    display: flex;
+    position: absolute; 
+    padding: 0 64px;
+    width: 100%;
+    height: 100%;
+
+
+    .slideText {
+    position: absolute;
+    top : 50px;
+    font-family : 'SBAggroB';
     color: black;
     text-align: left ;
-    left: 25%;
-    transform: translateX(-50%);
-    top : 50px;
-    font-family : SBAggroB;
+}
+
+
 `;
 
 function MainPage(props) {
+    const navigate = useNavigate();
     const { area, setArea } = useArea(); 
     const categoryContainerRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -297,11 +325,16 @@ function MainPage(props) {
                     autoPlay={true}
                     infiniteLoop={true}
                     showThumbs={false}
+                    transitionTime={700}
                 >
                     {imageData.map(image => (
-                        <Slide key={image.alt}>
-                            <SlideImage src={image.src} alt={image.alt} />
-                            <SlideText>{image.text}</SlideText>
+                        <Slide key={image.alt} color={image.color}>
+                            <SlideImage>
+                                <img src={image.src} alt={image.alt} />
+                            </SlideImage>
+                            <SlideText>
+                                <span className="slideText">{image.text}</span>
+                                    </SlideText>
                         </Slide>
                     ))}
                 </StyledCarousel>
@@ -313,7 +346,9 @@ function MainPage(props) {
                         </ArrowButton>
                         <CategoryContainer className="category-container" ref={categoryContainerRef} start={isAtStart} end={isAtEnd}>
                             {categoryData.map(category => (
-                                <Category>
+                                <Category onClick={() => navigate("/usedTrade", {
+                                    state: { category: category.name }
+                                })}>
                                     <div className="category-image">
                                         <img src={category.image} alt={category.name} />
                                     </div>

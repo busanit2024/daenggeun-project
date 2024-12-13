@@ -19,7 +19,7 @@ const AlbumItem = styled.div`
   width: 100%;
   height: 0;
   padding-top: 100%;
-  background-color: #dcdcdc;
+  background-color: #fff;
   border-radius: 12px;
   overflow: hidden;
   position: relative;

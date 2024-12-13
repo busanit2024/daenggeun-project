@@ -8,8 +8,9 @@ import { deleteFile, singleFileUpload } from "../../../firebase";
 import InputText from "../../ui/InputText";
 import Switch from "../../ui/Switch";
 import Radio from "../../ui/Radio";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import { Container, ButtonContainer, Item, InputContainer, Input, Textarea, TextLength, RadioContainer, SelectBoxContainer, SelectBox, FileInputContainer, InputCheckMessage, DongneSelectContainer, DongneSelect } from "./GroupCreatePage";
+import LocationSearchModal from "../../ui/LocationSearchModal";
 
 
 const ImagePreview = styled.div`
@@ -62,12 +63,11 @@ const descriptionInputConstraint = { minLength: 8, maxLength: 500 };
 export default function GroupEditPage(props) {
   const navigate = useNavigate();
   const { groupId } = useParams();
-
+  const uid = sessionStorage.getItem('uid');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [group, setGroup] = useState({});
   const [categoryData, setCategoryData] = useState([]);
   const [rangeData, setRangeData] = useState([]);
-  const [busanJuso, setBusanJuso] = useState([]);
-  const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
   const [boardDivisions, setBoardDivisions] = useState(false);
   const [boardName, setBoardName] = useState("");
   const [ageInput, setAgeInput] = useState(false);
@@ -82,6 +82,7 @@ export default function GroupEditPage(props) {
     axios.get(`/api/group/view/${groupId}`).then((response) => {
       setGroup(response.data);
       setPrevFile(response.data.image);
+      console.log(response.data);
     }).catch((error) => {
       console.error("모임 정보를 불러오는데 실패했습니다." + error);
     });
@@ -98,18 +99,6 @@ export default function GroupEditPage(props) {
       console.error("동네 범위를 불러오는데 실패했습니다." + error);
     });
 
-    axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
-      const juso = response.data.locationFilters;
-      setBusanJuso(juso);
-      const guList = juso?.map((item) => item.sigungu);
-
-      setLocationData((prevLocationData) => ({
-        ...prevLocationData,
-        sigungu: guList,
-      }));
-    }).catch((error) => {
-      console.error("부산 주소를 불러오는데 실패했습니다." + error);
-    });
   }, []);
 
   useEffect(() => {
@@ -117,11 +106,6 @@ export default function GroupEditPage(props) {
       setInputCheck(check);
   }, [group]);
 
-  useEffect(() => {
-    if (group?.location && busanJuso) {
-      getEmdList(group.location.sigungu);
-    }
-  }, [busanJuso, group.location?.sigungu]);
 
   useEffect(() => {
     if (group.ageRange) { 
@@ -141,15 +125,6 @@ export default function GroupEditPage(props) {
     }
   }, [ageInputValue]);
 
-  
-  const getEmdList = (sigungu) => {
-    if (busanJuso) {
-      const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
-      const emdNameList = emdList?.map((item) => item.emd);
-      setLocationData({ ...locationData, emd: emdNameList });
-      setGroup({ ...group, location: { ...group.location, emd: emdNameList?.[0] } });
-    }
-  };
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
@@ -213,6 +188,7 @@ export default function GroupEditPage(props) {
 
     return newCheck;
   }
+  
 
 
   const updateGroup = async () => {
@@ -239,6 +215,22 @@ export default function GroupEditPage(props) {
       console.error(error);
     };
   }
+
+  const handleLocationSelect = (selectedLocation) => {
+    if (typeof selectedLocation === 'string') {
+      const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+
+      if (emd) {
+        setGroup({ ...group, location: { sigungu, emd } });
+      } else {
+        setGroup({ ...group, location: { sigungu, emd: "" } });
+      }
+      setIsModalOpen(false);
+
+    } else {
+      console.error("선택된 위치가 문자열이 아닙니다:", selectedLocation);
+    }
+  };
 
   const routes = [
     { path: '/group', name: '모임' },
@@ -292,21 +284,20 @@ export default function GroupEditPage(props) {
 
       <Item>
       <h4>동네</h4>
-        <DongneSelectContainer>
-          <div style={{ fontSize: '20px', color: '#666666' }}>부산광역시</div>
-          <DongneSelect value={group?.location?.sigungu} onChange={(e) => setGroup({ ...group, location: { ...group.location, sigungu: e.target.value } })}>
-          {
-              locationData.sigungu?.map((item) => (
-                <option key={item} value={item}>{item}</option>
-              ))}
-          </DongneSelect>
-          <DongneSelect value={group?.location?.emd} onChange={(e) => setGroup({ ...group, location: { ...group.location, emd: e.target.value } })}>
-          {
-              locationData.emd?.map((item) => (
-                <option key={item} value={item}>{item}</option>
-              ))}
-          </DongneSelect>
+      <DongneSelectContainer>
+          <InputContainer style={{ width: '360px' }}>
+            <Input type="text" value={`${group.location?.sigungu}, ${group.location?.emd}`} readOnly />
+          </InputContainer>
+
+          <Button title="검색하기" onClick={() => setIsModalOpen(true)} />
         </DongneSelectContainer>
+
+        {isModalOpen && (
+        <LocationSearchModal
+          onSelect={handleLocationSelect}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
       </Item>
 
       <Item>

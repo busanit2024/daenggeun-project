@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Layout from './Layout';
+import Layout from './components/Layout';
 
 import GroupPage from './components/pages/Group/GroupPage';
 import GroupViewPage from './components/pages/Group/GroupViewPage';
@@ -94,13 +94,13 @@ function App() {
             <Route path="community/:communityId" element={<CommunityViewPage />} />
             <Route path="communityEdit/:communityId" element={<CommunityEditPage />} />
 
-              <Route path='mypage' element={<MyPageMain />} >
-                <Route path="" element={<MyPageList />} />
-                <Route path='community' element={<MyCommunity />} />
-                <Route path='location' element={<MyLocation />} />
-                <Route path='trade' element={<MyTrade />} />
-                <Route path='group' element={<MyGroup />} />
-              </Route>
+            <Route path='mypage' element={<MyPageMain />} >
+              <Route path="" element={<MyPageList />} />
+              <Route path='community' element={<MyCommunity />} />
+              <Route path='location' element={<MyLocation />} />
+              <Route path='trade' element={<MyTrade />} />
+              <Route path='group' element={<MyGroup />} />
+            </Route>
               <Route path='mypage/edit' element={<MyProfileEdit />} />
               <Route path="setProfile/:userId" element={<SetProfilePage />} />
             </Route>

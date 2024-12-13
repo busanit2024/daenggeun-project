@@ -276,7 +276,7 @@ export default function Footer() {
       <SiteMap>
         <div className="logos">
           <div className="logo">
-            <img src="/images/logo/danggnlogo.svg" alt="당근마켓" />
+            <img src="/images/logo/daenggnlogo.png" alt="당근마켓" />
           </div>
 
           <div className="sns">

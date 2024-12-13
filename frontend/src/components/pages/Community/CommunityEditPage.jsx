@@ -5,7 +5,7 @@ import styled from "styled-components";
 import Button from "../../ui/Button";
 import RoundFilter from "../../ui/RoundFilter";
 import { multipleFileUpload } from "../../../firebase";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import { useNavigate } from "react-router-dom";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";

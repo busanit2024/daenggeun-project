@@ -267,7 +267,7 @@ export default function GroupBoardWrite() {
             <WriteHeader>
               <div className="profile">
                 <div className="profile-image">
-                  <img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/defaultProfileImage.png'} alt="프로필 이미지" />
+                  <img src={member?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} alt="프로필 이미지" />
                 </div>
 
                 <div className="profile-name">

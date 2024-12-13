@@ -5,7 +5,7 @@ import { ImAlarm } from "react-icons/im";
 import { ImCalendar } from "react-icons/im";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 import { LiaWonSignSolid } from "react-icons/lia";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import "../../../styles/AlbaStyled.css";
 import Button from "../../ui/Button";
 import styled from "styled-components";
@@ -105,7 +105,7 @@ const AlbaDetail = () => {
         {/* 좌측 영역 */}
         <div className="detail-left">
           <img
-            src={job.image != null ? job.image.url : "default-image.png"}
+            src={job.image != null ? job.image.url : "images/default/default-image.png"}
             alt={job.title}
             className="detail-image"
           />
@@ -166,8 +166,11 @@ const AlbaDetail = () => {
               )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
               className="map-frame"
             ></iframe>
+            <div className="map-name">
+              {job.workPlace}
+            </div>
           </div>
-          {job.workPlace}
+          
         </div>
       </div>
 

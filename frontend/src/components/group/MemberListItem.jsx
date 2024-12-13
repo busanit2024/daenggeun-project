@@ -72,7 +72,7 @@ export default function MemberListItem(props) {
   return (
     <Wrapper onClick={handleClick}>
       <ProfileImage>
-        {<img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt={member?.name} onError={(e) => e.target.src = '/images/defaultProfileImage.png'}/>}
+        {<img src={member?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} alt={member?.name} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'}/>}
       </ProfileImage>
       <MemberInfo>
         <div className="name-wrap">

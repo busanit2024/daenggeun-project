@@ -7,12 +7,12 @@ import Button from "../../ui/Button";
 import GroupListItem from "../../group/GroupListItem";
 import RoundFilter from "../../ui/RoundFilter";
 import Radio from "../../ui/Radio";
-import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import Modal from "../../ui/Modal";
 import SearchBar from "../../ui/SearchBar";
 import Switch from "../../ui/Switch";
+import { useArea } from "../../../context/AreaContext";
 
 const Container = styled.div`
   display: flex;
@@ -83,13 +83,6 @@ const LoadingText = styled.div`
   }
 `;
 
-const CustomSelect = styled.select`
-  flex-grow: 1;
-  padding: 8px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  font-size: 16px;
-`;
 
 const EmdFilterWrap = styled.div`
   display: flex;
@@ -125,6 +118,7 @@ const libraries = ['places'];
 
 export default function GroupPage(props) {
   const navigate = useNavigate();
+  const { area, setArea } = useArea();
   const [groupList, setGroupList] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [searchFilter, setSearchFilter] = useState({
@@ -144,15 +138,6 @@ export default function GroupPage(props) {
   const [modalOpen, setModalOpen] = useState('');
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("동네생활");
-  const [selectedLocation, setSelectedLocation] = useState({ sigungu: "부산진구", emd: "" });
-
-  const { isLoaded: isJsApiLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries: libraries,
-    language: 'ko',
-    region: 'KR',
-  });
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -167,14 +152,15 @@ export default function GroupPage(props) {
     }).catch((error) => {
       console.error("부산 주소를 불러오는데 실패했습니다." + error);
     });
+    
   }, []);
 
   useEffect(() => {
-    console.log(selectedLocation);
-    if (selectedLocation.sigungu) {
-      setSearchFilter((prev) => ({ ...prev, sigungu: selectedLocation.sigungu }));
+    console.log(area);
+    if (area.sigungu) {
+      setSearchFilter((prev) => ({ ...prev, sigungu: area.sigungu, emd: area.emd }));
     }
-  }, [selectedLocation.sigungu]);
+  }, [area]);
 
   useEffect(() => {
     setLoading(true);
@@ -185,14 +171,20 @@ export default function GroupPage(props) {
 
   useEffect(() => {
     setLoading(true);
-    setSearchFilter((prev) => ({ ...prev, emd: '' }));
+    
+    setSearchFilter((prev) => {
+      if (prev.sigungu !== area.sigungu) {
+        return { ...prev, emd: '' }
+      } else {
+        return prev;
+      }});
     getEmdList(searchFilter.sigungu);
     setIsFilterOpen(false);
   }, [searchFilter.sigungu, busanJuso]);
 
   const resetFilter = () => {
     setLoading(true);
-    setSearchFilter((prev) => ({ ...prev, sido: selectedLocation.sido, sigungu: selectedLocation.sigungu, emd: '', category: 'all', sort: '', uid: '' }));
+    setSearchFilter((prev) => ({ ...prev, sigungu: area.sigungu, emd: area.emd, category: 'all', sort: '', uid: '' }));
     setIsFilterOpen(false);
     setPage(0);
   }
@@ -259,12 +251,16 @@ export default function GroupPage(props) {
   const handleLocationSelect = (selectedLocation) => {
     console.log("선택된 지역:", selectedLocation);
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-    setSelectedLocation({ sigungu, emd });
+    setArea({ sigungu, emd });
     setSearchFilter(prevFilter => ({
         ...prevFilter,
         sigungu: sigungu,
         emd: emd ?? '',
     }));
+};
+
+const handleSearch = (searchTerm) => {
+  console.log("검색어:", searchTerm);
 };
 
 
@@ -275,9 +271,13 @@ export default function GroupPage(props) {
 
   return (
     <>
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm}
-        selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory}
-        onSelect={handleLocationSelect} />
+      <SearchBar 
+      searchTerm={searchTerm} 
+      setSearchTerm={setSearchTerm}
+      selectedCategory={selectedCategory} 
+      setSelectedCategory={setSelectedCategory}
+      onSelect={handleLocationSelect}
+      onSearch={handleSearch} />
       <Breadcrumb routes={routes} />
       <Container>
         <HeadContainer>
@@ -296,7 +296,7 @@ export default function GroupPage(props) {
             <div className="filterItem">
               <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>지역
                 <div className="switchWrap" style={{display: 'flex', gap: '4px', alignItems: 'center', fontWeight: 'normal'}}>
-                <Switch id="all" checked={!searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.checked ? '' : selectedLocation.sigungu })} />
+                <Switch id="all" checked={!searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.checked ? '' : area.sigungu })} />
                 <label htmlFor="all">전지역</label>
                 </div>
               </h4>
