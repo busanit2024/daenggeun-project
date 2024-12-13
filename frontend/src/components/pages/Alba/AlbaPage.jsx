@@ -362,7 +362,7 @@ export default function AlbaPage(props) {
             <h4 className="title">근무 유형</h4>
             <div className="filterList">
               {workTypeData.map((item) => (
-                <div key={item.id}>
+                <div key={item.id} className="radioWrap">
                   <Radio
                     type="radio"
                     id={item.name}
@@ -381,7 +381,7 @@ export default function AlbaPage(props) {
             <h4 className="title">하는 일</h4>
             <div className="filterList">
               {categoryData.map((item) => (
-                <div key={item.name}>
+                <div key={item.name} className="radioWrap">
                   <Radio
                     type="radio"
                     id={item.name}

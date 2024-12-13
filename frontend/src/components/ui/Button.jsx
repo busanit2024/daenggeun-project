@@ -4,6 +4,7 @@ import styled from "styled-components";
 const StyledButton = styled.button`
     padding : 8px 16px ;
     font-size : 16px;
+    font-weight: 500;
     border-width: 0px;
     border-radius: ${props => props.borderRadius || "5px"};
     cursor:pointer;
@@ -50,8 +51,8 @@ const StyledButton = styled.button`
 
             case 'login' :
                 return `
-                    background-color : rgba(255, 69, 0, 0.3);
-                    color : rgba(255, 69, 0);
+                    background-color : #FFEBDD;
+                    color : #FF6F0F;
                 `;
 
             case 'danger' :
@@ -62,8 +63,8 @@ const StyledButton = styled.button`
 
             case 'findLocation' :
                 return `
-                    background-color : #ff6f0f24;
-                    color : #ff6f0f;
+                    background-color : #FFEBDD;
+                    color : #FF6F0F;
                 `;
             default:
                 return ``;

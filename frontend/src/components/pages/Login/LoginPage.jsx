@@ -218,6 +218,7 @@ function LoginPage() {
                             onChange={(e) => setValue(e.target.value)}
                             placeholder="인증 코드를 입력하세요"
                         />
+                        <Spacing />
                         <Button title="인증하기" variant="white" onClick={verifyCode} />
                     </>
                 )}

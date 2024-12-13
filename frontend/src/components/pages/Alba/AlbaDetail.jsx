@@ -148,8 +148,11 @@ const AlbaDetail = () => {
               )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
               className="map-frame"
             ></iframe>
+            <div className="map-name">
+              {job.workPlace}
+            </div>
           </div>
-          {job.workPlace}
+          
         </div>
         
       </div>

@@ -3,12 +3,13 @@ import styled from "styled-components";
 
 const StyledLogo = styled.img`
    width : 100px;
-   height: 65px;
+   height: auto;
    cursor : pointer;
+   padding: 14px;
 `;
 
 const logoOnly = '/images/logo/logo.png';
-const logoWithText = '/images/logo/Daangn_Signature_RGB.png';
+const logoWithText = '/images/logo/daenggnlogo.png';
 
 const Logo = ({variant, onClick}) => {
     let logoSrc;

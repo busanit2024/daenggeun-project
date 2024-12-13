@@ -11,7 +11,17 @@
   }
   
   .toolbar .logo {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    flex-grow: 1;
     height: 40px;
+  }
+
+  .toolbar nav {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
   }
   
   .toolbar nav ul {
@@ -75,13 +85,14 @@
   }
   
   .auth-links {
+    flex-grow: 1;
     display: flex;
+    justify-content: flex-end;
     align-items: center;
     gap: 10px;
   }
   
-  .auth-links a,
-  .auth-links button {
+  .auth-links a {
     text-decoration: none;
     color: #333;
     background: none;
@@ -90,8 +101,7 @@
     cursor: pointer;
   }
   
-  .auth-links a:hover,
-  .auth-links button:hover {
+  .auth-links a:hover {
     color: #007bff;
   }
 

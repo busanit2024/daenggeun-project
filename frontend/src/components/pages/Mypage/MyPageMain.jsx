@@ -60,6 +60,12 @@ export const UserInfoBox = styled.div`
             color: #666666;
         }
     }
+
+    .location {
+        margin-top: -12px;
+        font-size: 16px;
+        color: #333333;
+    }
 `;
 
 export const ProfileBox = styled.div`
@@ -148,6 +154,9 @@ export default function MyPageMain(props) {
                         <span className="uniqueCode">#{user?.uniqueCode ?? '000000'}</span>
                         {/* <span className="regDate">{calculateDate(user?.registeredDate) ?? ''} 전 가입</span> */}
                     </div>
+                    {user?.location && (
+                        <span className="location">{user.location[0].sigungu}{user.location[0].emd ? `, ${user.location[0].emd}` : '' } </span>
+                    )}
                     <Button title="프로필 수정" onClick={() => navigate('edit')} />
                 </div>
             </UserInfoBox>
