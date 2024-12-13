@@ -84,6 +84,7 @@ const NoSearchResult = styled.div`
 
 export default function AlbaPage(props) {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null); // 사용자 정보 상태 추가
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
@@ -335,6 +336,21 @@ export default function AlbaPage(props) {
     }
   }, []);
 
+
+// 사용자 정보를 가져오는 useEffect 추가
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const response = await axios.get("/api/auth/user");
+      setUser(response.data); // 사용자 정보 저장
+    } catch (error) {
+      console.error("로그인 정보를 가져오는데 실패했습니다:", error);
+    }
+  };
+
+  fetchUser();
+}, []);
+
   return (
     <Container>
       <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
@@ -476,7 +492,14 @@ export default function AlbaPage(props) {
           {itemsToShow < albaList.length && (
             <Button title="더보기" onClick={handleShowMore} />
           )}
-                  <Button title="글쓰기" variant="primary" onClick={() => navigate("/alba/create")}></Button>
+                  
+{user && (
+  <Button 
+    title="글쓰기" 
+    variant="primary" 
+    onClick={() => navigate("/alba/create")} // 로그인 여부를 확인하고 렌더링
+  />
+)}
 
         </ListContainer>
       </InnerContainer>
