@@ -137,6 +137,12 @@ public class GroupRestController {
     return groupService.getGroupPostSlice(groupId, boardName, pageable);
   }
 
+  @GetMapping("/board/album/{groupId}")
+  private Slice<GroupPostDTO> getPostWithImage(@PathVariable String groupId, @RequestParam int page, @RequestParam int size) {
+      Pageable pageable = PageRequest.of(page, size);
+      return groupService.getGroupPostWithImageSlice(groupId, pageable);
+  }
+
   @GetMapping("/board/post/{postId}")
   private GroupPostDTO getPost(@PathVariable String postId, @RequestParam Boolean view) {
     return groupService.getGroupPost(postId, view);
