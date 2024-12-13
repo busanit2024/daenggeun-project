@@ -92,7 +92,7 @@ const InputBox = styled.div`
     & .inputInner {
         display: flex;
         gap: 24px;
-        padding: 24px 0px;
+        padding: 24px 36px;
     }
 `;
 
@@ -103,23 +103,6 @@ export default function MyProfileEdit(props) {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [profileImage, setProfileImage] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const handleLocationSelect = (selectedLocation) => {
-        if (typeof selectedLocation === 'string') {
-            const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-
-            const locationObject = {
-                sigungu: sigungu,
-                emd: emd
-            };
-
-            setUser((prev) => ({ ...prev, location: [locationObject] }));
-            setIsModalOpen(false);
-        } else {
-            console.error("선택된 위치가 문자열이 아닙니다:", selectedLocation);
-        }
-    };
 
     useEffect(() => {
         const uid = sessionStorage.getItem('uid');
@@ -201,20 +184,6 @@ export default function MyProfileEdit(props) {
             </UserInfoBox>
 
             <InputBox>
-
-                <div className="inputInner">
-                    <h3 delay="1s">내 동네 설정하기</h3>
-                    <InputText
-                        value={`${user?.location?.[0].sigungu}${user?.location?.[0].emd ? `, ${user?.location?.[0].emd}` : ''}`}
-                        onClick={() => setIsModalOpen(true)}
-                        placeholder="지역이나 동네로 검색하기"
-                        readOnly
-                    />
-                    {isModalOpen && (
-                        <LocationSearchModal onSelect={handleLocationSelect} onClose={() => setIsModalOpen(false)} />
-                    )}
-
-                </div>
                 <div className="inputInner">
                     <h3>이메일</h3>
                     <InputText id='email' value={user?.email ?? ''} placeholder="등록할 이메일을 입력하세요." />
