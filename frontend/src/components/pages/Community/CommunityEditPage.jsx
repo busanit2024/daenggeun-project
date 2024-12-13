@@ -339,8 +339,8 @@ export default function CommunityEditPage(props) {
     }
 
     const routes = [
-        { path: `/community`, name: `동네생활` },
-        { path: `/communityEdit/${communityId}`, name: input.title},
+        { path: `/communityEdit`, name: `동네생활` },
+        { path: `/communityEdit/${communityId}`, name: input.title || '제목 없음' }, // 제목 없음 기본값 추가
       ];
 
     return(
