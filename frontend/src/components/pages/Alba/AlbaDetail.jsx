@@ -82,9 +82,7 @@ const AlbaDetail = () => {
   const sessionId = sessionStorage.getItem('uid');
 
   const isAuthor =(sessionId === job.userId);
-  console.log(sessionId === job.userId);
-  console.log("세션아이디:", (sessionId === job.userId));
-  const handleShowMore = () => {
+    const handleShowMore = () => {
     setItemsToShow((prev) => prev + 5); // 5개씩 더 보기
   };
 

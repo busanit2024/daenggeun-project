@@ -110,7 +110,6 @@ const DescContainer = styled.div`
 
 export default function AlbaMemberProfile({userId}) {
   const { memberId } = useParams();
-  console.log("useParams memberId:", memberId);
   const [member, setMember] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState('');
@@ -118,16 +117,9 @@ export default function AlbaMemberProfile({userId}) {
 
   
   const id = memberId ?? sessionStorage.getItem('uid');
-  console.log("sessionStorage uid:", sessionStorage.getItem('uid'));
   useEffect( () => {
     fetchMemberInfo(userId);
-   
-    // const member = group?.members.find((member) => member.userId === id);
-    // setMember(member);
-    // setNickname(member?.groupNickName);
-    // console.log(member);
-    
-  }, []);
+   }, []);
 
 
   const fetchMemberInfo = (userId) => {
@@ -140,10 +132,6 @@ export default function AlbaMemberProfile({userId}) {
       });    
 };
   
-console.log("member.location:", member?.location);
-console.log("member.location.emd:", member?.location?.emd);
-
-
 const mannerTemp = {
   worst: { min: 0, max: 12.5, label: 'worst' },
   bad: { min: 12.5, max: 30, label: 'bad' },
