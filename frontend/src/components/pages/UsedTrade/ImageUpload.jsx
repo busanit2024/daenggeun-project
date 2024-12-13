@@ -44,13 +44,18 @@ const CameraIcon = styled.img`
   display: block;
 `;
 
-const ImageUpload = ({ onImageChange }) => {
-  const [images, setImages] = useState([]);
+const ImageUpload = ({ img, onImageChange }) => {
+  const [images, setImages] = useState(img);
   const inputRef = useRef(null); // input 참조
 
+  console.log("images",images);
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    const validFiles = files.slice(0, 1 - images.length); // 최대 1개로 제한
+    const validFiles = files.slice(0, 1); // 최대 1개로 제한
+
+
+
+    
     setImages((prevImages) => {
       const newImages = [...prevImages, ...validFiles];
       onImageChange(newImages); // 부모 컴포넌트로 전달
@@ -83,7 +88,7 @@ const ImageUpload = ({ onImageChange }) => {
           </span>
         ) : (
           images.map((img, index) => (
-            <UploadedImage key={index} src={URL.createObjectURL(img)} alt={`uploaded-${index}`} />
+            <UploadedImage key={index} src={img.url} alt={`uploaded-${index}`} />
           ))
         )}
       </ImagePlaceholder>
