@@ -113,6 +113,7 @@ export default function AlbaPage(props) {
   });
 
   const [selectedCategory, setSelectedCategory] = useState("알바");
+  const sessionId = sessionStorage.getItem('uid');
 
   // 카테고리 데이터를 가져오기 위한 useEffect
   useEffect(() => {
@@ -247,15 +248,15 @@ export default function AlbaPage(props) {
     if (workType.includes(workTypeId)) {
       setWorkType(workType.filter(type => type !== workTypeId));
     } else {
-      setWorkType([...workType, workTypeId]);
+      setWorkType([workTypeId]);
     }
   };
 
   const handleWorkDayChange = (day) => {
     if (workDays.includes(day)) {
-      setWorkDays(workDays.filter(d => d !== day));
+      setWorkDays(workDays.filter((d) => d !== day)); // 선택 해제
     } else {
-      setWorkDays([...workDays, day]);
+      setWorkDays([...workDays, day]); // 선택 추가
     }
   };
 
@@ -278,7 +279,7 @@ export default function AlbaPage(props) {
   };
 
 
-  const filteredAlbaList = albaList.filter(alba => {
+  const filteredAlbaList = albaList.filter((alba) => {
     return (
       // 지역 필터링
       (!selectedRegion || alba.location.sigungu === selectedRegion) &&
@@ -286,13 +287,14 @@ export default function AlbaPage(props) {
       // 추가 필터링
       (category === "all" || alba.category === category) &&
       (workType.length === 0 || workType.includes(alba.workPeriod)) &&
-      (workDays.length === 0 || workDays.every(day => alba.workDays.includes(day))) &&
+      (workDays.length === 0 || workDays.some((day) => alba.workDays.includes(day))) && // 수정된 부분
       (!workTime.start || alba.workTimeStart >= workTime.start) &&
       (!workTime.end || alba.workTimeEnd <= workTime.end) &&
       // 검색어 필터링
       (!searchTerm.trim() || alba.title.includes(searchTerm.trim()) || alba.description.includes(searchTerm.trim()))
     );
   });
+  
 
   const handleSearch = async (searchTerm) => {
     setLoading(true);
@@ -330,11 +332,16 @@ export default function AlbaPage(props) {
   ];
   
   useEffect(() => {
+    // Toolbar에서 이동한 경우 자동 검색 실행
     if (location.state?.fromToolbar) {
         handleSearch('');
     }
   }, []);
 
+  // 필터 상태가 변경될 때마다 자동으로 리스트 업데이트
+  useEffect(() => {
+    handleSearch();
+  }, [category, workType, workDays, selectedRegion, selectedDong, workTime]);
 
   return (
     <Container>
@@ -477,15 +484,14 @@ export default function AlbaPage(props) {
           {itemsToShow < albaList.length && (
             <Button title="더보기" onClick={handleShowMore} />
           )}
-                  
-{user && (
-  <Button 
-    title="글쓰기" 
-    variant="primary" 
-    onClick={() => navigate("/alba/create")} // 로그인 여부를 확인하고 렌더링
-  />
-)}
-
+                {/* 로그인 여부에 따라 글쓰기 버튼 렌더링 */}
+          {sessionId && (  
+          <Button 
+            title="글쓰기" 
+            variant="primary" 
+            onClick={() => navigate("/alba/create")} // 로그인 여부를 확인하고 렌더링
+          />
+            )}
         </ListContainer>
       </InnerContainer>
     </Container>
