@@ -73,14 +73,18 @@ const LocationText = styled.div`
 const normalizeEmdName = (emdName) => {
   if (!emdName) return '';
   
-  // "제1" -> "1", "제2" -> "2" 변환
   return emdName
     .replace(/제(\d+)/g, '$1')  // "제1" -> "1"
     .replace(/(\d+)제/g, '$1')  // "1제" -> "1"
     .replace(/첫번째/g, '1')
     .replace(/두번째/g, '2')
-    .replace(/세번째/g, '3');
+    .replace(/세번째/g, '3')
+    .replace(/동$/, '')  // "동" 접미사 제거
+    .trim();  // 앞뒤 공백 제거
 };
+
+// 컴포넌트 외부에 GeoJSON 데이터를 캐시할 변수 선언
+let cachedGeoJson = null;
 
 export default function MyLocation() {
   const [locations, setLocations] = useState([]);
@@ -91,116 +95,131 @@ export default function MyLocation() {
   const { setArea } = useArea();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const onMapLoad = (map) => {
+  // GeoJSON 데이터를 로드하는 함수
+  const loadGeoJsonData = async () => {
+    if (cachedGeoJson) {
+      return cachedGeoJson;
+    }
+
+    try {
+      const response = await fetch('/data/hangjeongdong_busan.geojson');
+      cachedGeoJson = await response.json();
+      return cachedGeoJson;
+    } catch (error) {
+      console.error("GeoJSON 데이터 로드 실패:", error);
+      return null;
+    }
+  };
+
+  // 지도 초기화 시 실행되는 함수
+  const onMapLoad = async (map) => {
     setMap(map);
+    setIsLoading(true);
     
     try {
       const center = { lat: 35.1795, lng: 129.0756 };
-      
-      // 지도 옵션 설정
       map.setCenter(center);
-      map.setZoom(11); 
+      map.setZoom(11);
       
       // 지도 이동 제한 설정
       const bounds = new window.google.maps.LatLngBounds(
         { lat: 34.8937, lng: 128.7432 }, 
-        { lat: 35.3839, lng: 129.3147 }  
+        { lat: 35.3839, lng: 129.3147 }
       );
       map.setOptions({
         restriction: {
           latLngBounds: bounds,
           strictBounds: false
         },
-        minZoom: 11,  
+        minZoom: 11,
         maxZoom: 15
       });
 
       // 기본 스타일 설정
       map.data.setStyle({
         fillColor: '#ffffff',
-        fillOpacity: 0, 
-        strokeWeight: 0,  
+        fillOpacity: 0,
+        strokeWeight: 0,
         strokeColor: 'transparent',
         strokeOpacity: 0
       });
 
-      // GeoJSON 데이터 로드
-      fetch('/data/hangjeongdong_busan.geojson')
-        .then(response => response.json())
-        .then(data => {
-          console.log("GeoJSON 데이터 구조:", data.features.map(f => ({
-            original: f.properties.adm_nm,
-            split: f.properties.adm_nm.split(' ')
-          })));
-          map.data.addGeoJson(data);
-          
-          if (locations.length > 0) {
-            locations.forEach(loc => {
-              console.log("현재 선택된 위치:", {
-                sigungu: loc.sigungu,
-                emd: loc.emd,
-                sigunguWithoutSuffix: loc.sigungu.replace(/[구군]$/, '')
-              });
-            });
-          }
-          updateMapStyles(map, locations);
-        })
-        .catch(error => {
-          console.error("GeoJSON 데이터 로드 실패:", error);
-        });
-
+      // GeoJSON 데이터 로드 및 적용
+      const geoJsonData = await loadGeoJsonData();
+      if (geoJsonData) {
+        map.data.addGeoJson(geoJsonData);
+        updateMapStyles(map, locations);
+      }
     } catch (error) {
       console.error("지도 초기화 실패:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const updateMapStyles = (map, locations) => {
     if (!map) return;
     
-    map.data.setStyle(feature => {
-      const fullName = feature.getProperty('adm_nm');
-      const [sido, sgg, emd] = fullName.split(' ');
-      const cleanSgg = sgg.replace(/[구군]$/, '');
-      
-      const isFirstLocation = locations[0] && 
-        cleanSgg === locations[0].sigungu.replace(/[구군]$/, '') &&
-        (!locations[0].emd || normalizeEmdName(emd) === normalizeEmdName(locations[0].emd));
-      
-      const isSecondLocation = locations[1] && 
-        cleanSgg === locations[1].sigungu.replace(/[구군]$/, '') &&
-        (!locations[1].emd || normalizeEmdName(emd) === normalizeEmdName(locations[1].emd));
+    // 이전 스타일 초기화
+    map.data.revertStyle();
+    
+    // 기본 스타일 설정
+    map.data.setStyle({
+      fillColor: '#ffffff',
+      fillOpacity: 0,
+      strokeWeight: 0,
+      strokeColor: 'transparent',
+      strokeOpacity: 0
+    });
 
-      return {
-        fillColor: isFirstLocation ? '#ff8a3d' : 
-                  isSecondLocation ? '#ffd8b8' : 
-                  '#ffffff',
-        fillOpacity: isFirstLocation || isSecondLocation ? 0.5 : 0,
-        strokeWeight: isFirstLocation || isSecondLocation ? 2 : 0,
-        strokeColor: isFirstLocation || isSecondLocation ? '#ff8a3d' : 'transparent',
-        strokeOpacity: isFirstLocation || isSecondLocation ? 1 : 0
-      };
+    // 선택된 지역만 스타일 적용
+    locations.forEach((location, index) => {
+      const cleanLocSgg = location.sigungu.replace(/[구군]$/, '');
+      const normalizedLocEmd = normalizeEmdName(location.emd);
+
+      map.data.forEach(feature => {
+        const fullName = feature.getProperty('adm_nm');
+        const [sido, sgg, emd] = fullName.split(' ');
+        const cleanSgg = sgg.replace(/[구군]$/, '');
+        
+        if (cleanSgg === cleanLocSgg && 
+            (!location.emd || normalizeEmdName(emd) === normalizedLocEmd)) {
+          
+          map.data.overrideStyle(feature, {
+            fillColor: index === 0 ? '#ff8a3d' : '#ffd8b8',
+            fillOpacity: 0.5,
+            strokeWeight: 2,
+            strokeColor: '#ff8a3d',
+            strokeOpacity: 1
+          });
+        }
+      });
     });
   };
 
+  // locations가 변경될 때마다 스타일 업데이트
   useEffect(() => {
-    updateMapStyles(map, locations);
-  }, [map, locations]);
+    if (map && !isLoading) {
+      updateMapStyles(map, locations);
+    }
+  }, [map, locations, isLoading]);
 
+  // 사용자 위치 정보 로드
   useEffect(() => {
     const fetchUserLocations = async () => {
+      if (!uid) return;
+      
       try {
         const response = await axios.get(`/user/${uid}`);
-        console.log("받아온 위치 데이터:", response.data.location);
         setLocations(response.data.location || []);
       } catch (error) {
         console.error("동네 정보를 불러오는데 실패했습니다:", error);
       }
     };
 
-    if (uid) {
-      fetchUserLocations();
-    }
+    fetchUserLocations();
   }, [uid]);
 
   const handleLocationSelect = async (selectedLocation) => {
@@ -278,14 +297,30 @@ export default function MyLocation() {
         <h3>내 동네 설정하기</h3>
         <MapSection>
           <MapWrapper>
-            <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
-              <GoogleMap
-                mapContainerStyle={{ width: '100%', height: '100%' }}
-                center={{ lat: 35.1795, lng: 129.0756 }}
-                zoom={11}
-                onLoad={onMapLoad}
-              />
-            </LoadScript>
+            <GoogleMap
+              mapContainerStyle={{ width: '100%', height: '100%' }}
+              center={{ lat: 35.1795, lng: 129.0756 }}
+              zoom={11}
+              onLoad={onMapLoad}
+              options={{
+                gestureHandling: 'greedy'
+              }}
+            />
+            {isLoading && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(255, 255, 255, 0.8)'
+              }}>
+                지도를 불러오는 중...
+              </div>
+            )}
           </MapWrapper>
           <Sidebar>
             <h4>설정된 동네</h4>
