@@ -170,21 +170,6 @@ const getMannerTemp = (temp) => {
 
 
 
-useEffect(() => {
-  // 사용자 정보 로드 (로그인 상태 확인 및 사용자 역할 확인)
-  const fetchUser = async () => {
-    try {
-      const response = await axios.get("/api/auth/user"); // 현재 사용자 정보 요청
-      setUser(response.data);
-    } catch (error) {
-      console.error("사용자 정보 불러오기 실패:", error);
-    }
-  };
-
-  fetchUser();
-  
-}, [id]);
-console.log("AlbaMemberProfile userId:", userId);
 
   return (
     <>

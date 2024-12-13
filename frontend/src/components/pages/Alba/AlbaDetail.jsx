@@ -26,17 +26,7 @@ const AlbaDetail = () => {
   `;
 
   useEffect(() => {
-    // 사용자 정보 로드
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get("/api/auth/user"); // 현재 사용자 정보 요청
-        setUser(response.data);
-      } catch (error) {
-        console.error("사용자 정보 불러오기 실패:", error);
-      }
-    };
-
-    // 상세 데이터 로드
+        // 상세 데이터 로드
     const fetchJob = async () => {
       try {
         const response = await axios.get(`/api/alba/${id}`);
@@ -57,7 +47,6 @@ const AlbaDetail = () => {
       }
     };
 
-    fetchUser();
     fetchJob();
     fetchRelatedJobs();
   }, [id]);
@@ -90,8 +79,11 @@ const AlbaDetail = () => {
     }
   };
 
-  const isAuthor = user && (user.id === job.authorId || user.role === "admin");
+  const sessionId = sessionStorage.getItem('uid');
 
+  const isAuthor =(sessionId === job.userId);
+  console.log(sessionId === job.userId);
+  console.log("세션아이디:", (sessionId === job.userId));
   const handleShowMore = () => {
     setItemsToShow((prev) => prev + 5); // 5개씩 더 보기
   };
@@ -112,9 +104,14 @@ const AlbaDetail = () => {
           <div className="profile-info">
             <AlbaMemberProfile userId={job.userId} />
           </div>
-          <Button type="edit-button" title="수정" variant="gray" onClick={handleEdit} />
-          <Button type="delete-button" title="삭제" variant="danger" onClick={handleDelete} />
-        </div>
+          {/* 수정 및 삭제 버튼 (작성자와 관리자만 볼 수 있음) */}
+          {isAuthor && (
+              <>
+              <Button type="edit-button" title="수정" variant="gray" onClick={handleEdit} />
+              <Button type="delete-button" title="삭제" variant="danger" onClick={handleDelete} />
+              </>
+          )}
+          </div>
 
         {/* 우측 영역 */}
         <div className="detail-right">
@@ -147,9 +144,9 @@ const AlbaDetail = () => {
           </div>
 
           {/* 수정 및 삭제 버튼 (작성자와 관리자만 볼 수 있음) */}
-          {isAuthor && (
+          {false && (
             <div className="detail-actions">
-              <button className="edit-button" onClick={handleEdit}>
+              <button className="edit-button" onClick={handleEdit} variant="primary">
                 수정하기
               </button>
               <button className="delete-button" onClick={handleDelete}>
