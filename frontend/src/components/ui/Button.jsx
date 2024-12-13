@@ -11,6 +11,11 @@ const StyledButton = styled.button`
     height : 40px;
     width: ${props => props.width ? props.width : "auto"};
     flex-grow: ${props => props.grow ? 1 : 0};
+    transition: opacity 0.2s;
+    
+    &:hover {
+        opacity: 0.8;
+    }
     
     ${props => {
         if (props.active) {

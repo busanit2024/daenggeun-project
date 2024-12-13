@@ -7,6 +7,7 @@ import "../../styles/carouselOverrides.css"
 import SearchBar from "../ui/SearchBar";
 import categoryData from "../../asset/categoryData";
 import { useArea } from "../../context/AreaContext";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
     max-width: 100%; 
@@ -127,6 +128,7 @@ const Category = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 
 
     & .category-image {
@@ -241,6 +243,7 @@ const SlideText = styled.div`
 `;
 
 function MainPage(props) {
+    const naviagte = useNavigate();
     const { area, setArea } = useArea(); 
     const categoryContainerRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -343,7 +346,9 @@ function MainPage(props) {
                         </ArrowButton>
                         <CategoryContainer className="category-container" ref={categoryContainerRef} start={isAtStart} end={isAtEnd}>
                             {categoryData.map(category => (
-                                <Category>
+                                <Category onClick={() => naviagte("/usedTrade", {
+                                    state: { category: category.name }
+                                })}>
                                     <div className="category-image">
                                         <img src={category.image} alt={category.name} />
                                     </div>
