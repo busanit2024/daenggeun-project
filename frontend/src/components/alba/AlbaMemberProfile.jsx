@@ -1,16 +1,8 @@
-import { useOutletContext, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import { calculateDate } from "../../utils/calculateDate";
-import InputText from "../ui/InputText";
-import { FaEdit, FaPen } from "react-icons/fa";
-import { FaPencil } from "react-icons/fa6";
-import Button from "../ui/Button";
 import axios from "axios";
 import RoundFilter from "../ui/RoundFilter";
-import MyPageList from "../mypage/MyPageList";
-
-
 
 const InnerContainer = styled.div`
   display: flex;
@@ -25,15 +17,14 @@ const ProfileContainer = styled.div`
   gap: 24px;
   align-items: center;
 
-  
   .nameWrap {
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
 
-  .mannerTempWrap{
-  display: flex;
+  .mannerTempWrap {
+    display: flex;
     flex-direction: column;
     gap: 4px;
   }
@@ -45,14 +36,9 @@ const ProfileContainer = styled.div`
     gap: 4px;
     align-items: center;
   }
-.nickname {
-    color: #666666;
-    display: flex;
-    gap: 4px;
-    align-items: center;
-  }
 
-  .nickname-input {
+  .nickname {
+    color: #666666;
     display: flex;
     gap: 4px;
     align-items: center;
@@ -73,118 +59,82 @@ const ProfilePic = styled.div`
   }
 `;
 
-const RecordContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  justify-content: center;
-  
-  .recordItem:not(:last-child) {
-    border-right: 1px solid #dcdcdc;
-  }
-
-  .recordItem {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: center;
-    justify-content: center;
-  }
-`;
-
-const DescContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  .desc {
-    margin-bottom: 32px;
-  }
-
-  .moreinfo {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    color: #666666;
-  }
-`;
-
-export default function AlbaMemberProfile({userId}) {
+export default function AlbaMemberProfile({ userId }) {
   const { memberId } = useParams();
   const [member, setMember] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [nickname, setNickname] = useState('');
-  const [user, setUser] = useState(null); // 사용자 데이터 상태
 
-  
-  const id = memberId ?? sessionStorage.getItem('uid');
-  useEffect( () => {
-    fetchMemberInfo(userId);
-   }, []);
+  // 사용자 정보 가져오기
+  useEffect(() => {
+    const fetchMemberInfo = async (userId) => {
+      try {
+        const response = await axios.get(`/user/find?uid=${userId}`);
+        setMember(response.data);
+      } catch (error) {
+        console.error("사용자 정보 불러오기 실패:", error);
+      }
+    };
 
+    if (userId) {
+      fetchMemberInfo(userId);
+    }
+  }, [userId]); // userId가 변경될 때마다 실행
 
-  const fetchMemberInfo = (userId) => {
-    console.log("userId:",userId);
-    axios.get(`/user/find?uid=${userId}`).then((response) => {
-      console.log("Member 정보:",response.data);
-      setMember(response.data);
-      }).catch((error) => {
-        console.error("사용자 정보 불러오기에 실패했습니다." + error);
-      });    
-};
-  
-const mannerTemp = {
-  worst: { min: 0, max: 12.5, label: 'worst' },
-  bad: { min: 12.5, max: 30, label: 'bad' },
-  defTemp: { min: 30, max: 37.5, label: 'defTemp' },
-  warm: { min: 37.5, max: 42, label: 'warm' },
-  good: { min: 42, max: 50, label: 'good' },
-  hot: { min: 50, max: 99, label: 'hot' },
-}
-const getMannerTemp = (temp) => {
-  if (temp >= mannerTemp.worst.min && temp < mannerTemp.worst.max) {
-      return 'worst';
-  } else if (temp >= mannerTemp.bad.min && temp < mannerTemp.bad.max) {
-      return 'bad';
-  } else if (temp >= mannerTemp.defTemp.min && temp < mannerTemp.defTemp.max) {
-      return 'defTemp';
-  } else if (temp >= mannerTemp.warm.min && temp < mannerTemp.warm.max) {
-      return 'warm';
-  } else if (temp >= mannerTemp.good.min && temp < mannerTemp.good.max) {
-      return 'good';
-  } else if (temp >= mannerTemp.hot.min && temp < mannerTemp.hot.max) {
-      return 'hot';
-  }
-}
+  const mannerTemp = {
+    worst: { min: 0, max: 12.5, label: "worst" },
+    bad: { min: 12.5, max: 30, label: "bad" },
+    defTemp: { min: 30, max: 37.5, label: "defTemp" },
+    warm: { min: 37.5, max: 42, label: "warm" },
+    good: { min: 42, max: 50, label: "good" },
+    hot: { min: 50, max: 99, label: "hot" },
+  };
 
+  const getMannerTemp = (temp) => {
+    if (temp >= mannerTemp.worst.min && temp < mannerTemp.worst.max) {
+      return "worst";
+    } else if (temp >= mannerTemp.bad.min && temp < mannerTemp.bad.max) {
+      return "bad";
+    } else if (temp >= mannerTemp.defTemp.min && temp < mannerTemp.defTemp.max) {
+      return "defTemp";
+    } else if (temp >= mannerTemp.warm.min && temp < mannerTemp.warm.max) {
+      return "warm";
+    } else if (temp >= mannerTemp.good.min && temp < mannerTemp.good.max) {
+      return "good";
+    } else if (temp >= mannerTemp.hot.min && temp < mannerTemp.hot.max) {
+      return "hot";
+    }
+  };
 
-
+  if (!member) return null; // 데이터를 로드 중일 때는 아무것도 표시하지 않음
 
   return (
-    <>
-      <InnerContainer>
-        <ProfileContainer>
-          <ProfilePic>
-            <img src={member?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} alt="프로필 이미지" onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} />
-          </ProfilePic>
-          <div className="nameWrap">
-          <div className="name">            
-            {member?.username ?? "멤버이름"}<br></br>
-            <>
-            {member?.location
-                              ?.find(item => item.emd) // emd 필드가 있는 첫 번째 요소 찾기,당 요소의 emd 값 출력, 없으면 "지역" 출력
-                              ?.emd || "지역"} 
-            </>
+    <InnerContainer>
+      <ProfileContainer>
+        <ProfilePic>
+          <img
+            src={member?.profileImage?.url ?? "/images/default/defaultProfileImage.png"}
+            alt="프로필 이미지"
+            onError={(e) => (e.target.src = "/images/default/defaultProfileImage.png")}
+          />
+        </ProfilePic>
+        <div className="nameWrap">
+          <div className="name">
+            {member?.username ?? "멤버이름"}
+            <br />
+            {member?.location?.find((item) => item.emd)?.emd || "지역"}
           </div>
-          </div>
-
-          <div className="mannerTempWrap">{member?.position !== "MEMBER" && (
-              <p className="nannerTemp"><RoundFilter variant={getMannerTemp(user?.mannerTemp ?? 36.5)} title={`${user?.mannerTemp ?? '36.5'}℃`} />매너온도</p>
-            )}
-          </div>
-
-        </ProfileContainer>
-      </InnerContainer>
-
-    </>
+        </div>
+        <div className="mannerTempWrap">
+          {member?.position !== "MEMBER" && (
+            <p className="nannerTemp">
+              <RoundFilter
+                variant={getMannerTemp(member?.mannerTemp ?? 36.5)}
+                title={`${member?.mannerTemp ?? "36.5"}℃`}
+              />
+              매너온도
+            </p>
+          )}
+        </div>
+      </ProfileContainer>
+    </InnerContainer>
   );
 }
