@@ -117,7 +117,7 @@ export default function GroupAlbum(props) {
   const [images, setImages] = useState([]);
 
   const setDefaultImage = (e) => {
-    e.target.src = "/images/defaultGroupImage.png";
+    e.target.src = "/images/default/defaultGroupImage.png";
   }
 
   return (
@@ -145,7 +145,7 @@ export default function GroupAlbum(props) {
           <img width={24} src="/images/icon/cancel.svg" alt="cancel" />
         </div>
         <LargeImage>
-          <img src="/images/defaultGroupImage.png" onError={setDefaultImage} />
+          <img src="/images/default/defaultGroupImage.png" onError={setDefaultImage} />
         </LargeImage>
         <ImageList>
           <>
@@ -154,7 +154,7 @@ export default function GroupAlbum(props) {
             </div>
             {Array.from({ length: 10 }).map((_, i) => (
               <div className="tumbnail">
-                <img src="/images/defaultGroupImage.png" onError={setDefaultImage} />
+                <img src="/images/default/defaultGroupImage.png" onError={setDefaultImage} />
                 asdfadsf
               </div>
             ))}

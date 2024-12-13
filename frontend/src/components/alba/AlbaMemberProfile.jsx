@@ -191,7 +191,7 @@ console.log("AlbaMemberProfile userId:", userId);
       <InnerContainer>
         <ProfileContainer>
           <ProfilePic>
-            <img src={member?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt="프로필 이미지" onError={(e) => e.target.src = '/images/defaultProfileImage.png'} />
+            <img src={member?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} alt="프로필 이미지" onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} />
           </ProfilePic>
           <div className="nameWrap">
           <div className="name">            

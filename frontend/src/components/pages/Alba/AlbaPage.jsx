@@ -6,7 +6,7 @@ import FilterBar from "../../ui/FilterBar";
 import Button from "../../ui/Button";
 import AlbaListItem from "../../alba/AlbaListItem";
 import RoundFilter from "../../ui/RoundFilter";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import SearchBar from "../../ui/SearchBar";  
 import Radio from "../../ui/Radio";
 import LocationSearchModal from "../../ui/LocationSearchModal";
@@ -330,26 +330,11 @@ export default function AlbaPage(props) {
   ];
   
   useEffect(() => {
-    // Toolbar에서 이동한 경우 자동 검색 실행
     if (location.state?.fromToolbar) {
         handleSearch('');
     }
   }, []);
 
-
-// 사용자 정보를 가져오는 useEffect 추가
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const response = await axios.get("/api/auth/user");
-      setUser(response.data); // 사용자 정보 저장
-    } catch (error) {
-      console.error("로그인 정보를 가져오는데 실패했습니다:", error);
-    }
-  };
-
-  fetchUser();
-}, []);
 
   return (
     <Container>
@@ -378,7 +363,7 @@ useEffect(() => {
             <h4 className="title">근무 유형</h4>
             <div className="filterList">
               {workTypeData.map((item) => (
-                <div key={item.id}>
+                <div key={item.id} className="radioWrap">
                   <Radio
                     type="radio"
                     id={item.name}
@@ -397,7 +382,7 @@ useEffect(() => {
             <h4 className="title">하는 일</h4>
             <div className="filterList">
               {categoryData.map((item) => (
-                <div key={item.name}>
+                <div key={item.name} className="radioWrap">
                   <Radio
                     type="radio"
                     id={item.name}

@@ -5,7 +5,7 @@ import Modal from "../ui/Modal";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Breadcrumb from "../Breadcrumb";
+import Breadcrumb from "../ui/Breadcrumb";
 import InputText from "../ui/InputText";
 import { FaExclamationCircle } from "react-icons/fa";
 import { deleteFile } from "../../firebase";
@@ -304,7 +304,7 @@ export default function GroupPageLayout(props) {
         <SideBar>
           <div className="group-header" >
             <div className="group-image">
-              <img src={group.image?.url ?? '/images/defaultGroupImage.png'} alt={group.title} onError={(e) => e.target.src = '/images/defaultGroupImage.png'} />
+              <img src={group.image?.url ?? '/images/default/defaultGroupImage.png'} alt={group.title} onError={(e) => e.target.src = '/images/default/defaultGroupImage.png'} />
             </div>
             <div className="group-info">
               <h2 style={{ cursor: 'pointer' }} onClick={() => navigate(`/group/${group.id}`)}>{group.title ?? '(모임 제목)'}</h2>

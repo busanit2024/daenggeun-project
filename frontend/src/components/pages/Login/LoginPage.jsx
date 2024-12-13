@@ -8,21 +8,46 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useGetUserId from "../../../utils/useGetUserId"; 
 
+
 const Wrapper = styled.div`
+    margin-top:100px;
     display : flex;
     flex-direction: column;
     min-height: 100vh;
     padding: 20px;  
     align-items : center;
+    font-family: noto-sans;
 `;
 
 const LoginBox = styled.div`
-    width:40%;
+    border : 1px solid #dcdcdc;
+    border-radius:30px;
+    box-shadow: 0 4px 16px rgba(255, 123, 7, 0.1);
+    width: 500px;
     height : auto;
     display :flex;
     flex-direction : column;
     margin : 20px;
-    padding : 20px;
+    padding : 40px;
+    transition: transform 0.2s;
+
+    &:hover {
+        transform: translateY(-5px); 
+    }
+`;
+
+const LogoNText = styled.div`
+    display : flex;
+    flex-direction : horizontal;
+    align-items : center;
+    gap : 16px
+    font-weight: bold;
+
+    h3 {
+        font-size:22px;
+        margin : 6px 0 0 0;
+        line-height: 1;
+    }
 `;
 
 const PhoneErrorMsg = styled.div`
@@ -199,8 +224,10 @@ function LoginPage() {
     return (
         <Wrapper>
             <LoginBox>
-                <Logo variant="logoWithText"  />
-                <h3>로그인 / 회원가입</h3>
+                <LogoNText>
+                    <Logo variant="logoWithText"  />
+                    <h3>로그인 / 회원가입</h3>
+                </LogoNText>
                 <div id="sign-in-button"></div>
                 <InputText 
                     value={phone}
@@ -210,7 +237,7 @@ function LoginPage() {
                 <Spacing />
                 {errorMessage && <PhoneErrorMsg>{errorMessage}</PhoneErrorMsg>}
                 {!isCodeSent ? (
-                    <Button title="인증문자 받기" variant="white" onClick={requestVerificationCode} />
+                    <Button title="인증문자 받기" variant="login" onClick={requestVerificationCode} />
                 ) : (
                     <>
                         <InputText 
@@ -218,6 +245,7 @@ function LoginPage() {
                             onChange={(e) => setValue(e.target.value)}
                             placeholder="인증 코드를 입력하세요"
                         />
+                        <Spacing />
                         <Button title="인증하기" variant="white" onClick={verifyCode} />
                     </>
                 )}
@@ -229,7 +257,7 @@ function LoginPage() {
                     </StyledLink>
                 </StyledMsg>
                 <Spacing /><Spacing />                  
-                <Button title="기업회원 로그인" variant="white" />                          
+                <Button title="기업회원 로그인" variant="gray" />                          
             </LoginBox>
         </Wrapper>
     );
