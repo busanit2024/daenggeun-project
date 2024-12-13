@@ -170,21 +170,6 @@ const getMannerTemp = (temp) => {
 
 
 
-useEffect(() => {
-  // 사용자 정보 로드 (로그인 상태 확인 및 사용자 역할 확인)
-  const fetchUser = async () => {
-    try {
-      const response = await axios.get("/api/auth/user"); // 현재 사용자 정보 요청
-      setUser(response.data);
-    } catch (error) {
-      console.error("사용자 정보 불러오기 실패:", error);
-    }
-  };
-
-  fetchUser();
-  
-}, [id]);
-console.log("AlbaMemberProfile userId:", userId);
 
   return (
     <>
@@ -196,9 +181,11 @@ console.log("AlbaMemberProfile userId:", userId);
           <div className="nameWrap">
           <div className="name">            
             {member?.username ?? "멤버이름"}<br></br>
+            <>
             {member?.location
                               ?.find(item => item.emd) // emd 필드가 있는 첫 번째 요소 찾기,당 요소의 emd 값 출력, 없으면 "지역" 출력
                               ?.emd || "지역"} 
+            </>
           </div>
           </div>
 
