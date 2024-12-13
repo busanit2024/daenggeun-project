@@ -57,7 +57,7 @@ const MannerTempContainer = styled.div`
   .temp {
     font-size: 18px;
     font-weight: bold;
-    color: #007bff; /* 매너온도 색상 */
+    color:rgb(255, 0, 0); /* 매너온도 색상 */
   }
 `;
 
@@ -127,7 +127,7 @@ export default function AlbaMemberProfile({ userId }) {
       <MannerTempContainer>
         {member?.position !== "MEMBER" && (
           <>
-            <div className="temp">{member?.mannerTemp ?? "36.5"}℃</div>
+            <div className="temp">{member?.mannerTemp ?? "98.3"}℃</div>
             <div>매너온도</div>
           </>
         )}
