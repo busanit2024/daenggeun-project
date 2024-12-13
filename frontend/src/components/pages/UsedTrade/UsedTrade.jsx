@@ -10,6 +10,7 @@ import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../Breadcrumb";
 import SearchBar from "../../ui/SearchBar";
 import Card from "../../ui/Card";
+import { useArea } from "../../../context/AreaContext";
 
 const Container = styled.div`
   display: flex;
@@ -162,6 +163,7 @@ export default function UsedTrade(props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(3); // 한 번에 보이는 카드의 최대 수
   const [selectedCategory, setSelectedCategory] = useState("중고거래");
+  const { area, setArea } = useArea();
 
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
@@ -191,24 +193,61 @@ export default function UsedTrade(props) {
     const uid = sessionStorage.getItem('uid');
     setLoading(true);
 
-    // 모든 초기 데이터를 병렬로 가져오기
     Promise.all([
       axios.get(`/api/data/filter?name=busanJuso`),
-      // 사용자 위치 정보 가져오기 (로그인된 경우만)
       uid ? axios.get(`/user/${uid}`) : Promise.resolve(null)
     ])
       .then(([busanJusoResponse, userResponse]) => {
         const locationFilters = busanJusoResponse.data.locationFilters;
         setBusanJuso(locationFilters);
 
+        // 사용자 위치 정보가 있는 경우
         if (userResponse && userResponse.data.location?.length > 0) {
           const defaultLocation = userResponse.data.location[0];
+          const sigungu = defaultLocation.sigungu;
+          const emd = defaultLocation.emd || '';
+
+          // AreaContext도 함께 업데이트
+          setArea({
+            sigungu,
+            emd
+          });
+
           setSearchFilter(prev => ({
             ...prev,
             sido: "부산광역시",
-            sigungu: defaultLocation.sigungu,
-            emd: defaultLocation.emd || ''
+            sigungu,
+            emd
           }));
+
+          // emdList 초기화
+          const selectedLocation = locationFilters.find((item) => item.sigungu === sigungu);
+          if (selectedLocation) {
+            const emdNameList = selectedLocation.emd.map((item) => item.emd);
+            setEmdList(emdNameList);
+          }
+        } else if (currentLocation.sido && currentLocation.sigungu) {
+          const sigungu = currentLocation.sigungu;
+          
+          // AreaContext도 함께 업데이트
+          setArea({
+            sigungu,
+            emd: ''
+          });
+
+          setSearchFilter(prev => ({
+            ...prev,
+            sido: currentLocation.sido,
+            sigungu,
+            emd: ''
+          }));
+
+          // emdList 초기화
+          const selectedLocation = locationFilters.find((item) => item.sigungu === sigungu);
+          if (selectedLocation) {
+            const emdNameList = selectedLocation.emd.map((item) => item.emd);
+            setEmdList(emdNameList);
+          }
         }
         
         fetchTradeList(0);
@@ -219,37 +258,26 @@ export default function UsedTrade(props) {
       .finally(() => {
         setLoading(false);
       });
-  }, []); // 컴포넌트 마운트 시 한 번만 실행
-
-  useEffect(() => {
-    if (busanJuso && searchFilter.sigungu) {
-      const emdList = busanJuso.find((item) => item.sigungu === searchFilter.sigungu)?.emd;
-      const emdNameList = emdList?.map((item) => item.emd) || [];
-      setEmdList(emdNameList);
-    }
-  }, [searchFilter.sigungu, busanJuso]);
-
-  useEffect(() => {
-    if (currentLocation.sido && currentLocation.sigungu) {
-      setSearchFilter((prev) => ({ ...prev, sido: currentLocation.sido, sigungu: currentLocation.sigungu }));
-    }
   }, [currentLocation.sigungu]);
-
-  useEffect(() => {
-    setLoading(true);
-    fetchTradeList(0);
-  }, [searchFilter]);
-
-  useEffect(() => {
-    setLoading(true);
-    setSearchFilter((prev) => ({ ...prev, emd: '' }));
-    getEmdList(searchFilter.sigungu);
-    setIsFilterOpen(false);
-  }, [searchFilter.sigungu, busanJuso]);
 
   const resetFilter = () => {
     setLoading(true);
-    setSearchFilter((prev) => ({ ...prev, sido: currentLocation.sido, sigungu: currentLocation.sigungu, emd: '', sort: '', category: '' }));
+    
+    // AreaContext도 초기화
+    setArea({
+      sigungu: currentLocation.sigungu,
+      emd: ''
+    });
+
+    setSearchFilter((prev) => ({ 
+      ...prev, 
+      sido: currentLocation.sido, 
+      sigungu: currentLocation.sigungu, 
+      emd: '', 
+      sort: '', 
+      category: '' 
+    }));
+    
     setIsFilterOpen(false);
     setPage(0);
   };
@@ -289,20 +317,8 @@ export default function UsedTrade(props) {
       setHasNext(!response.data.last);
       setLoading(false);
     } catch (error) {
-      console.error("중고거래 리스를 불러오는데 실패했습니다." + error);
+      console.error("중고거래 리스트를 불러오는데 실패했습니다." + error);
       setLoading(false);
-    }
-  };
-
-  const getEmdList = (gu) => {
-    if (busanJuso) {
-      if (!gu) {
-        setEmdList([]);
-      } else {
-        const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
-        const emdNameList = emdList?.map((item) => item.emd);
-        setEmdList(emdNameList);
-      }
     }
   };
 
@@ -342,14 +358,31 @@ export default function UsedTrade(props) {
     console.log("선택 위치:", selectedLocation);
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
     
+    // searchFilter 업데이트
     setSearchFilter(prev => ({
-      ...prev,
-      sigungu,
-      emd: emd || ''
+        ...prev,
+        sido: "부산광역시",
+        sigungu,
+        emd: emd || ''
     }));
 
+    // emdList 업데이트
+    if (busanJuso) {
+        const selectedLocation = busanJuso.find((item) => item.sigungu === sigungu);
+        if (selectedLocation) {
+            const emdNameList = selectedLocation.emd.map((item) => item.emd);
+            setEmdList(emdNameList);
+        }
+    }
+
+    setIsFilterOpen(false);
     fetchTradeList(0);
   };
+
+  const routes = [
+    { path: "/", name: "홈" },
+    { path: "/usedTrade", name: "중고거래" },
+  ];
 
   // 검색어 필터링
   const filteredTrades = searchTerm ? tradeList.filter(trade => 
@@ -368,11 +401,6 @@ export default function UsedTrade(props) {
 
     return locationMatches && emdMatches;
   });
-
-  const routes = [
-    { path: "/", name: "홈" },
-    { path: "/usedTrade", name: "중고거래" },
-  ];
 
   return (
     <>
@@ -402,7 +430,11 @@ export default function UsedTrade(props) {
             </div>
             <div className="filterItem">
               <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center' }}>지역
-                <CustomSelect value={searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.value })}>
+                <CustomSelect 
+                  name="region"
+                  value={searchFilter.sigungu} 
+                  onChange={(e) => handleLocationSelect(`${e.target.value}`)}
+                >
                   <option value="">전지역</option>
                   {busanJuso.map((item) => (
                     <option key={item.sigungu} value={item.sigungu}>{item.sigungu}</option>
@@ -413,7 +445,19 @@ export default function UsedTrade(props) {
               <div className="filterList">
                 <p>{searchFilter.sido}</p>
                 <label className="radioWrap">
-                  <Radio name="gu" value={searchFilter.sigungu} checked={searchFilter.emd === ''} onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
+                  <Radio 
+                    name="gu" 
+                    value={searchFilter.sigungu} 
+                    checked={searchFilter.emd === ''} 
+                    onChange={() => {
+                      // AreaContext와 searchFilter 동시 업데이트
+                      setArea({
+                        sigungu: searchFilter.sigungu,
+                        emd: ''
+                      });
+                      setSearchFilter({ ...searchFilter, emd: '' });
+                    }} 
+                  />
                   {searchFilter.sigungu === '' ? "전지역" : searchFilter.sigungu}
                 </label>
                 <EmdFilterWrap open={isFilterOpen}>
@@ -425,7 +469,19 @@ export default function UsedTrade(props) {
                   }
                   {(emdList && searchFilter.emd === '') && emdList.map((dong) => (
                     <label key={dong} className="radioWrap">
-                      <Radio name="dong" value={dong} checked={searchFilter.emd === dong} onChange={() => setSearchFilter({ ...searchFilter, emd: dong })} />
+                      <Radio 
+                        name="dong" 
+                        value={dong} 
+                        checked={searchFilter.emd === dong} 
+                        onChange={() => {
+                          // AreaContext와 searchFilter 동시 업데이트
+                          setArea({
+                            sigungu: searchFilter.sigungu,
+                            emd: dong
+                          });
+                          setSearchFilter({ ...searchFilter, emd: dong });
+                        }} 
+                      />
                       {dong}
                     </label>
                   ))}

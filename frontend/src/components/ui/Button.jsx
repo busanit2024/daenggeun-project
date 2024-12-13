@@ -50,8 +50,9 @@ const StyledButton = styled.button`
 
             case 'login' :
                 return `
-                    background-color : rgba(255, 69, 0, 0.3);
-                    color : rgba(255, 69, 0);
+                    background-color : #ff6f0f24;
+                    color : #ff6f0f;
+                    font-weight: bold;
                 `;
 
             case 'danger' :
