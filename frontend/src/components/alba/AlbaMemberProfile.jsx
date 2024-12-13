@@ -181,9 +181,11 @@ const getMannerTemp = (temp) => {
           <div className="nameWrap">
           <div className="name">            
             {member?.username ?? "멤버이름"}<br></br>
+            <>
             {member?.location
                               ?.find(item => item.emd) // emd 필드가 있는 첫 번째 요소 찾기,당 요소의 emd 값 출력, 없으면 "지역" 출력
                               ?.emd || "지역"} 
+            </>
           </div>
           </div>
 
