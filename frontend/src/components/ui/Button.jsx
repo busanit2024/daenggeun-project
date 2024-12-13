@@ -4,12 +4,18 @@ import styled from "styled-components";
 const StyledButton = styled.button`
     padding : 8px 16px ;
     font-size : 16px;
+    font-weight: 500;
     border-width: 0px;
     border-radius: ${props => props.borderRadius || "5px"};
     cursor:pointer;
     height : 40px;
     width: ${props => props.width ? props.width : "auto"};
     flex-grow: ${props => props.grow ? 1 : 0};
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 0.8;
+    }
     
     ${props => {
         if (props.active) {
@@ -24,6 +30,9 @@ const StyledButton = styled.button`
                 background-color: #dcdcdc;
                 color: #666666;
                 cursor: default;
+                &:hover {
+                    opacity: 1;
+                }
             `
         }
 
@@ -50,9 +59,8 @@ const StyledButton = styled.button`
 
             case 'login' :
                 return `
-                    background-color : #ff6f0f24;
-                    color : #ff6f0f;
-                    font-weight: bold;
+                    background-color : #FFEBDD;
+                    color : #FF6F0F;
                 `;
 
             case 'danger' :
@@ -63,8 +71,8 @@ const StyledButton = styled.button`
 
             case 'findLocation' :
                 return `
-                    background-color : #ff6f0f24;
-                    color : #ff6f0f;
+                    background-color : #FFEBDD;
+                    color : #FF6F0F;
                 `;
             default:
                 return ``;

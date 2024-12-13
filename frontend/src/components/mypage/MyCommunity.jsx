@@ -6,21 +6,6 @@ import Button from "../ui/Button";
 import axios from "axios";
 
 
-const dummyData = {
-  id: 1,
-  title: '동네생활 제목',
-  content: '동네생활 내용',
-  images: [
-    { url: '/images/defaultGroupImage.png' }
-  ],
-  createdDate: '2021-09-01T00:00:00',
-  location: {
-    emd: '동네',
-    sigungu: '구'
-  },
-  category: '카테고리',
-};
-
 export default function MyCommunity() {
   const [communityList, setCommunityList] = useState([]);
   const [uid, setUid] = useState('');

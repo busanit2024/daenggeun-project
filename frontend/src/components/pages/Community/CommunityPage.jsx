@@ -6,7 +6,7 @@ import FilterBar from "../../ui/FilterBar";
 import CommunityListItem from "../../community/CommunityListItem"
 import Button from "../../ui/Button";
 import RoundFilter from "../../ui/RoundFilter";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import Modal from "../../ui/Modal";
 import SearchBar from "../../ui/SearchBar";
 import { useArea } from "../../../context/AreaContext";
@@ -219,7 +219,7 @@ export default function CommunityPage(props) {
             <div className="filterItem">
               <div className="filterList">
                 <label className="radioWrap" onClick={() => setSearchFilter({...searchFilter, category: '인기글'})} style={{ fontWeight: searchFilter.category === '인기글' ? 'bold' : 'normal' }}>
-                  <img src="images/favorite.png" style={{ height: '20px', width: '20px', marginRight: '-6px' }} />
+                  <img src="images/icon/favorite.png" style={{ height: '20px', width: '20px', marginRight: '-6px' }} />
                   인기글
                 </label>
                 <label className="radioWrap" onClick={() => setSearchFilter({...searchFilter, category: 'all'})} style={{ fontWeight: searchFilter.category === 'all' ? 'bold' : 'normal' }}>

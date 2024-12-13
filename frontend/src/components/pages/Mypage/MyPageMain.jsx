@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Button from "../../ui/Button";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 export const Wrapper = styled.div`
     display: flex;
@@ -59,6 +59,12 @@ export const UserInfoBox = styled.div`
             font-size: 16px;
             color: #666666;
         }
+    }
+
+    .location {
+        margin-top: -12px;
+        font-size: 16px;
+        color: #333333;
     }
 `;
 
@@ -121,6 +127,7 @@ export const ListContainer = styled.div`
 
 export default function MyPageMain(props) {
     const navigate = useNavigate();
+    const location = useLocation();
     const [user, setUser] = useState(null);
 
     useEffect(() => {
@@ -134,12 +141,16 @@ export default function MyPageMain(props) {
         });
     }, []);
 
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [location]);
+
     return (
         <Wrapper>
             <h1>마이페이지</h1>
             <UserInfoBox>
                 <div className="profileImage">
-                    <img src={user?.profileImage?.url ?? '/images/defaultProfileImage.png'} alt={user?.username} onError={(e) => e.target.src = '/images/defaultProfileImage.png'} />
+                    <img src={user?.profileImage?.url ?? '/images/default/defaultProfileImage.png'} alt={user?.username} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} />
                 </div>
 
                 <div className="userInfo">
@@ -148,6 +159,9 @@ export default function MyPageMain(props) {
                         <span className="uniqueCode">#{user?.uniqueCode ?? '000000'}</span>
                         {/* <span className="regDate">{calculateDate(user?.registeredDate) ?? ''} 전 가입</span> */}
                     </div>
+                    {user?.location && (
+                        <span className="location">{user.location[0].sigungu} {user.location[0].emd} </span>
+                    )}
                     <Button title="프로필 수정" onClick={() => navigate('edit')} />
                 </div>
             </UserInfoBox>

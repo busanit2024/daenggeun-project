@@ -4,7 +4,7 @@ import Button from "../../ui/Button";
 import InputText from "../../ui/InputText";
 import ImageUpload from "./ImageUpload";
 import { useNavigate } from "react-router-dom";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import useGeolocation from "../../../utils/useGeolocation";
 import { Item } from "../Group/GroupCreatePage";

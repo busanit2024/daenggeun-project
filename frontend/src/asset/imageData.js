@@ -2,7 +2,7 @@ const imageData = [
     {
         label : "Image 1",
         alt: "image1",
-        src: require("../images/main1.png"),
+        src: require("../images/main01.png"),
         text: (
             <>
                 <p style={{ fontSize: "3rem", margin: 0 }}>믿을만한</p>
@@ -12,11 +12,12 @@ const imageData = [
                 <h4 style={{ fontSize: "1.2rem", margin: 0 }}>지금 경험해보세요.</h4>
             </>
         ),
+        color: '#FFF1AA',
     },
     {
         label: "Image 2",
         alt: "image2",
-        src: require("../images/main2.png"),
+        src: require("../images/main02.png"),
         text: (
             <>
                 <p style={{ fontSize: "2.5rem", margin: 0 }}>동네 이웃들이</p>
@@ -26,11 +27,12 @@ const imageData = [
                 <h4 style={{ fontSize: "1.2rem", margin: 0 }}>이용하는 업체를 찾아보세요.</h4>
             </>
         ),
+        color: '#FFE2D2',
     },
     {
         label: "Image 3",
         alt: "image3",
-        src: require("../images/main3.png"),
+        src: require("../images/main03.png"),
         text: (
             <>
                 <p style={{fontSize: "2.5rem", margin: 0 }}>우리 동네에서 찾는</p>
@@ -40,6 +42,7 @@ const imageData = [
                 <h4 style={{ fontSize: "1.2rem", margin: 0 }}>동네 알바들 여기 다 있어요.</h4>
             </>
         ),
+        color: '#FFE2D2',
     },
 ];
 

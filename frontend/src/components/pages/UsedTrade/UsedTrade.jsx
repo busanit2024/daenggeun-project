@@ -7,9 +7,10 @@ import Button from "../../ui/Button";
 import Radio from "../../ui/Radio";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../ui/Breadcrumb";
 import SearchBar from "../../ui/SearchBar";
 import Card from "../../ui/Card";
+import categoryData from "../../../asset/categoryData";
 import { useArea } from "../../../context/AreaContext";
 
 const Container = styled.div`
@@ -150,7 +151,7 @@ export default function UsedTrade(props) {
     sigungu: "",
     emd: "",
     sort: "recent",
-    category: "all",
+    category: location.state?.category || "",
     tradeble: true,
   });
   const [busanJuso, setBusanJuso] = useState([]);
@@ -497,36 +498,15 @@ export default function UsedTrade(props) {
             <div className="filterItem">
               <h4 className="title">카테고리</h4>
               <CategoryList show={isCategoryOpen}>
-                {[
-                    "전자기기",
-                    "생활가전",
-                    "가구/인테리어",
-                    "생활/주방",
-                    "유아동",
-                    "유아도서",
-                    "여성의류",
-                    "여성잡화",
-                    "남성패션/잡화",
-                    "뷰티/미용",
-                    "스포츠/레저",
-                    "취미/게임/음반",
-                    "도서",
-                    "티켓/교환권",
-                    "가공식품",
-                    "건강기능식품",
-                    "반려동물용품",
-                    "식물",
-                    "기타",
-                    "삽니다"
-                ].map(category => (
-                  <CategoryItem key={category} className="radioWrap">
+                {categoryData.map(category => (
+                  <CategoryItem key={category.name} className="radioWrap">
                     <Radio
                       name="category"
-                      value={category}
-                      checked={searchFilter.category === category}
-                      onChange={() => selectCategory(category)}
+                      value={category.name}
+                      checked={searchFilter.category === category.name}
+                      onChange={() => selectCategory(category.name)}
                     />
-                    {category}
+                    {category.name}
                   </CategoryItem>
                 ))}
               </CategoryList>
