@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import logoOnly from '../../images/logo.png'; 
 import logoWithText from '../../images/Daangn_Signature_RGB.png';
+import danggn from '../../images/danggnlogo.png';
 
 const StyledLogo = styled.img`
    width : 100px;
@@ -18,6 +19,9 @@ const Logo = ({variant, onClick}) => {
             break;
         case 'logoWithText' :
             logoSrc = logoWithText;
+            break;
+        case 'danggn' :
+            logoSrc = danggn;
             break;
     }
 

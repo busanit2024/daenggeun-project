@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState } from 'react';
 const AreaContext = createContext();
 
 export const AreaProvider = ({ children }) => {
-    const [area, setArea] = useState({ sigungu: "해운대구", emd: "" }); 
+    const [area, setArea] = useState({ sigungu: "", emd: "" }); 
 
     return (
         <AreaContext.Provider value={{ area, setArea }}>
