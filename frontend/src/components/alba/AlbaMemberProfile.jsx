@@ -110,6 +110,7 @@ const DescContainer = styled.div`
 
 export default function AlbaMemberProfile({userId}) {
   const { memberId } = useParams();
+  console.log("useParams memberId:", memberId);
   const [member, setMember] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState('');
@@ -117,7 +118,7 @@ export default function AlbaMemberProfile({userId}) {
 
   
   const id = memberId ?? sessionStorage.getItem('uid');
-  
+  console.log("sessionStorage uid:", sessionStorage.getItem('uid'));
   useEffect( () => {
     fetchMemberInfo(userId);
    
@@ -130,6 +131,7 @@ export default function AlbaMemberProfile({userId}) {
 
 
   const fetchMemberInfo = (userId) => {
+    console.log("userId:",userId);
     axios.get(`/user/find?uid=${userId}`).then((response) => {
       console.log("Member 정보:",response.data);
       setMember(response.data);
@@ -182,6 +184,7 @@ useEffect(() => {
   fetchUser();
   
 }, [id]);
+console.log("AlbaMemberProfile userId:", userId);
 
   return (
     <>
@@ -193,7 +196,9 @@ useEffect(() => {
           <div className="nameWrap">
           <div className="name">            
             {member?.username ?? "멤버이름"}<br></br>
-            {member?.location?.emd ??  "지역"}
+            {member?.location
+                              ?.find(item => item.emd) // emd 필드가 있는 첫 번째 요소 찾기,당 요소의 emd 값 출력, 없으면 "지역" 출력
+                              ?.emd || "지역"} 
           </div>
           </div>
 
