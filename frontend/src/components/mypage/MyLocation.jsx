@@ -8,6 +8,50 @@ import axios from "axios";
 import { useArea } from "../../context/AreaContext";
 import Modal from "../ui/Modal";
 
+const MapSection = styled.div`
+  width: 100%;
+  height: 400px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 16px;
+`;
+
+const MapWrapper = styled.div`
+  flex: 1;
+  position: relative;
+`;
+
+const Sidebar = styled.div`
+  width: 160px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  h4 {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 8px 0;
+  }
+`;
+
+const LocationText = styled.div`
+  font-size: 14px;
+  color: #666;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f8f8f8;
+    color: #ff8a3d;
+  }
+`;
+
 const LocationButtonsContainer = styled.div`
   display: flex;
   gap: 16px;
@@ -18,15 +62,6 @@ const LocationButton = styled(Button)`
   flex: 1;
   height: 48px;
   position: relative;
-`;
-
-const MapContainer = styled.div`
-  width: 100%;
-  height: 400px;
-  margin-bottom: 24px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  overflow: hidden;
 `;
 
 export default function MyLocation() {
@@ -203,19 +238,56 @@ export default function MyLocation() {
   };
 
   return (
-    <>
+    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
       <ListContainer>
         <h3>내 동네 설정하기</h3>
-        <MapContainer>
-          <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+        <MapSection>
+          <MapWrapper>
             <GoogleMap
-              mapContainerStyle={{ width: '100%', height: '100%' }}
+              mapContainerStyle={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '8px',
+                border: '1px solid #ddd'
+              }}
               center={{ lat: 35.1795, lng: 129.0756 }}
               zoom={11}
               onLoad={onMapLoad}
             />
-          </LoadScript>
-        </MapContainer>
+          </MapWrapper>
+          <Sidebar>
+            <h4>설정된 동네</h4>
+            {locations.length > 0 ? (
+              locations.map((location, index) => (
+                <LocationText
+                  key={index}
+                  onClick={() => {
+                    if (map) {
+                      map.data.forEach(feature => {
+                        const fullName = feature.getProperty('adm_nm');
+                        const [sido, sgg, dong] = fullName.split(' ');
+                        
+                        if (sgg === location.sigungu && dong === location.emd) {
+                          const bounds = new window.google.maps.LatLngBounds();
+                          feature.getGeometry().forEachLatLng(latLng => bounds.extend(latLng));
+                          map.panTo(bounds.getCenter());
+                          map.setZoom(14);
+                        }
+                      });
+                    }
+                  }}
+                >
+                  {location.sigungu}
+                  {location.emd && ` ${location.emd}`}
+                </LocationText>
+              ))
+            ) : (
+              <LocationText style={{ color: '#999', cursor: 'default' }}>
+                설정된 동네가 없습니다
+              </LocationText>
+            )}
+          </Sidebar>
+        </MapSection>
         <LocationButtonsContainer>
           {[0, 1].map((index) => (
             <LocationButton
@@ -260,6 +332,6 @@ export default function MyLocation() {
           </div>
         </Modal>
       )}
-    </>
+    </LoadScript>
   );
 }
