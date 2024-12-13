@@ -4,58 +4,60 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import RoundFilter from "../ui/RoundFilter";
 
-const InnerContainer = styled.div`
+const CardContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 48px;
-  width: 100%;
-  padding: 24px 48px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px; /* 둥근 모서리 */
+  border: 1px solid #eaeaea; /* 테두리를 흰색 또는 투명으로 설정 */
+  box-shadow: none; /* 그림자 제거 */
 `;
 
 const ProfileContainer = styled.div`
   display: flex;
-  gap: 24px;
   align-items: center;
-
-  .nameWrap {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .mannerTempWrap {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .name {
-    font-size: 18px;
-    font-weight: bold;
-    display: flex;
-    gap: 4px;
-    align-items: center;
-  }
-
-  .nickname {
-    color: #666666;
-    display: flex;
-    gap: 4px;
-    align-items: center;
-  }
+  gap: 16px; /* 프로필 이미지와 이름 사이 간격 */
 `;
 
 const ProfilePic = styled.div`
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background-color: #dcdcdc;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%; /* 원형 이미지 */
   overflow: hidden;
+  background-color: #dcdcdc;
 
   & img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; /* 이미지 비율 유지 */
+  }
+`;
+
+const NameWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  font-weight: bold;
+
+  .location {
+    color: #666666;
+    font-size: 14px;
+    font-weight: normal;
+  }
+`;
+
+const MannerTempContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 14px;
+
+  .temp {
+    font-size: 18px;
+    font-weight: bold;
+    color: #007bff; /* 매너온도 색상 */
   }
 `;
 
@@ -63,7 +65,6 @@ export default function AlbaMemberProfile({ userId }) {
   const { memberId } = useParams();
   const [member, setMember] = useState(null);
 
-  // 사용자 정보 가져오기
   useEffect(() => {
     const fetchMemberInfo = async (userId) => {
       try {
@@ -77,7 +78,7 @@ export default function AlbaMemberProfile({ userId }) {
     if (userId) {
       fetchMemberInfo(userId);
     }
-  }, [userId]); // userId가 변경될 때마다 실행
+  }, [userId]);
 
   const mannerTemp = {
     worst: { min: 0, max: 12.5, label: "worst" },
@@ -104,10 +105,10 @@ export default function AlbaMemberProfile({ userId }) {
     }
   };
 
-  if (!member) return null; // 데이터를 로드 중일 때는 아무것도 표시하지 않음
+  if (!member) return null;
 
   return (
-    <InnerContainer>
+    <CardContainer>
       <ProfileContainer>
         <ProfilePic>
           <img
@@ -116,25 +117,21 @@ export default function AlbaMemberProfile({ userId }) {
             onError={(e) => (e.target.src = "/images/default/defaultProfileImage.png")}
           />
         </ProfilePic>
-        <div className="nameWrap">
-          <div className="name">
-            {member?.username ?? "멤버이름"}
-            <br />
+        <NameWrapper>
+          <div>{member?.username ?? "멤버이름"}</div>
+          <div className="location">
             {member?.location?.find((item) => item.emd)?.emd || "지역"}
           </div>
-        </div>
-        <div className="mannerTempWrap">
-          {member?.position !== "MEMBER" && (
-            <p className="nannerTemp">
-              <RoundFilter
-                variant={getMannerTemp(member?.mannerTemp ?? 36.5)}
-                title={`${member?.mannerTemp ?? "36.5"}℃`}
-              />
-              매너온도
-            </p>
-          )}
-        </div>
+        </NameWrapper>
       </ProfileContainer>
-    </InnerContainer>
+      <MannerTempContainer>
+        {member?.position !== "MEMBER" && (
+          <>
+            <div className="temp">{member?.mannerTemp ?? "36.5"}℃</div>
+            <div>매너온도</div>
+          </>
+        )}
+      </MannerTempContainer>
+    </CardContainer>
   );
 }
