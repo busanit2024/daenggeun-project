@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { GoogleMap, LoadScript } from '@react-google-maps/api';
 import { ListContainer } from "../pages/Mypage/MyPageMain";
 import LocationSearchModal from "../ui/LocationSearchModal";
 import Button from "../ui/Button";
@@ -19,14 +20,103 @@ const LocationButton = styled(Button)`
   position: relative;
 `;
 
+const MapContainer = styled.div`
+  width: 100%;
+  height: 400px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  overflow: hidden;
+`;
+
 export default function MyLocation() {
   const [locations, setLocations] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [map, setMap] = useState(null);
   const uid = sessionStorage.getItem('uid');
   const { setArea } = useArea();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
+
+  const onMapLoad = (map) => {
+    setMap(map);
+    
+    try {
+      const center = { lat: 35.1795, lng: 129.0756 };
+      
+      // 지도 옵션 설정
+      map.setCenter(center);
+      map.setZoom(11); 
+      
+      // 지도 이동 제한 설정
+      const bounds = new window.google.maps.LatLngBounds(
+        { lat: 34.8937, lng: 128.7432 }, 
+        { lat: 35.3839, lng: 129.3147 }  
+      );
+      map.setOptions({
+        restriction: {
+          latLngBounds: bounds,
+          strictBounds: false
+        },
+        minZoom: 11,  
+        maxZoom: 15
+      });
+
+      // 기본 스타일 설정
+      map.data.setStyle({
+        fillColor: '#ffffff',
+        fillOpacity: 0, 
+        strokeWeight: 0,  
+        strokeColor: 'transparent',
+        strokeOpacity: 0
+      });
+
+      // GeoJSON 데이터 로드
+      fetch('/data/hangjeongdong_busan.geojson')
+        .then(response => response.json())
+        .then(data => {
+          map.data.addGeoJson(data);
+          updateMapStyles(map, locations);
+        })
+        .catch(error => {
+          console.error("GeoJSON 데이터 로드 실패:", error);
+        });
+
+    } catch (error) {
+      console.error("지도 초기화 실패:", error);
+    }
+  };
+
+  const updateMapStyles = (map, locations) => {
+    if (!map) return;
+    
+    map.data.setStyle(feature => {
+      const fullName = feature.getProperty('adm_nm');
+      const [sido, sgg, emd] = fullName.split(' ');
+      
+      const isFirstLocation = locations[0] && (locations[0].sigungu === sgg && locations[0].emd === emd);
+      const isSecondLocation = locations[1] && (locations[1].sigungu === sgg && locations[1].emd === emd);
+      
+      return {
+        fillColor: isFirstLocation ? '#ff8a3d' : 
+                  isSecondLocation ? '#ffd8b8' : 
+                  '#ffffff',
+        fillOpacity: isFirstLocation ? 0.5 : 
+                  isSecondLocation ? 0.5 : 
+                  0,  
+        strokeWeight: isFirstLocation || isSecondLocation ? 2 : 0,  
+        strokeColor: isFirstLocation ? '#ff8a3d' : 
+                    isSecondLocation ? '#ff8a3d' : 
+                    'transparent',  
+        strokeOpacity: isFirstLocation || isSecondLocation ? 1 : 0
+      };
+    });
+  };
+
+  useEffect(() => {
+    updateMapStyles(map, locations);
+  }, [map, locations]);
 
   useEffect(() => {
     const fetchUserLocations = async () => {
@@ -45,6 +135,7 @@ export default function MyLocation() {
 
   const handleLocationSelect = async (selectedLocation) => {
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+    console.log('선택된 위치:', { sigungu, emd }); // 디버깅 추가
     
     if (locations.length >= 2 && selectedIndex === null) {
       alert("동네는 최대 2개까지만 설정할 수 있습니다.");
@@ -115,6 +206,16 @@ export default function MyLocation() {
     <>
       <ListContainer>
         <h3>내 동네 설정하기</h3>
+        <MapContainer>
+          <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+            <GoogleMap
+              mapContainerStyle={{ width: '100%', height: '100%' }}
+              center={{ lat: 35.1795, lng: 129.0756 }}
+              zoom={11}
+              onLoad={onMapLoad}
+            />
+          </LoadScript>
+        </MapContainer>
         <LocationButtonsContainer>
           {[0, 1].map((index) => (
             <LocationButton
