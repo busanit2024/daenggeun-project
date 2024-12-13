@@ -104,13 +104,7 @@ const AlbaDetail = () => {
           <div className="profile-info">
             <AlbaMemberProfile userId={job.userId} />
           </div>
-          {/* 수정 및 삭제 버튼 (작성자와 관리자만 볼 수 있음) */}
-          {isAuthor && (
-              <>
-              <Button type="edit-button" title="수정" variant="gray" onClick={handleEdit} />
-              <Button type="delete-button" title="삭제" variant="danger" onClick={handleDelete} />
-              </>
-          )}
+          
           </div>
 
         {/* 우측 영역 */}
@@ -144,15 +138,11 @@ const AlbaDetail = () => {
           </div>
 
           {/* 수정 및 삭제 버튼 (작성자와 관리자만 볼 수 있음) */}
-          {false && (
-            <div className="detail-actions">
-              <button className="edit-button" onClick={handleEdit} variant="primary">
-                수정하기
-              </button>
-              <button className="delete-button" onClick={handleDelete}>
-                삭제하기
-              </button>
-            </div>
+          {isAuthor && (
+              <>
+              <Button type="edit-button" title="수정" variant="primary" onClick={handleEdit} />
+              <Button type="delete-button" title="삭제" variant="secondary" onClick={handleDelete} />
+              </>
           )}
 
           <div className="detail-map">
