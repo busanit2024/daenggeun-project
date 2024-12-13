@@ -1,15 +1,13 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
 import RoundFilter from "../../ui/RoundFilter";
-import { multipleFileUpload } from "../../../firebase";
 import Breadcrumb from "../../Breadcrumb";
-import { useNavigate } from "react-router-dom";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
-import { deleteFiles } from "../../../firebase";
+import { deleteFiles, deleteFile, multipleFileUpload } from "../../../firebase";
+import { useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -88,19 +86,18 @@ const FileInputContainer = styled.div`
   gap: 16px;
 `;
 
-const CustomFileInput = styled.div`
-  display: flex;
-  width: 160px;
-  height: 160px;
-  border: 1px solid #cccccc;
-  border-radius: 8px;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+const CustomFileUpload = styled.input`
+  display: none; 
 
-  .camera-icon {
-    width: 50%;
-    height: 50%;
+  & + label {
+    width: 160px;
+    height: 160px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
   }
 `;
 
@@ -120,32 +117,41 @@ export const DongneSelect = styled.select`
 `;
 
 const ImagePreview = styled.div`
+
+  position: relative;
+
+  & .imageWrap {
+    display: flex;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
   width: 160px;
   height: 160px;
-  border: 1px solid #cccccc;
-  border-radius: 8px;
-  position: relative;
-  
-  .preview {
+  align-items: center;
+  justify-content: center;
+
+  }
+
+  img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 8px;
   }
 
-  .delete-button {
+  & .delete {
+    width: 20px;
+    height: 20px;
     position: absolute;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     top: -8px;
     right: -8px;
     background-color: black;
-    border: none;
-    cursor: pointer;
+    color: white;
+    padding: 4px;
     border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 `;
 
@@ -167,8 +173,8 @@ export default function CommunityEditPage(props) {
     const [locationData, setLocationData] = useState({sigungu: [], emd: []});
     const [sigungu, setSigungu] = useState("");
     const [emd, setEmd] = useState("");
-    const [imageIndex, setImageIndex] = useState(0);    
-
+    const [images, setImages] = useState([]);
+    const [deleteImages, setDeleteImages] = useState([]);
     const [input, setInput] = useState({
         title: '',
         content: '',
@@ -183,9 +189,6 @@ export default function CommunityEditPage(props) {
             url: ""
         }
     });
-
-    const [addImage, setAddImage] = useState([]); // 기본값으로 빈 배열 설정
-    const [image, setImage] = useState([]); // 기본값으로 빈 배열 설정    
     const [inputCheck, setInputCheck] = useState({ title: false, content: false, category: false});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -232,35 +235,20 @@ export default function CommunityEditPage(props) {
         getEmdList(sigungu);
     }, [sigungu]);
     
-    // useEffect(() => {        
-    //     if (busanJuso) {
-    //         if (currentLocation.sigungu) {
-    //             // setInput({ ...input, location: { ...input.location, sigungu: currentLocation.sigungu } });
-    //             setSigungu(currentLocation.sigungu);
-    //         } else {
-    //             // setInput({ ...input, location: { ...input.location, sigungu: locationData.sigungu?.[0] } });
-    //             setSigungu(locationData.sigungu?.[0]);
-    //         }
-    //     }
-    // }, [currentLocation, busanJuso]);
-
     useEffect(() => {
         axios.get(`/api/community/view/${communityId}`).then((response) => {
             setInput(response.data);
             // 동네 값 설정
             setSigungu(response.data.location.sigungu);
             setEmd(response.data.location.emd);
+            // 이미지 URL 설정
+            setImages(response.data.images); // 이미지 배열을 상태에 설정
             console.log(response.data.images);
-            setImage(response.data.images);
-            // setDbImage(prevImages => [...prevImages, ...response.data.images]);
             console.log(response.data.images.length);
-            setImageIndex(response.data.images.length);
-
-            
-          })
-          .catch((error) => {
-              console.error("동네생활 정보를 불러오는데 실패했습니다." + error);
-          });
+        })
+        .catch((error) => {
+            console.error("동네생활 정보를 불러오는데 실패했습니다." + error);
+        });
     }, []);
 
 
@@ -287,65 +275,46 @@ export default function CommunityEditPage(props) {
         return newCheck;
     }
 
-    const handleImageChange = (e) => {
-        const files = Array.from(e.target.files);
-        setAddImage(prevImages => [...prevImages, ...files]);
-        setImage(prevImages => [...prevImages, ...files]);
-        setImageIndex(imageIndex+files.length);
+    const handleImageUpload = (e) => {
+        const files = e.target.files;
+        const fileArray = Array.from(files);
+        setImages((prev) => [...prev, ...fileArray]);
+      }
+    
+    const handleDeleteImage = (image, index) => {
+    if (image.filename) {
+        setDeleteImages((prev) => [...prev, image.filename]);
     }
 
-    const handleCustomFileInputClick = () => {
-        document.querySelector('input[type="file"]').click();
+    setImages((prev) => prev.filter((_, i) => i !== index));
     }
 
-    const handleImageDelete = async (index) => { // async 추가
-        const imageToDelete = image[index];
+    const getImageUrl = (image) => {
+    if (image.url) {
+        return image.url;
+    }
+    return URL.createObjectURL(image);
+    }
+
+    const handleUpload = async () => {
         try {
-            if (input.images && input.images.length > 0) { // community를 props로 변경
-                await deleteFiles(input.images.map(image => ({ filename: image.filename }))); // community를 props로 변경
-            }
-            // imageToDelete.filename을 deleteFiles에 포함시키지 않으므로, 단일 파일 삭제는 필요 없음
-            setImage(prevImages => prevImages.filter((_, i) => i !== index));
-        } catch (error) {
-            console.error("이미지 삭제 실패", error);
-        }
-    };
-
-    const EditCommunity = async () => {
-        if (input.id === null) {
-            alert("유효하지 않은 커뮤니티입니다."); // id가 없을 경우 경고
-            return; // id가 없으면 함수 종료
-            }
-        if (input.category === "") {
-            alert("카테고리를 선택해주세요.");
-            return; // 카테고리가 선택되지 않았으면 함수 종료
-        }
-        let imageInfo = null;
-        try {
-            // let imageInfo = null;
-            if (addImage.length > 0) {
-                imageInfo = await multipleFileUpload(addImage);
-            } else {
-                imageInfo = image;
-            }
-
-            const userId = sessionStorage.getItem('uid');
-
-            console.log("input Data: ", input);
+            await deleteFiles(deleteImages); // 삭제할 이미지 파일 삭제
+            const uploadedImages = await multipleFileUpload(images); // 이미지 업로드
+            setInput((prev) => ({ ...prev, images: uploadedImages })); // 업로드된 이미지로 input 업데이트
             
-            const response = await axios.put(`/api/community/update`, {
+            const response = await axios.put(`/api/community/update`, { // 게시글 수정 요청
                 ...input,
                 location: {
                     sigungu: sigungu,
                     emd: emd
                 },
-                images: imageInfo
+                images: uploadedImages
             });
-            // alert("글이 수정되었습니다.");
-            // navigate("/community");
+            alert("게시글이 수정되었습니다."); // 수정 완료 알림
+            navigate("/community"); // 커뮤니티 페이지로 이동
         } catch (error) {
-            alert("글 수정에 실패했습니다.");
-            console.error(error);
+            console.error('글 수정에 실패했습니다.' + error); // 오류 로그
+            alert("게시글 수정에 실패했습니다. 다시 시도해주세요."); // 오류 알림
         }
     }
 
@@ -435,33 +404,26 @@ export default function CommunityEditPage(props) {
             <Item>
                 <h2>이미지 첨부</h2>
                 <FileInputContainer>
-                    <input style={{display: "none"}} type="file" onChange={handleImageChange} multiple/>
-                    <CustomFileInput onClick={handleCustomFileInputClick}>
-                        <img className="camera-icon" src="/images/icon/camera.svg" alt="이미지 첨부" />
-                    </CustomFileInput>
-                    {image && Object.values(image).map((item, index) => {
-                        console.log("item: ",item);
-                        console.log("item.url: ",item.url);
-                        return (<ImagePreview>
-                            <img key={index} className="preview" src={item.url} alt="첨부된 이미지" />
-                            <button className="delete-button" onClick={() => handleImageDelete(index)}>
-                            <img src="/images/icon/cancel.svg" alt="삭제" />
-                            </button>
-                        </ImagePreview>);
-                    })}
-                    {addImage && Object.values(addImage).map((item, index) => {                        
-                        return (<ImagePreview>
-                            <img key={index} className="preview" src={URL.createObjectURL(item)} alt="첨부된 이미지" />
-                            <button className="delete-button" onClick={() => handleImageDelete(index)}>
-                            <img src="/images/icon/cancel.svg" alt="삭제" />
-                            </button>
-                        </ImagePreview>);
-                    })}
+                <CustomFileUpload type="file" id="image" multiple onChange={handleImageUpload} />
+                <label htmlFor="image">
+                    <img src="/images/icon/camera.svg" alt="이미지 업로드" />
+                </label>
+                {images.map((image, index) => (
+                    <ImagePreview key={index}>
+                    <div className="imageWrap">
+                        <img src={getImageUrl(image)} alt="이미지 미리보기" />
+                    </div>
+                    <div className="delete" onClick={() => handleDeleteImage(image, index)}>
+
+                        <img src="/images/icon/cancel.svg" alt="삭제" />
+                    </div>
+                    </ImagePreview>
+                ))}
                 </FileInputContainer>
             </Item>
 
             <ButtonContainer>
-                <Button title="수정하기" variant="primary" grow onClick={EditCommunity} />
+                <Button title="수정하기" variant="primary" grow onClick={handleUpload} />
             </ButtonContainer>
         </Container>
         </>
