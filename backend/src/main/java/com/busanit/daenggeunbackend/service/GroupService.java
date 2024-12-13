@@ -25,6 +25,7 @@ import java.time.ZoneId;
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gte;
 import static org.springframework.data.mongodb.core.aggregation.BooleanOperators.Or.or;
 import static org.springframework.data.mongodb.core.query.TypedCriteriaExtensionsKt.elemMatch;
 
@@ -298,6 +299,23 @@ public class GroupService {
 
     Aggregation aggregation = Aggregation.newAggregation(matchOperation, sortOperation);
 
+    List<GroupPost> results = mongoTemplate.aggregate(aggregation, "groupPost", GroupPost.class).getMappedResults();
+    boolean hasNext = results.size() == pageable.getPageSize();
+
+    Slice<GroupPost> groupPosts = new SliceImpl<>(results, pageable, hasNext);
+    return GroupPostDTO.toDTO(groupPosts);
+  }
+
+  public Slice<GroupPostDTO> getGroupPostWithImageSlice(String groupId, Pageable pageable ) {
+    Criteria criteria = new Criteria()
+            .andOperator(
+                    Criteria.where("groupId").is(groupId),
+                    Criteria.where("images.0").exists(true)
+            );
+    MatchOperation matchOperation = Aggregation.match(criteria);
+    SortOperation sortOperation = Aggregation.sort(Sort.by(Sort.Direction.DESC, "createdDate"));
+
+    Aggregation aggregation = Aggregation.newAggregation(matchOperation, sortOperation);
     List<GroupPost> results = mongoTemplate.aggregate(aggregation, "groupPost", GroupPost.class).getMappedResults();
     boolean hasNext = results.size() == pageable.getPageSize();
 
