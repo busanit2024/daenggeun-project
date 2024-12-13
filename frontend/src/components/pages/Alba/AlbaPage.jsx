@@ -330,26 +330,11 @@ export default function AlbaPage(props) {
   ];
   
   useEffect(() => {
-    // Toolbar에서 이동한 경우 자동 검색 실행
     if (location.state?.fromToolbar) {
         handleSearch('');
     }
   }, []);
 
-
-// 사용자 정보를 가져오는 useEffect 추가
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const response = await axios.get("/api/auth/user");
-      setUser(response.data); // 사용자 정보 저장
-    } catch (error) {
-      console.error("로그인 정보를 가져오는데 실패했습니다:", error);
-    }
-  };
-
-  fetchUser();
-}, []);
 
   return (
     <Container>
