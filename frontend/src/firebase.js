@@ -54,10 +54,12 @@ const singleFileUpload = async (file) => {
   if (file.filename) {
     return {url: file.url, filename: file.filename};
   }
+
   const compressedFile = await compressImage(file);
+  const fileExt = compressedFile.name.split('.').pop();
   const imageFile = await makeDataUrl(compressedFile);
   const uuid = uuidv4();
-  const filename = `${uuid}`;
+  const filename = `${uuid}.${fileExt}`;
   const storageRef = ref(storage, `image/${filename}`);
   try {
     const snapshot = await uploadString(storageRef, imageFile, 'data_url');
