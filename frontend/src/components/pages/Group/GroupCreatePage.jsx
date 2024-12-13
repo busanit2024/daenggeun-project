@@ -11,6 +11,7 @@ import Breadcrumb from "../../ui/Breadcrumb";
 import { useJsApiLoader } from "@react-google-maps/api";
 import useGeolocation from "../../../utils/useGeolocation";
 import InputText from "../../ui/InputText";
+import LocationSearchModal from "../../ui/LocationSearchModal";
 
 
 export const Container = styled.div`
@@ -196,11 +197,10 @@ const libraries = ['places'];
 
 export default function GroupCreatePage(props) {
   const navigate = useNavigate();
-
+  const uid = sessionStorage.getItem('uid');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryData, setCategoryData] = useState([]);
   const [rangeData, setRangeData] = useState([]);
-  const [busanJuso, setBusanJuso] = useState(null);
-  const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
   const [nickname, setNickName] = useState("");
 
   const [step, setStep] = useState(1);
@@ -214,7 +214,7 @@ export default function GroupCreatePage(props) {
     requireApproval: false,
     requireIdCheck: false,
     useNickname: false,
-    location: { sido: "부산광역시", sigungu: "", emd: "" } // 로그인 구현될 때까지 임시 위치
+    location: { sido: "부산광역시", sigungu: "", emd: "" }
   });
 
   const [ageInput, setAgeInput] = useState(false);
@@ -232,8 +232,6 @@ export default function GroupCreatePage(props) {
     region: 'KR',
   });
 
-  const currentLocation = useGeolocation(isJsApiLoaded);
-
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
       setCategoryData(response.data.filters);
@@ -247,20 +245,31 @@ export default function GroupCreatePage(props) {
       console.error("동네 범위를 불러오는데 실패했습니다." + error);
     });
 
-    axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
-      const juso = response.data.locationFilters;
-      setBusanJuso(juso);
-      const guList = juso?.map((item) => item.sigungu);
-
-      setLocationData((prevLocationData) => ({
-        ...prevLocationData,
-        sigungu: guList,
-      }));
-
-    }).catch((error) => {
-      console.error("동네 리스트를 불러오는데 실패했습니다." + error);
-    });
   }, []);
+
+  useEffect(() => {
+          const fetchUserLocation = async () => {
+              try {
+                  const response = await axios.get(`/user/${uid}`);
+                  const userLocations = response.data.location || [];
+                  
+                  if (userLocations[0]) {
+
+                    setInput({ ...input, location: { sigungu: userLocations[0].sigungu, emd: userLocations[0].emd } });
+                  } else if (userLocations[1]) {
+                      setInput({ ...input, location: { sigungu: userLocations[1].sigungu, emd: userLocations[1].emd } });
+                  }
+              } catch (error) {
+                  console.error("위치 정보를 불러오는데 실패했습니다:", error);
+              }
+          };
+  
+          if (uid) {
+              fetchUserLocation();
+          } else {
+              setInput({ ...input, location: { sigungu: "부산진구", emd: "" } });
+          }
+      }, [uid]);
 
   useEffect(() => {
     if (isSubmitting) {
@@ -274,35 +283,6 @@ export default function GroupCreatePage(props) {
       setInput({ ...input, ageRange: `${ageInputValue.min}세~${ageInputValue.max}세` });
     }
   }, [ageInputValue, ageInput]);
-
-  useEffect(() => {
-    getEmdList(input.location.sigungu);
-  }, [input.location.sigungu]);
-
-  useEffect(() => {
-    if (busanJuso) {
-      if (currentLocation.sigungu) {
-        setInput({ ...input, location: { ...input.location, sigungu: currentLocation.sigungu } });
-      } else {
-        setInput({ ...input, location: { ...input.location, sigungu: locationData.sigungu?.[0] } });
-      }
-    }
-  }, [currentLocation, busanJuso]);
-
-
-  const getEmdList = (sigungu) => {
-    if (busanJuso) {
-      const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
-      const emdNameList = emdList?.map((item) => item.emd);
-      setLocationData({ ...locationData, emd: emdNameList });
-      if (currentLocation.emd !== "") {
-        setInput({ ...input, location: { ...input.location, emd: currentLocation.emd } });
-      } else {
-        setInput({ ...input, location: { ...input.location, emd: emdNameList?.[0] } });
-      }
-    }
-  };
-
 
   const validateInput = () => {
     const newCheck = { title: false, description: false, category: false, maxMember: false, age: false };
@@ -375,6 +355,22 @@ export default function GroupCreatePage(props) {
     };
   }
 
+  const handleLocationSelect = (selectedLocation) => {
+    if (typeof selectedLocation === 'string') {
+        const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+    
+        if (emd) {
+            setInput({ ...input, location: { sigungu, emd } });
+        } else {
+            setInput({ ...input, location: { sigungu, emd: "" } });
+        }
+        setIsModalOpen(false);
+
+    } else {
+        console.error("선택된 위치가 문자열이 아닙니다:", selectedLocation);
+    }
+};
+
   const setNextStep = (nextStep) => {
     setIsSubmitting(true);
     const check = validateInput();
@@ -407,21 +403,21 @@ export default function GroupCreatePage(props) {
       <Item>
         <h4>동네</h4>
         <DongneSelectContainer>
-          <div style={{ fontSize: '20px', color: '#666666' }}>부산광역시</div>
-          <DongneSelect value={input.location.sigungu} onChange={(e) => setInput({ ...input, location: { ...input.location, sigungu: e.target.value } })}>
-            {
-              locationData.sigungu?.map((item) => (
-                <option key={item} value={item}>{item}</option>
-              ))}
-          </DongneSelect>
-          <DongneSelect value={input.location.emd} onChange={(e) => setInput({ ...input, location: { ...input.location, emd: e.target.value } })}>
-            {locationData.emd?.map((item) => (
-              <option key={item} value={item}>{item}</option>
-            ))}
-          </DongneSelect>
+          <InputContainer style={{width: '360px'}}>
+            <Input type="text" value={`${input.location.sigungu}, ${input.location.emd}`} readOnly />
+          </InputContainer>
+
+          <Button title="검색하기" onClick={() => setIsModalOpen(true)} />
         </DongneSelectContainer>
 
       </Item>
+
+      {isModalOpen && (
+                <LocationSearchModal 
+                    onSelect={handleLocationSelect} 
+                    onClose={() => setIsModalOpen(false)} 
+                />
+            )}
 
 
       <Item>
