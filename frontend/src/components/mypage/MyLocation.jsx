@@ -8,7 +8,20 @@ import axios from "axios";
 import { useArea } from "../../context/AreaContext";
 import Modal from "../ui/Modal";
 
+const LocationButtonsContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+`;
+
+const LocationButton = styled(Button)`
+  flex: 1;
+  height: 48px;
+  position: relative;
+`;
+
 const MapSection = styled.div`
+  position: relative;
   width: 100%;
   height: 400px;
   margin-bottom: 24px;
@@ -18,13 +31,16 @@ const MapSection = styled.div`
 
 const MapWrapper = styled.div`
   flex: 1;
-  position: relative;
+  border-radius: 8px 0 0 8px;
+  border: 1px solid #ddd;
+  border-right: none;
+  overflow: hidden;
 `;
 
 const Sidebar = styled.div`
   width: 160px;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 0 8px 8px 0;
   border: 1px solid #ddd;
   padding: 16px;
   display: flex;
@@ -35,6 +51,7 @@ const Sidebar = styled.div`
     font-size: 14px;
     color: #666;
     margin: 0 0 8px 0;
+    font-weight: 600;
   }
 `;
 
@@ -52,17 +69,18 @@ const LocationText = styled.div`
   }
 `;
 
-const LocationButtonsContainer = styled.div`
-  display: flex;
-  gap: 16px;
-  margin-top: 16px;
-`;
-
-const LocationButton = styled(Button)`
-  flex: 1;
-  height: 48px;
-  position: relative;
-`;
+// 동 이름 형식을 통일하는 함수 추가
+const normalizeEmdName = (emdName) => {
+  if (!emdName) return '';
+  
+  // "제1" -> "1", "제2" -> "2" 변환
+  return emdName
+    .replace(/제(\d+)/g, '$1')  // "제1" -> "1"
+    .replace(/(\d+)제/g, '$1')  // "1제" -> "1"
+    .replace(/첫번째/g, '1')
+    .replace(/두번째/g, '2')
+    .replace(/세번째/g, '3');
+};
 
 export default function MyLocation() {
   const [locations, setLocations] = useState([]);
@@ -111,7 +129,21 @@ export default function MyLocation() {
       fetch('/data/hangjeongdong_busan.geojson')
         .then(response => response.json())
         .then(data => {
+          console.log("GeoJSON 데이터 구조:", data.features.map(f => ({
+            original: f.properties.adm_nm,
+            split: f.properties.adm_nm.split(' ')
+          })));
           map.data.addGeoJson(data);
+          
+          if (locations.length > 0) {
+            locations.forEach(loc => {
+              console.log("현재 선택된 위치:", {
+                sigungu: loc.sigungu,
+                emd: loc.emd,
+                sigunguWithoutSuffix: loc.sigungu.replace(/[구군]$/, '')
+              });
+            });
+          }
           updateMapStyles(map, locations);
         })
         .catch(error => {
@@ -129,21 +161,23 @@ export default function MyLocation() {
     map.data.setStyle(feature => {
       const fullName = feature.getProperty('adm_nm');
       const [sido, sgg, emd] = fullName.split(' ');
+      const cleanSgg = sgg.replace(/[구군]$/, '');
       
-      const isFirstLocation = locations[0] && (locations[0].sigungu === sgg && locations[0].emd === emd);
-      const isSecondLocation = locations[1] && (locations[1].sigungu === sgg && locations[1].emd === emd);
+      const isFirstLocation = locations[0] && 
+        cleanSgg === locations[0].sigungu.replace(/[구군]$/, '') &&
+        (!locations[0].emd || normalizeEmdName(emd) === normalizeEmdName(locations[0].emd));
       
+      const isSecondLocation = locations[1] && 
+        cleanSgg === locations[1].sigungu.replace(/[구군]$/, '') &&
+        (!locations[1].emd || normalizeEmdName(emd) === normalizeEmdName(locations[1].emd));
+
       return {
         fillColor: isFirstLocation ? '#ff8a3d' : 
                   isSecondLocation ? '#ffd8b8' : 
                   '#ffffff',
-        fillOpacity: isFirstLocation ? 0.5 : 
-                  isSecondLocation ? 0.5 : 
-                  0,  
-        strokeWeight: isFirstLocation || isSecondLocation ? 2 : 0,  
-        strokeColor: isFirstLocation ? '#ff8a3d' : 
-                    isSecondLocation ? '#ff8a3d' : 
-                    'transparent',  
+        fillOpacity: isFirstLocation || isSecondLocation ? 0.5 : 0,
+        strokeWeight: isFirstLocation || isSecondLocation ? 2 : 0,
+        strokeColor: isFirstLocation || isSecondLocation ? '#ff8a3d' : 'transparent',
         strokeOpacity: isFirstLocation || isSecondLocation ? 1 : 0
       };
     });
@@ -157,6 +191,7 @@ export default function MyLocation() {
     const fetchUserLocations = async () => {
       try {
         const response = await axios.get(`/user/${uid}`);
+        console.log("받아온 위치 데이터:", response.data.location);
         setLocations(response.data.location || []);
       } catch (error) {
         console.error("동네 정보를 불러오는데 실패했습니다:", error);
@@ -238,22 +273,19 @@ export default function MyLocation() {
   };
 
   return (
-    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+    <>
       <ListContainer>
         <h3>내 동네 설정하기</h3>
         <MapSection>
           <MapWrapper>
-            <GoogleMap
-              mapContainerStyle={{
-                width: '100%',
-                height: '100%',
-                borderRadius: '8px',
-                border: '1px solid #ddd'
-              }}
-              center={{ lat: 35.1795, lng: 129.0756 }}
-              zoom={11}
-              onLoad={onMapLoad}
-            />
+            <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+              <GoogleMap
+                mapContainerStyle={{ width: '100%', height: '100%' }}
+                center={{ lat: 35.1795, lng: 129.0756 }}
+                zoom={11}
+                onLoad={onMapLoad}
+              />
+            </LoadScript>
           </MapWrapper>
           <Sidebar>
             <h4>설정된 동네</h4>
@@ -263,17 +295,40 @@ export default function MyLocation() {
                   key={index}
                   onClick={() => {
                     if (map) {
+                      console.log("이동하려는 위치:", location);
+                      let found = false;
+                      
                       map.data.forEach(feature => {
                         const fullName = feature.getProperty('adm_nm');
                         const [sido, sgg, dong] = fullName.split(' ');
+                        const cleanSgg = sgg.replace(/[구군]$/, '');
+                        const cleanLocation = location.sigungu.replace(/[구군]$/, '');
                         
-                        if (sgg === location.sigungu && dong === location.emd) {
+                        // 동 이름 정규화 후 비교
+                        const normalizedDong = normalizeEmdName(dong);
+                        const normalizedEmd = normalizeEmdName(location.emd);
+                        
+                        if (cleanSgg === cleanLocation && 
+                            (!location.emd || normalizedDong === normalizedEmd)) {
+                          console.log("매칭된 지역 찾음:", {
+                            original: fullName,
+                            normalized: { dong: normalizedDong, emd: normalizedEmd }
+                          });
+                          found = true;
                           const bounds = new window.google.maps.LatLngBounds();
                           feature.getGeometry().forEachLatLng(latLng => bounds.extend(latLng));
                           map.panTo(bounds.getCenter());
                           map.setZoom(14);
                         }
                       });
+                      
+                      if (!found) {
+                        console.log("매칭되는 지역을 찾지 못함:", {
+                          sigungu: location.sigungu,
+                          emd: location.emd,
+                          normalizedEmd: normalizeEmdName(location.emd)
+                        });
+                      }
                     }
                   }}
                 >
@@ -332,6 +387,6 @@ export default function MyLocation() {
           </div>
         </Modal>
       )}
-    </LoadScript>
+    </>
   );
 }
