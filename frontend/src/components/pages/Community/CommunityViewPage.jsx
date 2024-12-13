@@ -268,8 +268,6 @@ export default function CommunityViewPage(props) {
                     </TagContainer>
                   </MemberInfo>
                   <ButtonContainer>
-                    {console.log("Current User ID:", currentUserId)} {/* 디버깅용 로그 */}
-                    {console.log("Community User ID:", community.userId)} {/* 디버깅용 로그 */}
                     {community.userId === currentUserId ? (
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <Button title="수정하기" onClick={() => navigate(`/communityEdit/${community.id}`)} />

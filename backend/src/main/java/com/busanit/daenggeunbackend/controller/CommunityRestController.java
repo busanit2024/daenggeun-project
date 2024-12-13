@@ -28,9 +28,14 @@ public class CommunityRestController {
     @GetMapping("/view/{communityId}")
     private CommunityDTO getCommunity(@PathVariable String communityId) { return communityService.findById(communityId); }
 
-    @PutMapping("/update/{communityId}")
-    public CommunityDTO updateCommunity(@PathVariable String communityId, @RequestBody CommunityDTO communityDTO) {
-        return communityService.update(communityId, communityDTO);
+//    @PutMapping("/update/{communityId}")
+//    public CommunityDTO updateCommunity(@PathVariable String communityId, @RequestBody CommunityDTO communityDTO) {
+//        return communityService.update(communityId, communityDTO);
+//    }
+
+    @PutMapping("/update")
+    public void updateCommunity(@RequestBody CommunityDTO communityDTO) {
+        communityService.update(communityDTO);
     }
 
     @DeleteMapping("/delete/{communityId}")

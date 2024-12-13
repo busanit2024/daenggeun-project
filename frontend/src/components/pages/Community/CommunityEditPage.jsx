@@ -165,6 +165,9 @@ export default function CommunityEditPage(props) {
     const [categoryData, setCategoryData] = useState([]);
     const [busanJuso, setBusanJuso] = useState(null);
     const [locationData, setLocationData] = useState({sigungu: [], emd: []});
+    const [sigungu, setSigungu] = useState("");
+    const [emd, setEmd] = useState("");
+    const [imageIndex, setImageIndex] = useState(0);    
 
     const [input, setInput] = useState({
         title: '',
@@ -172,8 +175,8 @@ export default function CommunityEditPage(props) {
         category: [],
         location: {
             sido: "부산광역시", 
-            sigungu: "", 
-            emd: ""
+            sigungu: sigungu, 
+            emd: emd,
         },
         images: {
             filename: "",
@@ -181,7 +184,7 @@ export default function CommunityEditPage(props) {
         }
     });
 
-    const [dbImage, setDbImage] = useState([]); // 기본값으로 빈 배열 설정
+    const [addImage, setAddImage] = useState([]); // 기본값으로 빈 배열 설정
     const [image, setImage] = useState([]); // 기본값으로 빈 배열 설정    
     const [inputCheck, setInputCheck] = useState({ title: false, content: false, category: false});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -207,14 +210,14 @@ export default function CommunityEditPage(props) {
             const juso = response.data.locationFilters;
             setBusanJuso(juso);
             const guList = juso?.map((item) => item.sigungu);
-
+            
             setLocationData((prevLocationData) => ({
                 ...prevLocationData,
                 sigungu: guList,
             }));
 
             }).catch((error) => {
-            console.error("동네 리스트를 불러오는데 실패했습니다." + error);
+               console.error("동네 리스트를 불러오는데 실패했습니다." + error);
             });
     }, []);
 
@@ -226,31 +229,34 @@ export default function CommunityEditPage(props) {
     }, [input, isSubmitting]);
 
     useEffect(() => {
-        getEmdList(input.location.sigungu);
-    }, [input.location.sigungu]);
+        getEmdList(sigungu);
+    }, [sigungu]);
     
-    useEffect(() => {
-        if (busanJuso) {
-            if (currentLocation.sigungu) {
-            setInput({ ...input, location: { ...input.location, sigungu: currentLocation.sigungu } });
-            } else {
-            setInput({ ...input, location: { ...input.location, sigungu: locationData.sigungu?.[0] } });
-            }
-        }
-    }, [currentLocation, busanJuso]);
+    // useEffect(() => {        
+    //     if (busanJuso) {
+    //         if (currentLocation.sigungu) {
+    //             // setInput({ ...input, location: { ...input.location, sigungu: currentLocation.sigungu } });
+    //             setSigungu(currentLocation.sigungu);
+    //         } else {
+    //             // setInput({ ...input, location: { ...input.location, sigungu: locationData.sigungu?.[0] } });
+    //             setSigungu(locationData.sigungu?.[0]);
+    //         }
+    //     }
+    // }, [currentLocation, busanJuso]);
 
     useEffect(() => {
         axios.get(`/api/community/view/${communityId}`).then((response) => {
             setInput(response.data);
+            // 동네 값 설정
+            setSigungu(response.data.location.sigungu);
+            setEmd(response.data.location.emd);
             console.log(response.data.images);
-            setDbImage(prevImages => [...prevImages, ...response.data.images]);
-            // setDbImage((prev) => ({
-            //     ...prev,
-            //     images: response.data.images,
-            // }));
-            // setImage(response.data.images);
-            console.log(response.data);
-            // fetchMemberInfo(response.data.userId);
+            setImage(response.data.images);
+            // setDbImage(prevImages => [...prevImages, ...response.data.images]);
+            console.log(response.data.images.length);
+            setImageIndex(response.data.images.length);
+
+            
           })
           .catch((error) => {
               console.error("동네생활 정보를 불러오는데 실패했습니다." + error);
@@ -258,16 +264,12 @@ export default function CommunityEditPage(props) {
     }, []);
 
 
-    const getEmdList = (sigungu) => {
+    const getEmdList = (sigungu) => {        
         if (busanJuso) {
             const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
-            const emdNameList = emdList?.map((item) => item.emd);
-            setLocationData({ ...locationData, emd: emdNameList });
-            if (currentLocation.emd !== "") {
-            setInput({ ...input, location: { ...input.location, emd: currentLocation.emd } });
-            } else {
-            setInput({ ...input, location: { ...input.location, emd: emdNameList?.[0] } });
-            }
+            const emdNameList = emdList?.map((item) => item.emd);            
+            setLocationData({ ...locationData, emd: emdNameList });                  
+            setEmd(emdNameList?.[0]);
         }
     };
 
@@ -287,7 +289,9 @@ export default function CommunityEditPage(props) {
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
+        setAddImage(prevImages => [...prevImages, ...files]);
         setImage(prevImages => [...prevImages, ...files]);
+        setImageIndex(imageIndex+files.length);
     }
 
     const handleCustomFileInputClick = () => {
@@ -318,19 +322,27 @@ export default function CommunityEditPage(props) {
         }
         let imageInfo = null;
         try {
-            let imageInfo = null;
-            if (image.length > 0) {
-                imageInfo = await multipleFileUpload(image);
+            // let imageInfo = null;
+            if (addImage.length > 0) {
+                imageInfo = await multipleFileUpload(addImage);
+            } else {
+                imageInfo = image;
             }
 
             const userId = sessionStorage.getItem('uid');
 
-            const response = await axios.put(`/api/community/update/${communityId}`, {
+            console.log("input Data: ", input);
+            
+            const response = await axios.put(`/api/community/update`, {
                 ...input,
+                location: {
+                    sigungu: sigungu,
+                    emd: emd
+                },
                 images: imageInfo
             });
-            alert("글이 수정되었습니다.");
-            navigate("/community");
+            // alert("글이 수정되었습니다.");
+            // navigate("/community");
         } catch (error) {
             alert("글 수정에 실패했습니다.");
             console.error(error);
@@ -382,13 +394,13 @@ export default function CommunityEditPage(props) {
                 <h4>동네</h4>
                 <DongneSelectContainer>
                 <div style={{ fontSize: '20px', color: '#666666' }}>부산광역시</div>
-                <DongneSelect value={input.location.sigungu} onChange={(e) => setInput({ ...input, location: { ...input.location, sigungu: e.target.value } })}>
+                <DongneSelect value={sigungu} onChange={(e) => setSigungu(e.target.value)}>
                     {
                     locationData.sigungu?.map((item) => (
                         <option key={item} value={item}>{item}</option>
                     ))}
                 </DongneSelect>
-                <DongneSelect value={input.location.emd} onChange={(e) => setInput({ ...input, location: { ...input.location, emd: e.target.value } })}>
+                <DongneSelect value={emd} onChange={(e) => setEmd(e.target.value)}>
                     {locationData.emd?.map((item) => (
                     <option key={item} value={item}>{item}</option>
                     ))}
@@ -427,7 +439,7 @@ export default function CommunityEditPage(props) {
                     <CustomFileInput onClick={handleCustomFileInputClick}>
                         <img className="camera-icon" src="/images/icon/camera.svg" alt="이미지 첨부" />
                     </CustomFileInput>
-                    {dbImage && Object.values(dbImage).map((item, index) => {
+                    {image && Object.values(image).map((item, index) => {
                         console.log("item: ",item);
                         console.log("item.url: ",item.url);
                         return (<ImagePreview>
@@ -437,7 +449,7 @@ export default function CommunityEditPage(props) {
                             </button>
                         </ImagePreview>);
                     })}
-                    {image && Object.values(image).map((item, index) => {                        
+                    {addImage && Object.values(addImage).map((item, index) => {                        
                         return (<ImagePreview>
                             <img key={index} className="preview" src={URL.createObjectURL(item)} alt="첨부된 이미지" />
                             <button className="delete-button" onClick={() => handleImageDelete(index)}>
