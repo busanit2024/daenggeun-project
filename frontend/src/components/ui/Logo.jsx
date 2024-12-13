@@ -10,6 +10,7 @@ const StyledLogo = styled.img`
 
 const logoOnly = '/images/logo/logo.png';
 const logoWithText = '/images/logo/daenggnlogo.png';
+const danggn = '/images/logo/danggn.png';
 
 const Logo = ({variant, onClick}) => {
     let logoSrc;
@@ -22,8 +23,10 @@ const Logo = ({variant, onClick}) => {
             logoSrc = logoWithText;
             break;
         case 'danggn' :
-            logoSrc = danggn;
+            logoSrc = logoWithText;
             break;
+        default:
+            logoSrc = logoWithText;
     }
 
     return <StyledLogo src={logoSrc} alt="로고" onClick={onClick} />

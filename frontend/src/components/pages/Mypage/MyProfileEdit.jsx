@@ -6,8 +6,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Button from "../../ui/Button";
 import { deleteFile, singleFileUpload } from "../../../firebase";
-import useGetUserId from "../../../utils/useGetUserId";
-import LocationSearchModal from "../../ui/LocationSearchModal";
 
 const EditNickname = styled.input`
     padding: 8px;
