@@ -72,6 +72,7 @@ const Content = styled.p`
 export default function CommunityListItem({ community }) {
   const navigate = useNavigate();
   const firstImage = community.images?.length > 0 ? community.images?.[0]?.url : '/images/default/defaultGroupImage.png';
+
   return (
     <Container key={community.id} onClick={() => navigate(`/community/${community?.id}`)}>
       

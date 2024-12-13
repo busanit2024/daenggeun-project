@@ -84,6 +84,7 @@ const NoSearchResult = styled.div`
 
 export default function AlbaPage(props) {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null); // 사용자 정보 상태 추가
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
@@ -329,11 +330,11 @@ export default function AlbaPage(props) {
   ];
   
   useEffect(() => {
-    // Toolbar에서 이동한 경우 자동 검색 실행
     if (location.state?.fromToolbar) {
         handleSearch('');
     }
   }, []);
+
 
   return (
     <Container>
@@ -476,7 +477,14 @@ export default function AlbaPage(props) {
           {itemsToShow < albaList.length && (
             <Button title="더보기" onClick={handleShowMore} />
           )}
-                  <Button title="글쓰기" variant="primary" onClick={() => navigate("/alba/create")}></Button>
+                  
+{user && (
+  <Button 
+    title="글쓰기" 
+    variant="primary" 
+    onClick={() => navigate("/alba/create")} // 로그인 여부를 확인하고 렌더링
+  />
+)}
 
         </ListContainer>
       </InnerContainer>

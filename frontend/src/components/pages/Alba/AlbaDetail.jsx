@@ -10,7 +10,7 @@ import "../../../styles/AlbaStyled.css";
 import Button from "../../ui/Button";
 import styled from "styled-components";
 import AlbaMemberProfile from "../../alba/AlbaMemberProfile";
-
+import AlbaListItem from "../../alba/AlbaListItem";
 
 const AlbaDetail = () => {
   const { id } = useParams(); // URL에서 id 가져오기
@@ -18,14 +18,15 @@ const AlbaDetail = () => {
   const [job, setJob] = useState(null); // 상세 데이터 상태
   const [relatedJobs, setRelatedJobs] = useState([]); // 관련 알바 데이터 상태
   const [user, setUser] = useState(null); // 사용자 데이터 상태
-  const [post, setPost] = useState(null);
+  const [itemsToShow, setItemsToShow] = useState(5); // 처음에 보여줄 게시물 개수
 
   const Location = styled.p`
-  margin: 8px 0 0;
-  color: #777;
-`;
+    margin: 8px 0 0;
+    color: #777;
+  `;
+
   useEffect(() => {
-    // 사용자 정보 로드 (로그인 상태 확인 및 사용자 역할 확인)
+    // 사용자 정보 로드
     const fetchUser = async () => {
       try {
         const response = await axios.get("/api/auth/user"); // 현재 사용자 정보 요청
@@ -39,7 +40,7 @@ const AlbaDetail = () => {
     const fetchJob = async () => {
       try {
         const response = await axios.get(`/api/alba/${id}`);
-        console.log("fetchjob",response.data)
+        console.log("fetchjob", response.data);
         setJob(response.data);
       } catch (error) {
         console.error("글 조회 중 오류 발생:", error);
@@ -91,52 +92,69 @@ const AlbaDetail = () => {
 
   const isAuthor = user && (user.id === job.authorId || user.role === "admin");
 
+  const handleShowMore = () => {
+    setItemsToShow((prev) => prev + 5); // 5개씩 더 보기
+  };
+
   return (
     <div className="alba-detail-page">
       <Breadcrumb routes={routes} />
 
       {/* 상세 영역 */}
       <div className="alba-detail-container">
-        
         {/* 좌측 영역 */}
         <div className="detail-left">
-          
           <img
             src={job.image != null ? job.image.url : "images/default/default-image.png"}
             alt={job.title}
             className="detail-image"
           />
           <div className="profile-info">
-            {/* <h2>{job.title}</h2>
-            <p>시급: {job.wage}</p> */}
-          <AlbaMemberProfile userId={job.userId}/>
-        
+            <AlbaMemberProfile userId={job.userId} />
           </div>
-        <Button type="edit-button" title="수정" variant="gray" onClick={handleEdit}/>
-        <Button type="delete-button" title="삭제" variant="danger" onClick={handleDelete}/>
+          <Button type="edit-button" title="수정" variant="gray" onClick={handleEdit} />
+          <Button type="delete-button" title="삭제" variant="danger" onClick={handleDelete} />
         </div>
 
         {/* 우측 영역 */}
-      
         <div className="detail-right">
-        
           <div className="detail-body">
             <h2>{job.title}</h2>
-            
-            <p><LiaWonSignSolid /> {job.wageType} {job.wage}</p>
-            <p><HiOutlineLocationMarker /> {job.workPlace}</p>
-            <p><ImCalendar /> {job.workDays}</p>
-            <p><ImAlarm /> {job.workTime.start}~{job.workTime.end}</p>
+            <p>
+              <LiaWonSignSolid /> {job.wageType} {job.wage}
+            </p>
+            <p>
+              <HiOutlineLocationMarker /> {job.workPlace}
+            </p>
+            <p>
+              <ImCalendar /> {job.workDays}
+            </p>
+            <p>
+              <ImAlarm /> {job.workTime.start}~{job.workTime.end}
+            </p>
 
             <h2>상세 내용</h2>
-            <pre>{job.description}</pre>
+            <pre
+              style={{
+                maxWidth: "100%",
+                whiteSpace: "pre-wrap",
+                wordWrap: "break-word",
+                overflow: "auto",
+              }}
+            >
+              {job.description}
+            </pre>
           </div>
 
           {/* 수정 및 삭제 버튼 (작성자와 관리자만 볼 수 있음) */}
           {isAuthor && (
             <div className="detail-actions">
-              <button className="edit-button" onClick={handleEdit}>수정하기</button>
-              <button className="delete-button" onClick={handleDelete}>삭제하기</button>
+              <button className="edit-button" onClick={handleEdit}>
+                수정하기
+              </button>
+              <button className="delete-button" onClick={handleDelete}>
+                삭제하기
+              </button>
             </div>
           )}
 
@@ -154,32 +172,17 @@ const AlbaDetail = () => {
           </div>
           
         </div>
-        
       </div>
-      
 
       {/* 하단 관련 알바 리스트 */}
       <div className="related-jobs">
-        <h2>관련 알바 리스트</h2>
+        <h2> 모든 지역 알바 목록 </h2>
         <div className="alba-list-full">
-          {relatedJobs.length > 0 ? (
-            relatedJobs.map((item) => (
-              <div
-                key={item._id}
-                className="alba-item-full"
-                onClick={() => navigate(`/alba/${item._id}`)}
-              >
-                <h4>{item.title}</h4>
-                
-                <p>위치: {item.workPlace}</p>
-                <p>시급: {item.wage}</p>
-                <p>
-                  근무 시간: {item.workTime?.start} ~ {item.workTime?.end}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p>관련 알바가 없습니다.</p>
+          {relatedJobs.slice(0, itemsToShow).map((item) => (
+            <AlbaListItem key={item._id} alba={item} />
+          ))}
+          {itemsToShow < relatedJobs.length && (
+            <Button title="더보기" variant="primary" onClick={handleShowMore} />
           )}
         </div>
       </div>

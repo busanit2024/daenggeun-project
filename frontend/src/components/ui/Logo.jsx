@@ -21,6 +21,9 @@ const Logo = ({variant, onClick}) => {
         case 'logoWithText' :
             logoSrc = logoWithText;
             break;
+        case 'danggn' :
+            logoSrc = danggn;
+            break;
     }
 
     return <StyledLogo src={logoSrc} alt="로고" onClick={onClick} />
