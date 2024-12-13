@@ -340,8 +340,8 @@ export default function UsedTrade(props) {
     // 이미지 데이터가 존재하고 유효한 경우에만 URL로 변환
     if (imageData && imageData.length > 0) {
       return `data:image/png;base64,${imageData}`; // 이미지 데이터가 배열일 경우 첫 번째 요소 사용
-  }
-  return null; // 이미지 데이터가 없거나 유효하지 않으면 null 반환
+    }
+    return null; // 이미지 데이터가 없거나 유효하지 않으면 null 반환
   };
 
   const handleMoreButton = () => {

@@ -4,6 +4,8 @@ import Button from "../../ui/Button";
 import InputText from "../../ui/InputText";
 import ImageUpload from "./ImageUpload";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { singleFileUpload } from "../../../firebase";
+import imageData from "../../../asset/imageData";
 
 const ButtonContainer = styled.div`
     display: inline-flex;
@@ -47,7 +49,7 @@ const TextArea = styled.textarea`
 `;
 
 const Label = styled.label`
-    display: flex;
+    display: block;
     align-items: center;
     font-size: 16px;
     margin-top: 10px;
@@ -103,7 +105,6 @@ const UsedTradeUpdate = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-    // location.state에서 정보 가져오기
     const product = location.state || {};
 
     const [isNegotiable, setIsNegotiable] = useState(product.isNegotiable || false);
@@ -116,11 +117,21 @@ const UsedTradeUpdate = () => {
 
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(product.category || null);
-    const [selectedTradeType, setSelectedTradeType] = useState(product.selectedTradeType || "판매하기");
-    const [uploadedImages, setUploadedImages] = useState(product.imageData);
+    const [selectedTradeType, setSelectedTradeType] = useState(product.isGiveable ? "나눔하기" : "판매하기");
+    const [uploadedImages, setUploadedImages] = useState(product.imageData || []);
+
+    // const getImageUrl = (imageData) => {
+    //     // 이미지 데이터가 존재하고 유효한 경우에만 URL로 변환
+    //     if (imageData && imageData.length > 0) {
+    //         return imageData.map((img) => img.url); // URL을 배열로 반환
+    //     }
+    //     return []; // 이미지 데이터가 없거나 유효하지 않으면 빈 배열 반환
+    // };
+
+    //  // 이미지 URL 가져오기
+    //  const imageUrls = getImageUrl(uploadedImages);
 
     useEffect(() => {
-        // 상품 정보를 API에서 가져오는 함수
         const fetchProductInfo = async () => {
             try {
                 const response = await fetch(`/api/usedTrades/${id}`);
@@ -133,11 +144,11 @@ const UsedTradeUpdate = () => {
                 setContent(data.content);
                 setLocationInput(data.location);
                 setIsNegotiable(data.isNegotiable);
-                setIsGiveable(data.isGiveable);
+                setIsGiveable(data.isGiveable || false);
                 setCreatedDate(data.createdDate);
                 setSelectedCategory(data.category);
-                setSelectedTradeType(data.selectedTradeType || "판매하기");
-                setUploadedImages(data.imageData);
+                setUploadedImages(data.imageData || []);
+                setSelectedTradeType(data.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
             } catch (error) {
                 console.error('Error fetching product:', error);
             }
@@ -151,11 +162,11 @@ const UsedTradeUpdate = () => {
             setContent(product.content);
             setLocationInput(product.location);
             setIsNegotiable(product.isNegotiable);
-            setIsGiveable(product.isGiveable);
+            setIsGiveable(product.isGiveable || false);
             setCreatedDate(product.createdDate);
             setSelectedCategory(product.category);
-            setSelectedTradeType(product.selectedTradeType);
             setUploadedImages(product.uploadedImages);
+            setSelectedTradeType(product.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
         }
     }, [id, product]);
 
@@ -167,11 +178,10 @@ const UsedTradeUpdate = () => {
             content: content,
             location: locationInput,
             isNegotiable: isNegotiable,
-            isGiveable, isGiveable,
+            isGiveable: selectedTradeType === "나눔하기", // selectedTradeType에 따라 isGiveable 결정
             category: selectedCategory,
-            selectedTradeType: selectedTradeType,
             createdDate: createdDate,
-            imagedata: uploadedImages,
+            imageData: uploadedImages,
         };
 
         try {
@@ -184,6 +194,7 @@ const UsedTradeUpdate = () => {
             });
 
             if (response.ok) {
+                console.log("수정 결과: ", updatedProduct);
                 alert("수정이 완료되었습니다.");
                 navigate(`/usedTradeView/${id}`);
             } else {
@@ -206,7 +217,7 @@ const UsedTradeUpdate = () => {
         }
     };
 
-    const formattedPrice = new Intl.NumberFormat('ko-KR').format(price);    // 가격 포맷팅하기
+    const formattedPrice = new Intl.NumberFormat('ko-KR').format(price); // 가격 포맷팅하기
 
     const handleCheckboxChange = () => {
         setIsNegotiable((prev) => !prev);
@@ -214,7 +225,7 @@ const UsedTradeUpdate = () => {
 
     const handleTradeTypeChange = (type) => {
         if (selectedTradeType === type) {
-            setSelectedTradeType(null);
+            setSelectedTradeType(null); // Toggle off
         } else {
             setSelectedTradeType(type);
         }
@@ -229,11 +240,16 @@ const UsedTradeUpdate = () => {
         setIsCategoryOpen(false);
     };
 
+    const handleImageChange = async (newImages) => {
+        const uploadedFiles = await Promise.all(newImages.map(files => singleFileUpload(files))); // Firebase에 업로드
+        setUploadedImages(uploadedFiles); // 상태 업데이트
+    };
+
     return (
         <Container>
             <h1>중고거래 수정</h1>
             <Form>
-                <ImageUpload />
+                <ImageUpload onImageChange={handleImageChange} />
                 <InputContainer>
                 <Form>
                     <CategoryToggle>
@@ -334,8 +350,8 @@ const UsedTradeUpdate = () => {
                     onChange={(e) => setName(e.target.value)}
                 />
 
-                <div>
-                    <h3>거래 방식</h3>
+                <div style={{ marginTop: "30px" }}>
+                    <h3 style={{ marginBottom: "10px" }}>거래 방식</h3>
                     <ButtonContainer>
                     <TradeButton
                         key={`판매하기-${selectedTradeType === "판매하기"}`}
@@ -369,9 +385,7 @@ const UsedTradeUpdate = () => {
                         disabled={selectedTradeType === "나눔하기"}
                         // style={{ borderColor: priceError ? 'red' : '#ccc' }}
                     /> 원
-                    <br />
                     {/* {priceError && <ErrorText>{priceError}</ErrorText>} */}
-                    <br />
                     
                     {/* 체크박스 추가 - 조건부 렌더링 */}
                     {selectedTradeType === "판매하기" && (

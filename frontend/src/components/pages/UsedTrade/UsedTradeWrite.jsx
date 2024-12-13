@@ -334,6 +334,7 @@ const UsedTradeWrite = () => {
             selectedTradeType: selectedTradeType,
             tradeble: tradeable,
             bookmarkUsers: [],
+            imageData: uploadedImages,
         })], { type: 'application/json' }));
 
         // 데이터 로그 출력
@@ -475,7 +476,7 @@ const UsedTradeWrite = () => {
                 />
                 {nameError && <ErrorText>{nameError}</ErrorText>}
 
-                <div>
+                <div style={{ marginTop: "30px" }}>
                     <h3 style={{ marginBottom: "10px" }}>거래 방식</h3>
                     <ButtonContainer>
                         <TradeButton

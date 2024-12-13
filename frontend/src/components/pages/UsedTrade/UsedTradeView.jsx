@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
+import imageData from "../../../asset/imageData";
 
 const Container = styled.div`
   width: 90%;
