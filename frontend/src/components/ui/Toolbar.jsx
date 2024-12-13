@@ -6,7 +6,7 @@ import "../../styles/Toolbar.css";
 import Logo from "./Logo";
 import Button from "./Button";
 
-const Toolbar = () => {
+const Toolbar = ({ scrolled }) => {
     const { logout } = useContext(AuthContext);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -38,7 +38,7 @@ const Toolbar = () => {
     };
 
     return (
-        <div className="toolbar">
+        <div className="toolbar" style={ { borderBottom: `1px solid ${scrolled ? '#e7e7e7' : 'transparent'}` }}>
             <div className="logo">
                 <Logo
                     variant="logoWithText"

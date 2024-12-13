@@ -10,8 +10,8 @@ const Container = styled.div`
   cursor: pointer;
 
   &:hover .group-image {
-    transform: scale(1.1);
-    transition: transform 0.3s;
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
   }
 `;
 
@@ -21,6 +21,7 @@ const ImageContainer = styled.div`
   flex-shrink: 0;
   background-color: #f0f0f0;
   border-radius: 12px;
+  border: 0.5px solid #e0e0e0;
   overflow: hidden;
 
   & .group-image {

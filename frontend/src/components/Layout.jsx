@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import Toolbar from "./ui/Toolbar";
 import styled from "styled-components";
 import Footer from "./ui/Footer";
+import { useEffect, useState } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -18,9 +19,25 @@ const Main = styled.div`
 `;
 
 export default function Layout() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }
+  , []);
+
   return (
     <Container>
-      <Toolbar />
+      <Toolbar scrolled={scrolled} />
       <Main>
         <Outlet />
       </Main>

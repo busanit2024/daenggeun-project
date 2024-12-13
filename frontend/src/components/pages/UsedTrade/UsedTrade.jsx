@@ -239,7 +239,6 @@ export default function UsedTrade(props) {
   useEffect(() => {
     setLoading(true);
     fetchTradeList(0);
-    console.log("검색 필터 변경:", searchFilter);
   }, [searchFilter]);
 
   useEffect(() => {
@@ -247,7 +246,7 @@ export default function UsedTrade(props) {
     setSearchFilter((prev) => ({ ...prev, emd: '' }));
     getEmdList(searchFilter.sigungu);
     setIsFilterOpen(false);
-  }, [searchFilter.sigungu, busanJuso]);
+  }, [searchFilter.sigungu]);
 
   const resetFilter = () => {
     setLoading(true);

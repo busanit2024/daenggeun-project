@@ -12,7 +12,7 @@ const StyledButton = styled.button`
     width: ${props => props.width ? props.width : "auto"};
     flex-grow: ${props => props.grow ? 1 : 0};
     transition: opacity 0.2s;
-    
+
     &:hover {
         opacity: 0.8;
     }
@@ -30,6 +30,9 @@ const StyledButton = styled.button`
                 background-color: #dcdcdc;
                 color: #666666;
                 cursor: default;
+                &:hover {
+                    opacity: 1;
+                }
             `
         }
 

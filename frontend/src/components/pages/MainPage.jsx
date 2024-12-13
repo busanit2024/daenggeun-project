@@ -243,7 +243,7 @@ const SlideText = styled.div`
 `;
 
 function MainPage(props) {
-    const naviagte = useNavigate();
+    const navigate = useNavigate();
     const { area, setArea } = useArea(); 
     const categoryContainerRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -346,7 +346,7 @@ function MainPage(props) {
                         </ArrowButton>
                         <CategoryContainer className="category-container" ref={categoryContainerRef} start={isAtStart} end={isAtEnd}>
                             {categoryData.map(category => (
-                                <Category onClick={() => naviagte("/usedTrade", {
+                                <Category onClick={() => navigate("/usedTrade", {
                                     state: { category: category.name }
                                 })}>
                                     <div className="category-image">
