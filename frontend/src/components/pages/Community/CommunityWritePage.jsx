@@ -153,7 +153,7 @@ const InputCheckMessage = styled.span`
 `;
 
 const titleInputConstraint = { minLength: 3, maxLength: 25 };
-const contentInputConstraint = { minLength: 10, maxLength: 1000 };
+const contentInputConstraint = { minLength: 3, maxLength: 1000 };
 
 const libraries = ['places'];
 
@@ -218,15 +218,15 @@ export default function CommunityWritePage(props) {
         getEmdList(input.location.sigungu);
     }, [input.location.sigungu]);
     
-    useEffect(() => {
-        if (busanJuso) {
-            if (currentLocation.sigungu) {
-            setInput({ ...input, location: { ...input.location, sigungu: currentLocation.sigungu } });
-            } else {
-            setInput({ ...input, location: { ...input.location, sigungu: locationData.sigungu?.[0] } });
-            }
-        }
-    }, [currentLocation, busanJuso]);
+    // useEffect(() => {
+    //     if (busanJuso) {
+    //         if (currentLocation.sigungu) {
+    //         setInput({ ...input, location: { ...input.location, sigungu: currentLocation.sigungu } });
+    //         } else {
+    //         setInput({ ...input, location: { ...input.location, sigungu: locationData.sigungu?.[0] } });
+    //         }
+    //     }
+    // }, [currentLocation, busanJuso]);
 
 
     const getEmdList = (sigungu) => {
