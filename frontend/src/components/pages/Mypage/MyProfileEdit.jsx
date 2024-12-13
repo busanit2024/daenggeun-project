@@ -129,12 +129,15 @@ export default function MyProfileEdit(props) {
     }
 
     const handleUpdate = async () => {
-        singleFileUpload(profileImage).then( async (response) => {
-            if (user.profileImage) {
-            await deleteFile(user.profileImage.filename);
+        singleFileUpload(profileImage).then(async (response) => {
+            let newProfileImage = user.profileImage;
+            if (response !== null && user.profileImage !== null) {
+                await deleteFile(user.profileImage.filename);
             }
-            const newProfileImage = response;
-            axios.post(`/user/profileSave/${user.id}`, 
+            if (response) {
+                newProfileImage = response;
+            }
+            axios.post(`/user/profileSave/${user.uid}`,
                 {
                     id: user.id,
                     uid: user.uid,
@@ -147,7 +150,7 @@ export default function MyProfileEdit(props) {
                 console.log(response.data);
                 alert('회원정보가 수정되었습니다.');
                 navigate('/mypage');
-            }).catch((error) => { 
+            }).catch((error) => {
                 console.error('회원정보 수정 중 오류 발생:', error);
                 alert('회원정보 수정에 실패했습니다. 다시 시도해 주세요.');
             });

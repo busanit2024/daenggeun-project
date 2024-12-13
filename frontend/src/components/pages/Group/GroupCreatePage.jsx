@@ -248,28 +248,28 @@ export default function GroupCreatePage(props) {
   }, []);
 
   useEffect(() => {
-          const fetchUserLocation = async () => {
-              try {
-                  const response = await axios.get(`/user/${uid}`);
-                  const userLocations = response.data.location || [];
-                  
-                  if (userLocations[0]) {
+    const fetchUserLocation = async () => {
+      try {
+        const response = await axios.get(`/user/${uid}`);
+        const userLocations = response.data.location || [];
 
-                    setInput({ ...input, location: { sigungu: userLocations[0].sigungu, emd: userLocations[0].emd } });
-                  } else if (userLocations[1]) {
-                      setInput({ ...input, location: { sigungu: userLocations[1].sigungu, emd: userLocations[1].emd } });
-                  }
-              } catch (error) {
-                  console.error("위치 정보를 불러오는데 실패했습니다:", error);
-              }
-          };
-  
-          if (uid) {
-              fetchUserLocation();
-          } else {
-              setInput({ ...input, location: { sigungu: "부산진구", emd: "" } });
-          }
-      }, [uid]);
+        if (userLocations[0]) {
+
+          setInput({ ...input, location: { sigungu: userLocations[0].sigungu, emd: userLocations[0].emd } });
+        } else if (userLocations[1]) {
+          setInput({ ...input, location: { sigungu: userLocations[1].sigungu, emd: userLocations[1].emd } });
+        }
+      } catch (error) {
+        console.error("위치 정보를 불러오는데 실패했습니다:", error);
+      }
+    };
+
+    if (uid) {
+      fetchUserLocation();
+    } else {
+      setInput({ ...input, location: { sigungu: "부산진구", emd: "" } });
+    }
+  }, [uid]);
 
   useEffect(() => {
     if (isSubmitting) {
@@ -334,7 +334,7 @@ export default function GroupCreatePage(props) {
       const memberProfile = {
         userId: userId,
         position: 'ADMIN',
-        registeredDate : new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(' ', 'T'),
+        registeredDate: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).replace(' ', 'T'),
         groupNickName: nickname,
       }
 
@@ -345,7 +345,7 @@ export default function GroupCreatePage(props) {
         userId: userId,
         members: [memberProfile],
       });
-      
+
       alert("모임이 생성되었습니다.");
       navigate("/group");
 
@@ -357,19 +357,19 @@ export default function GroupCreatePage(props) {
 
   const handleLocationSelect = (selectedLocation) => {
     if (typeof selectedLocation === 'string') {
-        const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-    
-        if (emd) {
-            setInput({ ...input, location: { sigungu, emd } });
-        } else {
-            setInput({ ...input, location: { sigungu, emd: "" } });
-        }
-        setIsModalOpen(false);
+      const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+
+      if (emd) {
+        setInput({ ...input, location: { sigungu, emd } });
+      } else {
+        setInput({ ...input, location: { sigungu, emd: "" } });
+      }
+      setIsModalOpen(false);
 
     } else {
-        console.error("선택된 위치가 문자열이 아닙니다:", selectedLocation);
+      console.error("선택된 위치가 문자열이 아닙니다:", selectedLocation);
     }
-};
+  };
 
   const setNextStep = (nextStep) => {
     setIsSubmitting(true);
@@ -403,7 +403,7 @@ export default function GroupCreatePage(props) {
       <Item>
         <h4>동네</h4>
         <DongneSelectContainer>
-          <InputContainer style={{width: '360px'}}>
+          <InputContainer style={{ width: '360px' }}>
             <Input type="text" value={`${input.location.sigungu}, ${input.location.emd}`} readOnly />
           </InputContainer>
 
@@ -413,11 +413,11 @@ export default function GroupCreatePage(props) {
       </Item>
 
       {isModalOpen && (
-                <LocationSearchModal 
-                    onSelect={handleLocationSelect} 
-                    onClose={() => setIsModalOpen(false)} 
-                />
-            )}
+        <LocationSearchModal
+          onSelect={handleLocationSelect}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
 
 
       <Item>
@@ -559,7 +559,7 @@ export default function GroupCreatePage(props) {
           별명 사용
           <Switch value={input.useNickname} checked={input.useNickname} onChange={(e) => setInput({ ...input, useNickname: e.target.checked })} />
         </label>
-        {input.useNickname && <InputText type="text" value={nickname} underline placeholder="사용할 별명을 입력해주세요." onChange={(e) => setNickName(e.target.value)} /> }
+        {input.useNickname && <InputText type="text" value={nickname} underline placeholder="사용할 별명을 입력해주세요." onChange={(e) => setNickName(e.target.value)} />}
       </Item>
 
 
