@@ -152,6 +152,7 @@ export default function GroupPage(props) {
     }).catch((error) => {
       console.error("부산 주소를 불러오는데 실패했습니다." + error);
     });
+    
   }, []);
 
   useEffect(() => {

@@ -94,13 +94,13 @@ function App() {
             <Route path="community/:communityId" element={<CommunityViewPage />} />
             <Route path="communityEdit/:communityId" element={<CommunityEditPage />} />
 
-              <Route path='mypage' element={<MyPageMain />} >
-                <Route path="" element={<MyPageList />} />
-                <Route path='community' element={<MyCommunity />} />
-                <Route path='location' element={<MyLocation />} />
-                <Route path='trade' element={<MyTrade />} />
-                <Route path='group' element={<MyGroup />} />
-              </Route>
+            <Route path='mypage' element={<MyPageMain />} >
+              <Route path="" element={<MyPageList />} />
+              <Route path='community' element={<MyCommunity />} />
+              <Route path='location' element={<MyLocation />} />
+              <Route path='trade' element={<MyTrade />} />
+              <Route path='group' element={<MyGroup />} />
+            </Route>
               <Route path='mypage/edit' element={<MyProfileEdit />} />
               <Route path="setProfile/:userId" element={<SetProfilePage />} />
             </Route>

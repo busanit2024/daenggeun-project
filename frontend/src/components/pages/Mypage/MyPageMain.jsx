@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Button from "../../ui/Button";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 export const Wrapper = styled.div`
     display: flex;
@@ -127,6 +127,7 @@ export const ListContainer = styled.div`
 
 export default function MyPageMain(props) {
     const navigate = useNavigate();
+    const location = useLocation();
     const [user, setUser] = useState(null);
 
     useEffect(() => {
@@ -139,6 +140,10 @@ export default function MyPageMain(props) {
             console.error('사용자 정보를 불러오는데 실패했습니다.' + error);
         });
     }, []);
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [location]);
 
     return (
         <Wrapper>
@@ -155,7 +160,7 @@ export default function MyPageMain(props) {
                         {/* <span className="regDate">{calculateDate(user?.registeredDate) ?? ''} 전 가입</span> */}
                     </div>
                     {user?.location && (
-                        <span className="location">{user.location[0].sigungu}{user.location[0].emd ? `, ${user.location[0].emd}` : '' } </span>
+                        <span className="location">{user.location[0].sigungu} {user.location[0].emd} </span>
                     )}
                     <Button title="프로필 수정" onClick={() => navigate('edit')} />
                 </div>
