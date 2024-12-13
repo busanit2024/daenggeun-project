@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
