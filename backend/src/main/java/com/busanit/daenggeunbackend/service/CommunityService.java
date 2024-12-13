@@ -40,15 +40,19 @@ public class CommunityService {
         return CommunityDTO.toDTO(community);
     }
 
-    public CommunityDTO update(String id, CommunityDTO communityDTO) {
-        Community community = communityRepository.findById(id).orElseThrow(() -> new RuntimeException("Community not found"));
-        community.setTitle(communityDTO.getTitle());
-        community.setContent(communityDTO.getContent());
-        community.setImages(communityDTO.getImages());
-        community.setCategory(communityDTO.getCategory());
+//    public CommunityDTO update(String id, CommunityDTO communityDTO) {
+//        Community community = communityRepository.findById(id).orElseThrow(() -> new RuntimeException("Community not found"));
+//        community.setTitle(communityDTO.getTitle());
+//        community.setContent(communityDTO.getContent());
+//        community.setImages(communityDTO.getImages());
+//        community.setCategory(communityDTO.getCategory());
+//
+//        Community updatedCommunity = communityRepository.save(community);
+//        return CommunityDTO.toDTO(updatedCommunity);
+//    }
 
-        Community updatedCommunity = communityRepository.save(community);
-        return CommunityDTO.toDTO(updatedCommunity);
+    public void update(CommunityDTO communityDTO) {
+        communityRepository.save(Community.toEntity(communityDTO));
     }
 
     public void delete(String id) {

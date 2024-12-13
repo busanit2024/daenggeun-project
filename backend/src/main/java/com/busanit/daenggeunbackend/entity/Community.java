@@ -27,13 +27,12 @@ public class Community {
     private List<Image> images;  // 첨부된 이미지
     private Location location;
     private String category;
+    @CreatedDate
+    private LocalDateTime createdDate;
     private int views;  // 조회수
     private List<String> bookmarkUsers;  // 북마크한 유저들
     private List<String> likeUsers;  // 좋아요한 유저들
     private List<String> comments;  // 댓글 ID 목록
-
-    @CreatedDate
-    private LocalDateTime createdDate;
 
     public static Community toEntity(CommunityDTO communityDTO) {
         return Community.builder()
