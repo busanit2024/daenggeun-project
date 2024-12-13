@@ -32,8 +32,8 @@ const CategoryWrapper = styled.div`
     align-items: start;
     justify-content: center;
     margin-top: 24px;
-    width: 100vh;
-    min-width: 1280px;
+    width: 100%;
+    max-width: 1280px;
     padding: 0 64px;
 
     
@@ -160,6 +160,9 @@ const StyledCarousel = styled(Carousel)`
     width: 100%;
     margin: 0;
     margin-top : 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     .carousel .control-arrow {
         background-color:transparent;
@@ -178,11 +181,13 @@ const StyledCarousel = styled(Carousel)`
     }
 
     .carousel .control-arrow.control-prev {
-        left : 10px;
+        justify-self: start;
+        padding-left: 64px;
     }
 
     .carousel .control-arrow.control-next {
-        right : 10px;
+        justify-self: end;
+        padding-right: 64px;
     }
 
     .carousel .control-arrow svg {
@@ -192,27 +197,47 @@ const StyledCarousel = styled(Carousel)`
 
 const Slide = styled.div`
     width: 100%; 
-    height: 650px; 
+    height: 470px; 
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
+    background-color: ${props => props.color};
 `;
 
-const SlideImage = styled.img`
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover;
-`;
-
-const SlideText = styled.span`
+const SlideImage = styled.div`
+    max-width: 1280px;
+    display: flex;
     position: absolute; 
-    color: black;
-    text-align: left ;
-    left: 25%;
-    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+
+    img {
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover;
+    }
+`;
+
+const SlideText = styled.div`
+    padding: 0 64px;
+    max-width: 1280px;
+    display: flex;
+    position: absolute; 
+    padding: 0 64px;
+    width: 100%;
+    height: 100%;
+
+
+    .slideText {
+    position: absolute;
     top : 50px;
     font-family : 'SBAggroB';
+    color: black;
+    text-align: left ;
+}
+
+
 `;
 
 function MainPage(props) {
@@ -297,11 +322,16 @@ function MainPage(props) {
                     autoPlay={true}
                     infiniteLoop={true}
                     showThumbs={false}
+                    transitionTime={700}
                 >
                     {imageData.map(image => (
-                        <Slide key={image.alt}>
-                            <SlideImage src={image.src} alt={image.alt} />
-                            <SlideText>{image.text}</SlideText>
+                        <Slide key={image.alt} color={image.color}>
+                            <SlideImage>
+                                <img src={image.src} alt={image.alt} />
+                            </SlideImage>
+                            <SlideText>
+                                <span className="slideText">{image.text}</span>
+                                    </SlideText>
                         </Slide>
                     ))}
                 </StyledCarousel>
