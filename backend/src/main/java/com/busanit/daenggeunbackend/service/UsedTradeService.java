@@ -26,7 +26,7 @@ public class UsedTradeService {
                 byte[] imageBytes = imageFile.getBytes();
                 usedTrade.setImageData(imageBytes);
             } else {
-                // 기본 이미지 처리
+                usedTrade.setImageData(null);
             }
             return usedTradeRepository.save(usedTrade);
         } catch (IOException e) {
@@ -88,5 +88,7 @@ public class UsedTradeService {
         return usedTradeRepository.findByUserId(userId, pageable);
     }
 
-    
+    public UsedTrade createUsedTradeWithoutImage(UsedTrade usedTrade) {
+        return usedTradeRepository.save(usedTrade);
+    }
 }

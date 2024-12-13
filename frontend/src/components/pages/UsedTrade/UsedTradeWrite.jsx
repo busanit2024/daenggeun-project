@@ -8,6 +8,8 @@ import Breadcrumb from "../../Breadcrumb";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import useGeolocation from "../../../utils/useGeolocation";
 import axios from "axios";
+import imageData from "../../../asset/imageData";
+import UsedTrade from "./UsedTrade";
 
 const ButtonContainer = styled.div`
     display: inline-flex;
@@ -139,7 +141,7 @@ const UsedTradeWrite = () => {
     const [selectedGu, setSelectedGu] = useState("");
     const [selectedDong, setSelectedDong] = useState("");
 
-    const [isPriceNegotiable, setIsPriceNegotiable] = useState(false);  // 체크박스는 기본적으로 체크 X
+    const [isNegotiable, setIsNegotiable] = useState(false);  // 체크박스는 기본적으로 체크 X
     const [location, setLocation] = useState("");
 
     const [content, setContent] = useState("");
@@ -149,6 +151,7 @@ const UsedTradeWrite = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedTradeType, setSelectedTradeType] = useState("판매하기");
     const [isGiveable, setIsGiveable] = useState(false);
+    const [tradeable, setTradeable] = useState(true);
     const [uploadedImages, setUploadedImages] = useState([]);
 
     // 이름, 장소, 가격 작성 유무 판단
@@ -256,9 +259,15 @@ const UsedTradeWrite = () => {
 
     const handleCheckboxChange = (e) => {
         const checked = e.target.checked;
-        setIsPriceNegotiable(checked);
+        setIsNegotiable(checked);
         console.log("네고 가능 여부: ", checked);
     };
+
+    const handleGiveableChange = (e) => {
+        const checked = e.target.checked;
+        setIsGiveable(checked);
+        console.log("나눔 신청 여부: ", checked);
+    }
 
     const handleTradeTypeChange = (type) => {
         // 선택된 타입을 업데이트
@@ -284,9 +293,9 @@ const UsedTradeWrite = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         let hasError = false;
-    
+
         // 유효성 검사
         if (!name) {
             setNameError("제목을 입력해주세요!");
@@ -296,44 +305,47 @@ const UsedTradeWrite = () => {
             setLocationError("거래 희망 장소를 선택해주세요!");
             hasError = true;
         }
-        if (!price) {
+        if (!isGiveable && !price) {
             setPriceError("가격을 입력해주세요!");
             hasError = true;
         }
         if (hasError) return;
-    
-        const confirmSubmit = window.confirm("악용을 방지하기 위해 거래 희망 장소는\n수정이 불가합니다. 정말로 등록하시겠습니까?");
+
+        const confirmSubmit = window.confirm("악용을 방지하기 위해 거래 희망 장소는\n수정을 막고 있습니다. 정말로 등록하시겠습니까?");
         if (!confirmSubmit) return;
-    
+
         const userId = sessionStorage.getItem('uid');
-    
+
         // FormData 생성
         const formData = new FormData();
         formData.append('usedTrade', new Blob([JSON.stringify({
             userId: userId,
             name: name,
             category: selectedCategory || "카테고리 없음",
-            price: parseInt(price.replace(/[^0-9]/g, ""), 10),
+            price: isGiveable ? 0 : parseInt(price.replace(/[^0-9]/g, ""), 10),
             location: location,
             sigungu: selectedGu,
             emd: selectedDong,
             content: content,
             createdDate: new Date().toISOString(),
             views: 0,
-            isNegotiable: isPriceNegotiable,
+            isNegotiable: isNegotiable,
             isGiveable: isGiveable,
-            isGived: selectedTradeType,
-            tradeble: true,
+            selectedTradeType: selectedTradeType,
+            tradeble: tradeable,
             bookmarkUsers: [],
         })], { type: 'application/json' }));
-    
+
+        // 데이터 로그 출력
+        console.log("등록할 데이터: ", isNegotiable, isGiveable, tradeable, selectedTradeType);
+
         // 이미지가 있을 경우 추가
         if (uploadedImages.length > 0) {
             uploadedImages.forEach((img) => {
                 formData.append('files', img); // 이미지 파일 추가
             });
         }
-    
+
         try {
             const response = await fetch('/api/usedTrades', {
                 method: 'POST',
@@ -342,7 +354,7 @@ const UsedTradeWrite = () => {
             if (response.ok) {
                 const createdUsedTrade = await response.json();
                 alert("등록되었습니다.");
-                navigate("/usedTrade");
+                navigate("/usedTrade", { state: formData });
             } else {
                 const errorMessage = await response.text();
                 console.error('Failed to create trade:', errorMessage);
@@ -501,19 +513,21 @@ const UsedTradeWrite = () => {
                     {priceError && <ErrorText>{priceError}</ErrorText>}
                     <br />
 
-                    {/* 체크박스 추가 */}
-                    <Label>
-                        <Checkbox
-                            type="checkbox"
-                            checked={isPriceNegotiable}
-                            onChange={handleCheckboxChange}
-                        />
-                        {selectedTradeType
-                            ? (selectedTradeType === "판매하기"
-                                ? "가격 제안 받기"
-                                : "나눔 신청 받기")
-                            : "판매 / 나눔 중 하나를 선택해 주세요"}
-                    </Label>
+                    {/* 체크박스 추가 - 조건부 렌더링 */}
+                    {selectedTradeType === "판매하기" && (
+                        <Label>
+                            <Checkbox
+                                type="checkbox"
+                                checked={isNegotiable}
+                                onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    setIsNegotiable(checked);
+                                    console.log("네고 가능 여부: ", checked);
+                                }}
+                            />
+                            가격 제안 받기
+                        </Label>
+                    )}
                 </div>
                 </InputContainer>
             </Form>
@@ -563,6 +577,7 @@ const UsedTradeWrite = () => {
                 marginTop: "10px" }}>
                 <Button
                     title="자주 쓰는 문구"
+                    onClick={() => alert("맥거핀입니다.")}
                 />
                 <div style={{ display: "flex", gap: "10px" }}>
                     <Button

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
-import AlbaMemberProfile from "../../alba/AlbaMemberProfile";
 
 const Container = styled.div`
   width: 90%;
@@ -44,17 +43,24 @@ const ProductDetail = styled.div`
 `;
 
 const ProductImage = styled.div`
-  flex: 2;
+  flex: 1;
   background: #eaeaea;
-  height: 100%;
+  height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 24px;
+  overflow: hidden;
 `;
 
+const StyledImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`
+
 const ProductInfo = styled.div`
-  flex: 1;
+  flex: 2;
 `;
 
 const Title = styled.h1`
@@ -191,10 +197,13 @@ const UsedTradeView = () => {
       </Header>
       <Product>
         <ProductDetail>
-          <ProductImage>상품 사진</ProductImage>
-          <AlbaMemberProfile 
-            userId={product.userId}
-          />
+          <ProductImage>
+            {product.imageData ? (
+              <StyledImage src={`data:image/png;base64,${product.imageData}`} alt="상품 이미지" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+            ) : (
+              "이미지가 없습니다."
+            )}
+          </ProductImage>
         </ProductDetail>
 
         <ProductDetail>
@@ -207,7 +216,7 @@ const UsedTradeView = () => {
             <Location>{product.location}</Location>
 
             <Description>
-              {product.content}
+              {product.content || "설명이 없습니다."}
             </Description>
 
             <Button 

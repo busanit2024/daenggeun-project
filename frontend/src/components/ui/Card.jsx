@@ -10,7 +10,12 @@ const CardContainer = styled.div`
 
 const ImagePlaceholder = styled.div`
     background: #eee;
-    height: 150px;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #888;
 `;
 
 const Info = styled.div`
@@ -34,17 +39,21 @@ const Location = styled.p`
     margin: 4px 0 0;
 `
 
-const image = styled.img`
+const Image = styled.img`
     width: 100%;
-    height: auto;
+    height: 250px;
+    object-fit: cover;
     border-radius: 8px;
 `;
 
 const Card = ({ title, price, location, onClick, imageUrl }) => {
     return (
         <CardContainer onClick={onClick} style={{cursor: "pointer"}}>
-            {imageUrl && <image src={imageUrl} alt={title} />}
-            <ImagePlaceholder />
+            {imageUrl ? (
+                <Image src={imageUrl} alt={title} />
+            ) : (
+                <ImagePlaceholder>No Image Available</ImagePlaceholder>
+            )}
             <Info>
                 <Title>{title}</Title>
                 <Price>{price}</Price>

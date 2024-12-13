@@ -150,7 +150,8 @@ export default function UsedTrade(props) {
     emd: "",
     sort: "recent",
     category: "all",
-    tradeble: true,
+    tradeble: false,
+    priceRange: { min: 0, max: 999999999999 },
   });
   const [busanJuso, setBusanJuso] = useState([]);
   const [emdList, setEmdList] = useState([]);
@@ -160,7 +161,7 @@ export default function UsedTrade(props) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [visibleCount, setVisibleCount] = useState(3); // 한 번에 보이는 카드의 최대 수
+  const [visibleCount, setVisibleCount] = useState(9); // 한 번에 보이는 카드의 최대 수
   const [selectedCategory, setSelectedCategory] = useState("중고거래");
 
 
@@ -249,7 +250,15 @@ export default function UsedTrade(props) {
 
   const resetFilter = () => {
     setLoading(true);
-    setSearchFilter((prev) => ({ ...prev, sido: currentLocation.sido, sigungu: currentLocation.sigungu, emd: '', sort: '', category: '' }));
+    setSearchFilter((prev) => ({
+      ...prev, 
+      sido: currentLocation.sido, 
+      sigungu: currentLocation.sigungu, 
+      emd: '', 
+      sort: '', 
+      category: '', 
+      tradeble: false, 
+      priceRange: { min: 0, max: 999999999999 }}));
     setIsFilterOpen(false);
     setPage(0);
   };
@@ -289,7 +298,7 @@ export default function UsedTrade(props) {
       setHasNext(!response.data.last);
       setLoading(false);
     } catch (error) {
-      console.error("중고거래 리스를 불러오는데 실패했습니다." + error);
+      console.error("중고거래 리스트를 불러오는데 실패했습니다." + error);
       setLoading(false);
     }
   };
@@ -306,8 +315,16 @@ export default function UsedTrade(props) {
     }
   };
 
+  const getImageUrl = (imageData) => {
+    // 이미지 데이터가 존재하고 유효한 경우에만 URL로 변환
+    if (imageData && imageData.length > 0) {
+      return `data:image/png;base64,${imageData}`; // 이미지 데이터가 배열일 경우 첫 번째 요소 사용
+  }
+  return null; // 이미지 데이터가 없거나 유효하지 않으면 null 반환
+  };
+
   const handleMoreButton = () => {
-    setVisibleCount(prevCount => prevCount + 3);
+    setVisibleCount(prevCount => prevCount + 9);
   };
 
   const formattedPrice = (price) => {
@@ -357,16 +374,19 @@ export default function UsedTrade(props) {
   ) : tradeList;
 
   const locationFilteredTrades = filteredTrades.filter(trade => {
+    const tradeableMatches = searchFilter.tradeble ? trade.tradeable === true : true;
+    const priceMatches = trade.price >= searchFilter.priceRange.min && trade.price <= searchFilter.priceRange.max;
+
     // 전지역 선택 시 모든 거래 보여주기
     if (searchFilter.sigungu === "" && searchFilter.emd === "") {
-      return true;
+      return tradeableMatches && priceMatches;
     }
 
     // 특정 구와 동이 선택된 경우
     const locationMatches = trade.location.includes(searchFilter.sigungu);
     const emdMatches = searchFilter.emd === "" || trade.location.includes(searchFilter.emd);
 
-    return locationMatches && emdMatches;
+    return locationMatches && emdMatches && tradeableMatches && priceMatches;
   });
 
   const routes = [
@@ -400,6 +420,17 @@ export default function UsedTrade(props) {
               <h3 className="title">필터</h3>
               <div className="reset" onClick={resetFilter}>초기화</div>
             </div>
+            <div className="filterItem">
+              <label className="radioWrap">
+                <input
+                  type="checkbox"
+                  checked={searchFilter.tradeble}
+                  onChange={(e) => setSearchFilter({ ...searchFilter, tradeble: e.target.checked })}
+                />
+                <p>거래 가능만 보기</p>
+              </label>
+            </div>
+
             <div className="filterItem">
               <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center' }}>지역
                 <CustomSelect value={searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.value })}>
@@ -494,6 +525,23 @@ export default function UsedTrade(props) {
                 가격순
               </label>
             </div>
+            <div>
+              <h4 className="title">가격</h4>
+              <CustomSelect
+                value={searchFilter.priceRange.max}
+                onChange={(e) => setSearchFilter({
+                  ...searchFilter,
+                  priceRange: { ...searchFilter.priceRange, max: Number(e.target.value) }
+                })}>
+                <option value={999999999999}>모든 가격대</option>
+                <option value={0}>나눔</option>
+                <option value={5000}>5,000원 이하</option>
+                <option value={10000}>10,000원 이하</option>
+                <option value={30000}>30,000원 이하</option>
+                <option value={50000}>50,000원 이하</option>
+                <option value={100000}>100,000원 이하</option>
+              </CustomSelect>
+            </div>
           </FilterBar>
 
           <ListContainer>
@@ -513,6 +561,7 @@ export default function UsedTrade(props) {
                     {(locationFilteredTrades.length > 0 ? locationFilteredTrades : tradeList).slice(0, visibleCount).map((usedTrade) => (
                       <Card 
                         key={usedTrade.id}
+                        imageUrl={getImageUrl(usedTrade.imageData)}
                         title={usedTrade.name}
                         price={`${formattedPrice(usedTrade.price)} 원`}
                         location={usedTrade.location}
@@ -526,9 +575,9 @@ export default function UsedTrade(props) {
                                 createdAt: usedTrade.createdDate,
                                 tradeable: usedTrade.tradeable,
                                 location: usedTrade.location,
+                                selectedTradeType: usedTrade.selectedTradeType,
                                 isNegotiable: usedTrade.isNegotiable,
                                 isGiveable: usedTrade.selectedTradeType,
-                                isGived: usedTrade.isGived,
                                 imageData: usedTrade.imageData,
                               }
                             }

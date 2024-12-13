@@ -106,7 +106,8 @@ const UsedTradeUpdate = () => {
     // location.state에서 정보 가져오기
     const product = location.state || {};
 
-    const [isPriceNegotiable, setIsPriceNegotiable] = useState(false);
+    const [isNegotiable, setIsNegotiable] = useState(product.isNegotiable || false);
+    const [isGiveable, setIsGiveable] = useState(product.isGiveable || false);
     const [name, setName] = useState(product.name || "상품명이 없습니다.");
     const [createdDate, setCreatedDate] = useState(product.createdDate);
     const [price, setPrice] = useState(product.price ? product.price.toString() : "");
@@ -115,7 +116,8 @@ const UsedTradeUpdate = () => {
 
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(product.category || null);
-    const [selectedTradeType, setSelectedTradeType] = useState("판매하기");
+    const [selectedTradeType, setSelectedTradeType] = useState(product.selectedTradeType || "판매하기");
+    const [uploadedImages, setUploadedImages] = useState(product.imageData);
 
     useEffect(() => {
         // 상품 정보를 API에서 가져오는 함수
@@ -130,9 +132,12 @@ const UsedTradeUpdate = () => {
                 setPrice(data.price.toString());
                 setContent(data.content);
                 setLocationInput(data.location);
-                setIsPriceNegotiable(data.isPriceNegotiable);
+                setIsNegotiable(data.isNegotiable);
+                setIsGiveable(data.isGiveable);
                 setCreatedDate(data.createdDate);
                 setSelectedCategory(data.category);
+                setSelectedTradeType(data.selectedTradeType || "판매하기");
+                setUploadedImages(data.imageData);
             } catch (error) {
                 console.error('Error fetching product:', error);
             }
@@ -145,23 +150,28 @@ const UsedTradeUpdate = () => {
             setPrice(product.price.toString());
             setContent(product.content);
             setLocationInput(product.location);
-            setIsPriceNegotiable(product.isPriceNegotiable);
+            setIsNegotiable(product.isNegotiable);
+            setIsGiveable(product.isGiveable);
             setCreatedDate(product.createdDate);
             setSelectedCategory(product.category);
+            setSelectedTradeType(product.selectedTradeType);
+            setUploadedImages(product.uploadedImages);
         }
     }, [id, product]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const updatedProduct = {
-            name,
+            name: name,
             price: parseInt(price.replace(/[^0-9]/g, ""), 10),
-            content,
+            content: content,
             location: locationInput,
-            isPriceNegotiable,
+            isNegotiable: isNegotiable,
+            isGiveable, isGiveable,
             category: selectedCategory,
-            tradeType: selectedTradeType,
+            selectedTradeType: selectedTradeType,
             createdDate: createdDate,
+            imagedata: uploadedImages,
         };
 
         try {
@@ -199,7 +209,7 @@ const UsedTradeUpdate = () => {
     const formattedPrice = new Intl.NumberFormat('ko-KR').format(price);    // 가격 포맷팅하기
 
     const handleCheckboxChange = () => {
-        setIsPriceNegotiable((prev) => !prev);
+        setIsNegotiable((prev) => !prev);
     };
 
     const handleTradeTypeChange = (type) => {
@@ -350,23 +360,34 @@ const UsedTradeUpdate = () => {
                     </ButtonContainer>
                 </div>
 
-                <InputText
-                    placeholder="가격을 입력해주세요"
-                    value={formattedPrice}
-                    onChange={handlePriceChange}
-                /> 원
-
                 <Label>
-                    <Checkbox
-                        type="checkbox"
-                        checked={isPriceNegotiable}
-                        onChange={handleCheckboxChange}
-                    />
-                    {selectedTradeType
-                        ? (selectedTradeType === "판매하기"
-                            ? "가격 제안 받기"
-                            : "나눔 신청 받기")
-                        : "판매 / 나눔 중 하나를 선택해 주세요"}
+                    {/* 가격 입력 */}
+                    <InputText 
+                        placeholder="가격을 입력해주세요" 
+                        value={selectedTradeType === "나눔하기" ? "0" : formattedPrice}
+                        onChange={handlePriceChange}
+                        disabled={selectedTradeType === "나눔하기"}
+                        // style={{ borderColor: priceError ? 'red' : '#ccc' }}
+                    /> 원
+                    <br />
+                    {/* {priceError && <ErrorText>{priceError}</ErrorText>} */}
+                    <br />
+                    
+                    {/* 체크박스 추가 - 조건부 렌더링 */}
+                    {selectedTradeType === "판매하기" && (
+                        <Label>
+                            <Checkbox
+                                type="checkbox"
+                                checked={isNegotiable}
+                                onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    setIsNegotiable(checked);
+                                    console.log("네고 가능 여부: ", checked);
+                                }}
+                            />
+                            가격 제안 받기
+                        </Label>
+                    )}
                 </Label>
                 </InputContainer>
             </Form>
@@ -400,6 +421,7 @@ const UsedTradeUpdate = () => {
                 marginTop: "10px" }}>
                 <Button
                     title="자주 쓰는 문구"
+                    onClick={() => alert("맥거핀입니다!")}
                 />
                 <div style={{ display: "flex", gap: "10px" }}>
                     <Button

@@ -50,7 +50,7 @@ const ImageUpload = ({ onImageChange }) => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    const validFiles = files.slice(0, 10 - images.length); // 최대 10개 제한
+    const validFiles = files.slice(0, 1 - images.length); // 최대 1개로 제한
     setImages((prevImages) => {
       const newImages = [...prevImages, ...validFiles];
       onImageChange(newImages); // 부모 컴포넌트로 전달
@@ -103,7 +103,7 @@ const ImageUpload = ({ onImageChange }) => {
               textAlign: "center", 
           }}
         >
-          {images.length} / 10
+          {images.length} / 1
         </span>
       </div>
       <input

@@ -38,13 +38,31 @@ public class UsedTradeController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UsedTrade> createUsedTrade(
             @RequestPart("usedTrade") UsedTrade usedTrade,
-            @RequestParam("files") MultipartFile imageFiles) {
+            @RequestParam(value = "files", required = false) MultipartFile imageFile) {
         System.out.println("Received POST request with data: " + usedTrade);
 
         try {
+            if (usedTrade.getIsGiveable() == null) {
+                usedTrade.setIsGiveable(false);
+            }
+
+            if (usedTrade.getIsNegotiable() == null) {
+                usedTrade.setIsNegotiable(false);
+            }
+
             usedTrade.setTradeable(true);
-            UsedTrade createdUsedTrade = usedTradeService.createUsedTrade(usedTrade, imageFiles);
-            return ResponseEntity.ok(createdUsedTrade);
+
+            // 이미지가 없을 때
+            if (imageFile == null || imageFile.isEmpty()) {
+                usedTrade.setImageData(null);
+                // 이미지가 없을 때 처리하기
+                UsedTrade createdUsedTrade = usedTradeService.createUsedTradeWithoutImage(usedTrade);
+                return ResponseEntity.ok(createdUsedTrade);
+            } else {
+                // 이미지가 있을 때
+                UsedTrade createdUsedTrade = usedTradeService.createUsedTrade(usedTrade, imageFile);
+                return ResponseEntity.ok(createdUsedTrade);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
