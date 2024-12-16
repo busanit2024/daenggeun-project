@@ -291,7 +291,7 @@ const handleSearch = (searchTerm) => {
             <div className="filterItem">
               <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>지역
                 <div className="switchWrap" style={{display: 'flex', gap: '4px', alignItems: 'center', fontWeight: 'normal'}}>
-                <Switch id="all" checked={!searchFilter.sigungu} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.checked ? '' : area.sigungu })} />
+                <Switch id="all" checked={searchFilter.sigungu === ''} value={searchFilter.sigungu === ''} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.checked ? '' : area.sigungu })} />
                 <label htmlFor="all">전지역</label>
                 </div>
               </h4>
