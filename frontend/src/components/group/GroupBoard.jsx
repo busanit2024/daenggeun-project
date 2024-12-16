@@ -48,7 +48,6 @@ export default function GroupBoard() {
           user: user,
         };
       });
-      console.log(newPosts);
       setPosts((prev) => (page === 0 ? postsWithUser : [...prev, ...postsWithUser]));
       setHasNext(!response.data.last);
     }).catch((error) => {

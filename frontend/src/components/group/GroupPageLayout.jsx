@@ -172,7 +172,6 @@ export default function GroupPageLayout(props) {
 
   const handleDeleteGroup = () => {
     axios.delete(`/api/group/delete/${group.id}`).then((response) => {
-      console.log(response.data);
       setDeleted(true);
       deleteFile(group.image?.filename);
     })
@@ -272,7 +271,6 @@ export default function GroupPageLayout(props) {
     if (group.requests && group.requests.length > 0) {
       const userId = sessionStorage.getItem('uid');
       const request = group.requests.filter((request) => (request.userId === userId && request.status === 'PENDING'));
-      console.log(request);
       if (request.length > 0) {
         setSubmitted(true);
       }

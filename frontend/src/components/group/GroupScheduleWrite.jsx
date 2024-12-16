@@ -286,7 +286,6 @@ export default function GroupScheduleWrite() {
   }, [group]);
 
   useEffect(() => {
-    console.log(group)
     const uid = sessionStorage.getItem('uid');
     if (!uid) {
       console.log('로그인이 필요합니다.');
@@ -340,7 +339,6 @@ export default function GroupScheduleWrite() {
           participants,
           images,
         }).then((response) => {
-          console.log(response.data);
           alert(`일정을 ${isEditing ? '수정했어요.' : '만들었어요.'}`);
           navigate('/group/' + group.id + '/schedule');
         }).catch((error) => {
