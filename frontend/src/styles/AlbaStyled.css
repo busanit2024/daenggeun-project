@@ -396,7 +396,7 @@ body {
     background-color: #f9f9f9;
     padding: 20px;
     border-radius: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid #f9f9f9;
     width: 100%;
   }
   
@@ -407,7 +407,7 @@ body {
 
 .profile-info p {
   margin: 5px 0;
-  color: #555;
+  color: #ddd;
 }
 
 .detail-right {
@@ -483,8 +483,8 @@ body {
 
 .profile-info {
   text-align: center;
-  background-color: #f9f9f9;
-  padding: 20px;
+  background-color: #ffffff;
+  padding: 5px;
   border-radius: 8px;
   border: 1px solid #ddd;
   width: 100%;

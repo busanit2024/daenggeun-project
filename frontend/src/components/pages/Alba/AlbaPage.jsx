@@ -280,6 +280,7 @@ export default function AlbaPage(props) {
 
 
   const filteredAlbaList = albaList.filter((alba) => {
+    
     return (
       // 지역 필터링
       (!selectedRegion || alba.location.sigungu === selectedRegion) &&
@@ -292,6 +293,7 @@ export default function AlbaPage(props) {
       (!workTime.end || alba.workTimeEnd <= workTime.end) &&
       // 검색어 필터링
       (!searchTerm.trim() || alba.title.includes(searchTerm.trim()) || alba.description.includes(searchTerm.trim()))
+      
     );
   });
   
