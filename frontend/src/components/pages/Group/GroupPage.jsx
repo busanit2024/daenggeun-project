@@ -168,6 +168,14 @@ export default function GroupPage(props) {
   }, [searchFilter, categoryData, busanJuso]);
 
   useEffect(() => {
+    setLoading(true);
+    setSearchFilter((prev) => {
+      if (prev.sigungu !== area.sigungu) {
+        return {...prev, emd: ''}
+      } else {
+        return prev;
+      }
+    });
     getEmdList(searchFilter.sigungu);
     setIsFilterOpen(false);
   }, [searchFilter.sigungu, busanJuso]);
