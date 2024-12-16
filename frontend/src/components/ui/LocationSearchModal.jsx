@@ -105,13 +105,13 @@ const LocationChip = styled.div`
 
 const libraries = ['places'];
 
-const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
+const LocationSearchModal = ({ onSelect, onClose }) => {
   const [locations, setLocations] = useState([]); // 지도 리스트
   const [busanJuso, setBusanJuso] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredLocations, setFilteredLocations] = useState([]); 
   const [userLocations, setUserLocations] = useState([]);
-  const { area } = useArea();
+  const { area, setArea } = useArea();
   const uid = sessionStorage.getItem('uid');
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
@@ -191,11 +191,25 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   const handleLocationSelect = (selectedLocation) => {
     if(selectedLocation) {
       const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-      onSelect(selectedLocation);  // 부모 컴포넌트에 위치만 전달
-      onClose();  // 모달 닫기
+      
+      setArea({ 
+        sigungu, 
+        emd: emd || '' 
+      });
+
+      onSelect(selectedLocation);
+      onClose();
     }
   };
 
+  const handleSigunguSelect = (sigungu) => {
+    setArea({ 
+      sigungu, 
+      emd: '' 
+    });
+    onSelect(sigungu);
+    onClose();
+  };
 
   const findMyLocation = () => {
     if (!isJsApiLoaded) {
@@ -230,7 +244,7 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
       if (selectedLocation) {
         const selectedString = `${selectedLocation.sigungu}, ${selectedLocation.emd}`;
         onSelect(selectedString);
-        onClose(); 
+        setSearchTerm("");
       }
     }
   };
@@ -269,24 +283,18 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
         />
           
         <Suggestions>
-          {/* 기존 검색 결과 유지 */}
           {Object.keys(groupedLocations).length > 0 ? (
             Object.keys(groupedLocations).map((sigungu, index) => (
               <div key={index}>
-                <SuggestionItem onClick={() => {
-                  const selectedLocation = sigungu; 
-                  onSelect(selectedLocation); 
-                  onClose();
-                }}>
-                  {sigungu} 
+                <SuggestionItem onClick={() => handleSigunguSelect(sigungu)}>
+                  {sigungu}
                 </SuggestionItem>
                 {groupedLocations[sigungu].map((emd, emdIndex) => (
-                  <SuggestionItem key={emdIndex} onClick={() => {
-                    const selectedLocation = `${sigungu}, ${emd}`;
-                    onSelect(selectedLocation);
-                    onClose();
-                  }}>
-                    {`${sigungu}, ${emd}`} 
+                  <SuggestionItem 
+                    key={emdIndex} 
+                    onClick={() => handleLocationSelect(`${sigungu}, ${emd}`)}
+                  >
+                    {`${sigungu}, ${emd}`}
                   </SuggestionItem>
                 ))}
               </div>

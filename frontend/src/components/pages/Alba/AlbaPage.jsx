@@ -115,22 +115,12 @@ export default function AlbaPage(props) {
 
   const handleLocationSelect = async (selectedLocation) => {
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-    
-    await Promise.all([
-      new Promise(resolve => {
-        setSelectedRegion(sigungu);
-        resolve();
-      }),
-      new Promise(resolve => {
-        setSelectedDong(emd || '');
-        resolve();
-      })
-    ]);
-
+    setSelectedRegion(sigungu);
+    setSelectedDong(emd || '');
     setIsModalOpen(false);
 
     try {
-      const response = await axios.get(`/api/alba`, {  // /api/alba/search 대신 /api/alba 사용
+      const response = await axios.get(`/api/alba`, {
         params: {
           sigungu: sigungu,
           emd: emd || undefined,
@@ -141,6 +131,7 @@ export default function AlbaPage(props) {
           end: workTime.end || undefined
         }
       });
+
       setAlbaList(response.data);
     } catch (error) {
       console.error("알바 리스트를 불러오는데 실패했습니다:", error);
@@ -303,21 +294,38 @@ export default function AlbaPage(props) {
   const handleSearch = async (searchTerm) => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/alba/search`, {
-        params: {
-          sigungu: area.sigungu || searchFilter.sigungu,
-          emd: area.emd || searchFilter.emd || undefined,
-          category: category,
-          searchTerm: searchTerm || undefined,
-          page: 0,
-          size: 10,
+      // API 호출용 파라미터
+      const params = {
+        category: category,
+        page: 0,
+        size: 10,
+      };
+  
+      // 검색어가 있는 경우에만 searchTerm 추가
+      if (searchTerm && searchTerm.trim()) {
+        params.searchTerm = searchTerm;
+      }
+  
+      // 지역 정보가 있는 경우에만 추가
+      if (selectedRegion || area.sigungu) {
+        params.sigungu = selectedRegion || area.sigungu;
+        if (selectedDong || area.emd) {
+          params.emd = selectedDong || area.emd;
         }
-      });
+      }
+  
+      const response = await axios.get(`/api/alba/search`, { params });
       setAlbaList(response.data);
       setHasNext(!response.data.last);
       
-      if (searchTerm) {
+      // URL 업데이트는 실제 검색어가 있을 때만
+      if (searchTerm && searchTerm.trim() && !searchTerm.includes('구')) {
         navigate(`/alba?search=${searchTerm}`, { replace: true });
+      } else if (!searchTerm || !searchTerm.trim()) {
+        // 검색어가 없을 때는 search 파라미터 제거
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('search');
+        window.history.replaceState({}, '', newUrl);
       }
     } catch (error) {
       console.error("검색 중 오류가 발생했습니다:", error);
