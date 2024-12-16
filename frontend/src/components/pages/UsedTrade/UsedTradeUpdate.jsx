@@ -6,6 +6,7 @@ import ImageUpload from "./ImageUpload";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { deleteFile, singleFileUpload } from "../../../firebase";
 import imageData from "../../../asset/imageData";
+import categoryData from "../../../asset/categoryData";
 
 const ButtonContainer = styled.div`
     display: inline-flex;
@@ -107,6 +108,7 @@ const UsedTradeUpdate = () => {
     const location = useLocation();
     const product = location.state || {};
 
+    const [userId, setUserId] = useState(sessionStorage.getItem('uid'));    // 현재 로그인한 사용자 ID
     const [isNegotiable, setIsNegotiable] = useState(product.isNegotiable || false);
     const [isGiveable, setIsGiveable] = useState(product.isGiveable || false);
     const [name, setName] = useState(product.name || "상품명이 없습니다.");
@@ -114,9 +116,10 @@ const UsedTradeUpdate = () => {
     const [price, setPrice] = useState(product.price ? product.price.toString() : "");
     const [content, setContent] = useState(product.content || "상세 설명이 없습니다.");
     const [locationInput, setLocationInput] = useState(product.location || "위치 정보가 없습니다.");
+    const [tradeable, setTradeable] = useState(product.tradeable);
 
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(product.category || null);
+    const [selectedCategory, setSelectedCategory] = useState(product.category.name || null);
     const [selectedTradeType, setSelectedTradeType] = useState(product.isGiveable ? "나눔하기" : "판매하기");
     const [uploadedImages, setUploadedImages] = useState(product.images || []);
 
@@ -175,11 +178,12 @@ const UsedTradeUpdate = () => {
         }
     }, [id, product]);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e, isTradeComplete = false) => {
         e.preventDefault();
 
         console.log("업로드한 사진: ", uploadedImages);
         const updatedProduct = {
+            userId: userId,
             name: name,
             price: parseInt(price.replace(/[^0-9]/g, ""), 10),
             content: content,
@@ -188,6 +192,7 @@ const UsedTradeUpdate = () => {
             isGiveable: selectedTradeType === "나눔하기", // selectedTradeType에 따라 isGiveable 결정
             category: selectedCategory,
             createdDate: createdDate,
+            tradeable: isTradeComplete ? false : tradeable,
             images: uploadedImages,
         };
 
@@ -202,7 +207,7 @@ const UsedTradeUpdate = () => {
 
             if (response.ok) {
                 console.log("수정 결과: ", updatedProduct);
-                alert("수정이 완료되었습니다.");
+                alert(isTradeComplete ? "거래가 완료되었습니다." : "수정이 완료되었습니다.");
                 navigate(`/usedTradeView/${id}`);
             } else {
                 alert("수정에 실패했습니다.");
@@ -212,6 +217,17 @@ const UsedTradeUpdate = () => {
             alert("서버와의 연결에 실패했습니다.");
         }
     };
+
+    // 거래 완료 버튼 클릭 시 호출되는 함수
+    const handleTradeComplete = (e) => {
+        const confirmComplete = window.confirm("정말로 거래를 완료하시겠습니까?");
+        if (confirmComplete) {
+            handleSubmit(e, true);
+        } else {
+            console.log("거래 완료가 취소되었습니다.");
+            return;
+        }
+    }
 
     const handlePriceChange = (e) => {
         let value = e.target.value.replace(/[^0-9]/g, "");
@@ -251,7 +267,7 @@ const UsedTradeUpdate = () => {
         console.log("newImages: ", newImages);
         
         // 이전 파일 삭제 처리
-        const removedImages = uploadedImages.filter(
+        const removedImages = newImages.filter(
             (image) => !newImages.some((newImage) => newImage.filename === image.filename)
         );
 
@@ -281,7 +297,7 @@ const UsedTradeUpdate = () => {
         // const uploadedFiles = await Promise.all(newImages.map(files => singleFileUpload(files))); // Firebase에 업로드
         // setUploadedImages(uploadedFiles); // 상태 업데이트
     };
-
+    
     return (
         <Container>
             <h1>중고거래 수정</h1>
@@ -315,69 +331,11 @@ const UsedTradeUpdate = () => {
                         }}>
                             None
                         </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("디지털기기")}>
-                            디지털기기
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("생활가전")}>
-                            생활가전
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("가구/인테리어")}>
-                            가구/인테리어
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("생활/주방")}>
-                            생활/주방
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("가구/인테리어")}>
-                            가구/인테리어
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("유아동")}>
-                            유아동
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("유아도서")}>
-                            유아도서
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("여성의류")}>
-                            여성의류
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("여성잡화")}>
-                            여성잡화
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("남성패션/잡화")}>
-                            남성패션/잡화
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("뷰티/미용")}>
-                            뷰티/미용
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("스포츠/레저")}>
-                            스포츠/레저
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("취미/게임/음반")}>
-                            취미/게임/음반
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("도서")}>
-                            도서
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("티켓/교환권")}>
-                            티켓/교환권
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("가공식품")}>
-                            가공식품
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("건강기능식품")}>
-                            건강기능식품
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("반려동물용품")}>
-                            반려동물용품
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("식물")}>
-                            식물
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("기타")}>
-                            기타
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("삽니다")}>
-                            삽니다
-                        </CategoryItem>
+                        {categoryData.map(category => (
+                            <CategoryItem key={category.name} onClick={() => selectCategory(category.name)}>
+                                {category.name}
+                            </CategoryItem>
+                        ))}
                     </CategoryList>
                     </CategoryToggle>
                 </Form>
@@ -488,13 +446,14 @@ const UsedTradeUpdate = () => {
                             navigate(`/usedTradeView/${id}`);
                         }}
                     />
-                    <Button
+                    {tradeable && (
+                        <Button
                         title="거래완료"
                         variant="white"
-                        onClick={() => {
-                            navigate(`/usedTradeView/${id}`);
-                        }}
-                    />
+                        type="button"
+                        onClick={handleTradeComplete}
+                        />
+                    )}
                 </div>
             </Form>
         </Container>

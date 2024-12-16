@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
 import imageData from "../../../asset/imageData";
+import categoryData from "../../../asset/categoryData";
 
 const Container = styled.div`
   width: 90%;
@@ -83,7 +84,8 @@ const Location = styled.p`
 const Description = styled.p`
   font-size: 16px;
   color: #555;
-  border: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
 `;
 
 const CategoryAndTime = styled.p`
@@ -115,6 +117,7 @@ const UsedTradeView = () => {
   const location = useLocation();
 
   const [product, setProduct] = useState(location.state);
+  const [userId, setUserId] = useState(sessionStorage.getItem('uid'));  // 현재 로그인한 사용자 ID
 
   // 상품 정보 가져오기
   const fetchProductInfo = async () => {
@@ -124,6 +127,7 @@ const UsedTradeView = () => {
         throw new Error('상품 정보를 가져오는 데 실패했습니다.');
       }
       const data = await response.json();
+      console.log(data);
       setProduct(data);
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -132,7 +136,7 @@ const UsedTradeView = () => {
 
   useEffect(() => {
     fetchProductInfo(); // 컴포넌트가 마운트될 때 상품 정보 가져오기
-  }, [id]);
+  }, [id, userId]);
 
   if (!product) {
     return (
@@ -192,8 +196,12 @@ const UsedTradeView = () => {
         <h2>상품 상세 페이지</h2>
         <ButtonGroup>
           <BackButton onClick={() => navigate("/usedTrade")}>뒤로 가기</BackButton>
-          <Button onClick={() => navigate(`/usedTradeUpdate/${id}`, { state: product })} title="수정하기" variant="primary" />
-          <Button onClick={handleDelete} title="삭제하기" variant="danger" />
+          {product.userId && userId && product.userId[0].toLowerCase() === userId[0].toLowerCase() && ( // 작성자 ID와 현재 사용자 ID를 비교
+            <>
+              <Button onClick={() => navigate(`/usedTradeUpdate/${id}`, { state: product })} title="수정하기" variant="primary" />
+              <Button onClick={handleDelete} title="삭제하기" variant="danger" />
+            </>
+          )}
         </ButtonGroup>
       </Header>
       <Product>
@@ -211,20 +219,23 @@ const UsedTradeView = () => {
           <ProductInfo>
             <Title>{product.name}</Title>
             <CategoryAndTime>
-              {product.category} | {timeAgo(product.createdDate)}
+              {product.category} | {timeAgo(product.createdDate)} | {product.isNegotiable ? "네고 가능" : "네고 불가능"}
             </CategoryAndTime>
             <Price>{formattedPrice} 원</Price>
             <Location>{product.location}</Location>
 
             <Description>
-              {product.content || "설명이 없습니다."}
+              <pre style={{ fontFamily: "unset" }}>
+                {product.content || "설명이 없습니다."}
+              </pre>
             </Description>
 
             <Button 
-              title="거래하기" 
+              title={product.tradeable ? "거래하기" : "이미 거래가 완료된 상품입니다."}
               variant="primary" 
-              onClick={() => alert("거래를 시작합니다!")} 
+              onClick={product.tradeable ? () => alert("거래를 시작합니다!") : null} 
               style={{ width: "100%", marginTop: "20px" }}
+              disabled={!product.tradeable}
             />
           </ProductInfo>
         </ProductDetail>

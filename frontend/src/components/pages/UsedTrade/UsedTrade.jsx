@@ -12,6 +12,7 @@ import SearchBar from "../../ui/SearchBar";
 import Card from "../../ui/Card";
 import categoryData from "../../../asset/categoryData";
 import { useArea } from "../../../context/AreaContext";
+import Modal from "../../ui/Modal";
 
 const Container = styled.div`
   display: flex;
@@ -140,6 +141,29 @@ const CardGrid = styled.div`
   width: 100%;
 `;
 
+const FilterTagsContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+`;
+
+const FilterTag = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+`;
+
+const RemoveButton = styled.button`
+  margin-left: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+`;
+
 const libraries = ['places'];
 
 export default function UsedTrade(props) {
@@ -167,6 +191,8 @@ export default function UsedTrade(props) {
   const [selectedCategory, setSelectedCategory] = useState("중고거래");
   const { area, setArea } = useArea();
 
+  // 내가 고른 필터 저장
+  const [selectedFilters, setSelectedFilters] = useState([]);
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -175,6 +201,8 @@ export default function UsedTrade(props) {
     language: 'ko',
     region: 'KR',
   });
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const currentLocation = useGeolocation(isJsApiLoaded);
 
@@ -189,7 +217,7 @@ export default function UsedTrade(props) {
     } else {
       fetchTradeList(0);
     }
-  }, [location.search]);
+  }, [location.search, searchFilter]);
 
   useEffect(() => {
     const uid = sessionStorage.getItem('uid');
@@ -277,10 +305,11 @@ export default function UsedTrade(props) {
       sigungu: currentLocation.sigungu, 
       emd: '', 
       sort: '', 
-      category: '', 
+      category: 'all', 
       tradeble: false, 
       priceRange: { min: 0, max: 999999999999 }}));
     setIsFilterOpen(false);
+    setSelectedFilters([]);
     setPage(0);
   };
 
@@ -291,10 +320,39 @@ export default function UsedTrade(props) {
   );
 
   const selectCategory = (category) => {
+    if (!selectedFilters.includes(category)) {  // 필터 중복 체크
+      setSelectedFilters((prev) => [...prev, category]);
+    }
     setSearchFilter((prev) => ({
       ...prev,
       category: category,
     }));
+    fetchTradeList(0);
+  };
+
+  const handleSortChange = (sort) => {
+    if (!selectedFilters.includes(sort)) {  // 필터 중복 체크
+      setSelectedFilters((prev) => [...prev, sort]);
+    }
+    setSearchFilter((prev) => ({
+      ...prev,
+      sort: sort,
+    }));
+    fetchTradeList(0);
+  }
+
+  const handleRemoveFilter = (filter) => {
+    setSelectedFilters((prev) => prev.filter((f) => f !== filter));
+    // 필터 상태 업데이트
+    setSearchFilter((prev) => {
+      if (prev.category === filter) {
+        return { ...prev, category: "all" }; // 카테고리 필터 제거 시 "all"로 설정
+      } else if (prev.sort === filter) {
+        return { ...prev, sort: "recent" }; // 정렬 필터 제거 시 기본값으로 설정
+      }
+      return prev;
+    });
+    fetchTradeList(0);
   };
 
   const fetchTradeList = async (page, searchKeyword = '') => {
@@ -304,7 +362,7 @@ export default function UsedTrade(props) {
           sigungu: searchFilter.sigungu,
           emd: searchFilter.emd,
           sort: searchFilter.sort,
-          category: searchFilter.category,
+          category: searchFilter.category !== "all" ? searchFilter.category : undefined,
           tradeble: searchFilter.tradeble,
           page: page,
           size: 10,
@@ -386,7 +444,11 @@ export default function UsedTrade(props) {
         ...prev,
         sido: "부산광역시",
         sigungu,
-        emd: emd || ''
+        emd: emd || '',
+        sort: prev.sort,
+        category: prev.category,
+        tradeable: prev.tradeable,
+        priceRange: { min: 0, max: 9999999999 }
     }));
 
     // emdList 업데이트
@@ -401,6 +463,15 @@ export default function UsedTrade(props) {
     setIsFilterOpen(false);
     fetchTradeList(0);
   };
+
+  const handleWriteClick = () => {
+    const userId = sessionStorage.getItem('uid');
+    if (!userId) {
+      setModalOpen(true);
+    } else {
+      navigate("/usedTradeWrite");
+    }
+  }
 
   const routes = [
     { path: "/", name: "홈" },
@@ -442,10 +513,18 @@ export default function UsedTrade(props) {
       <Container>
         <HeadContainer>
           <h2>{`${searchFilter.sido} ${searchFilter.sigungu || ''} ${searchFilter.emd || ''} 중고거래`}</h2>
+          <FilterTagsContainer>
+            {selectedFilters.map((filter, index) => (
+              <FilterTag key={index}>
+                {filter}
+                <RemoveButton onClick={() => handleRemoveFilter(filter)}>X</RemoveButton>
+              </FilterTag>
+            ))}
+          </FilterTagsContainer>
           <Button 
             title="+ 글쓰기" 
             variant="primary" 
-            onClick={() => navigate("/usedTradeWrite")} 
+            onClick={handleWriteClick} 
           />
         </HeadContainer>
         <InnerContainer>
@@ -554,7 +633,7 @@ export default function UsedTrade(props) {
                   name="sort" 
                   value="recent" 
                   checked={searchFilter.sort === 'recent'} 
-                  onChange={(e) => setSearchFilter({ ...searchFilter, sort: 'recent' })} />
+                  onChange={(e) => handleSortChange( 'recent' )} />
                 최신순
               </label>
               <label className="radioWrap">
@@ -562,7 +641,7 @@ export default function UsedTrade(props) {
                   name="sort" 
                   value="name" 
                   checked={searchFilter.sort === 'price'} 
-                  onChange={(e) => setSearchFilter({ ...searchFilter, sort: 'price' })} />
+                  onChange={(e) => handleSortChange( 'price' )} />
                 가격순
               </label>
             </div>
@@ -638,6 +717,14 @@ export default function UsedTrade(props) {
         </InnerContainer>
 
       </Container>
+
+      <Modal title="로그인" isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+        <h3>중고거래를 게시하려면 로그인해야 해요.</h3>
+        <div className="buttonWrap">
+          <Button title="로그인" variant='primary' onClick={() => { setModalOpen(false); navigate("/login") }} />
+          <Button title="닫기" onClick={() => setModalOpen(false)} />
+        </div>
+      </Modal>
     </>
   );
 }

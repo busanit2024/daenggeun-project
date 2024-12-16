@@ -82,7 +82,7 @@ const StyledButton = styled.button`
 
 
 function Button(props) {
-    const { title, onClick, variant, width, grow, borderRadius, active, disabled, style } = props;
+    const { title, onClick, variant, width, grow, borderRadius, active, disabled, style, type } = props;
     return <StyledButton
             title={title}
             onClick={onClick}
@@ -93,6 +93,7 @@ function Button(props) {
             active={active}
             disabled={disabled}
             style={style}
+            type={type}
         >
             {title || "button"}
         </StyledButton>;

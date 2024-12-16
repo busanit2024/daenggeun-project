@@ -9,7 +9,7 @@ import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import useGeolocation from "../../../utils/useGeolocation";
 import axios from "axios";
 import { singleFileUpload } from "../../../firebase";
-import UsedTrade from "./UsedTrade";
+import categoryData from "../../../asset/categoryData";
 
 const ButtonContainer = styled.div`
     display: inline-flex;
@@ -143,6 +143,8 @@ const UsedTradeWrite = () => {
 
     const [isNegotiable, setIsNegotiable] = useState(false);  // 체크박스는 기본적으로 체크 X
     const [location, setLocation] = useState("");
+
+    const userId = sessionStorage.getItem('uid');   // 현재 로그인한 사용자 ID
 
     const [content, setContent] = useState("");
     const [name, setName] = useState("");
@@ -315,8 +317,6 @@ const UsedTradeWrite = () => {
         const confirmSubmit = window.confirm("악용을 방지하기 위해 거래 희망 장소는\n수정을 막고 있습니다. 정말로 등록하시겠습니까?");
         if (!confirmSubmit) return;
 
-        const userId = sessionStorage.getItem('uid');
-
         // FormData 생성
         const formData = new FormData();
         formData.append('usedTrade', new Blob([JSON.stringify({
@@ -338,6 +338,8 @@ const UsedTradeWrite = () => {
             images: uploadedImages,
         })], { type: 'application/json' }));
 
+        console.log("Submitting with userId: ", userId);
+
         // 데이터 로그 출력
         console.log("등록할 데이터: ", isNegotiable, isGiveable, tradeable, selectedTradeType);
 
@@ -356,7 +358,7 @@ const UsedTradeWrite = () => {
             if (response.ok) {
                 const createdUsedTrade = await response.json();
                 alert("등록되었습니다.");
-                navigate("/usedTrade", { state: createdUsedTrade });
+                navigate("/usedTrade", { state: createdUsedTrade, userId });
             } else {
                 const errorMessage = await response.text();
                 console.error('Failed to create trade:', errorMessage);
@@ -406,66 +408,11 @@ const UsedTradeWrite = () => {
                         }}>
                             None
                         </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("디지털기기")}>
-                            디지털기기
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("생활가전")}>
-                            생활가전
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("가구/인테리어")}>
-                            가구/인테리어
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("생활/주방")}>
-                            생활/주방
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("유아동")}>
-                            유아동
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("유아도서")}>
-                            유아도서
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("여성의류")}>
-                            여성의류
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("여성잡화")}>
-                            여성잡화
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("남성패션/잡화")}>
-                            남성패션/잡화
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("뷰티/미용")}>
-                            뷰티/미용
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("스포츠/레저")}>
-                            스포츠/레저
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("취미/게임/음반")}>
-                            취미/게임/음반
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("도서")}>
-                            도서
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("티켓/교환권")}>
-                            티켓/교환권
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("가공식품")}>
-                            가공식품
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("건강기능식품")}>
-                            건강기능식품
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("반려동물용품")}>
-                            반려동물용품
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("식물")}>
-                            식물
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("기타")}>
-                            기타
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("삽니다")}>
-                            삽니다
-                        </CategoryItem>
+                        {categoryData.map(category => (
+                            <CategoryItem key={category.name} onClick={() => selectCategory(category.name)}>
+                                {category.name}
+                            </CategoryItem>
+                        ))}
                     </CategoryList>
                     </CategoryToggle>
                 </Form>
