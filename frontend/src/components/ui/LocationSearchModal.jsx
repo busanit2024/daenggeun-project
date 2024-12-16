@@ -124,7 +124,6 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
 
   const currentLocation = useGeolocation(isJsApiLoaded);
 
-  // 컴포넌트가 마운트될 때 데이터 요청
   useEffect(() => {
     const fetchLocations = async () => {
       try {
@@ -143,7 +142,7 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
                 emd: e.emd
               })); // Location 객체로 변환
             }
-            return []; // null 또는 유효하지 않은 경우 빈 배열 반환
+            return []; 
           });
 
           setLocations(allLocations); 
@@ -162,13 +161,11 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   // 검색어가 변경될 때마다 필터링된 위치 업데이트
   useEffect(() => {
     if (searchTerm) {
-      // 검색어가 있을 때는 필터링
       const filtered = locations.filter(location => 
         location.sigungu.includes(searchTerm) || location.emd.includes(searchTerm)
       );
       setFilteredLocations(filtered);
     } else {
-      // 검색어가 없을 때는 전체 locations 표시
       setFilteredLocations(locations);
     }
   }, [searchTerm, locations]);
