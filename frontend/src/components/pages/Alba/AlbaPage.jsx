@@ -84,7 +84,6 @@ const NoSearchResult = styled.div`
 
 export default function AlbaPage(props) {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null); // 사용자 정보 상태 추가
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
@@ -95,7 +94,6 @@ export default function AlbaPage(props) {
   const [workTime, setWorkTime] = useState({ start: "", end: "" });
   const [albaList, setAlbaList] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
-  const [regionData, setRegionData] = useState([]);
   const [workDaysData, setWorkDaysData] = useState([]);
   const [workTypeData, setWorkTypeData] = useState([
     { id: 'longterm', name: '1개월 이상' },
@@ -114,6 +112,31 @@ export default function AlbaPage(props) {
 
   const [selectedCategory, setSelectedCategory] = useState("알바");
   const sessionId = sessionStorage.getItem('uid');
+
+  const handleLocationSelect = async (selectedLocation) => {
+    const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+    setSelectedRegion(sigungu);
+    setSelectedDong(emd || '');
+    setIsModalOpen(false);
+
+    try {
+      const response = await axios.get(`/api/alba`, {
+        params: {
+          sigungu: sigungu,
+          emd: emd || undefined,
+          category: category !== "all" ? category : undefined,
+          workPeriod: workType.length > 0 ? workType.join(",") : undefined,
+          workDays: workDays.length > 0 ? workDays.join(",") : undefined,
+          start: workTime.start || undefined,
+          end: workTime.end || undefined
+        }
+      });
+
+      setAlbaList(response.data);
+    } catch (error) {
+      console.error("알바 리스트를 불러오는데 실패했습니다:", error);
+    }
+  };
 
   // 카테고리 데이터를 가져오기 위한 useEffect
   useEffect(() => {
@@ -136,16 +159,10 @@ export default function AlbaPage(props) {
       });
   }, []);
 
-  // 알바 리스트 데이터를 가져오기 위한 useEffect
+  // 알바 리스트 데이터를 가져오기 위한 useEffect 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 지역이 선택되지 않았다면 데이터를 가져오지 않음
-        if (!selectedRegion) {
-          setAlbaList([]);
-          return;
-        }
-
         const response = await axios.get(`/api/alba`, {
           params: {
             sigungu: selectedRegion,
@@ -177,7 +194,9 @@ export default function AlbaPage(props) {
               alba.title.includes(searchTerm.trim()) || 
               (alba.description && alba.description.includes(searchTerm.trim())))
           );
-        });
+        }
+      
+      );
 
         setAlbaList(filteredList);
       } catch (error) {
@@ -185,7 +204,10 @@ export default function AlbaPage(props) {
       }
     };
     
-    fetchData();
+    // selectedRegion이나 selectedDong이 변경될 때마다 fetchData 실행
+    if (selectedRegion) {
+      fetchData();
+    }
   }, [selectedRegion, selectedDong, category, workType, workDays, workTime, searchTerm]);
 
   // 컴포넌트 마운트 시 초기 검색 실행
@@ -202,12 +224,7 @@ export default function AlbaPage(props) {
     }
   }, []); 
 
-  const handleLocationSelect = (selectedLocation) => {
-    const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-    setSelectedRegion(sigungu);
-    setSelectedDong(emd || '');
-    setIsModalOpen(false);
-  };
+  
 
 
   const resetFilter = () => {
@@ -290,7 +307,6 @@ export default function AlbaPage(props) {
       setAlbaList(response.data);
       setHasNext(!response.data.last);
       
-      // 검색어가 있으면 URL 업데트
       if (searchTerm) {
         navigate(`/alba?search=${searchTerm}`, { replace: true });
       }
@@ -316,10 +332,13 @@ export default function AlbaPage(props) {
     }
   }, []);
 
-  // 필터 상태가 변경될 때마다 자동으로 리스트 업데이트
+  // 필터 상태가 변경될 때마다 자동으로 리스트 업데이트하는 useEffect 수정
   useEffect(() => {
-    handleSearch();
-  }, [category, workType, workDays, selectedRegion, selectedDong, workTime]);
+    if (category !== 'all' || workType.length > 0 || workDays.length > 0 || 
+        workTime.start || workTime.end) {
+      handleSearch('');
+    }
+  }, [category, workType, workDays, workTime]);
 
   return (
     <Container>
@@ -428,7 +447,7 @@ export default function AlbaPage(props) {
         {/* 알바 리스트 컨테이너 */}
 
         <ListContainer>
-
+     
           {(category !== 'all' || workType.length > 0 || workDays.length > 0 || workTime.start || workTime.end || searchTerm.trim() !== "" || selectedRegion !== "" || selectedDong !== "") &&
             <FilterContainer>
               {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
@@ -440,10 +459,11 @@ export default function AlbaPage(props) {
               ))}
               {workTime.start && <RoundFilter title={`시작 시간: ${workTime.start}`} variant='search' cancelIcon onClick={() => setWorkTime(prev => ({ ...prev, start: "" }))} />}
               {workTime.end && <RoundFilter title={`종료 시간: ${workTime.end}`} variant='search' cancelIcon onClick={() => setWorkTime(prev => ({ ...prev, end: "" }))} />}
-              {selectedRegion && <RoundFilter title={selectedRegion} variant='search' cancelIcon onClick={() => setSelectedRegion("")} />}
-              {selectedDong && <RoundFilter title={selectedDong} variant='search' cancelIcon onClick={() => setSelectedDong("")} />}
+              {selectedDong ? 
+                <RoundFilter title={selectedDong} variant='search' cancelIcon onClick={() => setSelectedDong("")} /> :
+                selectedRegion && <RoundFilter title={selectedRegion} variant='search' cancelIcon onClick={() => setSelectedRegion("")} />
+              }
               {searchTerm.trim() !== "" && <RoundFilter title={`검색어: ${searchTerm}`} variant='search' cancelIcon onClick={() => setSearchTerm("")} />}
-                
             </FilterContainer>
             
           }
