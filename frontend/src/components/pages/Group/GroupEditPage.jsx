@@ -82,7 +82,6 @@ export default function GroupEditPage(props) {
     axios.get(`/api/group/view/${groupId}`).then((response) => {
       setGroup(response.data);
       setPrevFile(response.data.image);
-      console.log(response.data);
     }).catch((error) => {
       console.error("모임 정보를 불러오는데 실패했습니다." + error);
     });
@@ -197,13 +196,10 @@ export default function GroupEditPage(props) {
       if (image !== null) {
         imageInfo = await singleFileUpload(image);
         setGroup({ ...group, image: { url: imageInfo.url, fileName: imageInfo.filename } });
-        console.log("이미지 업로드");
         if (prevFile?.filename !== imageInfo.filename) {
           await deleteFile(prevFile?.filename);
           setPrevFile(imageInfo);
-          console.log("이전 파일 삭제");
         }
-        console.log(imageInfo);
       }
 
       const response = await axios.post("/api/group/save", {...group, image: { url: imageInfo?.url, filename: imageInfo?.filename }});

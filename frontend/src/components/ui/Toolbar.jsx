@@ -9,7 +9,6 @@ import Button from "./Button";
 const Toolbar = ({ scrolled }) => {
     const { logout } = useContext(AuthContext);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const navigate = useNavigate();
 
     const handleLogoOnClick = () => {

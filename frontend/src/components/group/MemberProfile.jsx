@@ -119,7 +119,6 @@ export default function MemberProfile() {
       const member = group?.members.find((member) => member.userId === id);
       setMember(member);
       setNickname(member?.groupNickName);
-      console.log(member);
     }
   }, [group, memberId]);
 
@@ -144,7 +143,6 @@ export default function MemberProfile() {
     setMember((prev) => ({ ...prev, groupNickName: nickname }));
 
     axios.post(`/api/group/save`, newGroup).then((response) => {
-      console.log(response.data);
     }).catch((error) => {
       console.error("닉네임 변경에 실패했습니다." + error);
     });

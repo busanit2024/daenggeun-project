@@ -145,9 +145,10 @@ export default function CommunityPage(props) {
       console.log("커뮤니티 리스트", newCommunityList);
       setCommunityList((prevCommunities) => (page === 0 ? newCommunityList : [...prevCommunities, ...newCommunityList]));
       setHasNext(!response.data.last);
-      setLoading(false);
     } catch (error) {
       console.error("동네생활 리스트를 불러오는데 실패했습니다." , error.response ? error.response.data : error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
