@@ -125,17 +125,6 @@ export default function AlbaPage(props) {
       });
   }, []);
 
-  // 지역 데이터를 가져오기 위한 useEffect
-  useEffect(() => {
-    axios.get(`/api/data/filter?name=busanJuso`)
-      .then((response) => {
-        setRegionData(response.data.locationFilters);
-      })
-      .catch((error) => {
-        console.error("지역 필터 데이터를 불러오는데 실패했습니다." + error);
-      });
-  }, []);
-
   // 근무 요일 데이터를 가져오기 위한 useEffect
   useEffect(() => {
     axios.get(`/api/data/filter?name=workDays`)
@@ -147,8 +136,8 @@ export default function AlbaPage(props) {
       });
   }, []);
 
-   // 알바 리스트 데이터를 가져오기 위한 useEffect
-   useEffect(() => {
+  // 알바 리스트 데이터를 가져오기 위한 useEffect
+  useEffect(() => {
     const fetchData = async () => {
       try {
         // 지역이 선택되지 않았다면 데이터를 가져오지 않음
@@ -195,7 +184,7 @@ export default function AlbaPage(props) {
         console.error("알바 리스트를 불러오는데 실패했습니다:", error);
       }
     };
-
+    
     fetchData();
   }, [selectedRegion, selectedDong, category, workType, workDays, workTime, searchTerm]);
 
@@ -211,20 +200,7 @@ export default function AlbaPage(props) {
       // 검색어 없이 초기 검색
       handleSearch('');
     }
-  }, []);  // 컴포넌트 마운트 시 한 번만 실행
-
-  // URL 변경 시 검색 실행 (기존 useEffect 유지)
-  useEffect(() => {
-    const query = new URLSearchParams(location.search);
-    const searchQuery = query.get('search');
-    
-    if (searchQuery) {
-      setSearchTerm(searchQuery);
-      handleSearch(searchQuery);
-    } else {
-      handleSearch('');
-    }
-  }, [location.search]);
+  }, []); 
 
   const handleLocationSelect = (selectedLocation) => {
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
