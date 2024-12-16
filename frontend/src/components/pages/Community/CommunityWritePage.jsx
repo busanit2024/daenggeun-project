@@ -160,9 +160,7 @@ const libraries = ['places'];
 
 export default function CommunityWritePage(props) {
     const navigate = useNavigate();
-
     const [categoryData, setCategoryData] = useState([]);
-    const [busanJuso, setBusanJuso] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const uid = sessionStorage.getItem('uid');
 

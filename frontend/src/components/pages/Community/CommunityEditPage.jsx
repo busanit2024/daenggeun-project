@@ -169,12 +169,9 @@ const libraries = ['places'];
 export default function CommunityEditPage(props) {
     const navigate = useNavigate();
     const { communityId } = useParams(); 
-    const [community, setCommunity] = useState({ location: { sigungu: "", emd: "" } }); // 기본값 설정
+    const [community, setCommunity] = useState({}); // 기본값 설정
+    const uid = sessionStorage.getItem('uid');
     const [categoryData, setCategoryData] = useState([]);
-    const [busanJuso, setBusanJuso] = useState(null);
-    const [locationData, setLocationData] = useState({sigungu: [], emd: []});
-    const [sigungu, setSigungu] = useState("");
-    const [emd, setEmd] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [images, setImages] = useState([]);
     const [deleteImages, setDeleteImages] = useState([]);
@@ -184,8 +181,8 @@ export default function CommunityEditPage(props) {
         category: [],
         location: {
             sido: "부산광역시", 
-            sigungu: sigungu, 
-            emd: emd,
+            // sigungu: sigungu, 
+            // emd: emd,
         },
         images: {
             filename: "",
@@ -196,44 +193,9 @@ export default function CommunityEditPage(props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
-            setCategoryData(response.data.filters);
-        }).catch((error) => {
-            console.error("카테고리를 불러오는데 실패했습니다." + error);
-        })
-
-        axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
-            const juso = response.data.locationFilters;
-            setBusanJuso(juso);
-            const guList = juso?.map((item) => item.sigungu);
-            
-            setLocationData((prevLocationData) => ({
-                ...prevLocationData,
-                sigungu: guList,
-            }));
-
-            }).catch((error) => {
-               console.error("동네 리스트를 불러오는데 실패했습니다." + error);
-            });
-    }, []);
-
-    useEffect(() => {
-        if (isSubmitting) {
-          const check = validateInput();
-          setInputCheck(check);
-        }
-    }, [input, isSubmitting]);
-
-    useEffect(() => {
-        getEmdList(sigungu);
-    }, [sigungu]);
-    
-    useEffect(() => {
         axios.get(`/api/community/view/${communityId}`).then((response) => {
             setInput(response.data);
-            // 동네 값 설정
-            setSigungu(response.data.location.sigungu);
-            setEmd(response.data.location.emd);
+            setCommunity(response.data); // community 상태 업데이트 추가
             // 이미지 URL 설정
             setImages(response.data.images); // 이미지 배열을 상태에 설정
             console.log(response.data.images);
@@ -242,17 +204,18 @@ export default function CommunityEditPage(props) {
         .catch((error) => {
             console.error("동네생활 정보를 불러오는데 실패했습니다." + error);
         });
+
+        axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
+            setCategoryData(response.data.filters);
+        }).catch((error) => {
+            console.error("카테고리를 불러오는데 실패했습니다." + error);
+        })
     }, []);
 
-
-    const getEmdList = (sigungu) => {        
-        if (busanJuso) {
-            const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
-            const emdNameList = emdList?.map((item) => item.emd);            
-            setLocationData({ ...locationData, emd: emdNameList });                  
-            setEmd(emdNameList?.[0]);
-        }
-    };
+    useEffect(() => {
+        const check = validateInput();
+        setInputCheck(check);
+    }, [community]);
 
     const validateInput = () => {
         const newCheck = { title: false, content: false, category: false};
@@ -297,10 +260,10 @@ export default function CommunityEditPage(props) {
             
             const response = await axios.put(`/api/community/update`, { // 게시글 수정 요청
                 ...input,
-                location: {
-                    sigungu: sigungu,
-                    emd: emd
-                },
+                // location: {
+                //     // sigungu: sigungu,
+                //     // emd: emd
+                // },
                 images: uploadedImages
             });
             alert("게시글이 수정되었습니다."); // 수정 완료 알림
