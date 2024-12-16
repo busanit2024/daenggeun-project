@@ -13,7 +13,6 @@ export default function GroupViewPage(props) {
   useEffect(() => {
     axios.get("/api/group/view/" + groupId).then((response) => {
       setGroup(response.data);
-      console.log(response.data);
     })
       .catch((error) => {
         console.error("모임 정보를 불러오는데 실패했습니다." + error);
@@ -23,7 +22,6 @@ export default function GroupViewPage(props) {
   useEffect(() => {
     if (group && group.members && !membersLoaded) {
       const memberIds = group.members?.map((member) => member.userId);
-      console.log(memberIds);
       axios.post(`/api/group/members`, memberIds).then((response) => {
         const users = response.data;
         const newMembers = group.members.map((member) => {

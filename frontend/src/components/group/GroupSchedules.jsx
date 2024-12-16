@@ -56,7 +56,6 @@ export default function GroupSchedules() {
           user: user,
         };
       });
-      console.log(newPosts);
       setOpenSchedules((prev) => (page === 0 ? postsWithUser : [...prev, ...postsWithUser]));
       setHasNext((prev) => ({...prev, open: !response.data.last}));
     }).catch((error) => {
@@ -78,7 +77,6 @@ export default function GroupSchedules() {
           user: user,
         };
       });
-      console.log(newPosts);
       setClosedSchedules((prev) => (page === 0 ? postsWithUser : [...prev, ...postsWithUser]));
       setHasNext((prev) => ({...prev, closed: !response.data.last}));
     }).catch((error) => {

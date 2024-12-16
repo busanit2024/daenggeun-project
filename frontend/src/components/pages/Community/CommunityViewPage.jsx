@@ -12,6 +12,8 @@ import { elapsedText } from "../../../utils/elapsedText";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import { deleteFiles } from "../../../firebase";
+import CommentWrite from "../../community/CommentWrite";
+import CommentListItem from "../../community/CommentListItem";
 
 const Container = styled.div`
   display: flex;
@@ -125,6 +127,31 @@ const MemberInfo = styled.div`
 
 `;
 
+const CommentList = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 24px;
+
+  .loading {
+    width: 100%;
+    border-top: 1px solid #ccc;
+    padding: 36px;
+  }
+
+  .no-comment {
+    width: 100%;
+    padding: 36px;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    border-top: 1px solid #ccc;
+  }
+`;
+
 
 const libraries = ['places'];
 
@@ -136,8 +163,10 @@ export default function CommunityViewPage(props) {
   const [member, setMember] = useState(null);
   const [busanJuso, setBusanJuso] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [commentLoading, setCommentLoading] = useState(true);
   const { communityId } = useParams();
   const [community, setCommunity] = useState({});
+  const [comments, setComments] = useState([]);
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -163,6 +192,7 @@ export default function CommunityViewPage(props) {
   
 
   useEffect(() => {
+    if (!communityId) return;
       fetchPost();
   }, [communityId]);
   
@@ -190,19 +220,62 @@ export default function CommunityViewPage(props) {
       setCommunity(response.data);
       console.log(response.data);
       fetchMemberInfo(response.data.userId);
+      fetchComments(response.data.id);
     })
     .catch((error) => {
         console.error("동네생활 정보를 불러오는데 실패했습니다." + error);
     });
   };
 
-  useEffect(() => {
-    setLoading(true);
-    if (searchFilter.sigungu) {
-        fetchPost();
-    }
-  }, [searchFilter]);
+  const fetchComments = (communityId) => {
+    axios.get(`/api/comment/list/${communityId}`).then( async (response) => {
+      const commentsData = response.data;
+      const commentsWithUser = await Promise.all(commentsData.map(async (comment) => {
+        const userResponse = await axios.get(`/user/${comment.userId}`);
+        return { ...comment, user: userResponse.data };
+      }));
+      setComments(commentsWithUser);
+      setCommentLoading(false);
+      console.log(commentsWithUser);
+    }).catch((error) => {
+      console.error("댓글을 불러오는데 실패했습니다." + error);
+    });
+  };
 
+  const handleSubmitComment = (comment) => {
+    axios.post(`/api/comment/write`, {
+      postId: community.id,
+      userId: currentUserId,
+      boardType: 'COMMUNITY',
+      commentType: 'COMMENT',
+      content: comment,
+    }).then((response) => {
+      alert("댓글이 작성되었습니다.");
+      fetchComments(community.id);
+    }).catch((error) => {
+      console.error("댓글 작성에 실패했습니다." + error);
+    });
+  };
+
+  const handleDeleteComment = (comment) => {
+    if (window.confirm("댓글을 삭제하시겠습니까?")) {
+    axios.post(`/api/comment/delete`, comment).then((response) => {
+      alert("댓글이 삭제되었습니다.");
+      fetchComments(community.id);
+    }).catch((error) => {
+      console.error("댓글 삭제에 실패했습니다." + error);
+    });
+  }
+  }
+
+  const handleEditComment = (comment) => {
+    axios.post(`/api/comment/write`, comment).then((response) => {
+      alert("댓글이 수정되었습니다.");
+      fetchComments(community.id);
+    }).catch((error) => {
+      console.error("댓글 수정에 실패했습니다." + error);
+    });
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -292,7 +365,20 @@ export default function CommunityViewPage(props) {
                   ))
                 }
               </ImageContainer>
+              <CommentList>
+                {commentLoading && <div className="loading">댓글을 불러오는 중입니다.</div>}
+                {!commentLoading && comments.map((comment) => (
+                  <CommentListItem key={comment.id} comment={comment} handleDelete={handleDeleteComment} handleEdit={handleEditComment} />
+                ))}
+                {!commentLoading && comments.length === 0 && 
+                <div className="no-comment">
+                  <span>아직 댓글이 없어요.</span>
+                  <span>가장 먼저 댓글을 남겨보세요.</span>
+                </div>}
+              </CommentList>
+              <CommentWrite handleSubmitComment={handleSubmitComment} />
               </TextContainer>
+
           </InnerContainer>
       </Container>
       </>
