@@ -248,14 +248,15 @@ const UsedTradeUpdate = () => {
     };
 
     const handleImageChange = async (newImages) => {
-        console.log("newImages", newImages)
+        console.log("newImages: ", newImages);
         
         // 이전 파일 삭제 처리
-        const removedImages = newImages.filter(
+        const removedImages = uploadedImages.filter(
             (image) => !newImages.some((newImage) => newImage.filename === image.filename)
         );
 
-        console.log("removedImages", removedImages)
+        console.log("removedImages: ", removedImages);
+
         for (const removedImage of removedImages) {
             if (removedImage?.filename) {
                 await deleteFile(removedImage.filename);
@@ -264,11 +265,11 @@ const UsedTradeUpdate = () => {
         }
 
         // 새 파일 업로드 처리
-        const uploadedFiles = await Promise.all(
-            newImages.map((file) => singleFileUpload(file))
-        );
+        // const uploadedFiles = await Promise.all(
+        //     newImages.map((file) => singleFileUpload(file.file))
+        // );
         
-        setUploadedImages(uploadedFiles); // 상태 업데이트
+        setUploadedImages(newImages); // 상태 업데이트
         
         // let imageInfo = newImages;
         // if (newImages?.filename !== imageInfo.filename) {

@@ -48,11 +48,18 @@ const compressImage = async (file) => {
 };
 
 const singleFileUpload = async (file) => {
+  console.log("File received for upload: ", file);
+
   if (!file) {
     return null;
   }
   if (file.filename) {
     return {url: file.url, filename: file.filename};
+  }
+
+  if (!(file instanceof File)) {
+    console.error("The provided input is not a valid File object:", file);
+    throw new Error("The provided input is not a valid File object");
   }
 
   const compressedFile = await compressImage(file);
