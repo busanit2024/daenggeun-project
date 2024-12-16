@@ -178,7 +178,6 @@ export default function GroupAlbum(props) {
           image: post.images[0],
         }
       });
-      console.log(newImages);
       setHasNext(!response.data.last);
       setImages((prev) => page === 0 ? newImages : [...prev, ...newImages]);
     });

@@ -23,7 +23,8 @@ const Wrapper = styled.div`
     -webkit-line-clamp: 1;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    overflow: ellipsis;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `;
 
