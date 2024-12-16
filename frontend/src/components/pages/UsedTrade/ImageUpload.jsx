@@ -13,8 +13,7 @@ const ImageUploadContainer = styled.div`
 `;
 
 const ImagePlaceholder = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  display: flex;
   gap: 10px;
   justify-content: center;
   align-items: center;
@@ -45,7 +44,7 @@ const CameraIcon = styled.img`
 `;
 
 const ImageUpload = ({ img, onImageChange }) => {
-  const [images, setImages] = useState(img);
+  const [images, setImages] = useState(img || []);
   const inputRef = useRef(null); // input 참조
 
   console.log("images",images);
@@ -53,14 +52,15 @@ const ImageUpload = ({ img, onImageChange }) => {
     const files = Array.from(e.target.files);
     const validFiles = files.slice(0, 1); // 최대 1개로 제한
 
-
-
-    
-    setImages((prevImages) => {
-      const newImages = [...prevImages, ...validFiles];
+    if (validFiles.length > 0) {
+      const newImages = validFiles.map(file => {
+        const url = URL.createObjectURL(file); // 파일 URL 생성
+        return { url, file };
+      });
+  
+      setImages(newImages); // 상태 업데이트
       onImageChange(newImages); // 부모 컴포넌트로 전달
-      return newImages;
-    });
+    }
     e.target.value = ""; // input 초기화
   };
 
