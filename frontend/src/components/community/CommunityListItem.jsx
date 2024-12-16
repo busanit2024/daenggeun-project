@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { elapsedText } from "../../utils/elapsedText";
+import { FaExclamationCircle, FaRegComment } from "react-icons/fa";
+import { FaRegThumbsUp } from "react-icons/fa6";
+import { calculateDate } from "../../utils/calculateDate";
 
 const Container = styled.div`
   display: flex;
@@ -69,6 +72,18 @@ const Content = styled.p`
   text-overflow: ellipsis;
 `;
 
+const Buttons = styled.div`
+  color: #666666;
+  display: flex;
+  gap: 8px;
+
+  div {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+`;
+
 export default function CommunityListItem({ community }) {
   const navigate = useNavigate();
   const firstImage = community.images?.length > 0 ? community.images?.[0]?.url : '/images/default/defaultGroupImage.png';
@@ -89,6 +104,14 @@ export default function CommunityListItem({ community }) {
           {elapsedText(new Date(community.createdDate))}
 
         </TagContainer>
+        <Buttons>
+          <div>
+            <FaRegThumbsUp /> {community?.likeUsers ? community.likeUsers.length : 0}
+          </div>
+          <div>
+            <FaRegComment /> {community?.comments ? community.comments.length : 0}
+          </div>
+        </Buttons>
       </TextContainer>
       <ImageContainer>
         <img
