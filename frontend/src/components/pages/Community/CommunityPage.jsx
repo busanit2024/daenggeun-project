@@ -151,14 +151,38 @@ export default function CommunityPage(props) {
     }
   };
 
-  const handleLocationSelect = (selectedLocation) => {
+  const handleLocationSelect = async (selectedLocation) => {
     console.log("선택된 위치 :", selectedLocation);
     const [sigungu, emd] = selectedLocation.split(", ");
 
-    setArea({ sigungu, emd });
-    setSearchFilter({ ...searchFilter, sigungu, emd });
-    handleSearch(sigungu, emd);
-    fetchCommunityList(0);
+    await Promise.all([
+      new Promise(resolve => {
+        setArea({ sigungu, emd });
+        resolve();
+      }),
+      new Promise(resolve => {
+        setSearchFilter(prev => ({ ...prev, sigungu, emd }));
+        resolve();
+      })
+    ]);
+
+    try {
+      const response = await axios.get(`/api/community`, {  // /api/community/search 대신 /api/community 사용
+        params: {
+          sigungu,
+          emd: emd || undefined,
+          category: searchFilter.category,
+          page: 0,
+          size: 10,
+        }
+      });
+      const newCommunityList = response.data.content;
+      setCommunityList(newCommunityList);
+      setHasNext(!response.data.last);
+      setLoading(false);
+    } catch (error) {
+      console.error("동네생활 리스트를 불러오는데 실패했습니다.", error);
+    }
   };
 
 

@@ -115,12 +115,22 @@ export default function AlbaPage(props) {
 
   const handleLocationSelect = async (selectedLocation) => {
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-    setSelectedRegion(sigungu);
-    setSelectedDong(emd || '');
+    
+    await Promise.all([
+      new Promise(resolve => {
+        setSelectedRegion(sigungu);
+        resolve();
+      }),
+      new Promise(resolve => {
+        setSelectedDong(emd || '');
+        resolve();
+      })
+    ]);
+
     setIsModalOpen(false);
 
     try {
-      const response = await axios.get(`/api/alba`, {
+      const response = await axios.get(`/api/alba`, {  // /api/alba/search 대신 /api/alba 사용
         params: {
           sigungu: sigungu,
           emd: emd || undefined,
@@ -131,7 +141,6 @@ export default function AlbaPage(props) {
           end: workTime.end || undefined
         }
       });
-
       setAlbaList(response.data);
     } catch (error) {
       console.error("알바 리스트를 불러오는데 실패했습니다:", error);

@@ -109,7 +109,7 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   const [locations, setLocations] = useState([]); // 지도 리스트
   const [busanJuso, setBusanJuso] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredLocations, setFilteredLocations] = useState([]); // 필터링된 위치 리스트
+  const [filteredLocations, setFilteredLocations] = useState([]); 
   const [userLocations, setUserLocations] = useState([]);
   const { area } = useArea();
   const uid = sessionStorage.getItem('uid');
@@ -191,14 +191,8 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   const handleLocationSelect = (selectedLocation) => {
     if(selectedLocation) {
       const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-      
-      onSelect(selectedLocation);
-      setSearchTerm("");
-      onClose();
-
-      if (onSearch) {
-        onSearch(sigungu, emd);
-      }
+      onSelect(selectedLocation);  // 부모 컴포넌트에 위치만 전달
+      onClose();  // 모달 닫기
     }
   };
 
@@ -236,7 +230,7 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
       if (selectedLocation) {
         const selectedString = `${selectedLocation.sigungu}, ${selectedLocation.emd}`;
         onSelect(selectedString);
-        setSearchTerm("");
+        onClose(); 
       }
     }
   };
@@ -282,7 +276,7 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
                 <SuggestionItem onClick={() => {
                   const selectedLocation = sigungu; 
                   onSelect(selectedLocation); 
-                  setSearchTerm("");
+                  onClose();
                 }}>
                   {sigungu} 
                 </SuggestionItem>
@@ -290,8 +284,7 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
                   <SuggestionItem key={emdIndex} onClick={() => {
                     const selectedLocation = `${sigungu}, ${emd}`;
                     onSelect(selectedLocation);
-                    setSearchTerm("");
-                    handleLocationSelect(`${sigungu}, ${emd}`)
+                    onClose();
                   }}>
                     {`${sigungu}, ${emd}`} 
                   </SuggestionItem>
