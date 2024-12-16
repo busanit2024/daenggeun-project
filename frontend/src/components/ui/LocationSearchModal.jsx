@@ -109,7 +109,7 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   const [locations, setLocations] = useState([]); // 지도 리스트
   const [busanJuso, setBusanJuso] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredLocations, setFilteredLocations] = useState([]); // 필터링된 위치 리스트
+  const [filteredLocations, setFilteredLocations] = useState([]); // 필��링된 위치 리스트
   const [userLocations, setUserLocations] = useState([]);
   const { area } = useArea();
   const uid = sessionStorage.getItem('uid');
@@ -162,24 +162,16 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   // 검색어가 변경될 때마다 필터링된 위치 업데이트
   useEffect(() => {
     if (searchTerm) {
-      const allLocations = busanJuso.flatMap(locationFilter => {
-        if (locationFilter && locationFilter.sigungu) {
-          return locationFilter.emd.map(e => ({
-            sigungu: locationFilter.sigungu,
-            emd: e.emd
-          }));
-        }
-        return [];
-      });
-      setLocations(allLocations);
+      // 검색어가 있을 때는 필터링
+      const filtered = locations.filter(location => 
+        location.sigungu.includes(searchTerm) || location.emd.includes(searchTerm)
+      );
+      setFilteredLocations(filtered);
+    } else {
+      // 검색어가 없을 때는 전체 locations 표시
+      setFilteredLocations(locations);
     }
-
-    // 필터링 로직
-    const filtered = locations.filter(location => 
-      location.sigungu.includes(searchTerm) || location.emd.includes(searchTerm)
-    );
-    setFilteredLocations(filtered);
-  }, [searchTerm, locations, busanJuso]);
+  }, [searchTerm, locations]);
 
   // 사용자 동네 정보 가져오기
   useEffect(() => {
@@ -203,16 +195,10 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
     if(selectedLocation) {
       const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
       
-      // 부모 컴포넌트에 선택된 위치 전달
       onSelect(selectedLocation);
-      
-      // 검색창 초기화
       setSearchTerm("");
-      
-      // 모달 닫기
       onClose();
 
-      // 검색 실행 (필요한 경우)
       if (onSearch) {
         onSearch(sigungu, emd);
       }
@@ -251,7 +237,6 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
         const selectedString = `${selectedLocation.sigungu}, ${selectedLocation.emd}`;
         onSelect(selectedString);
         setSearchTerm("");
-        setLocations([]); 
       }
     }
   };
@@ -265,6 +250,12 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
     return acc;
   }, {});
 
+  // 검색어 변경 핸들러
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+  };
+
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
@@ -272,8 +263,8 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
         <SearchInput
           type="text"
           placeholder="우리 동네를 찾아보세요!"
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)} 
+          value={searchTerm}
+          onChange={handleSearchChange}
           onKeyDown={handleKeyDown}
         />
         <StyledButton
