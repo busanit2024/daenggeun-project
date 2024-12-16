@@ -17,20 +17,13 @@ const AlbaDetail = () => {
   const navigate = useNavigate(); // 상세 페이지 이동용
   const [job, setJob] = useState(null); // 상세 데이터 상태
   const [relatedJobs, setRelatedJobs] = useState([]); // 관련 알바 데이터 상태
-  const [user, setUser] = useState(null); // 사용자 데이터 상태
   const [itemsToShow, setItemsToShow] = useState(5); // 처음에 보여줄 게시물 개수
 
-  const Location = styled.p`
-    margin: 8px 0 0;
-    color: #777;
-  `;
-
   useEffect(() => {
-        // 상세 데이터 로드
+    // 상세 데이터 로드
     const fetchJob = async () => {
       try {
         const response = await axios.get(`/api/alba/${id}`);
-        console.log("fetchjob", response.data);
         setJob(response.data);
       } catch (error) {
         console.error("글 조회 중 오류 발생:", error);
@@ -40,7 +33,7 @@ const AlbaDetail = () => {
     // 관련 알바 데이터 로드
     const fetchRelatedJobs = async () => {
       try {
-        const response = await axios.get("/api/alba"); // 관련 데이터는 전체 데이터에서 가져옴
+        const response = await axios.get("/api/alba");
         setRelatedJobs(response.data.filter((item) => item._id !== id));
       } catch (error) {
         console.error("관련 알바 데이터 불러오기 실패:", error);
@@ -62,7 +55,6 @@ const AlbaDetail = () => {
   ];
 
   const handleEdit = () => {
-    // 수정 버튼 클릭 시 수정 페이지로 이동
     navigate(`/alba/${id}/edit`);
   };
 
@@ -79,33 +71,34 @@ const AlbaDetail = () => {
     }
   };
 
-  const sessionId = sessionStorage.getItem('uid');
+  const sessionId = sessionStorage.getItem("uid");
+  const isAuthor = sessionId === job.userId;
 
-  const isAuthor =(sessionId === job.userId);
-  console.log(sessionId === job.userId);
-  console.log("세션아이디:", (sessionId === job.userId));
   const handleShowMore = () => {
-    setItemsToShow((prev) => prev + 5); // 5개씩 더 보기
+    setItemsToShow((prev) => prev + 5);
   };
 
   return (
     <div className="alba-detail-page">
       <Breadcrumb routes={routes} />
 
-      {/* 상세 영역 */}
       <div className="alba-detail-container">
         {/* 좌측 영역 */}
         <div className="detail-left">
           <img
-            src={job.image != null ? job.image.url : "images/default/default-image.png"}
+            src={
+              job.image != null
+                ? job.image.url
+                : "images/default/default-image.png"
+            }
             alt={job.title}
             className="detail-image"
           />
           <div className="profile-info">
+            {/* userId가 변경되면 AlbaMemberProfile이 데이터를 새로 로드합니다 */}
             <AlbaMemberProfile userId={job.userId} />
           </div>
-          
-          </div>
+        </div>
 
         {/* 우측 영역 */}
         <div className="detail-right">
@@ -137,12 +130,22 @@ const AlbaDetail = () => {
             </pre>
           </div>
 
-          {/* 수정 및 삭제 버튼 (작성자와 관리자만 볼 수 있음) */}
+          {/* 수정 및 삭제 버튼 */}
           {isAuthor && (
-              <>
-              <Button type="edit-button" title="수정" variant="primary" onClick={handleEdit} />
-              <Button type="delete-button" title="삭제" variant="secondary" onClick={handleDelete} />
-              </>
+            <>
+              <Button
+                type="edit-button"
+                title="수정"
+                variant="primary"
+                onClick={handleEdit}
+              />
+              <Button
+                type="delete-button"
+                title="삭제"
+                variant="secondary"
+                onClick={handleDelete}
+              />
+            </>
           )}
 
           <div className="detail-map">
@@ -153,17 +156,14 @@ const AlbaDetail = () => {
               )}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
               className="map-frame"
             ></iframe>
-            <div className="map-name">
-              {job.workPlace}
-            </div>
+            <div className="map-name">{job.workPlace}</div>
           </div>
-          
         </div>
       </div>
 
       {/* 하단 관련 알바 리스트 */}
       <div className="related-jobs">
-        <h2> 모든 지역 알바 목록 </h2>
+        <h2>모든 지역 알바 목록</h2>
         <div className="alba-list-full">
           {relatedJobs.slice(0, itemsToShow).map((item) => (
             <AlbaListItem key={item._id} alba={item} />
