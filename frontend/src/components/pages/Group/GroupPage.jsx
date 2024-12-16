@@ -114,8 +114,6 @@ const MoreFilterButton = styled.div`
   font-size: 16px;
 `;
 
-const libraries = ['places'];
-
 export default function GroupPage(props) {
   const navigate = useNavigate();
   const { area, setArea } = useArea();
@@ -137,7 +135,7 @@ export default function GroupPage(props) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState('');
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("동네생활");
+  const [selectedCategory, setSelectedCategory] = useState("중고거래");
 
   useEffect(() => {
     axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -156,9 +154,9 @@ export default function GroupPage(props) {
   }, []);
 
   useEffect(() => {
-    console.log(area);
     if (area.sigungu) {
-      setSearchFilter((prev) => ({ ...prev, sigungu: area.sigungu, emd: area.emd }));
+      const emdText = area.emd ?? '';
+      setSearchFilter((prev) => ({ ...prev, sigungu: area.sigungu, emd: emdText }));
     }
   }, [area]);
 
@@ -167,17 +165,9 @@ export default function GroupPage(props) {
     if (categoryData.length > 0 && busanJuso.length > 0) {
       fetchGroupList(0);
     }
-  }, [searchFilter]);
+  }, [searchFilter, categoryData, busanJuso]);
 
   useEffect(() => {
-    setLoading(true);
-    
-    setSearchFilter((prev) => {
-      if (prev.sigungu !== area.sigungu) {
-        return { ...prev, emd: '' }
-      } else {
-        return prev;
-      }});
     getEmdList(searchFilter.sigungu);
     setIsFilterOpen(false);
   }, [searchFilter.sigungu, busanJuso]);
@@ -210,7 +200,6 @@ export default function GroupPage(props) {
         }
       });
       const newGroupList = response.data.content;
-      console.log(newGroupList);
       setGroupList((prevGroups) => (page === 0 ? newGroupList : [...prevGroups, ...newGroupList]));
       setHasNext(!response.data.last);
       setLoading(false);
@@ -226,7 +215,6 @@ export default function GroupPage(props) {
     if (busanJuso) {
       if (!gu) {
         setEmdList([]);
-        console.log(searchFilter)
       } else {
         const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
         const emdNameList = emdList?.map((item) => item.emd);
@@ -249,7 +237,6 @@ export default function GroupPage(props) {
   };
 
   const handleLocationSelect = (selectedLocation) => {
-    console.log("선택된 지역:", selectedLocation);
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
     setArea({ sigungu, emd });
     setSearchFilter(prevFilter => ({
