@@ -164,7 +164,7 @@ export default function CommunityWritePage(props) {
     const [categoryData, setCategoryData] = useState([]);
     const [busanJuso, setBusanJuso] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [locationData, setLocationData] = useState({sigungu: [], emd: []});
+    const uid = sessionStorage.getItem('uid');
 
     const [input, setInput] = useState({
         title: "",
@@ -184,8 +184,6 @@ export default function CommunityWritePage(props) {
         language: 'ko',
         region: 'KR',
       });
-    
-    const currentLocation = useGeolocation(isJsApiLoaded);
 
     useEffect(() => {
         axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
@@ -193,56 +191,38 @@ export default function CommunityWritePage(props) {
         }).catch((error) => {
             console.error("카테고리를 불러오는데 실패했습니다." + error);
         })
-
-        axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
-            const juso = response.data.locationFilters;
-            setBusanJuso(juso);
-            const guList = juso?.map((item) => item.sigungu);
-
-            setLocationData((prevLocationData) => ({
-                ...prevLocationData,
-                sigungu: guList,
-            }));
-
-            }).catch((error) => {
-            console.error("동네 리스트를 불러오는데 실패했습니다." + error);
-            });
-    }, []);
+    });
 
     useEffect(() => {
-        if (isSubmitting) {
-          const check = validateInput();
-          setInputCheck(check);
+      const fetchUserLocation = async () => {
+        try {
+          const response = await axios.get(`/user/${uid}`);
+          const userLocations = response.data.location || [];
+  
+          if (userLocations[0]) {
+  
+            setInput({ ...input, location: { sigungu: userLocations[0].sigungu, emd: userLocations[0].emd } });
+          } else if (userLocations[1]) {
+            setInput({ ...input, location: { sigungu: userLocations[1].sigungu, emd: userLocations[1].emd } });
+          }
+        } catch (error) {
+          console.error("위치 정보를 불러오는데 실패했습니다:", error);
         }
+      };
+  
+      if (uid) {
+        fetchUserLocation();
+      } else {
+        setInput({ ...input, location: { sigungu: "부산진구", emd: "" } });
+      }
+    }, [uid]);
+
+    useEffect(() => {
+      if (isSubmitting) {
+        const check = validateInput();
+        setInputCheck(check);
+      }
     }, [input, isSubmitting]);
-
-    useEffect(() => {
-        getEmdList(input.location.sigungu);
-    }, [input.location.sigungu]);
-    
-    // useEffect(() => {
-    //     if (busanJuso) {
-    //         if (currentLocation.sigungu) {
-    //         setInput({ ...input, location: { ...input.location, sigungu: currentLocation.sigungu } });
-    //         } else {
-    //         setInput({ ...input, location: { ...input.location, sigungu: locationData.sigungu?.[0] } });
-    //         }
-    //     }
-    // }, [currentLocation, busanJuso]);
-
-
-    const getEmdList = (sigungu) => {
-        if (busanJuso) {
-            const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
-            const emdNameList = emdList?.map((item) => item.emd);
-            setLocationData({ ...locationData, emd: emdNameList });
-            if (currentLocation.emd !== "") {
-            setInput({ ...input, location: { ...input.location, emd: currentLocation.emd } });
-            } else {
-            setInput({ ...input, location: { ...input.location, emd: emdNameList?.[0] } });
-            }
-        }
-    };
 
     const validateInput = () => {
         const newCheck = { title: false, content: false, category: false};

@@ -8,6 +8,7 @@ import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { deleteFiles, deleteFile, multipleFileUpload } from "../../../firebase";
 import { useNavigate, useParams } from "react-router-dom";
+import LocationSearchModal from "../../ui/LocationSearchModal";
 
 const Container = styled.div`
   display: flex;
@@ -168,11 +169,13 @@ const libraries = ['places'];
 export default function CommunityEditPage(props) {
     const navigate = useNavigate();
     const { communityId } = useParams(); 
+    const [community, setCommunity] = useState({ location: { sigungu: "", emd: "" } }); // 기본값 설정
     const [categoryData, setCategoryData] = useState([]);
     const [busanJuso, setBusanJuso] = useState(null);
     const [locationData, setLocationData] = useState({sigungu: [], emd: []});
     const [sigungu, setSigungu] = useState("");
     const [emd, setEmd] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [images, setImages] = useState([]);
     const [deleteImages, setDeleteImages] = useState([]);
     const [input, setInput] = useState({
@@ -191,16 +194,6 @@ export default function CommunityEditPage(props) {
     });
     const [inputCheck, setInputCheck] = useState({ title: false, content: false, category: false});
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const { isLoaded: isJsApiLoaded } = useJsApiLoader({
-        id: 'google-map-script',
-        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-        libraries: libraries,
-        language: 'ko',
-        region: 'KR',
-      });
-    
-    const currentLocation = useGeolocation(isJsApiLoaded);
 
     useEffect(() => {
         axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
@@ -318,6 +311,29 @@ export default function CommunityEditPage(props) {
         }
     }
 
+    const handleLocationSelect = (selectedLocation) => {
+      if (typeof selectedLocation === 'string') {
+          const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+  
+          if (emd) {
+              setCommunity({ ...community, location: { sigungu, emd } });
+              setInput((prev) => ({
+                  ...prev,
+                  location: { ...prev.location, sigungu, emd } // input 상태 업데이트
+              }));
+          } else {
+              setCommunity({ ...community, location: { sigungu, emd: "" } });
+              setInput((prev) => ({
+                  ...prev,
+                  location: { ...prev.location, sigungu, emd: "" } // input 상태 업데이트
+              }));
+          }
+          setIsModalOpen(false);
+      } else {
+          console.error("선택된 위치가 문자열이 아닙니다:", selectedLocation);
+      }
+  };
+
     const categoryDescriptions = {
         "맛집": `${input.location.emd} 근처 맛집에 대한 이야기를 들려주세요.`,
         "반려동물": "귀여운 반려동물을 자랑해주세요. 잃어버린 동물은 [분실/실종]에 올려주세요.",
@@ -362,20 +378,19 @@ export default function CommunityEditPage(props) {
             <Item>
                 <h4>동네</h4>
                 <DongneSelectContainer>
-                <div style={{ fontSize: '20px', color: '#666666' }}>부산광역시</div>
-                <DongneSelect value={sigungu} onChange={(e) => setSigungu(e.target.value)}>
-                    {
-                    locationData.sigungu?.map((item) => (
-                        <option key={item} value={item}>{item}</option>
-                    ))}
-                </DongneSelect>
-                <DongneSelect value={emd} onChange={(e) => setEmd(e.target.value)}>
-                    {locationData.emd?.map((item) => (
-                    <option key={item} value={item}>{item}</option>
-                    ))}
-                </DongneSelect>
-                </DongneSelectContainer>
+                    <InputContainer style={{ width: '360px' }}>
+                        <Input type="text" value={`${community.location?.sigungu}, ${community.location?.emd}`} readOnly />
+                    </InputContainer>
 
+                    <Button title="검색하기" onClick={() => setIsModalOpen(true)} />
+                    </DongneSelectContainer>
+
+                    {isModalOpen && (
+                    <LocationSearchModal
+                    onSelect={handleLocationSelect}
+                    onClose={() => setIsModalOpen(false)}
+                    />
+                )}
             </Item>
 
             <Item>
