@@ -109,7 +109,7 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   const [locations, setLocations] = useState([]); // 지도 리스트
   const [busanJuso, setBusanJuso] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredLocations, setFilteredLocations] = useState([]); // 필��링된 위치 리스트
+  const [filteredLocations, setFilteredLocations] = useState([]); // 필터링된 위치 리스트
   const [userLocations, setUserLocations] = useState([]);
   const { area } = useArea();
   const uid = sessionStorage.getItem('uid');
@@ -216,10 +216,13 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
       const locationFilter = busanJuso.find(item => item.sigungu === sigungu);
       
       if (locationFilter && locationFilter.emd) {
-        setLocations(locationFilter.emd.map(e => ({
+        const currentLocationEmds = locationFilter.emd.map(e => ({
           sigungu: sigungu,
           emd: e.emd
-        })));
+        }));
+        setFilteredLocations(currentLocationEmds);
+        
+        setSearchTerm('');
       } else {
         console.error("해당 시군구에 대한 emd 리스트를 찾을 수 없습니다.");
       }
@@ -280,7 +283,6 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
                   const selectedLocation = sigungu; 
                   onSelect(selectedLocation); 
                   setSearchTerm("");
-                  setLocations([]);
                 }}>
                   {sigungu} 
                 </SuggestionItem>
@@ -289,7 +291,6 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
                     const selectedLocation = `${sigungu}, ${emd}`;
                     onSelect(selectedLocation);
                     setSearchTerm("");
-                    setLocations([]);
                     handleLocationSelect(`${sigungu}, ${emd}`)
                   }}>
                     {`${sigungu}, ${emd}`} 
