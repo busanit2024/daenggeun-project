@@ -110,7 +110,6 @@ export default function GroupBoardView() {
       if (newPost.userId === userId) {
         setIsMyPost(true);
       }
-      console.log(newPost);
     }).catch((error) => {
       console.error('게시글을 불러오는데 실패했습니다.' + error);
     });

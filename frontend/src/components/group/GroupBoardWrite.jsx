@@ -189,7 +189,6 @@ export default function GroupBoardWrite() {
   }, [group]);
 
   useEffect(() => {
-    console.log(group)
     const uid = sessionStorage.getItem('uid');
     if (!uid) {
       console.log('로그인이 필요합니다.');
@@ -237,7 +236,6 @@ export default function GroupBoardWrite() {
           ...input,
           images,
         }).then((response) => {
-          console.log(response.data);
           alert(`게시글을 ${isEditing ? '수정' : '작성'}했어요.`);
           navigate('/group/' + group.id + '/board');
         }).catch((error) => {

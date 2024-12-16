@@ -85,11 +85,6 @@ export default function MyPageList() {
                     <FaLocationDot />
                     <span>내 동네 설정</span>
                 </div>
-
-                <div className="innerTitle">
-                    <FaLocationCrosshairs />
-                    <span>동네 인증하기</span>
-                </div>
             </div>
         </ProfileBox>
     </>

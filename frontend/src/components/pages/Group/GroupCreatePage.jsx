@@ -326,7 +326,6 @@ export default function GroupCreatePage(props) {
     try {
       if (image !== null) {
         imageInfo = await singleFileUpload(image);
-        console.log(imageInfo);
       }
 
       const userId = sessionStorage.getItem('uid');
