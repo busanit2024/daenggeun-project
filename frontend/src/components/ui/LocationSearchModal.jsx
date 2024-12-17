@@ -105,13 +105,13 @@ const LocationChip = styled.div`
 
 const libraries = ['places'];
 
-const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
+const LocationSearchModal = ({ onSelect, onClose }) => {
   const [locations, setLocations] = useState([]); // 지도 리스트
   const [busanJuso, setBusanJuso] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredLocations, setFilteredLocations] = useState([]); // 필��링된 위치 리스트
+  const [filteredLocations, setFilteredLocations] = useState([]); 
   const [userLocations, setUserLocations] = useState([]);
-  const { area } = useArea();
+  const { area, setArea } = useArea();
   const uid = sessionStorage.getItem('uid');
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
@@ -124,7 +124,6 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
 
   const currentLocation = useGeolocation(isJsApiLoaded);
 
-  // 컴포넌트가 마운트될 때 데이터 요청
   useEffect(() => {
     const fetchLocations = async () => {
       try {
@@ -143,7 +142,7 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
                 emd: e.emd
               })); // Location 객체로 변환
             }
-            return []; // null 또는 유효하지 않은 경우 빈 배열 반환
+            return []; 
           });
 
           setLocations(allLocations); 
@@ -162,13 +161,11 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
   // 검색어가 변경될 때마다 필터링된 위치 업데이트
   useEffect(() => {
     if (searchTerm) {
-      // 검색어가 있을 때는 필터링
       const filtered = locations.filter(location => 
         location.sigungu.includes(searchTerm) || location.emd.includes(searchTerm)
       );
       setFilteredLocations(filtered);
     } else {
-      // 검색어가 없을 때는 전체 locations 표시
       setFilteredLocations(locations);
     }
   }, [searchTerm, locations]);
@@ -195,16 +192,24 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
     if(selectedLocation) {
       const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
       
-      onSelect(selectedLocation);
-      setSearchTerm("");
-      onClose();
+      setArea({ 
+        sigungu, 
+        emd: emd || '' 
+      });
 
-      if (onSearch) {
-        onSearch(sigungu, emd);
-      }
+      onSelect(selectedLocation);
+      onClose();
     }
   };
 
+  const handleSigunguSelect = (sigungu) => {
+    setArea({ 
+      sigungu, 
+      emd: '' 
+    });
+    onSelect(sigungu);
+    onClose();
+  };
 
   const findMyLocation = () => {
     if (!isJsApiLoaded) {
@@ -219,10 +224,13 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
       const locationFilter = busanJuso.find(item => item.sigungu === sigungu);
       
       if (locationFilter && locationFilter.emd) {
-        setLocations(locationFilter.emd.map(e => ({
+        const currentLocationEmds = locationFilter.emd.map(e => ({
           sigungu: sigungu,
           emd: e.emd
-        })));
+        }));
+        setFilteredLocations(currentLocationEmds);
+        
+        setSearchTerm('');
       } else {
         console.error("해당 시군구에 대한 emd 리스트를 찾을 수 없습니다.");
       }
@@ -275,27 +283,18 @@ const LocationSearchModal = ({ onSelect, onClose, onSearch }) => {
         />
           
         <Suggestions>
-          {/* 기존 검색 결과 유지 */}
           {Object.keys(groupedLocations).length > 0 ? (
             Object.keys(groupedLocations).map((sigungu, index) => (
               <div key={index}>
-                <SuggestionItem onClick={() => {
-                  const selectedLocation = sigungu; 
-                  onSelect(selectedLocation); 
-                  setSearchTerm("");
-                  setLocations([]);
-                }}>
-                  {sigungu} 
+                <SuggestionItem onClick={() => handleSigunguSelect(sigungu)}>
+                  {sigungu}
                 </SuggestionItem>
                 {groupedLocations[sigungu].map((emd, emdIndex) => (
-                  <SuggestionItem key={emdIndex} onClick={() => {
-                    const selectedLocation = `${sigungu}, ${emd}`;
-                    onSelect(selectedLocation);
-                    setSearchTerm("");
-                    setLocations([]);
-                    handleLocationSelect(`${sigungu}, ${emd}`)
-                  }}>
-                    {`${sigungu}, ${emd}`} 
+                  <SuggestionItem 
+                    key={emdIndex} 
+                    onClick={() => handleLocationSelect(`${sigungu}, ${emd}`)}
+                  >
+                    {`${sigungu}, ${emd}`}
                   </SuggestionItem>
                 ))}
               </div>

@@ -281,7 +281,9 @@ function MainPage(props) {
     const handleLocationSelect = (selectedLocation) => {
         console.log("선택된 지역:", selectedLocation);
         const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-        setArea({ sigungu, emd});
+        
+        setArea({ sigungu, emd });
+        
         setSelectedLocation({ sigungu, emd });
         setSearchFilter(prevFilter => ({
             ...prevFilter,

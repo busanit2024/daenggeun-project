@@ -276,7 +276,7 @@ const handleSearch = (searchTerm) => {
       <Breadcrumb routes={routes} />
       <Container>
         <HeadContainer>
-          <h2>{`${searchFilter.sido} ${searchFilter.sigungu} ${searchFilter.emd} ${searchFilter.uid ? '나의' : ''} ${searchFilter.category === 'all' ? "" : searchFilter.category} 모임`}</h2>
+        <h2>{`${searchFilter.sido} ${searchFilter.sigungu} ${searchFilter.emd ? searchFilter.emd + ' ' : ''}${searchFilter.uid ? '나의' : ''} ${searchFilter.category === 'all' ? "" : searchFilter.category} 모임`}</h2>
           <div style={{ display: 'flex', gap: '8px' }}>
             {sessionStorage.getItem('uid') && <Button title="내 모임" onClick={handleMyGroupFilter} />}
             <Button title="모임 만들기" variant="primary" onClick={handleCreateButton} />

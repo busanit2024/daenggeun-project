@@ -238,49 +238,16 @@ export default function UsedTrade(props) {
         const locationFilters = busanJusoResponse.data.locationFilters;
         setBusanJuso(locationFilters);
 
-        // 사용자 위치 정보가 있는 경우
-        if (userResponse && userResponse.data.location?.length > 0) {
-          const defaultLocation = userResponse.data.location[0];
-          const sigungu = defaultLocation.sigungu;
-          const emd = defaultLocation.emd || '';
-
-          // AreaContext도 함께 업데이트
-          setArea({
-            sigungu,
-            emd
-          });
-
+        if (area.sigungu) {
           setSearchFilter(prev => ({
             ...prev,
             sido: "부산광역시",
-            sigungu,
-            emd
+            sigungu: area.sigungu,
+            emd: area.emd || ''
           }));
 
           // emdList 초기화
-          const selectedLocation = locationFilters.find((item) => item.sigungu === sigungu);
-          if (selectedLocation) {
-            const emdNameList = selectedLocation.emd.map((item) => item.emd);
-            setEmdList(emdNameList);
-          }
-        } else if (currentLocation.sido && currentLocation.sigungu) {
-          const sigungu = currentLocation.sigungu;
-          
-          // AreaContext도 함께 업데이트
-          setArea({
-            sigungu,
-            emd: ''
-          });
-
-          setSearchFilter(prev => ({
-            ...prev,
-            sido: currentLocation.sido,
-            sigungu,
-            emd: ''
-          }));
-
-          // emdList 초기화
-          const selectedLocation = locationFilters.find((item) => item.sigungu === sigungu);
+          const selectedLocation = locationFilters.find((item) => item.sigungu === area.sigungu);
           if (selectedLocation) {
             const emdNameList = selectedLocation.emd.map((item) => item.emd);
             setEmdList(emdNameList);
@@ -295,7 +262,7 @@ export default function UsedTrade(props) {
       .finally(() => {
         setLoading(false);
       });
-  }, [currentLocation.sigungu]);
+  }, [area.sigungu, area.emd]); 
 
   const resetFilter = () => {
     setLoading(true);
@@ -426,7 +393,7 @@ export default function UsedTrade(props) {
         },
       });
 
-      //console.log(response.data);
+      console.log(response.data);
       //setTradeList(response.data);
 
       const newTradeList = response.data;
@@ -496,6 +463,12 @@ export default function UsedTrade(props) {
     console.log("선택 위치:", selectedLocation);
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
     
+    // AreaContext 업데이트
+    setArea({
+      sigungu,
+      emd: emd || ''
+    });
+
     // searchFilter 업데이트
     setSearchFilter(prev => ({
         ...prev,
@@ -510,11 +483,11 @@ export default function UsedTrade(props) {
 
     // emdList 업데이트
     if (busanJuso) {
-        const selectedLocation = busanJuso.find((item) => item.sigungu === sigungu);
-        if (selectedLocation) {
-            const emdNameList = selectedLocation.emd.map((item) => item.emd);
-            setEmdList(emdNameList);
-        }
+      const selectedLocation = busanJuso.find((item) => item.sigungu === sigungu);
+      if (selectedLocation) {
+        const emdNameList = selectedLocation.emd.map((item) => item.emd);
+        setEmdList(emdNameList);
+      }
     }
 
     setIsFilterOpen(false);

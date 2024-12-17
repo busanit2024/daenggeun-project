@@ -70,10 +70,14 @@ public class UsedTradeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UsedTrade>> getUsedTrades(@RequestParam(required = false) String category,
-                                                         @RequestParam(required = false) String sort,
-                                                         @RequestParam(required = false) Boolean tradeable) {
-        List<UsedTrade> usedTradeList = usedTradeService.getUsedTrades(category, sort, tradeable);
+    public ResponseEntity<List<UsedTrade>> getUsedTrades(
+        @RequestParam(required = false) String sigungu,
+        @RequestParam(required = false) String emd,
+        @RequestParam(required = false) String category,
+        @RequestParam(required = false) String sort,
+        @RequestParam(required = false) Boolean tradeable) {
+        
+        List<UsedTrade> usedTradeList = usedTradeService.getUsedTrades(sigungu, emd, category, sort, tradeable);
         return ResponseEntity.ok(usedTradeList);
     }
 
