@@ -49,6 +49,11 @@ const TextArea = styled.textarea`
     }
 `;
 
+const ErrorText = styled.small`
+    color: red;
+    margin-top: 5px;
+`;
+
 const Label = styled.label`
     display: block;
     align-items: center;
@@ -123,6 +128,11 @@ const UsedTradeUpdate = () => {
     const [selectedTradeType, setSelectedTradeType] = useState(product.isGiveable ? "나눔하기" : "판매하기");
     const [uploadedImages, setUploadedImages] = useState(product.images || []);
 
+    // 이름, 장소, 가격 작성 유무 판단
+    const [nameError, setNameError] = useState("");
+    const [priceError, setPriceError] = useState("");
+    const [locationError, setLocationError] = useState("");
+
     // const getImageUrl = (imageData) => {
     //     // 이미지 데이터가 존재하고 유효한 경우에만 URL로 변환
     //     if (imageData && imageData.length > 0) {
@@ -181,6 +191,28 @@ const UsedTradeUpdate = () => {
     const handleSubmit = async (e, isTradeComplete = false) => {
         e.preventDefault();
 
+        let hasError = false;
+
+        // 유효성 검사
+        if (!name) {
+            setNameError("제목을 입력해주세요!");
+            hasError = true;
+        } else {
+            setNameError(""); // 제목이 입력되면 오류 메시지 초기화
+        }
+
+        if (selectedTradeType === "판매하기" && price === "0") {
+            setPriceError("판매할 가격은 0원이 될 수 없습니다!");
+            hasError = true;
+        } else if (!price) {
+            setPriceError("가격을 입력해주세요!");
+            hasError = true;
+        } else {
+            setPriceError(""); // 가격이 입력되면 오류 메시지 초기화
+        }
+
+        if (hasError) return;
+
         console.log("업로드한 사진: ", uploadedImages);
         const updatedProduct = {
             userId: userId,
@@ -232,12 +264,18 @@ const UsedTradeUpdate = () => {
     const handlePriceChange = (e) => {
         let value = e.target.value.replace(/[^0-9]/g, "");
 
-        setPrice(value);
-
-        if (value) {
+        if (value && value !== "0") {
             const formattedValue = Number(value).toLocaleString();
             e.target.value = formattedValue;
+        } else if (value === "0") {
+            setPriceError("판매할 가격은 0원이 될 수 없습니다!");
+        } else if (!value) {
+            setPriceError("가격을 입력해주세요!");
+        } else {
+            setPriceError("");
         }
+
+        setPrice(value);
     };
 
     const formattedPrice = new Intl.NumberFormat('ko-KR').format(price); // 가격 포맷팅하기
@@ -343,7 +381,9 @@ const UsedTradeUpdate = () => {
                     placeholder="제목"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    style={{ borderColor: nameError ? 'red' : '#ccc' }}
                 />
+                {nameError && <ErrorText>{nameError}</ErrorText>}
 
                 <div style={{ marginTop: "30px" }}>
                     <h3 style={{ marginBottom: "10px" }}>거래 방식</h3>
@@ -378,9 +418,11 @@ const UsedTradeUpdate = () => {
                         value={selectedTradeType === "나눔하기" ? "0" : formattedPrice}
                         onChange={handlePriceChange}
                         disabled={selectedTradeType === "나눔하기"}
-                        // style={{ borderColor: priceError ? 'red' : '#ccc' }}
+                        style={{ borderColor: priceError ? 'red' : '#ccc' }}
                     /> 원
-                    {/* {priceError && <ErrorText>{priceError}</ErrorText>} */}
+                    <br/>
+                    {priceError && <ErrorText>{priceError}</ErrorText>}
+                    <br/>
                     
                     {/* 체크박스 추가 - 조건부 렌더링 */}
                     {selectedTradeType === "판매하기" && (
@@ -430,7 +472,10 @@ const UsedTradeUpdate = () => {
                 marginTop: "10px" }}>
                 <Button
                     title="자주 쓰는 문구"
-                    onClick={() => alert("맥거핀입니다!")}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        alert("맥거핀입니다.");
+                    }}
                 />
                 <div style={{ display: "flex", gap: "10px" }}>
                     <Button
