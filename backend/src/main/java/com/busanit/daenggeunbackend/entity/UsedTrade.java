@@ -27,11 +27,12 @@ public class UsedTrade {
     private String content; // 상세설명
     private List<Image> images;    // 이미지 링크
     private int views;  // 조회수
-    private boolean isNegotiable;   // 네고 가능 여부
-    private boolean isGiveable;  // 나눔 신청 가능 여부
-    private boolean isGived;    // 판매, 나눔 여부
-    private boolean tradeable;  // 거래 가능 여부
+    private Boolean isNegotiable;   // 네고 가능 여부
+    private Boolean isGiveable;  // 나눔하기 여부
+    private Boolean tradeable;  // 거래 가능 여부
     private List<String> bookmarkUsers; // 북마크 사용자
     // 거래 희망 장소
     private String tradePlace;
+    private byte[] imageData;
+
 }

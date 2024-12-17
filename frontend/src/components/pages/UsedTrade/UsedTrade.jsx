@@ -12,6 +12,9 @@ import SearchBar from "../../ui/SearchBar";
 import Card from "../../ui/Card";
 import categoryData from "../../../asset/categoryData";
 import { useArea } from "../../../context/AreaContext";
+import Modal from "../../ui/Modal";
+import RoundFilter from "../../ui/RoundFilter";
+import Switch from "../../ui/Switch";
 
 const Container = styled.div`
   display: flex;
@@ -140,6 +143,30 @@ const CardGrid = styled.div`
   width: 100%;
 `;
 
+const FilterTagsContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+`;
+
+const FilterTag = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  background-color:rgb(0, 0, 0);
+  color: white;
+  border-radius: 15px;
+`;
+
+const RemoveButton = styled.button`
+  margin-left: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+`;
+
 const libraries = ['places'];
 
 export default function UsedTrade(props) {
@@ -151,8 +178,9 @@ export default function UsedTrade(props) {
     sigungu: "",
     emd: "",
     sort: "recent",
-    category: location.state?.category || "",
-    tradeble: true,
+    category: "all",
+    tradeble: false,
+    priceRange: { min: 0, max: 999999999999 },
   });
   const [busanJuso, setBusanJuso] = useState([]);
   const [emdList, setEmdList] = useState([]);
@@ -162,10 +190,16 @@ export default function UsedTrade(props) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [visibleCount, setVisibleCount] = useState(3); // 한 번에 보이는 카드의 최대 수
+  const [visibleCount, setVisibleCount] = useState(9); // 한 번에 보이는 카드의 최대 수
   const [selectedCategory, setSelectedCategory] = useState("중고거래");
   const { area, setArea } = useArea();
 
+  // 내가 고른 필터 저장
+  const [selectedFilters, setSelectedFilters] = useState({
+    category: [],
+    sort: null,
+    price: null,
+  });
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -174,6 +208,8 @@ export default function UsedTrade(props) {
     language: 'ko',
     region: 'KR',
   });
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const currentLocation = useGeolocation(isJsApiLoaded);
 
@@ -188,7 +224,7 @@ export default function UsedTrade(props) {
     } else {
       fetchTradeList(0);
     }
-  }, [location.search]);
+  }, [location.search, searchFilter]);
 
   useEffect(() => {
     const uid = sessionStorage.getItem('uid');
@@ -202,49 +238,16 @@ export default function UsedTrade(props) {
         const locationFilters = busanJusoResponse.data.locationFilters;
         setBusanJuso(locationFilters);
 
-        // 사용자 위치 정보가 있는 경우
-        if (userResponse && userResponse.data.location?.length > 0) {
-          const defaultLocation = userResponse.data.location[0];
-          const sigungu = defaultLocation.sigungu;
-          const emd = defaultLocation.emd || '';
-
-          // AreaContext도 함께 업데이트
-          setArea({
-            sigungu,
-            emd
-          });
-
+        if (area.sigungu) {
           setSearchFilter(prev => ({
             ...prev,
             sido: "부산광역시",
-            sigungu,
-            emd
+            sigungu: area.sigungu,
+            emd: area.emd || ''
           }));
 
           // emdList 초기화
-          const selectedLocation = locationFilters.find((item) => item.sigungu === sigungu);
-          if (selectedLocation) {
-            const emdNameList = selectedLocation.emd.map((item) => item.emd);
-            setEmdList(emdNameList);
-          }
-        } else if (currentLocation.sido && currentLocation.sigungu) {
-          const sigungu = currentLocation.sigungu;
-          
-          // AreaContext도 함께 업데이트
-          setArea({
-            sigungu,
-            emd: ''
-          });
-
-          setSearchFilter(prev => ({
-            ...prev,
-            sido: currentLocation.sido,
-            sigungu,
-            emd: ''
-          }));
-
-          // emdList 초기화
-          const selectedLocation = locationFilters.find((item) => item.sigungu === sigungu);
+          const selectedLocation = locationFilters.find((item) => item.sigungu === area.sigungu);
           if (selectedLocation) {
             const emdNameList = selectedLocation.emd.map((item) => item.emd);
             setEmdList(emdNameList);
@@ -259,7 +262,7 @@ export default function UsedTrade(props) {
       .finally(() => {
         setLoading(false);
       });
-  }, [currentLocation.sigungu]);
+  }, [area.sigungu, area.emd]); 
 
   const resetFilter = () => {
     setLoading(true);
@@ -269,17 +272,27 @@ export default function UsedTrade(props) {
       sigungu: currentLocation.sigungu,
       emd: ''
     });
-
-    setSearchFilter((prev) => ({ 
+    
+    setSearchFilter((prev) => ({
       ...prev, 
       sido: currentLocation.sido, 
       sigungu: currentLocation.sigungu, 
       emd: '', 
       sort: '', 
-      category: '' 
+      category: 'all', 
+      tradeble: false, 
+      priceRange: { min: 0, max: 999999999999 }
     }));
-    
+  
     setIsFilterOpen(false);
+    
+    // selectedFilters 초기화
+    setSelectedFilters({
+      category: [],
+      sort: null,
+      price: null,
+    });
+  
     setPage(0);
   };
 
@@ -289,11 +302,81 @@ export default function UsedTrade(props) {
     </div>
   );
 
+  // 카테고리 선택 함수
   const selectCategory = (category) => {
     setSearchFilter((prev) => ({
       ...prev,
       category: category,
     }));
+  
+    setSelectedFilters((prev) => {
+      // 이미 선택된 카테고리라면 제거, 아니면 추가
+      const newCategories = prev.category.includes(category)
+        ? prev.category.filter(c => c !== category) // 선택된 카테고리가 이미 있다면 제거
+        : [category]; // 새로운 카테고리만 추가
+  
+      return {
+        ...prev,
+        category: newCategories,
+      };
+    });
+  
+    fetchTradeList(0);
+  };
+
+  // 정렬 선택 함수
+  const handleSortChange = (sort) => {
+    setSearchFilter((prev) => ({
+      ...prev,
+      sort: sort,
+    }));
+
+    setSelectedFilters((prev) => ({
+      ...prev,
+      sort: sort, // 정렬은 하나만 선택
+    }));
+
+    fetchTradeList(0);
+  };
+
+  // 가격 변경 함수
+  const handlePriceChange = (price) => {
+    // 가격 포맷팅
+    const formatPrice = (num) => {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    };
+
+    let priceLabel = price === 0 ? "나눔" : `${formatPrice(price)} 원 이하`;
+
+    setSearchFilter((prev) => ({
+      ...prev,
+      priceRange: { ...prev.priceRange, max: price },
+    }));
+
+    setSelectedFilters((prev) => ({
+      ...prev,
+      price: priceLabel,
+    }));
+
+    fetchTradeList(0);
+  };
+
+  // 필터 제거 함수
+  const handleRemoveFilter = (filter) => {
+    setSelectedFilters((prev) => {
+      if (prev.category.includes(filter)) {
+        return {
+          ...prev,
+          category: prev.category.filter(c => c !== filter), // 카테고리 필터에서 제거
+        };
+      } else if (filter === prev.sort) {
+        return { ...prev, sort: null }; // 정렬 필터 제거
+      } else if (filter === prev.price) {
+        return { ...prev, price: null }; // 가격 필터 제거
+      }
+      return prev; // 변경 사항이 없으면 그대로 반환
+    });
+    fetchTradeList(0);
   };
 
   const fetchTradeList = async (page, searchKeyword = '') => {
@@ -303,14 +386,14 @@ export default function UsedTrade(props) {
           sigungu: searchFilter.sigungu,
           emd: searchFilter.emd,
           sort: searchFilter.sort,
-          category: searchFilter.category,
+          category: searchFilter.category !== "all" ? searchFilter.category : undefined,
           tradeble: searchFilter.tradeble,
           page: page,
           size: 10,
         },
       });
 
-      //console.log(response.data);
+      console.log(response.data);
       //setTradeList(response.data);
 
       const newTradeList = response.data;
@@ -323,8 +406,29 @@ export default function UsedTrade(props) {
     }
   };
 
+  const getEmdList = (gu) => {
+    if (busanJuso) {
+      if (!gu) {
+        setEmdList([]);
+      } else {
+        const emdList = busanJuso.find((item) => item.sigungu === gu)?.emd;
+        const emdNameList = emdList?.map((item) => item.emd);
+        setEmdList(emdNameList);
+      }
+    }
+  };
+
+  const getImageUrl = (imageData) => {
+    console.log("이미지 데이터: ", imageData);
+    // 이미지 데이터가 존재하고 유효한 경우에만 URL로 변환
+    if (imageData != null) {
+      return imageData[0].url; // 이미지 데이터가 배열일 경우 첫 번째 요소 사용
+    }
+    return null; // 이미지 데이터가 없거나 유효하지 않으면 null 반환
+  };
+
   const handleMoreButton = () => {
-    setVisibleCount(prevCount => prevCount + 3);
+    setVisibleCount(prevCount => prevCount + 9);
   };
 
   const formattedPrice = (price) => {
@@ -359,26 +463,45 @@ export default function UsedTrade(props) {
     console.log("선택 위치:", selectedLocation);
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
     
+    // AreaContext 업데이트
+    setArea({
+      sigungu,
+      emd: emd || ''
+    });
+
     // searchFilter 업데이트
     setSearchFilter(prev => ({
         ...prev,
         sido: "부산광역시",
         sigungu,
-        emd: emd || ''
+        emd: emd || '',
+        sort: prev.sort,
+        category: prev.category,
+        tradeable: prev.tradeable,
+        priceRange: { min: 0, max: 9999999999 }
     }));
 
     // emdList 업데이트
     if (busanJuso) {
-        const selectedLocation = busanJuso.find((item) => item.sigungu === sigungu);
-        if (selectedLocation) {
-            const emdNameList = selectedLocation.emd.map((item) => item.emd);
-            setEmdList(emdNameList);
-        }
+      const selectedLocation = busanJuso.find((item) => item.sigungu === sigungu);
+      if (selectedLocation) {
+        const emdNameList = selectedLocation.emd.map((item) => item.emd);
+        setEmdList(emdNameList);
+      }
     }
 
     setIsFilterOpen(false);
     fetchTradeList(0);
   };
+
+  const handleWriteClick = () => {
+    const userId = sessionStorage.getItem('uid');
+    if (!userId) {
+      setModalOpen(true);
+    } else {
+      navigate("/usedTradeWrite");
+    }
+  }
 
   const routes = [
     { path: "/", name: "홈" },
@@ -391,17 +514,22 @@ export default function UsedTrade(props) {
   ) : tradeList;
 
   const locationFilteredTrades = filteredTrades.filter(trade => {
+    const tradeableMatches = searchFilter.tradeble ? trade.tradeable === true : true;
+    const priceMatches = trade.price >= searchFilter.priceRange.min && trade.price <= searchFilter.priceRange.max;
+
     // 전지역 선택 시 모든 거래 보여주기
-    if (searchFilter.sigungu === "" && searchFilter.emd === "") {
-      return true;
+    if (searchFilter.sigungu === '' && searchFilter.emd === '') {
+      return tradeableMatches && priceMatches;
     }
 
     // 특정 구와 동이 선택된 경우
     const locationMatches = trade.location.includes(searchFilter.sigungu);
-    const emdMatches = searchFilter.emd === "" || trade.location.includes(searchFilter.emd);
+    const emdMatches = searchFilter.emd === '' || trade.location.includes(searchFilter.emd);
 
-    return locationMatches && emdMatches;
+    return locationMatches && emdMatches && tradeableMatches && priceMatches;
   });
+
+  const isAllRegions = searchFilter.sigungu === '';
 
   return (
     <>
@@ -420,29 +548,67 @@ export default function UsedTrade(props) {
           <Button 
             title="+ 글쓰기" 
             variant="primary" 
-            onClick={() => navigate("/usedTradeWrite")} 
+            onClick={handleWriteClick} 
           />
         </HeadContainer>
         <InnerContainer>
-          <FilterBar>
-            <div className="filterBarHeader">
-              <h3 className="title">필터</h3>
-              <div className="reset" onClick={resetFilter}>초기화</div>
-            </div>
-            <div className="filterItem">
-              <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center' }}>지역
-                <CustomSelect 
-                  name="region"
-                  value={searchFilter.sigungu} 
-                  onChange={(e) => handleLocationSelect(`${e.target.value}`)}
-                >
-                  <option value="">전지역</option>
-                  {busanJuso.map((item) => (
-                    <option key={item.sigungu} value={item.sigungu}>{item.sigungu}</option>
-                  ))}
-                </CustomSelect>
-              </h4>
+        <FilterBar>
+          <div className="filterBarHeader">
+            <h3 className="title">필터</h3>
+            <div className="reset" onClick={resetFilter}>초기화</div>
+          </div>
+          <div className="filterItem">
+            <label className="radioWrap">
+              <input
+                type="checkbox"
+                checked={searchFilter.tradeble}
+                onChange={(e) => setSearchFilter({ ...searchFilter, tradeble: e.target.checked })}
+              />
+              <p>거래 가능만 보기</p>
+            </label>
+          </div>
 
+          <div className="filterItem">
+            <h4 className="title" style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+              <span style={{ marginRight: 'auto' }}>지역</span>
+              <Switch 
+                value={isAllRegions} 
+                onChange={() => {
+                  if (!isAllRegions) {
+                    // '전지역'으로 설정
+                    setSearchFilter(prev => ({ ...prev, sigungu: '', emd: '' })); 
+                    fetchTradeList(0); // 전지역으로 설정된 후 거래 목록을 새로 가져옴
+                  } else {
+                    // 기본 지역으로 설정
+                    setSearchFilter(prev => ({ ...prev, sigungu: busanJuso[0].sigungu })); 
+                    fetchTradeList(0); // 기본 지역으로 설정된 후 거래 목록을 새로 가져옴
+                  }
+                }} 
+              />
+              <span style={{ marginLeft: '5px' }}>전지역</span>
+            </h4>
+
+            {/* 전지역일 때 '부산광역시' 표시 */}
+            {isAllRegions ? (
+              <div className="filterList">
+                <p>부산광역시</p>
+                <label className="radioWrap">
+                  <Radio 
+                    name="gu" 
+                    value="" 
+                    checked 
+                    onChange={() => {
+                      setArea({
+                        sigungu: '',
+                        emd: ''
+                      });
+                      setSearchFilter({ ...searchFilter, sigungu: '', emd: '' });
+                    }} 
+                  />
+                  전지역
+                </label>
+              </div>
+            ) : (
               <div className="filterList">
                 <p>{searchFilter.sido}</p>
                 <label className="radioWrap">
@@ -451,7 +617,6 @@ export default function UsedTrade(props) {
                     value={searchFilter.sigungu} 
                     checked={searchFilter.emd === ''} 
                     onChange={() => {
-                      // AreaContext와 searchFilter 동시 업데이트
                       setArea({
                         sigungu: searchFilter.sigungu,
                         emd: ''
@@ -459,15 +624,15 @@ export default function UsedTrade(props) {
                       setSearchFilter({ ...searchFilter, emd: '' });
                     }} 
                   />
-                  {searchFilter.sigungu === '' ? "전지역" : searchFilter.sigungu}
+                  {searchFilter.sigungu}
                 </label>
                 <EmdFilterWrap open={isFilterOpen}>
-                  {searchFilter.emd !== '' &&
+                  {searchFilter.emd !== '' && (
                     <label className="radioWrap">
                       <Radio name="dong" value="" checked onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
                       {searchFilter.emd}
                     </label>
-                  }
+                  )}
                   {(emdList && searchFilter.emd === '') && emdList.map((dong) => (
                     <label key={dong} className="radioWrap">
                       <Radio 
@@ -475,7 +640,6 @@ export default function UsedTrade(props) {
                         value={dong} 
                         checked={searchFilter.emd === dong} 
                         onChange={() => {
-                          // AreaContext와 searchFilter 동시 업데이트
                           setArea({
                             sigungu: searchFilter.sigungu,
                             emd: dong
@@ -489,49 +653,68 @@ export default function UsedTrade(props) {
                 </EmdFilterWrap>
                 {
                   (emdList && emdList.length > 5 && searchFilter.emd === '') &&
-                  <MoreFilterButton className="toggle" onClick={() => setIsFilterOpen(!isFilterOpen)}>{isFilterOpen ? "접기" : "더보기"}</MoreFilterButton>
+                  <MoreFilterButton className="toggle" onClick={() => setIsFilterOpen(!isFilterOpen)}>
+                    {isFilterOpen ? "접기" : "더보기"}
+                  </MoreFilterButton>
                 }
-
               </div>
-            </div>
-            
-            <div className="filterItem">
-              <h4 className="title">카테고리</h4>
-              <CategoryList show={isCategoryOpen}>
-                {categoryData.map(category => (
-                  <CategoryItem key={category.name} className="radioWrap">
-                    <Radio
-                      name="category"
-                      value={category.name}
-                      checked={searchFilter.category === category.name}
-                      onChange={() => selectCategory(category.name)}
-                    />
-                    {category.name}
-                  </CategoryItem>
-                ))}
-              </CategoryList>
-            </div>
-            <div className="filterItem">
-              <h4 className="title">정렬</h4>
-              <label className="radioWrap">
-                <Radio 
-                  name="sort" 
-                  value="recent" 
-                  checked={searchFilter.sort === 'recent'} 
-                  onChange={(e) => setSearchFilter({ ...searchFilter, sort: 'recent' })} />
-                최신순
-              </label>
-              <label className="radioWrap">
-                <Radio 
-                  name="sort" 
-                  value="name" 
-                  checked={searchFilter.sort === 'price'} 
-                  onChange={(e) => setSearchFilter({ ...searchFilter, sort: 'price' })} />
-                가격순
-              </label>
-            </div>
-          </FilterBar>
+            )}
+          </div>
 
+
+          <div className="filterItem">
+            <h4 className="title">카테고리</h4>
+            <CategoryList show={isCategoryOpen}>
+              {categoryData.map(category => (
+                <CategoryItem key={category.name} className="radioWrap">
+                  <Radio
+                    name="category"
+                    value={category.name}
+                    checked={searchFilter.category === category.name}
+                    onChange={() => selectCategory(category.name)}
+                  />
+                  {category.name}
+                </CategoryItem>
+              ))}
+            </CategoryList>
+          </div>
+          <div className="filterItem">
+            <h4 className="title">정렬</h4>
+            <label className="radioWrap">
+              <Radio 
+                name="sort" 
+                value="recent" 
+                checked={searchFilter.sort === 'recent'} 
+                onChange={(e) => handleSortChange('recent')} 
+              />
+              최신순
+            </label>
+            <label className="radioWrap">
+              <Radio 
+                name="sort" 
+                value="price" 
+                checked={searchFilter.sort === 'price'} 
+                onChange={(e) => handleSortChange('price')} 
+              />
+              가격순
+            </label>
+          </div>
+          <div>
+            <h4 className="title">가격</h4>
+            <CustomSelect
+              value={searchFilter.priceRange.max}
+              onChange={(e) => handlePriceChange(Number(e.target.value))} // 수정된 부분
+            >
+              <option value={999999999999}>모든 가격대</option>
+              <option value={0}>나눔</option>
+              <option value={5000}>5,000원 이하</option>
+              <option value={10000}>10,000원 이하</option>
+              <option value={30000}>30,000원 이하</option>
+              <option value={50000}>50,000원 이하</option>
+              <option value={100000}>100,000원 이하</option>
+            </CustomSelect>
+          </div>
+        </FilterBar>
           <ListContainer>
             {loading ? (
               <LoadingText>
@@ -539,6 +722,19 @@ export default function UsedTrade(props) {
               </LoadingText>
             ) : (
               <>
+              {/* 필터 태그 렌더링 */}
+              <FilterTagsContainer>
+                {selectedFilters.category.map((filter, index) => (
+                  <RoundFilter variant="selected" key={index} title={filter} cancelIcon onClick={() => handleRemoveFilter(filter)} />
+                ))}
+                {selectedFilters.sort && (
+                  <RoundFilter variant="selected" title={selectedFilters.sort} cancelIcon onClick={() => handleRemoveFilter(selectedFilters.sort)} />
+                )}
+                {selectedFilters.price && (
+                  <RoundFilter variant="selected" title={selectedFilters.price} cancelIcon onClick={() => handleRemoveFilter(selectedFilters.price)} />
+                )}
+              </FilterTagsContainer>
+
                 {locationFilteredTrades.length === 0 ? (
                   <NoSearchResult>
                     <h3>{`${searchFilter.emd ? searchFilter.emd : searchFilter.sigungu} 근처에 중고거래가 없어요.`}</h3>
@@ -549,6 +745,7 @@ export default function UsedTrade(props) {
                     {(locationFilteredTrades.length > 0 ? locationFilteredTrades : tradeList).slice(0, visibleCount).map((usedTrade) => (
                       <Card 
                         key={usedTrade.id}
+                        imageUrl={getImageUrl(usedTrade.images)}
                         title={usedTrade.name}
                         price={`${formattedPrice(usedTrade.price)} 원`}
                         location={usedTrade.location}
@@ -562,9 +759,10 @@ export default function UsedTrade(props) {
                                 createdAt: usedTrade.createdDate,
                                 tradeable: usedTrade.tradeable,
                                 location: usedTrade.location,
+                                selectedTradeType: usedTrade.selectedTradeType,
                                 isNegotiable: usedTrade.isNegotiable,
                                 isGiveable: usedTrade.selectedTradeType,
-                                isGived: usedTrade.isGived,
+                                images: usedTrade.images,
                               }
                             }
                           )
@@ -583,6 +781,14 @@ export default function UsedTrade(props) {
         </InnerContainer>
 
       </Container>
+
+      <Modal title="로그인" isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+        <h3>중고거래를 게시하려면 로그인해야 해요.</h3>
+        <div className="buttonWrap">
+          <Button title="로그인" variant='primary' onClick={() => { setModalOpen(false); navigate("/login") }} />
+          <Button title="닫기" onClick={() => setModalOpen(false)} />
+        </div>
+      </Modal>
     </>
   );
 }

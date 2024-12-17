@@ -4,6 +4,9 @@ import Button from "../../ui/Button";
 import InputText from "../../ui/InputText";
 import ImageUpload from "./ImageUpload";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { deleteFile, singleFileUpload } from "../../../firebase";
+import imageData from "../../../asset/imageData";
+import categoryData from "../../../asset/categoryData";
 
 const ButtonContainer = styled.div`
     display: inline-flex;
@@ -46,8 +49,13 @@ const TextArea = styled.textarea`
     }
 `;
 
+const ErrorText = styled.small`
+    color: red;
+    margin-top: 5px;
+`;
+
 const Label = styled.label`
-    display: flex;
+    display: block;
     align-items: center;
     font-size: 16px;
     margin-top: 10px;
@@ -103,22 +111,40 @@ const UsedTradeUpdate = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-    // location.state에서 정보 가져오기
     const product = location.state || {};
 
-    const [isPriceNegotiable, setIsPriceNegotiable] = useState(false);
+    const [userId, setUserId] = useState(sessionStorage.getItem('uid'));    // 현재 로그인한 사용자 ID
+    const [isNegotiable, setIsNegotiable] = useState(product.isNegotiable || false);
+    const [isGiveable, setIsGiveable] = useState(product.isGiveable || false);
     const [name, setName] = useState(product.name || "상품명이 없습니다.");
     const [createdDate, setCreatedDate] = useState(product.createdDate);
     const [price, setPrice] = useState(product.price ? product.price.toString() : "");
     const [content, setContent] = useState(product.content || "상세 설명이 없습니다.");
     const [locationInput, setLocationInput] = useState(product.location || "위치 정보가 없습니다.");
+    const [tradeable, setTradeable] = useState(product.tradeable);
 
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(product.category || null);
-    const [selectedTradeType, setSelectedTradeType] = useState("판매하기");
+    const [selectedCategory, setSelectedCategory] = useState(product.category.name || null);
+    const [selectedTradeType, setSelectedTradeType] = useState(product.isGiveable ? "나눔하기" : "판매하기");
+    const [uploadedImages, setUploadedImages] = useState(product.images || []);
+
+    // 이름, 장소, 가격 작성 유무 판단
+    const [nameError, setNameError] = useState("");
+    const [priceError, setPriceError] = useState("");
+    const [locationError, setLocationError] = useState("");
+
+    // const getImageUrl = (imageData) => {
+    //     // 이미지 데이터가 존재하고 유효한 경우에만 URL로 변환
+    //     if (imageData && imageData.length > 0) {
+    //         return imageData.map((img) => img.url); // URL을 배열로 반환
+    //     }
+    //     return []; // 이미지 데이터가 없거나 유효하지 않으면 빈 배열 반환
+    // };
+
+    //  // 이미지 URL 가져오기
+    //  const imageUrls = getImageUrl(uploadedImages);
 
     useEffect(() => {
-        // 상품 정보를 API에서 가져오는 함수
         const fetchProductInfo = async () => {
             try {
                 const response = await fetch(`/api/usedTrades/${id}`);
@@ -126,42 +152,80 @@ const UsedTradeUpdate = () => {
                     throw new Error('상품을 가져오는 데 실패했습니다.');
                 }
                 const data = await response.json();
+                console.log("data:", data);
                 setName(data.name);
                 setPrice(data.price.toString());
                 setContent(data.content);
                 setLocationInput(data.location);
-                setIsPriceNegotiable(data.isPriceNegotiable);
+                setIsNegotiable(data.isNegotiable);
+                setIsGiveable(data.isGiveable || false);
                 setCreatedDate(data.createdDate);
                 setSelectedCategory(data.category);
+                setUploadedImages(data.images || []);
+                setSelectedTradeType(data.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
             } catch (error) {
                 console.error('Error fetching product:', error);
             }
         };
 
         if (!product.name) {
+            console.log("11111111");
             fetchProductInfo();
         } else {
+            console.log("22222");
+            console.log("product", product);
+
             setName(product.name);
             setPrice(product.price.toString());
             setContent(product.content);
             setLocationInput(product.location);
-            setIsPriceNegotiable(product.isPriceNegotiable);
+            setIsNegotiable(product.isNegotiable);
+            setIsGiveable(product.isGiveable || false);
             setCreatedDate(product.createdDate);
             setSelectedCategory(product.category);
+            setUploadedImages(product.images);
+            setSelectedTradeType(product.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
         }
     }, [id, product]);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e, isTradeComplete = false) => {
         e.preventDefault();
+
+        let hasError = false;
+
+        // 유효성 검사
+        if (!name) {
+            setNameError("제목을 입력해주세요!");
+            hasError = true;
+        } else {
+            setNameError(""); // 제목이 입력되면 오류 메시지 초기화
+        }
+
+        if (selectedTradeType === "판매하기" && price === "0") {
+            setPriceError("판매할 가격은 0원이 될 수 없습니다!");
+            hasError = true;
+        } else if (!price) {
+            setPriceError("가격을 입력해주세요!");
+            hasError = true;
+        } else {
+            setPriceError(""); // 가격이 입력되면 오류 메시지 초기화
+        }
+
+        if (hasError) return;
+
+        console.log("업로드한 사진: ", uploadedImages);
         const updatedProduct = {
-            name,
+            userId: userId,
+            name: name,
             price: parseInt(price.replace(/[^0-9]/g, ""), 10),
-            content,
+            content: content,
             location: locationInput,
-            isPriceNegotiable,
+            isNegotiable: isNegotiable,
+            isGiveable: selectedTradeType === "나눔하기", // selectedTradeType에 따라 isGiveable 결정
             category: selectedCategory,
-            tradeType: selectedTradeType,
             createdDate: createdDate,
+            tradeable: isTradeComplete ? false : tradeable,
+            images: uploadedImages,
         };
 
         try {
@@ -174,7 +238,8 @@ const UsedTradeUpdate = () => {
             });
 
             if (response.ok) {
-                alert("수정이 완료되었습니다.");
+                console.log("수정 결과: ", updatedProduct);
+                alert(isTradeComplete ? "거래가 완료되었습니다." : "수정이 완료되었습니다.");
                 navigate(`/usedTradeView/${id}`);
             } else {
                 alert("수정에 실패했습니다.");
@@ -185,26 +250,43 @@ const UsedTradeUpdate = () => {
         }
     };
 
+    // 거래 완료 버튼 클릭 시 호출되는 함수
+    const handleTradeComplete = (e) => {
+        const confirmComplete = window.confirm("정말로 거래를 완료하시겠습니까?");
+        if (confirmComplete) {
+            handleSubmit(e, true);
+        } else {
+            console.log("거래 완료가 취소되었습니다.");
+            return;
+        }
+    }
+
     const handlePriceChange = (e) => {
         let value = e.target.value.replace(/[^0-9]/g, "");
 
-        setPrice(value);
-
-        if (value) {
+        if (value && value !== "0") {
             const formattedValue = Number(value).toLocaleString();
             e.target.value = formattedValue;
+        } else if (value === "0") {
+            setPriceError("판매할 가격은 0원이 될 수 없습니다!");
+        } else if (!value) {
+            setPriceError("가격을 입력해주세요!");
+        } else {
+            setPriceError("");
         }
+
+        setPrice(value);
     };
 
-    const formattedPrice = new Intl.NumberFormat('ko-KR').format(price);    // 가격 포맷팅하기
+    const formattedPrice = new Intl.NumberFormat('ko-KR').format(price); // 가격 포맷팅하기
 
     const handleCheckboxChange = () => {
-        setIsPriceNegotiable((prev) => !prev);
+        setIsNegotiable((prev) => !prev);
     };
 
     const handleTradeTypeChange = (type) => {
         if (selectedTradeType === type) {
-            setSelectedTradeType(null);
+            setSelectedTradeType(null); // Toggle off
         } else {
             setSelectedTradeType(type);
         }
@@ -219,11 +301,46 @@ const UsedTradeUpdate = () => {
         setIsCategoryOpen(false);
     };
 
+    const handleImageChange = async (newImages) => {
+        console.log("newImages: ", newImages);
+        
+        // 이전 파일 삭제 처리
+        const removedImages = newImages.filter(
+            (image) => !newImages.some((newImage) => newImage.filename === image.filename)
+        );
+
+        console.log("removedImages: ", removedImages);
+
+        for (const removedImage of removedImages) {
+            if (removedImage?.filename) {
+                await deleteFile(removedImage.filename);
+                console.log(`Deleted file: ${removedImage.filename}`);
+            }
+        }
+
+        // 새 파일 업로드 처리
+        // const uploadedFiles = await Promise.all(
+        //     newImages.map((file) => singleFileUpload(file.file))
+        // );
+        
+        setUploadedImages(newImages); // 상태 업데이트
+        
+        // let imageInfo = newImages;
+        // if (newImages?.filename !== imageInfo.filename) {
+        //     await deleteFile(newImages?.filename);
+        //     setUploadedImages(imageInfo);
+        //     console.log("이전 파일 삭제");
+        //   }
+
+        // const uploadedFiles = await Promise.all(newImages.map(files => singleFileUpload(files))); // Firebase에 업로드
+        // setUploadedImages(uploadedFiles); // 상태 업데이트
+    };
+    
     return (
         <Container>
             <h1>중고거래 수정</h1>
             <Form>
-                <ImageUpload />
+                <ImageUpload img={uploadedImages} onImageChange={handleImageChange} />
                 <InputContainer>
                 <Form>
                     <CategoryToggle>
@@ -252,69 +369,11 @@ const UsedTradeUpdate = () => {
                         }}>
                             None
                         </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("디지털기기")}>
-                            디지털기기
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("생활가전")}>
-                            생활가전
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("가구/인테리어")}>
-                            가구/인테리어
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("생활/주방")}>
-                            생활/주방
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("가구/인테리어")}>
-                            가구/인테리어
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("유아동")}>
-                            유아동
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("유아도서")}>
-                            유아도서
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("여성의류")}>
-                            여성의류
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("여성잡화")}>
-                            여성잡화
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("남성패션/잡화")}>
-                            남성패션/잡화
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("뷰티/미용")}>
-                            뷰티/미용
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("스포츠/레저")}>
-                            스포츠/레저
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("취미/게임/음반")}>
-                            취미/게임/음반
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("도서")}>
-                            도서
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("티켓/교환권")}>
-                            티켓/교환권
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("가공식품")}>
-                            가공식품
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("건강기능식품")}>
-                            건강기능식품
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("반려동물용품")}>
-                            반려동물용품
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("식물")}>
-                            식물
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("기타")}>
-                            기타
-                        </CategoryItem>
-                        <CategoryItem onClick={() => selectCategory("삽니다")}>
-                            삽니다
-                        </CategoryItem>
+                        {categoryData.map(category => (
+                            <CategoryItem key={category.name} onClick={() => selectCategory(category.name)}>
+                                {category.name}
+                            </CategoryItem>
+                        ))}
                     </CategoryList>
                     </CategoryToggle>
                 </Form>
@@ -322,10 +381,12 @@ const UsedTradeUpdate = () => {
                     placeholder="제목"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    style={{ borderColor: nameError ? 'red' : '#ccc' }}
                 />
+                {nameError && <ErrorText>{nameError}</ErrorText>}
 
-                <div>
-                    <h3>거래 방식</h3>
+                <div style={{ marginTop: "30px" }}>
+                    <h3 style={{ marginBottom: "10px" }}>거래 방식</h3>
                     <ButtonContainer>
                     <TradeButton
                         key={`판매하기-${selectedTradeType === "판매하기"}`}
@@ -350,23 +411,34 @@ const UsedTradeUpdate = () => {
                     </ButtonContainer>
                 </div>
 
-                <InputText
-                    placeholder="가격을 입력해주세요"
-                    value={formattedPrice}
-                    onChange={handlePriceChange}
-                /> 원
-
                 <Label>
-                    <Checkbox
-                        type="checkbox"
-                        checked={isPriceNegotiable}
-                        onChange={handleCheckboxChange}
-                    />
-                    {selectedTradeType
-                        ? (selectedTradeType === "판매하기"
-                            ? "가격 제안 받기"
-                            : "나눔 신청 받기")
-                        : "판매 / 나눔 중 하나를 선택해 주세요"}
+                    {/* 가격 입력 */}
+                    <InputText 
+                        placeholder="가격을 입력해주세요" 
+                        value={selectedTradeType === "나눔하기" ? "0" : formattedPrice}
+                        onChange={handlePriceChange}
+                        disabled={selectedTradeType === "나눔하기"}
+                        style={{ borderColor: priceError ? 'red' : '#ccc' }}
+                    /> 원
+                    <br/>
+                    {priceError && <ErrorText>{priceError}</ErrorText>}
+                    <br/>
+                    
+                    {/* 체크박스 추가 - 조건부 렌더링 */}
+                    {selectedTradeType === "판매하기" && (
+                        <Label>
+                            <Checkbox
+                                type="checkbox"
+                                checked={isNegotiable}
+                                onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    setIsNegotiable(checked);
+                                    console.log("네고 가능 여부: ", checked);
+                                }}
+                            />
+                            가격 제안 받기
+                        </Label>
+                    )}
                 </Label>
                 </InputContainer>
             </Form>
@@ -388,6 +460,7 @@ const UsedTradeUpdate = () => {
                         placeholder="거래 희망 장소" 
                         value={locationInput}
                         onChange={(e) => setLocationInput(e.target.value)}
+                        readOnly
                     />
                 </InputContainer>
             </Form>
@@ -399,6 +472,10 @@ const UsedTradeUpdate = () => {
                 marginTop: "10px" }}>
                 <Button
                     title="자주 쓰는 문구"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        alert("맥거핀입니다.");
+                    }}
                 />
                 <div style={{ display: "flex", gap: "10px" }}>
                     <Button
@@ -414,13 +491,14 @@ const UsedTradeUpdate = () => {
                             navigate(`/usedTradeView/${id}`);
                         }}
                     />
-                    <Button
+                    {tradeable && (
+                        <Button
                         title="거래완료"
                         variant="white"
-                        onClick={() => {
-                            navigate(`/usedTradeView/${id}`);
-                        }}
-                    />
+                        type="button"
+                        onClick={handleTradeComplete}
+                        />
+                    )}
                 </div>
             </Form>
         </Container>

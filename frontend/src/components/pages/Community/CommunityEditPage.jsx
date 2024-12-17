@@ -8,6 +8,7 @@ import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { deleteFiles, deleteFile, multipleFileUpload } from "../../../firebase";
 import { useNavigate, useParams } from "react-router-dom";
+import LocationSearchModal from "../../ui/LocationSearchModal";
 
 const Container = styled.div`
   display: flex;
@@ -168,11 +169,10 @@ const libraries = ['places'];
 export default function CommunityEditPage(props) {
     const navigate = useNavigate();
     const { communityId } = useParams(); 
+    const [community, setCommunity] = useState({}); // 기본값 설정
+    const uid = sessionStorage.getItem('uid');
     const [categoryData, setCategoryData] = useState([]);
-    const [busanJuso, setBusanJuso] = useState(null);
-    const [locationData, setLocationData] = useState({sigungu: [], emd: []});
-    const [sigungu, setSigungu] = useState("");
-    const [emd, setEmd] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [images, setImages] = useState([]);
     const [deleteImages, setDeleteImages] = useState([]);
     const [input, setInput] = useState({
@@ -181,8 +181,8 @@ export default function CommunityEditPage(props) {
         category: [],
         location: {
             sido: "부산광역시", 
-            sigungu: sigungu, 
-            emd: emd,
+            // sigungu: sigungu, 
+            // emd: emd,
         },
         images: {
             filename: "",
@@ -192,55 +192,10 @@ export default function CommunityEditPage(props) {
     const [inputCheck, setInputCheck] = useState({ title: false, content: false, category: false});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { isLoaded: isJsApiLoaded } = useJsApiLoader({
-        id: 'google-map-script',
-        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-        libraries: libraries,
-        language: 'ko',
-        region: 'KR',
-      });
-    
-    const currentLocation = useGeolocation(isJsApiLoaded);
-
-    useEffect(() => {
-        axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
-            setCategoryData(response.data.filters);
-        }).catch((error) => {
-            console.error("카테고리를 불러오는데 실패했습니다." + error);
-        })
-
-        axios.get(`/api/data/filter?name=busanJuso`).then((response) => {
-            const juso = response.data.locationFilters;
-            setBusanJuso(juso);
-            const guList = juso?.map((item) => item.sigungu);
-            
-            setLocationData((prevLocationData) => ({
-                ...prevLocationData,
-                sigungu: guList,
-            }));
-
-            }).catch((error) => {
-               console.error("동네 리스트를 불러오는데 실패했습니다." + error);
-            });
-    }, []);
-
-    useEffect(() => {
-        if (isSubmitting) {
-          const check = validateInput();
-          setInputCheck(check);
-        }
-    }, [input, isSubmitting]);
-
-    useEffect(() => {
-        getEmdList(sigungu);
-    }, [sigungu]);
-    
     useEffect(() => {
         axios.get(`/api/community/view/${communityId}`).then((response) => {
             setInput(response.data);
-            // 동네 값 설정
-            setSigungu(response.data.location.sigungu);
-            setEmd(response.data.location.emd);
+            setCommunity(response.data); // community 상태 업데이트 추가
             // 이미지 URL 설정
             setImages(response.data.images); // 이미지 배열을 상태에 설정
             console.log(response.data.images);
@@ -249,17 +204,18 @@ export default function CommunityEditPage(props) {
         .catch((error) => {
             console.error("동네생활 정보를 불러오는데 실패했습니다." + error);
         });
+
+        axios.get(`/api/data/filter?name=communityCategory`).then((response) => {
+            setCategoryData(response.data.filters);
+        }).catch((error) => {
+            console.error("카테고리를 불러오는데 실패했습니다." + error);
+        })
     }, []);
 
-
-    const getEmdList = (sigungu) => {        
-        if (busanJuso) {
-            const emdList = busanJuso.find((item) => item.sigungu === sigungu)?.emd;
-            const emdNameList = emdList?.map((item) => item.emd);            
-            setLocationData({ ...locationData, emd: emdNameList });                  
-            setEmd(emdNameList?.[0]);
-        }
-    };
+    useEffect(() => {
+        const check = validateInput();
+        setInputCheck(check);
+    }, [community]);
 
     const validateInput = () => {
         const newCheck = { title: false, content: false, category: false};
@@ -304,10 +260,10 @@ export default function CommunityEditPage(props) {
             
             const response = await axios.put(`/api/community/update`, { // 게시글 수정 요청
                 ...input,
-                location: {
-                    sigungu: sigungu,
-                    emd: emd
-                },
+                // location: {
+                //     // sigungu: sigungu,
+                //     // emd: emd
+                // },
                 images: uploadedImages
             });
             alert("게시글이 수정되었습니다."); // 수정 완료 알림
@@ -317,6 +273,29 @@ export default function CommunityEditPage(props) {
             alert("게시글 수정에 실패했습니다. 다시 시도해주세요."); // 오류 알림
         }
     }
+
+    const handleLocationSelect = (selectedLocation) => {
+      if (typeof selectedLocation === 'string') {
+          const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
+  
+          if (emd) {
+              setCommunity({ ...community, location: { sigungu, emd } });
+              setInput((prev) => ({
+                  ...prev,
+                  location: { ...prev.location, sigungu, emd } // input 상태 업데이트
+              }));
+          } else {
+              setCommunity({ ...community, location: { sigungu, emd: "" } });
+              setInput((prev) => ({
+                  ...prev,
+                  location: { ...prev.location, sigungu, emd: "" } // input 상태 업데이트
+              }));
+          }
+          setIsModalOpen(false);
+      } else {
+          console.error("선택된 위치가 문자열이 아닙니다:", selectedLocation);
+      }
+  };
 
     const categoryDescriptions = {
         "맛집": `${input.location.emd} 근처 맛집에 대한 이야기를 들려주세요.`,
@@ -362,20 +341,19 @@ export default function CommunityEditPage(props) {
             <Item>
                 <h4>동네</h4>
                 <DongneSelectContainer>
-                <div style={{ fontSize: '20px', color: '#666666' }}>부산광역시</div>
-                <DongneSelect value={sigungu} onChange={(e) => setSigungu(e.target.value)}>
-                    {
-                    locationData.sigungu?.map((item) => (
-                        <option key={item} value={item}>{item}</option>
-                    ))}
-                </DongneSelect>
-                <DongneSelect value={emd} onChange={(e) => setEmd(e.target.value)}>
-                    {locationData.emd?.map((item) => (
-                    <option key={item} value={item}>{item}</option>
-                    ))}
-                </DongneSelect>
-                </DongneSelectContainer>
+                    <InputContainer style={{ width: '360px' }}>
+                        <Input type="text" value={`${community.location?.sigungu}, ${community.location?.emd}`} readOnly />
+                    </InputContainer>
 
+                    <Button title="검색하기" onClick={() => setIsModalOpen(true)} />
+                    </DongneSelectContainer>
+
+                    {isModalOpen && (
+                    <LocationSearchModal
+                    onSelect={handleLocationSelect}
+                    onClose={() => setIsModalOpen(false)}
+                    />
+                )}
             </Item>
 
             <Item>

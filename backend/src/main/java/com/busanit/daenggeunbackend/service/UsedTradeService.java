@@ -7,8 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.plaf.ListUI;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -16,8 +19,19 @@ public class UsedTradeService {
     @Autowired
     private UsedTradeRepository usedTradeRepository;
 
-    public UsedTrade createUsedTrade(UsedTrade usedTrade) {
-        return usedTradeRepository.save(usedTrade);
+    @Transactional
+    public UsedTrade createUsedTrade(UsedTrade usedTrade, MultipartFile imageFile) {
+        try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                byte[] imageBytes = imageFile.getBytes();
+                usedTrade.setImageData(imageBytes);
+            } else {
+                usedTrade.setImageData(null);
+            }
+            return usedTradeRepository.save(usedTrade);
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+        }
     }
 
     public List<UsedTrade> getAllUsedTrade() {
@@ -40,7 +54,7 @@ public class UsedTradeService {
         return false;
     }
 
-    public List<UsedTrade> getUsedTrades(String category, String sort, Boolean tradeable) {
+    public List<UsedTrade> getUsedTrades(String sigungu, String emd, String category, String sort, Boolean tradeable) {
         Sort sortOrder = null;
 
         if ("recent".equals(sort)) {
@@ -49,19 +63,60 @@ public class UsedTradeService {
             sortOrder = Sort.by(Sort.Direction.DESC, "price");
         }
 
-        // 카테고리와 거래 가능 여부를 함께 필터링
-        if (category != null && !category.isEmpty() && !category.equals("all")) {
-            if (tradeable != null) {
-                return usedTradeRepository.findByTradeableAndCategory(tradeable, category, sortOrder);
+        // 지역과 카테고리, 거래 가능 여부를 함께 필터링
+        if (sigungu != null && !sigungu.isEmpty()) {
+            if (emd != null && !emd.isEmpty()) {
+                // 구와 동이 모두 지정된 경우
+                if (category != null && !category.isEmpty() && !category.equals("all")) {
+                    if (tradeable != null) {
+                        return usedTradeRepository.findByLocationContainingAndLocationContainingAndTradeableAndCategory(
+                            sigungu, emd, tradeable, category, sortOrder);
+                    } else {
+                        return usedTradeRepository.findByLocationContainingAndLocationContainingAndCategory(
+                            sigungu, emd, category, sortOrder);
+                    }
+                } else {
+                    if (tradeable != null) {
+                        return usedTradeRepository.findByLocationContainingAndLocationContainingAndTradeable(
+                            sigungu, emd, tradeable, sortOrder);
+                    } else {
+                        return usedTradeRepository.findByLocationContainingAndLocationContaining(
+                            sigungu, emd, sortOrder);
+                    }
+                }
             } else {
-                return usedTradeRepository.findByCategory(category, sortOrder);
+                // 구만 지정된 경우
+                if (category != null && !category.isEmpty() && !category.equals("all")) {
+                    if (tradeable != null) {
+                        return usedTradeRepository.findByLocationContainingAndTradeableAndCategory(
+                            sigungu, tradeable, category, sortOrder);
+                    } else {
+                        return usedTradeRepository.findByLocationContainingAndCategory(
+                            sigungu, category, sortOrder);
+                    }
+                } else {
+                    if (tradeable != null) {
+                        return usedTradeRepository.findByLocationContainingAndTradeable(
+                            sigungu, tradeable, sortOrder);
+                    } else {
+                        return usedTradeRepository.findByLocationContaining(sigungu, sortOrder);
+                    }
+                }
             }
-        } else if (tradeable != null) {
-            // 카테고리가 지정되지 않았을 때 거래 가능 여부만 필터링
-            return usedTradeRepository.findByTradeable(tradeable, sortOrder);
+        } else {
+            // 지역이 지정되지 않은 경우 기존 로직 사용
+            if (category != null && !category.isEmpty() && !category.equals("all")) {
+                if (tradeable != null) {
+                    return usedTradeRepository.findByTradeableAndCategory(tradeable, category, sortOrder);
+                } else {
+                    return usedTradeRepository.findByCategory(category, sortOrder);
+                }
+            } else if (tradeable != null) {
+                return usedTradeRepository.findByTradeable(tradeable, sortOrder);
+            }
         }
 
-        // 카테고리가 없거나 all인 경우 모든 중고 거래 데이터 반환
+        // 아무 조건도 없는 경우 모든 데이터 반환
         return usedTradeRepository.findAll(sortOrder);
     }
 
@@ -74,5 +129,7 @@ public class UsedTradeService {
         return usedTradeRepository.findByUserId(userId, pageable);
     }
 
-    
+    public UsedTrade createUsedTradeWithoutImage(UsedTrade usedTrade) {
+        return usedTradeRepository.save(usedTrade);
+    }
 }
