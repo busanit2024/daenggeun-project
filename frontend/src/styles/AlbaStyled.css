@@ -14,11 +14,11 @@ body {
 
 /* 컨테이너 스타일 */
 .container {
-    width: 80%;
+    width: 100%;
     margin: 0 auto;
     padding: 20px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
+    background-color: #ffffff;
+    border: 1px solid #ffffff;
     border-radius: 8px;
   }
   

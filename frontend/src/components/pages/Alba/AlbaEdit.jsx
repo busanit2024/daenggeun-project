@@ -7,6 +7,8 @@ import "../../../styles/AlbaStyled.css";
 import styled from "styled-components";
 import axios from "axios";
 import { singleFileUpload } from "../../../firebase";
+import { useArea } from "../../../context/AreaContext";
+import Breadcrumb from "../../ui/Breadcrumb";
 
 export const DongneSelectContainer = styled.div`
   display: flex;
@@ -22,6 +24,8 @@ export const DongneSelect = styled.select`
   font-family: inherit;
   flex-grow: 1;
 `;
+
+
 
 
 const AlbaEdit = () => {
@@ -51,6 +55,18 @@ const AlbaEdit = () => {
   const [workPeriodData, setWorkPeriodData] = useState([]); // 일하는 기간 데이터 추가
   const [busanJuso, setBusanJuso] = useState(null);
   const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
+  const { area } = useArea();
+  const [searchFilter, setSearchFilter] = useState({ 
+    sido: "부산광역시", sigungu: "", emd: "", 
+    category: "all", sort: "" });
+
+    const routes = [
+      { path: "/", name: "홈" },
+      { path: "/alba", name: "알바" },
+      { path: "/alba/create", name: "알바 게시물 작성" },
+      { path: `/alba/${id}`, name: "알바 상세 보기" },
+      { path: `/alba/${id}/edit`, name: "알바 게시물 수정" },
+    ];
 
   const StyledRoundFilter = styled(RoundFilter)`
     padding: 4px 8px;
@@ -296,8 +312,11 @@ const AlbaEdit = () => {
 
   return (
     <div className="container">
-      <h1 className="title">알바 수정</h1>
-      <form className="form" onSubmit={handleSubmit}>
+     <Breadcrumb routes={routes} />
+     <br/>
+    <h2>알바 글 수정</h2>
+
+          <form className="form" onSubmit={handleSubmit}>
         <InputText
           name="title"
           placeholder="제목"
@@ -461,27 +480,33 @@ const AlbaEdit = () => {
 
 <div className="company-info">
           <h3 className="section-title">업체 정보</h3>
-          
+          <div className="company-info-style" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div>
           <h4>업체 주소</h4><InputText
             name="workPlace"
             placeholder="ex) 서울시 강남구 강남1로"
             value={form.workPlace}
             onChange={handleChange}
           /><Button type="button"  title="주소 검색" variant="primary" onClick={handleAddressSearch} />
+          </div>
+          <div>
           <h4>업체명</h4><InputText
             name="companyName"
             placeholder="ex) 댕근마켓"
             value={form.companyName}
             onChange={handleChange}
-          />
+          /></div>
+          <div>
           <h4>연락처</h4>     
           <InputText
             name="contactNumber"
             placeholder="010-xxxx-xxxx"
             value={form.contactNumber}
             onChange={handleChange}
-          />
-          <p><label>
+          /></div>
+          </div>
+          <p>
+            <label>
             <input
               type="checkbox"
               name="doNotContact"
