@@ -91,7 +91,6 @@ export default function CommunityPage(props) {
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState('');
 
   const [ selectedCategory, setSelectedCategory]= useState("동네생활");
@@ -109,12 +108,38 @@ export default function CommunityPage(props) {
     }
   }, [routerLocation.search]);
 
-  // 필터나 지역 설정이 변경될 때마다 자동으로 검색 수행
+  // 초기 데이터 로딩을 위한 useEffect 추가
   useEffect(() => {
-    if (searchFilter.sigungu || searchFilter.emd || searchFilter.category !== "all") {
-      fetchCommunityList(0); // 기본 데이터 로드
+    const loadInitialData = async () => {
+      setLoading(true);
+      try {
+        await fetchCommunityList(0);
+      } catch (error) {
+        console.error("초기 데이터 로딩 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, []); // 컴포넌트 마운트 시 한 번만 실행
+
+  // 지역 변경 감지 useEffect
+  useEffect(() => {
+    if (area.sigungu || area.emd) {
+      const loadData = async () => {
+        setLoading(true);
+        try {
+          await fetchCommunityList(0);
+        } catch (error) {
+          console.error("데이터 로딩 실패:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadData();
     }
-  }, [searchFilter]);
+  }, [area]);
 
   // 카테고리 데이터 불러오기
   useEffect(() => {
@@ -128,38 +153,56 @@ export default function CommunityPage(props) {
 
   const fetchCommunityList = async (page) => {
     try {
-      const sigungu = area.sigungu || '';
-      const emd = area.emd || '';
-      const category = searchFilter.category || 'all';
+        const sigungu = area.sigungu || '';
+        const emd = area.emd || '';
+        const category = searchFilter.category || 'all';
 
-      const response = await axios.get(`api/community/search`, {
-        params: {
-          sigungu,
-          emd : emd || undefined,
-          category,
-          page: page,
-          size: 10,
+        const response = await axios.get(`/api/community/search`, {
+            params: {
+                sigungu,
+                emd: emd || undefined,
+                category,
+                page: page,
+                size: 10,
+            }
+        });
+        
+        const newCommunityList = response.data.content;
+        console.log("커뮤니티 리스트", newCommunityList);
+        
+        if (page === 0) {
+            setCommunityList(newCommunityList);
+        } else {
+            setCommunityList(prev => [...prev, ...newCommunityList]);
         }
-      });
-      const newCommunityList = response.data.content;
-      console.log("커뮤니티 리스트", newCommunityList);
-      setCommunityList((prevCommunities) => (page === 0 ? newCommunityList : [...prevCommunities, ...newCommunityList]));
-      setHasNext(!response.data.last);
+        setHasNext(!response.data.last);
+        
     } catch (error) {
-      console.error("동네생활 리스트를 불러오는데 실패했습니다." , error.response ? error.response.data : error.message);
-    } finally {
-      setLoading(false);
+        console.error("동네생활 리스트를 불러오는데 실패했습니다.", error.response ? error.response.data : error.message);
+        throw error;
     }
   };
 
-  const handleLocationSelect = (selectedLocation) => {
+  const handleLocationSelect = async (selectedLocation) => {
     console.log("선택된 위치 :", selectedLocation);
     const [sigungu, emd] = selectedLocation.split(", ");
 
     setArea({ sigungu, emd });
-    setSearchFilter({ ...searchFilter, sigungu, emd });
-    handleSearch(sigungu, emd);
-    fetchCommunityList(0);
+    setSearchFilter(prev => ({
+        ...prev,
+        sigungu,
+        emd
+    }));
+
+    setLoading(true);
+    
+    try {
+        await fetchCommunityList(0);
+    } catch (error) {
+        console.error("데이터 로딩 실패:", error);
+    } finally {
+        setLoading(false);
+    }
   };
 
 
