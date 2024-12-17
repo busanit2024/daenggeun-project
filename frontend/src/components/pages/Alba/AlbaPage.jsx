@@ -102,17 +102,16 @@ export default function AlbaPage(props) {
     { id: 'longterm', name: '1개월 이상' },
     { id: 'shortterm', name: '단기' }
   ]);
+  
   const [itemsToShow, setItemsToShow] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasNext, setHasNext] = useState(true);
   const { area } = useArea();
-  const [modalOpen, setModalOpen] = useState('');
-  const [searchFilter, setSearchFilter] = useState({
-    sigungu: "",
-    emd: "",
-    category: category
-  });
+    const [searchFilter, setSearchFilter] = useState({ 
+    sido: "부산광역시", sigungu: "", emd: "", 
+    category: "all", sort: "" });
+    const [modalOpen, setModalOpen] = useState('');
 
   const [selectedCategory, setSelectedCategory] = useState("알바");
   //const sessionId = sessionStorage.getItem('uid');
@@ -385,11 +384,17 @@ export default function AlbaPage(props) {
     }
   };
 
+  const id = sessionStorage.getItem('uid');
+
   const routes = [
     { path: "/", name: "홈" },
-    { path: "/alba", name: "알바 검색" }
-    ];
-  
+    { path: "/alba", name: "알바 검색" },
+    { path: "/alba/create", name: "알바 게시물 작성" },
+    { path: `/alba/${id}`, name: "알바 상세 보기" },
+    { path: `/alba/${id}/edit`, name: "알바 게시물 수정" },
+  ];
+
+
   useEffect(() => {
     // Toolbar에서 이동한 경우 자동 검색 실행
     if (location.state?.fromToolbar) {
@@ -419,7 +424,9 @@ export default function AlbaPage(props) {
         />
       )}
 
-      <Breadcrumb routes={routes} />
+<Breadcrumb routes={routes} />
+<br/>
+<h2>{`${searchFilter.sido} ${area.sigungu || searchFilter.sigungu} ${area.emd || ''} ${searchFilter.category === 'all' ? "" : searchFilter.category}`}{searchFilter.category === 'all' ? " 알바" : ""}</h2>
 
       <InnerContainer>
         {/* 필터 바 */}

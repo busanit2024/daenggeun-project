@@ -11,6 +11,8 @@ import axios from "axios";
 import useGeolocation from "../../../utils/useGeolocation";
 import { useJsApiLoader } from "@react-google-maps/api";
 import LocationSearchModal from "../../ui/LocationSearchModal";
+import Breadcrumb from "../../ui/Breadcrumb";
+import { useArea } from "../../../context/AreaContext";
 
 export const DongneSelectContainer = styled.div`
   display: flex;
@@ -44,11 +46,19 @@ export const Item = styled.div`
   }
 `;
 
+const id = sessionStorage.getItem('uid');
+
+const routes = [
+  { path: "/", name: "홈" },
+  { path: "/alba", name: "알바 검색" },
+  { path: "/alba/create", name: "알바 게시물 작성" },
+  { path: `/alba/${id}`, name: "알바 상세 보기" },
+  { path: `/alba/${id}/edit`, name: "알바 게시물 수정" },
+];
 
 
 const libraries = ['places'];
 
-const id = sessionStorage.getItem('uid');
 
 const AlbaCreate = () => {
   const [form, setForm] = useState({
@@ -72,7 +82,11 @@ const AlbaCreate = () => {
   const [workPeriodData, setWorkPeriodData] = useState([]); // 일하는 기간 데이터 추가
   const [busanJuso, setBusanJuso] = useState(null);
   const [locationData, setLocationData] = useState({ sigungu: [], emd: [] });
-
+  const { area } = useArea();
+  const [searchFilter, setSearchFilter] = useState({ 
+    sido: "부산광역시", sigungu: "", emd: "", 
+    category: "all", sort: "" });
+  
   const navigate = useNavigate();
 
 
@@ -369,7 +383,10 @@ useEffect(() => {
 
     
     <div className="container">
-      <h1 className="title">알바 글 작성</h1>
+      <Breadcrumb routes={routes} />
+      <br/>
+    <h2>알바 글 등록</h2>
+    <br/>
       <form className="form" onSubmit={handleSubmit}>
         <InputText
           name="title"
