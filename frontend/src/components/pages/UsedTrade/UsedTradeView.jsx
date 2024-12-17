@@ -219,7 +219,7 @@ const UsedTradeView = () => {
           <ProductInfo>
             <Title>{product.name}</Title>
             <CategoryAndTime>
-              {product.category} | {timeAgo(product.createdDate)} | {product.isNegotiable ? "네고 가능" : "네고 불가능"}
+              {product.category} | {timeAgo(product.createdDate)} | {product.isNegotiable ? "네고 가능" : product.price === 0 ? "나눔" : "네고 불가능"}
             </CategoryAndTime>
             <Price>{formattedPrice} 원</Price>
             <Location>{product.location}</Location>
@@ -241,7 +241,7 @@ const UsedTradeView = () => {
         </ProductDetail>
       </Product>
       
-      <MoreProducts>
+      {/* <MoreProducts>
         <h3>이 판매자의 다른 상품</h3>
 
         <ProductGrid>
@@ -250,7 +250,7 @@ const UsedTradeView = () => {
           ))}
         </ProductGrid>
 
-      </MoreProducts>
+      </MoreProducts> */}
     </Container>
   );
 };

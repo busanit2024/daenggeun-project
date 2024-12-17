@@ -253,7 +253,9 @@ const UsedTradeWrite = () => {
 
         setPrice(value);
 
-        if (!value) {
+        if (value === "0") {
+            setPriceError("판매할 가격은 0원이 될 수 없습니다!");
+        } else if (!value) {
             setPriceError("가격을 입력해주세요!");
         } else {
             setPriceError("");
@@ -526,7 +528,10 @@ const UsedTradeWrite = () => {
                 marginTop: "10px" }}>
                 <Button
                     title="자주 쓰는 문구"
-                    onClick={() => alert("맥거핀입니다.")}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        alert("맥거핀입니다.");
+                    }}
                 />
                 <div style={{ display: "flex", gap: "10px" }}>
                     <Button

@@ -13,6 +13,8 @@ import Card from "../../ui/Card";
 import categoryData from "../../../asset/categoryData";
 import { useArea } from "../../../context/AreaContext";
 import Modal from "../../ui/Modal";
+import RoundFilter from "../../ui/RoundFilter";
+import Switch from "../../ui/Switch";
 
 const Container = styled.div`
   display: flex;
@@ -152,8 +154,9 @@ const FilterTag = styled.div`
   display: flex;
   align-items: center;
   padding: 5px 10px;
-  background-color: #e0e0e0;
-  border-radius: 4px;
+  background-color:rgb(0, 0, 0);
+  color: white;
+  border-radius: 15px;
 `;
 
 const RemoveButton = styled.button`
@@ -192,7 +195,11 @@ export default function UsedTrade(props) {
   const { area, setArea } = useArea();
 
   // 내가 고른 필터 저장
-  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState({
+    category: [],
+    sort: null,
+    price: null,
+  });
 
   const { isLoaded: isJsApiLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -307,9 +314,18 @@ export default function UsedTrade(props) {
       sort: '', 
       category: 'all', 
       tradeble: false, 
-      priceRange: { min: 0, max: 999999999999 }}));
+      priceRange: { min: 0, max: 999999999999 }
+    }));
+  
     setIsFilterOpen(false);
-    setSelectedFilters([]);
+    
+    // selectedFilters 초기화
+    setSelectedFilters({
+      category: [],
+      sort: null,
+      price: null,
+    });
+  
     setPage(0);
   };
 
@@ -319,38 +335,79 @@ export default function UsedTrade(props) {
     </div>
   );
 
+  // 카테고리 선택 함수
   const selectCategory = (category) => {
-    if (!selectedFilters.includes(category)) {  // 필터 중복 체크
-      setSelectedFilters((prev) => [...prev, category]);
-    }
     setSearchFilter((prev) => ({
       ...prev,
       category: category,
     }));
+  
+    setSelectedFilters((prev) => {
+      // 이미 선택된 카테고리라면 제거, 아니면 추가
+      const newCategories = prev.category.includes(category)
+        ? prev.category.filter(c => c !== category) // 선택된 카테고리가 이미 있다면 제거
+        : [category]; // 새로운 카테고리만 추가
+  
+      return {
+        ...prev,
+        category: newCategories,
+      };
+    });
+  
     fetchTradeList(0);
   };
 
+  // 정렬 선택 함수
   const handleSortChange = (sort) => {
-    if (!selectedFilters.includes(sort)) {  // 필터 중복 체크
-      setSelectedFilters((prev) => [...prev, sort]);
-    }
     setSearchFilter((prev) => ({
       ...prev,
       sort: sort,
     }));
-    fetchTradeList(0);
-  }
 
+    setSelectedFilters((prev) => ({
+      ...prev,
+      sort: sort, // 정렬은 하나만 선택
+    }));
+
+    fetchTradeList(0);
+  };
+
+  // 가격 변경 함수
+  const handlePriceChange = (price) => {
+    // 가격 포맷팅
+    const formatPrice = (num) => {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    };
+
+    let priceLabel = price === 0 ? "나눔" : `${formatPrice(price)} 원 이하`;
+
+    setSearchFilter((prev) => ({
+      ...prev,
+      priceRange: { ...prev.priceRange, max: price },
+    }));
+
+    setSelectedFilters((prev) => ({
+      ...prev,
+      price: priceLabel,
+    }));
+
+    fetchTradeList(0);
+  };
+
+  // 필터 제거 함수
   const handleRemoveFilter = (filter) => {
-    setSelectedFilters((prev) => prev.filter((f) => f !== filter));
-    // 필터 상태 업데이트
-    setSearchFilter((prev) => {
-      if (prev.category === filter) {
-        return { ...prev, category: "all" }; // 카테고리 필터 제거 시 "all"로 설정
-      } else if (prev.sort === filter) {
-        return { ...prev, sort: "recent" }; // 정렬 필터 제거 시 기본값으로 설정
+    setSelectedFilters((prev) => {
+      if (prev.category.includes(filter)) {
+        return {
+          ...prev,
+          category: prev.category.filter(c => c !== filter), // 카테고리 필터에서 제거
+        };
+      } else if (filter === prev.sort) {
+        return { ...prev, sort: null }; // 정렬 필터 제거
+      } else if (filter === prev.price) {
+        return { ...prev, price: null }; // 가격 필터 제거
       }
-      return prev;
+      return prev; // 변경 사항이 없으면 그대로 반환
     });
     fetchTradeList(0);
   };
@@ -488,16 +545,18 @@ export default function UsedTrade(props) {
     const priceMatches = trade.price >= searchFilter.priceRange.min && trade.price <= searchFilter.priceRange.max;
 
     // 전지역 선택 시 모든 거래 보여주기
-    if (searchFilter.sigungu === "" && searchFilter.emd === "") {
+    if (searchFilter.sigungu === '' && searchFilter.emd === '') {
       return tradeableMatches && priceMatches;
     }
 
     // 특정 구와 동이 선택된 경우
     const locationMatches = trade.location.includes(searchFilter.sigungu);
-    const emdMatches = searchFilter.emd === "" || trade.location.includes(searchFilter.emd);
+    const emdMatches = searchFilter.emd === '' || trade.location.includes(searchFilter.emd);
 
     return locationMatches && emdMatches && tradeableMatches && priceMatches;
   });
+
+  const isAllRegions = searchFilter.sigungu === '';
 
   return (
     <>
@@ -513,14 +572,6 @@ export default function UsedTrade(props) {
       <Container>
         <HeadContainer>
           <h2>{`${searchFilter.sido} ${searchFilter.sigungu || ''} ${searchFilter.emd || ''} 중고거래`}</h2>
-          <FilterTagsContainer>
-            {selectedFilters.map((filter, index) => (
-              <FilterTag key={index}>
-                {filter}
-                <RemoveButton onClick={() => handleRemoveFilter(filter)}>X</RemoveButton>
-              </FilterTag>
-            ))}
-          </FilterTagsContainer>
           <Button 
             title="+ 글쓰기" 
             variant="primary" 
@@ -528,36 +579,63 @@ export default function UsedTrade(props) {
           />
         </HeadContainer>
         <InnerContainer>
-          <FilterBar>
-            <div className="filterBarHeader">
-              <h3 className="title">필터</h3>
-              <div className="reset" onClick={resetFilter}>초기화</div>
-            </div>
-            <div className="filterItem">
-              <label className="radioWrap">
-                <input
-                  type="checkbox"
-                  checked={searchFilter.tradeble}
-                  onChange={(e) => setSearchFilter({ ...searchFilter, tradeble: e.target.checked })}
-                />
-                <p>거래 가능만 보기</p>
-              </label>
-            </div>
+        <FilterBar>
+          <div className="filterBarHeader">
+            <h3 className="title">필터</h3>
+            <div className="reset" onClick={resetFilter}>초기화</div>
+          </div>
+          <div className="filterItem">
+            <label className="radioWrap">
+              <input
+                type="checkbox"
+                checked={searchFilter.tradeble}
+                onChange={(e) => setSearchFilter({ ...searchFilter, tradeble: e.target.checked })}
+              />
+              <p>거래 가능만 보기</p>
+            </label>
+          </div>
 
-            <div className="filterItem">
-              <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center' }}>지역
-                <CustomSelect 
-                  name="region"
-                  value={searchFilter.sigungu} 
-                  onChange={(e) => handleLocationSelect(`${e.target.value}`)}
-                >
-                  <option value="">전지역</option>
-                  {busanJuso.map((item) => (
-                    <option key={item.sigungu} value={item.sigungu}>{item.sigungu}</option>
-                  ))}
-                </CustomSelect>
-              </h4>
+          <div className="filterItem">
+            <h4 className="title" style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+              <span style={{ marginRight: 'auto' }}>지역</span>
+              <Switch 
+                value={isAllRegions} 
+                onChange={() => {
+                  if (!isAllRegions) {
+                    // '전지역'으로 설정
+                    setSearchFilter(prev => ({ ...prev, sigungu: '', emd: '' })); 
+                    fetchTradeList(0); // 전지역으로 설정된 후 거래 목록을 새로 가져옴
+                  } else {
+                    // 기본 지역으로 설정
+                    setSearchFilter(prev => ({ ...prev, sigungu: busanJuso[0].sigungu })); 
+                    fetchTradeList(0); // 기본 지역으로 설정된 후 거래 목록을 새로 가져옴
+                  }
+                }} 
+              />
+              <span style={{ marginLeft: '5px' }}>전지역</span>
+            </h4>
 
+            {/* 전지역일 때 '부산광역시' 표시 */}
+            {isAllRegions ? (
+              <div className="filterList">
+                <p>부산광역시</p>
+                <label className="radioWrap">
+                  <Radio 
+                    name="gu" 
+                    value="" 
+                    checked 
+                    onChange={() => {
+                      setArea({
+                        sigungu: '',
+                        emd: ''
+                      });
+                      setSearchFilter({ ...searchFilter, sigungu: '', emd: '' });
+                    }} 
+                  />
+                  전지역
+                </label>
+              </div>
+            ) : (
               <div className="filterList">
                 <p>{searchFilter.sido}</p>
                 <label className="radioWrap">
@@ -566,7 +644,6 @@ export default function UsedTrade(props) {
                     value={searchFilter.sigungu} 
                     checked={searchFilter.emd === ''} 
                     onChange={() => {
-                      // AreaContext와 searchFilter 동시 업데이트
                       setArea({
                         sigungu: searchFilter.sigungu,
                         emd: ''
@@ -574,15 +651,15 @@ export default function UsedTrade(props) {
                       setSearchFilter({ ...searchFilter, emd: '' });
                     }} 
                   />
-                  {searchFilter.sigungu === '' ? "전지역" : searchFilter.sigungu}
+                  {searchFilter.sigungu}
                 </label>
                 <EmdFilterWrap open={isFilterOpen}>
-                  {searchFilter.emd !== '' &&
+                  {searchFilter.emd !== '' && (
                     <label className="radioWrap">
                       <Radio name="dong" value="" checked onChange={() => setSearchFilter({ ...searchFilter, emd: '' })} />
                       {searchFilter.emd}
                     </label>
-                  }
+                  )}
                   {(emdList && searchFilter.emd === '') && emdList.map((dong) => (
                     <label key={dong} className="radioWrap">
                       <Radio 
@@ -590,7 +667,6 @@ export default function UsedTrade(props) {
                         value={dong} 
                         checked={searchFilter.emd === dong} 
                         onChange={() => {
-                          // AreaContext와 searchFilter 동시 업데이트
                           setArea({
                             sigungu: searchFilter.sigungu,
                             emd: dong
@@ -604,66 +680,68 @@ export default function UsedTrade(props) {
                 </EmdFilterWrap>
                 {
                   (emdList && emdList.length > 5 && searchFilter.emd === '') &&
-                  <MoreFilterButton className="toggle" onClick={() => setIsFilterOpen(!isFilterOpen)}>{isFilterOpen ? "접기" : "더보기"}</MoreFilterButton>
+                  <MoreFilterButton className="toggle" onClick={() => setIsFilterOpen(!isFilterOpen)}>
+                    {isFilterOpen ? "접기" : "더보기"}
+                  </MoreFilterButton>
                 }
-
               </div>
-            </div>
-            
-            <div className="filterItem">
-              <h4 className="title">카테고리</h4>
-              <CategoryList show={isCategoryOpen}>
-                {categoryData.map(category => (
-                  <CategoryItem key={category.name} className="radioWrap">
-                    <Radio
-                      name="category"
-                      value={category.name}
-                      checked={searchFilter.category === category.name}
-                      onChange={() => selectCategory(category.name)}
-                    />
-                    {category.name}
-                  </CategoryItem>
-                ))}
-              </CategoryList>
-            </div>
-            <div className="filterItem">
-              <h4 className="title">정렬</h4>
-              <label className="radioWrap">
-                <Radio 
-                  name="sort" 
-                  value="recent" 
-                  checked={searchFilter.sort === 'recent'} 
-                  onChange={(e) => handleSortChange( 'recent' )} />
-                최신순
-              </label>
-              <label className="radioWrap">
-                <Radio 
-                  name="sort" 
-                  value="name" 
-                  checked={searchFilter.sort === 'price'} 
-                  onChange={(e) => handleSortChange( 'price' )} />
-                가격순
-              </label>
-            </div>
-            <div>
-              <h4 className="title">가격</h4>
-              <CustomSelect
-                value={searchFilter.priceRange.max}
-                onChange={(e) => setSearchFilter({
-                  ...searchFilter,
-                  priceRange: { ...searchFilter.priceRange, max: Number(e.target.value) }
-                })}>
-                <option value={999999999999}>모든 가격대</option>
-                <option value={0}>나눔</option>
-                <option value={5000}>5,000원 이하</option>
-                <option value={10000}>10,000원 이하</option>
-                <option value={30000}>30,000원 이하</option>
-                <option value={50000}>50,000원 이하</option>
-                <option value={100000}>100,000원 이하</option>
-              </CustomSelect>
-            </div>
-          </FilterBar>
+            )}
+          </div>
 
+
+          <div className="filterItem">
+            <h4 className="title">카테고리</h4>
+            <CategoryList show={isCategoryOpen}>
+              {categoryData.map(category => (
+                <CategoryItem key={category.name} className="radioWrap">
+                  <Radio
+                    name="category"
+                    value={category.name}
+                    checked={searchFilter.category === category.name}
+                    onChange={() => selectCategory(category.name)}
+                  />
+                  {category.name}
+                </CategoryItem>
+              ))}
+            </CategoryList>
+          </div>
+          <div className="filterItem">
+            <h4 className="title">정렬</h4>
+            <label className="radioWrap">
+              <Radio 
+                name="sort" 
+                value="recent" 
+                checked={searchFilter.sort === 'recent'} 
+                onChange={(e) => handleSortChange('recent')} 
+              />
+              최신순
+            </label>
+            <label className="radioWrap">
+              <Radio 
+                name="sort" 
+                value="price" 
+                checked={searchFilter.sort === 'price'} 
+                onChange={(e) => handleSortChange('price')} 
+              />
+              가격순
+            </label>
+          </div>
+          <div>
+            <h4 className="title">가격</h4>
+            <CustomSelect
+              value={searchFilter.priceRange.max}
+              onChange={(e) => handlePriceChange(Number(e.target.value))} // 수정된 부분
+            >
+              <option value={999999999999}>모든 가격대</option>
+              <option value={0}>나눔</option>
+              <option value={5000}>5,000원 이하</option>
+              <option value={10000}>10,000원 이하</option>
+              <option value={30000}>30,000원 이하</option>
+              <option value={50000}>50,000원 이하</option>
+              <option value={100000}>100,000원 이하</option>
+            </CustomSelect>
+          </div>
+        </FilterBar>
           <ListContainer>
             {loading ? (
               <LoadingText>
@@ -671,6 +749,19 @@ export default function UsedTrade(props) {
               </LoadingText>
             ) : (
               <>
+              {/* 필터 태그 렌더링 */}
+              <FilterTagsContainer>
+                {selectedFilters.category.map((filter, index) => (
+                  <RoundFilter variant="selected" key={index} title={filter} cancelIcon onClick={() => handleRemoveFilter(filter)} />
+                ))}
+                {selectedFilters.sort && (
+                  <RoundFilter variant="selected" title={selectedFilters.sort} cancelIcon onClick={() => handleRemoveFilter(selectedFilters.sort)} />
+                )}
+                {selectedFilters.price && (
+                  <RoundFilter variant="selected" title={selectedFilters.price} cancelIcon onClick={() => handleRemoveFilter(selectedFilters.price)} />
+                )}
+              </FilterTagsContainer>
+
                 {locationFilteredTrades.length === 0 ? (
                   <NoSearchResult>
                     <h3>{`${searchFilter.emd ? searchFilter.emd : searchFilter.sigungu} 근처에 중고거래가 없어요.`}</h3>
