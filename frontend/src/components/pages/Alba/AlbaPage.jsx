@@ -11,6 +11,7 @@ import SearchBar from "../../ui/SearchBar";
 import Radio from "../../ui/Radio";
 import LocationSearchModal from "../../ui/LocationSearchModal";
 import { useArea } from "../../../context/AreaContext";
+import Modal from "../../ui/Modal";
 
 const HorizontalContainer = styled.div`
 display: flex;
@@ -106,6 +107,7 @@ export default function AlbaPage(props) {
   const [loading, setLoading] = useState(false);
   const [hasNext, setHasNext] = useState(true);
   const { area } = useArea();
+  const [modalOpen, setModalOpen] = useState('');
   const [searchFilter, setSearchFilter] = useState({
     sigungu: "",
     emd: "",
@@ -294,7 +296,18 @@ export default function AlbaPage(props) {
     const { name, value } = e.target;
     setWorkTime(prev => ({ ...prev, [name]: value }));
   };
-
+  const handleAlbaFilter = () => {
+    if (sessionStorage.getItem('uid')) {
+      setSearchFilter({ ...searchFilter, sigungu: '', emd: '', category: 'all', sort: '', uid: sessionStorage.getItem('uid') });
+    }
+  }
+  const handleCreateButton = () => {
+    if (sessionStorage.getItem('uid')) {
+      navigate("/alba/create");
+    } else {
+      setModalOpen('login');
+    }
+  };
   const handleCategoryChange = (e) => {
     const newCategory = e.target.value;
     setCategory(newCategory);
@@ -374,11 +387,8 @@ export default function AlbaPage(props) {
 
   const routes = [
     { path: "/", name: "홈" },
-    { path: "/alba", name: "알바 검색" },
-    { path: "/alba/create", name: "알바 게시물 작성" },
-    { path: "/alba/{id}", name: "알바 상세 보기" },
-    { path: "/alba/{id}/edit", name: "알바 게시물 수정" },
-  ];
+    { path: "/alba", name: "알바 검색" }
+    ];
   
   useEffect(() => {
     // Toolbar에서 이동한 경우 자동 검색 실행
@@ -396,6 +406,7 @@ export default function AlbaPage(props) {
   }, [category, workType, workDays, workTime]);
 
   return (
+    <>
     <Container>
       <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
           selectedCategory={selectedCategory}  setSelectedCategory={setSelectedCategory} 
@@ -502,7 +513,7 @@ export default function AlbaPage(props) {
         {/* 알바 리스트 컨테이너 */}
 
         <ListContainer>
-     
+        
           {(category !== 'all' || workType.length > 0 || workDays.length > 0 || workTime.start || workTime.end || searchTerm.trim() !== "" || selectedRegion !== "" || selectedDong !== "") &&
             <FilterContainer>
               {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
@@ -537,15 +548,26 @@ export default function AlbaPage(props) {
             <Button title="더보기" onClick={handleShowMore} />
           )}
                 {/* 로그인 여부에 따라 글쓰기 버튼 렌더링 */}
-          {sessionId && (  
+          
           <Button 
             title="글쓰기" 
             variant="primary" 
-            onClick={() => navigate("/alba/create")} // 로그인 여부를 확인하고 렌더링
+            onClick={handleCreateButton} // 로그인 여부를 확인하고 렌더링
+            
           />
-            )}
+          
+      
+          
         </ListContainer>
       </InnerContainer>
     </Container>
+    <Modal title="로그인" isOpen={modalOpen === 'login'} onClose={() => setModalOpen('')}>
+    <h3>알바를 등록하려면 로그인해야 해요.</h3>
+    <div className="buttonWrap">
+      <Button title="로그인" variant='primary' onClick={() => { setModalOpen(''); navigate("/login") }} />
+      <Button title="닫기" onClick={() => setModalOpen('')} />
+    </div>
+  </Modal>
+  </>
   );
 }

@@ -44,6 +44,8 @@ export const Item = styled.div`
   }
 `;
 
+
+
 const libraries = ['places'];
 
 const id = sessionStorage.getItem('uid');
@@ -98,7 +100,6 @@ const AlbaCreate = () => {
     gap: 8px;
     flex-wrap: wrap;
   `;
-
 
   useEffect(() => {
     // axios.get(`/api/data/filter?name=groupCategory`).then((response) => {
@@ -365,6 +366,8 @@ useEffect(() => {
   
 
   return (
+
+    
     <div className="container">
       <h1 className="title">알바 글 작성</h1>
       <form className="form" onSubmit={handleSubmit}>
@@ -538,26 +541,33 @@ useEffect(() => {
 
         <div className="company-info">
           <h3 className="section-title">업체 정보</h3>
-          
-          <h4>업체 주소</h4><InputText
+          <div className="company-info-style" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div>
+          <h4>업체 주소</h4>
+          <InputText
             name="workPlace"
             placeholder="ex) 서울시 강남구 강남1로"
             value={form.workPlace}
             onChange={handleChange}
-          /><Button type="button"  title="주소 검색" variant="primary" onClick={handleAddressSearch} />
+          />
+          <Button type="button"  title="주소 검색" variant="primary" onClick={handleAddressSearch} />
+          </div>
+          <div>
           <h4>업체명</h4><InputText
             name="companyName"
             placeholder="ex) 댕근마켓"
             value={form.companyName}
             onChange={handleChange}
-          />
+          /></div>
+          <div>
           <h4>연락처</h4>     
           <InputText
             name="contactNumber"
             placeholder="010-xxxx-xxxx"
             value={form.contactNumber}
             onChange={handleChange}
-          />
+          /></div>
+          </div>
           <p><label>
             <input
               type="checkbox"
@@ -573,6 +583,7 @@ useEffect(() => {
       </form>
     </div>
   );
+  
 };
 
 export default AlbaCreate;

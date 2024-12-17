@@ -139,6 +139,7 @@ const AlbaDetail = () => {
                 variant="primary"
                 onClick={handleEdit}
               />
+              
               <Button
                 type="delete-button"
                 title="삭제"
