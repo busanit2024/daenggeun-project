@@ -7,6 +7,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { deleteFile, singleFileUpload } from "../../../firebase";
 import imageData from "../../../asset/imageData";
 import categoryData from "../../../asset/categoryData";
+import Breadcrumb from "../../ui/Breadcrumb";
 
 const ButtonContainer = styled.div`
     display: inline-flex;
@@ -160,7 +161,7 @@ const UsedTradeUpdate = () => {
                 setIsNegotiable(data.isNegotiable);
                 setIsGiveable(data.isGiveable || false);
                 setCreatedDate(data.createdDate);
-                setSelectedCategory(data.category);
+                setSelectedCategory(data.category ? data.category.name : null);
                 setUploadedImages(data.images || []);
                 setSelectedTradeType(data.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
             } catch (error) {
@@ -182,7 +183,7 @@ const UsedTradeUpdate = () => {
             setIsNegotiable(product.isNegotiable);
             setIsGiveable(product.isGiveable || false);
             setCreatedDate(product.createdDate);
-            setSelectedCategory(product.category);
+            setSelectedCategory(product.category ? product.category.name : null);
             setUploadedImages(product.images);
             setSelectedTradeType(product.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
         }
@@ -335,10 +336,15 @@ const UsedTradeUpdate = () => {
         // const uploadedFiles = await Promise.all(newImages.map(files => singleFileUpload(files))); // Firebase에 업로드
         // setUploadedImages(uploadedFiles); // 상태 업데이트
     };
+
+    const routes = [
+        { path: "/", name: "홈" },
+        { path: `/usedTradeUpdate/${id}`, name: "중고거래 수정" },
+    ];
     
     return (
         <Container>
-            <h1>중고거래 수정</h1>
+            <Breadcrumb routes={routes} />
             <Form>
                 <ImageUpload img={uploadedImages} onImageChange={handleImageChange} />
                 <InputContainer>
