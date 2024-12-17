@@ -42,7 +42,7 @@ export default function GroupViewPage(props) {
         console.error("멤버 정보를 불러오는데 실패했습니다." + error);
       } );
     }
-  }, [group]);
+  }, [group, membersLoaded]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
