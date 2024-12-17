@@ -5,12 +5,13 @@ import { ImAlarm } from "react-icons/im";
 import { ImCalendar } from "react-icons/im";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 import { LiaWonSignSolid } from "react-icons/lia";
-import Breadcrumb from "../../ui/Breadcrumb";
 import "../../../styles/AlbaStyled.css";
 import Button from "../../ui/Button";
 import styled from "styled-components";
 import AlbaMemberProfile from "../../alba/AlbaMemberProfile";
 import AlbaListItem from "../../alba/AlbaListItem";
+import { useArea } from "../../../context/AreaContext";
+import Breadcrumb from "../../ui/Breadcrumb";
 
 const AlbaDetail = () => {
   const { id } = useParams(); // URL에서 id 가져오기
@@ -18,6 +19,11 @@ const AlbaDetail = () => {
   const [job, setJob] = useState(null); // 상세 데이터 상태
   const [relatedJobs, setRelatedJobs] = useState([]); // 관련 알바 데이터 상태
   const [itemsToShow, setItemsToShow] = useState(5); // 처음에 보여줄 게시물 개수
+  const { area } = useArea();
+  const [searchFilter, setSearchFilter] = useState({ 
+    sido: "부산광역시", sigungu: "", emd: "", 
+    category: "all", sort: "" });
+
 
   useEffect(() => {
     // 상세 데이터 로드
@@ -46,9 +52,10 @@ const AlbaDetail = () => {
 
   if (!job) return <p>로딩 중...</p>; // 로딩 처리
 
+
   const routes = [
     { path: "/", name: "홈" },
-    { path: "/alba", name: "알바 검색" },
+    { path: "/alba", name: "알바" },
     { path: "/alba/create", name: "알바 게시물 작성" },
     { path: `/alba/${id}`, name: "알바 상세 보기" },
     { path: `/alba/${id}/edit`, name: "알바 게시물 수정" },
@@ -80,8 +87,9 @@ const AlbaDetail = () => {
 
   return (
     <div className="alba-detail-page">
-      <Breadcrumb routes={routes} />
-
+     <Breadcrumb routes={routes} />
+     <br/>
+    <h2>{`${searchFilter.sido} ${area.sigungu || searchFilter.sigungu} ${area.emd || ''} ${searchFilter.category === 'all' ? "" : searchFilter.category}`}{searchFilter.category === 'all' ? " 알바" : ""}</h2>
       <div className="alba-detail-container">
         {/* 좌측 영역 */}
         <div className="detail-left">
@@ -139,6 +147,7 @@ const AlbaDetail = () => {
                 variant="primary"
                 onClick={handleEdit}
               />
+              
               <Button
                 type="delete-button"
                 title="삭제"

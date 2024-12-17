@@ -11,6 +11,7 @@ import SearchBar from "../../ui/SearchBar";
 import Radio from "../../ui/Radio";
 import LocationSearchModal from "../../ui/LocationSearchModal";
 import { useArea } from "../../../context/AreaContext";
+import Modal from "../../ui/Modal";
 
 const HorizontalContainer = styled.div`
 display: flex;
@@ -82,6 +83,8 @@ const NoSearchResult = styled.div`
   }
 `;
 
+const sessionId = sessionStorage.getItem('uid');
+
 export default function AlbaPage(props) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -99,19 +102,19 @@ export default function AlbaPage(props) {
     { id: 'longterm', name: '1개월 이상' },
     { id: 'shortterm', name: '단기' }
   ]);
+  
   const [itemsToShow, setItemsToShow] = useState(5);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasNext, setHasNext] = useState(true);
   const { area } = useArea();
-  const [searchFilter, setSearchFilter] = useState({
-    sigungu: "",
-    emd: "",
-    category: category
-  });
+    const [searchFilter, setSearchFilter] = useState({ 
+    sido: "부산광역시", sigungu: "", emd: "", 
+    category: "all", sort: "" });
+    const [modalOpen, setModalOpen] = useState('');
 
   const [selectedCategory, setSelectedCategory] = useState("알바");
-  const sessionId = sessionStorage.getItem('uid');
+  //const sessionId = sessionStorage.getItem('uid');
 
   const handleLocationSelect = async (selectedLocation) => {
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
@@ -133,6 +136,8 @@ export default function AlbaPage(props) {
       });
 
       setAlbaList(response.data);
+      console.log("albalistlength", albaList.length);
+
     } catch (error) {
       console.error("알바 리스트를 불러오는데 실패했습니다:", error);
     }
@@ -148,6 +153,24 @@ export default function AlbaPage(props) {
       });
   }, []);
 
+  useEffect(() => {
+      const fetchMemberInfo = async (userId) => {
+        try {
+          const response = await axios.get(`/user/find?uid=${userId}`);
+          setSelectedRegion(response.data.location[0].sigungu);
+          setSelectedDong(response.data.location[0].emd);
+          
+        } catch (error) {
+          console.error("사용자 정보 불러오기 실패:", error);
+        }
+      };
+  
+      if (sessionId) {
+        fetchMemberInfo(sessionId);
+      }      
+  }, []);
+
+
   // 근무 요일 데이터를 가져오기 위한 useEffect
   useEffect(() => {
     axios.get(`/api/data/filter?name=workDays`)
@@ -160,8 +183,9 @@ export default function AlbaPage(props) {
   }, []);
 
   // 알바 리스트 데이터를 가져오기 위한 useEffect 
-  useEffect(() => {
-    const fetchData = async () => {
+  useEffect(() => {   
+
+    const fetchData = async () => {      
       try {
         const response = await axios.get(`/api/alba`, {
           params: {
@@ -175,7 +199,8 @@ export default function AlbaPage(props) {
             searchTerm: searchTerm.trim() !== "" ? searchTerm : undefined,
           }
         });
-
+        console.log("selectedRegion",selectedRegion)
+        console.log("selectedDong",selectedDong)
         // 지역 기반으로 먼저 필터링
         const filteredByLocation = response.data.filter(alba => 
           alba.location.sigungu === selectedRegion &&
@@ -195,20 +220,33 @@ export default function AlbaPage(props) {
               (alba.description && alba.description.includes(searchTerm.trim())))
           );
         }
-      
       );
-
+      console.log("filteredList length",filteredList.length);
+      console.log("itemsToShow length",itemsToShow);
+      console.log("filteredListttttttttt length",typeof filteredList.length);
+      console.log("itemsToShowttttttt length",typeof itemsToShow);
+      console.log(itemsToShow < filteredList.length)
         setAlbaList(filteredList);
+        console.log("albalistlength", albaList.length);
+        console.log("filteredList length after",filteredList.length);
+
       } catch (error) {
         console.error("알바 리스트를 불러오는데 실패했습니다:", error);
-      }
+      } 
     };
     
     // selectedRegion이나 selectedDong이 변경될 때마다 fetchData 실행
     if (selectedRegion) {
+
+      console.log("선택된 구",selectedRegion)
+      console.log("선택된 동",selectedDong)
       fetchData();
     }
   }, [selectedRegion, selectedDong, category, workType, workDays, workTime, searchTerm]);
+
+  useEffect(() => {
+    console.log("@@@@@Updated albaList:", albaList);
+  }, [albaList]);
 
   // 컴포넌트 마운트 시 초기 검색 실행
   useEffect(() => {
@@ -257,7 +295,18 @@ export default function AlbaPage(props) {
     const { name, value } = e.target;
     setWorkTime(prev => ({ ...prev, [name]: value }));
   };
-
+  const handleAlbaFilter = () => {
+    if (sessionStorage.getItem('uid')) {
+      setSearchFilter({ ...searchFilter, sigungu: '', emd: '', category: 'all', sort: '', uid: sessionStorage.getItem('uid') });
+    }
+  }
+  const handleCreateButton = () => {
+    if (sessionStorage.getItem('uid')) {
+      navigate("/alba/create");
+    } else {
+      setModalOpen('login');
+    }
+  };
   const handleCategoryChange = (e) => {
     const newCategory = e.target.value;
     setCategory(newCategory);
@@ -317,6 +366,7 @@ export default function AlbaPage(props) {
       const response = await axios.get(`/api/alba/search`, { params });
       setAlbaList(response.data);
       setHasNext(!response.data.last);
+      console.log("dfkjkdfa",albaList.length);
       
       // URL 업데이트는 실제 검색어가 있을 때만
       if (searchTerm && searchTerm.trim() && !searchTerm.includes('구')) {
@@ -334,14 +384,17 @@ export default function AlbaPage(props) {
     }
   };
 
+  const id = sessionStorage.getItem('uid');
+
   const routes = [
     { path: "/", name: "홈" },
-    { path: "/alba", name: "알바 검색" },
+    { path: "/alba", name: "알바" },
     { path: "/alba/create", name: "알바 게시물 작성" },
-    { path: "/alba/{id}", name: "알바 상세 보기" },
-    { path: "/alba/{id}/edit", name: "알바 게시물 수정" },
+    { path: `/alba/${id}`, name: "알바 상세 보기" },
+    { path: `/alba/${id}/edit`, name: "알바 게시물 수정" },
   ];
-  
+
+
   useEffect(() => {
     // Toolbar에서 이동한 경우 자동 검색 실행
     if (location.state?.fromToolbar) {
@@ -358,6 +411,7 @@ export default function AlbaPage(props) {
   }, [category, workType, workDays, workTime]);
 
   return (
+    <>
     <Container>
       <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
           selectedCategory={selectedCategory}  setSelectedCategory={setSelectedCategory} 
@@ -370,7 +424,9 @@ export default function AlbaPage(props) {
         />
       )}
 
-      <Breadcrumb routes={routes} />
+<Breadcrumb routes={routes} />
+<br/>
+<h2>{`${searchFilter.sido} ${area.sigungu || searchFilter.sigungu} ${area.emd || ''} ${searchFilter.category === 'all' ? "" : searchFilter.category}`}{searchFilter.category === 'all' ? " 알바" : ""}</h2>
 
       <InnerContainer>
         {/* 필터 바 */}
@@ -464,7 +520,7 @@ export default function AlbaPage(props) {
         {/* 알바 리스트 컨테이너 */}
 
         <ListContainer>
-     
+        
           {(category !== 'all' || workType.length > 0 || workDays.length > 0 || workTime.start || workTime.end || searchTerm.trim() !== "" || selectedRegion !== "" || selectedDong !== "") &&
             <FilterContainer>
               {category !== 'all' && <RoundFilter title={category} variant='search' cancelIcon onClick={() => setCategory('all')} />}
@@ -495,20 +551,30 @@ export default function AlbaPage(props) {
           {filteredAlbaList.slice(0, itemsToShow).map((alba) => (
             <AlbaListItem key={alba.id} alba={alba} />
           ))}
-
-          {itemsToShow < albaList.length && (
+          {(itemsToShow < albaList.length) && (
             <Button title="더보기" onClick={handleShowMore} />
           )}
                 {/* 로그인 여부에 따라 글쓰기 버튼 렌더링 */}
-          {sessionId && (  
+          
           <Button 
             title="글쓰기" 
             variant="primary" 
-            onClick={() => navigate("/alba/create")} // 로그인 여부를 확인하고 렌더링
+            onClick={handleCreateButton} // 로그인 여부를 확인하고 렌더링
+            
           />
-            )}
+          
+      
+          
         </ListContainer>
       </InnerContainer>
     </Container>
+    <Modal title="로그인" isOpen={modalOpen === 'login'} onClose={() => setModalOpen('')}>
+    <h3>알바를 등록하려면 로그인해야 해요.</h3>
+    <div className="buttonWrap">
+      <Button title="로그인" variant='primary' onClick={() => { setModalOpen(''); navigate("/login") }} />
+      <Button title="닫기" onClick={() => setModalOpen('')} />
+    </div>
+  </Modal>
+  </>
   );
 }
