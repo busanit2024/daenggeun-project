@@ -7,8 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.plaf.ListUI;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -16,8 +19,19 @@ public class UsedTradeService {
     @Autowired
     private UsedTradeRepository usedTradeRepository;
 
-    public UsedTrade createUsedTrade(UsedTrade usedTrade) {
-        return usedTradeRepository.save(usedTrade);
+    @Transactional
+    public UsedTrade createUsedTrade(UsedTrade usedTrade, MultipartFile imageFile) {
+        try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                byte[] imageBytes = imageFile.getBytes();
+                usedTrade.setImageData(imageBytes);
+            } else {
+                usedTrade.setImageData(null);
+            }
+            return usedTradeRepository.save(usedTrade);
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
+        }
     }
 
     public List<UsedTrade> getAllUsedTrade() {
@@ -115,5 +129,7 @@ public class UsedTradeService {
         return usedTradeRepository.findByUserId(userId, pageable);
     }
 
-    
+    public UsedTrade createUsedTradeWithoutImage(UsedTrade usedTrade) {
+        return usedTradeRepository.save(usedTrade);
+    }
 }

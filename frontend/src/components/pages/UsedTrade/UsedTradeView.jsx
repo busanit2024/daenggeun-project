@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Button from "../../ui/Button";
-import AlbaMemberProfile from "../../alba/AlbaMemberProfile";
+import imageData from "../../../asset/imageData";
+import categoryData from "../../../asset/categoryData";
 
 const Container = styled.div`
   width: 90%;
@@ -29,10 +30,18 @@ const BackButton = styled.button`
   cursor: pointer;
 `;
 
-const ProductDetail = styled.div`
+const Product = styled.div`
   display: flex;
   gap: 20px;
+  flex-direction: row;
+`;
+
+const ProductDetail = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   margin-bottom: 40px;
+  width: 100%;
 `;
 
 const ProductImage = styled.div`
@@ -43,10 +52,17 @@ const ProductImage = styled.div`
   justify-content: center;
   align-items: center;
   font-size: 24px;
+  overflow: hidden;
 `;
 
+const StyledImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`
+
 const ProductInfo = styled.div`
-  flex: 1;
+  flex: 2;
 `;
 
 const Title = styled.h1`
@@ -57,11 +73,19 @@ const Title = styled.h1`
 const Price = styled.p`
   font-size: 20px;
   margin-bottom: 20px;
+  font-weight: bold;
 `;
+
+const Location = styled.p`
+  font-size: 14px;
+  margin-bottom: 20px;
+`
 
 const Description = styled.p`
   font-size: 16px;
   color: #555;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
 `;
 
 const CategoryAndTime = styled.p`
@@ -93,6 +117,7 @@ const UsedTradeView = () => {
   const location = useLocation();
 
   const [product, setProduct] = useState(location.state);
+  const [userId, setUserId] = useState(sessionStorage.getItem('uid'));  // 현재 로그인한 사용자 ID
 
   // 상품 정보 가져오기
   const fetchProductInfo = async () => {
@@ -102,6 +127,7 @@ const UsedTradeView = () => {
         throw new Error('상품 정보를 가져오는 데 실패했습니다.');
       }
       const data = await response.json();
+      console.log(data);
       setProduct(data);
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -110,7 +136,7 @@ const UsedTradeView = () => {
 
   useEffect(() => {
     fetchProductInfo(); // 컴포넌트가 마운트될 때 상품 정보 가져오기
-  }, [id]);
+  }, [id, userId]);
 
   if (!product) {
     return (
@@ -170,38 +196,52 @@ const UsedTradeView = () => {
         <h2>상품 상세 페이지</h2>
         <ButtonGroup>
           <BackButton onClick={() => navigate("/usedTrade")}>뒤로 가기</BackButton>
-          <Button onClick={() => navigate(`/usedTradeUpdate/${id}`, { state: product })} title="수정하기" variant="primary" />
-          <Button onClick={handleDelete} title="삭제하기" variant="danger" />
+          {product.userId && userId && product.userId[0].toLowerCase() === userId[0].toLowerCase() && ( // 작성자 ID와 현재 사용자 ID를 비교
+            <>
+              <Button onClick={() => navigate(`/usedTradeUpdate/${id}`, { state: product })} title="수정하기" variant="primary" />
+              <Button onClick={handleDelete} title="삭제하기" variant="danger" />
+            </>
+          )}
         </ButtonGroup>
       </Header>
-      <ProductDetail>
-        <ProductImage>상품 사진</ProductImage>
-        <AlbaMemberProfile 
-          userId={product.userId}
-          
-        />
+      <Product>
+        <ProductDetail>
+          <ProductImage>
+            {product.images ? (
+              <StyledImage src={product.images[0].url} alt="상품 이미지" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+            ) : (
+              "이미지가 없습니다."
+            )}
+          </ProductImage>
+        </ProductDetail>
 
-        <ProductInfo>
-          <Title>{product.name}</Title>
-          <CategoryAndTime>
-            {product.category} | {timeAgo(product.createdDate)}
-          </CategoryAndTime>
-          <Price>{formattedPrice} 원</Price>
+        <ProductDetail>
+          <ProductInfo>
+            <Title>{product.name}</Title>
+            <CategoryAndTime>
+              {product.category} | {timeAgo(product.createdDate)} | {product.isNegotiable ? "네고 가능" : product.price === 0 ? "나눔" : "네고 불가능"}
+            </CategoryAndTime>
+            <Price>{formattedPrice} 원</Price>
+            <Location>{product.location}</Location>
 
-          <Description>
-            {product.content}
-          </Description>
+            <Description>
+              <pre style={{ fontFamily: "unset" }}>
+                {product.content || "설명이 없습니다."}
+              </pre>
+            </Description>
 
-          <Button 
-            title="거래하기" 
-            variant="primary" 
-            onClick={() => alert("거래를 시작합니다!")} 
-            style={{ width: "100%", marginTop: "20px" }}
-          />
-        </ProductInfo>
-
-      </ProductDetail>
-      <MoreProducts>
+            <Button 
+              title={product.tradeable ? "거래하기" : "이미 거래가 완료된 상품입니다."}
+              variant="primary" 
+              onClick={product.tradeable ? () => alert("거래를 시작합니다!") : null} 
+              style={{ width: "100%", marginTop: "20px" }}
+              disabled={!product.tradeable}
+            />
+          </ProductInfo>
+        </ProductDetail>
+      </Product>
+      
+      {/* <MoreProducts>
         <h3>이 판매자의 다른 상품</h3>
 
         <ProductGrid>
@@ -210,7 +250,7 @@ const UsedTradeView = () => {
           ))}
         </ProductGrid>
 
-      </MoreProducts>
+      </MoreProducts> */}
     </Container>
   );
 };
