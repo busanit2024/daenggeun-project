@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import { LoadScript, useLoadScript } from '@react-google-maps/api';
+import ScrollToTop from './components/ui/ScrollToTop';
 
 import GroupPage from './components/pages/Group/GroupPage';
 import GroupViewPage from './components/pages/Group/GroupViewPage';
@@ -56,6 +57,7 @@ function App() {
       <AreaProvider>
         <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
           <Router>
+          <ScrollToTop/>
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<MainPage />} />
