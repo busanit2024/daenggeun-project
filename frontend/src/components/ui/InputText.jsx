@@ -36,7 +36,7 @@ const StyledInput = styled.input`
 `;
 
 function InputText(props) {
-    const { name, value, onChange, placeholder, underline, grow , onClick} = props;
+    const { name, value, onChange, placeholder, underline, grow , onClick, readOnly, disabled, style } = props;
     return (
         <StyledInput
             type="text"
@@ -46,7 +46,10 @@ function InputText(props) {
             onClick={onClick}
             placeholder={placeholder}
             underline={underline}
-            grow={grow} />
+            grow={grow}
+            readOnly={readOnly}
+            disabled={disabled}
+            style={style} />
     );
 }
 

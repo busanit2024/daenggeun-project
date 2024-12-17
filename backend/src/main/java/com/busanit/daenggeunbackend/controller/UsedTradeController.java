@@ -1,22 +1,31 @@
 package com.busanit.daenggeunbackend.controller;
 
 import com.busanit.daenggeunbackend.domain.FilterDataDTO;
+import com.busanit.daenggeunbackend.domain.Image;
 import com.busanit.daenggeunbackend.entity.FilterData;
 import com.busanit.daenggeunbackend.entity.UsedTrade;
 import com.busanit.daenggeunbackend.service.FilterDataService;
 import com.busanit.daenggeunbackend.service.UsedTradeService;
+import com.google.api.Http;
 import jakarta.servlet.Filter;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/usedTrades")
 public class UsedTradeController {
@@ -26,12 +35,38 @@ public class UsedTradeController {
     @Autowired
     private FilterDataService filterDataService;
 
-    @PostMapping
-    public ResponseEntity<UsedTrade> createUsedTrade(@RequestBody UsedTrade usedTrade) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UsedTrade> createUsedTrade(
+            @RequestPart("usedTrade") UsedTrade usedTrade,
+            @RequestParam(value = "files", required = false) MultipartFile imageFile) {
         System.out.println("Received POST request with data: " + usedTrade);
-        usedTrade.setTradeable(true);
-        UsedTrade createdUsedTrade = usedTradeService.createUsedTrade(usedTrade);
-        return ResponseEntity.ok(createdUsedTrade);
+
+        try {
+            if (usedTrade.getIsGiveable() == null) {
+                usedTrade.setIsGiveable(false);
+            }
+
+            if (usedTrade.getIsNegotiable() == null) {
+                usedTrade.setIsNegotiable(false);
+            }
+
+            usedTrade.setTradeable(true);
+
+            // 이미지가 없을 때
+            if (imageFile == null || imageFile.isEmpty()) {
+                usedTrade.setImageData(null);
+                // 이미지가 없을 때 처리하기
+                UsedTrade createdUsedTrade = usedTradeService.createUsedTradeWithoutImage(usedTrade);
+                return ResponseEntity.ok(createdUsedTrade);
+            } else {
+                // 이미지가 있을 때
+                UsedTrade createdUsedTrade = usedTradeService.createUsedTrade(usedTrade, imageFile);
+                return ResponseEntity.ok(createdUsedTrade);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping
@@ -98,11 +133,38 @@ public class UsedTradeController {
         }
     }
 
-    //내가 올린 거래 목록
+    // 내가 올린 거래 목록
     @GetMapping("/my")
     public ResponseEntity<Slice<UsedTrade>> getMyTrade(@RequestParam String userId, @RequestParam int page, @RequestParam int size) {
         Pageable pageable = PageRequest.of(page, size);
         Slice<UsedTrade> trades = usedTradeService.findByUserId(userId, pageable);
         return ResponseEntity.ok(trades);
     }
+
+    @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<List<Image>> uploadImages(@RequestParam("files") MultipartFile[] files) {
+        List<Image> images = new ArrayList<>();
+        String uploadDir = new File(System.getProperty("user.dir")).getAbsolutePath() + "/uploads/"; // 파일 저장 경로
+
+        for (MultipartFile file : files) {
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            File dest = new File(uploadDir + fileName);
+            try {
+                dest.getParentFile().mkdirs();
+                file.transferTo(dest); // 파일 저장
+
+                // Image 객체 생성 및 설정
+                Image image = new Image();
+                image.setFilename(fileName); // 파일 이름 설정
+                image.setFilePath(dest.getAbsolutePath()); // 서버 내 파일 경로 설정
+                image.setUrl("/uploads/" + fileName); // 클라이언트에서 접근할 URL 설정
+                images.add(image); // 리스트에 추가
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+        return ResponseEntity.ok(images); // Image 객체 리스트 반환
+    }
+
 }
