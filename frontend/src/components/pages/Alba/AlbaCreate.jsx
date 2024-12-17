@@ -50,7 +50,7 @@ const id = sessionStorage.getItem('uid');
 
 const routes = [
   { path: "/", name: "홈" },
-  { path: "/alba", name: "알바 검색" },
+  { path: "/alba", name: "알바" },
   { path: "/alba/create", name: "알바 게시물 작성" },
   { path: `/alba/${id}`, name: "알바 상세 보기" },
   { path: `/alba/${id}/edit`, name: "알바 게시물 수정" },
