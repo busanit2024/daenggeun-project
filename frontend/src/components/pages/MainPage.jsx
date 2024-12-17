@@ -244,14 +244,9 @@ const SlideText = styled.div`
 
 function MainPage(props) {
     const navigate = useNavigate();
-    const { area, setArea } = useArea(); 
     const categoryContainerRef = useRef(null);
-    const [searchTerm, setSearchTerm] = useState("");
     const [isAtStart, setIsAtStart] = useState(true);
     const [isAtEnd, setIsAtEnd] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState("중고거래");
-    const [selectedLocation, setSelectedLocation] = useState({ sigungu: "", emd: "" });
-    const [searchFilter, setSearchFilter] = useState({ sigungu: "", emd: "" });
 
     useEffect(() => {
         const handleScroll = () => {
@@ -278,20 +273,6 @@ function MainPage(props) {
         };
     }, []);
 
-    const handleLocationSelect = (selectedLocation) => {
-        console.log("선택된 지역:", selectedLocation);
-        const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
-        
-        setArea({ sigungu, emd });
-        
-        setSelectedLocation({ sigungu, emd });
-        setSearchFilter(prevFilter => ({
-            ...prevFilter,
-            sigungu: sigungu,
-            emd: emd,
-        }));
-    };
-
     const handleScrollLeft = () => {
         categoryContainerRef.current.scrollBy({
             left: -1100,
@@ -306,21 +287,8 @@ function MainPage(props) {
         });
     };
 
-    const handleSearch = (searchTerm) => {
-        console.log("검색어:", searchTerm);
-        // 필요한 검색 로직 추가
-    };
-
     return (
         <Wrapper>
-            <SearchBar 
-                searchTerm={searchTerm} 
-                setSearchTerm={setSearchTerm} 
-                selectedCategory={selectedCategory} 
-                setSelectedCategory={setSelectedCategory} 
-                onSelect={handleLocationSelect}
-                onSearch={handleSearch} 
-            />
             <FullWidthBackground>
                 <StyledCarousel
                     showArrows={true}

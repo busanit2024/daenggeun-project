@@ -257,13 +257,6 @@ export default function GroupPage(props) {
 
   return (
     <>
-      <SearchBar
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        onSelect={handleLocationSelect}
-        onSearch={handleSearch} />
       <Breadcrumb routes={routes} />
       <Container>
         <HeadContainer>
