@@ -14,12 +14,23 @@ import { AuthContext } from "../../../context/AuthContext";
 import { deleteFiles } from "../../../firebase";
 import CommentWrite from "../../community/CommentWrite";
 import CommentListItem from "../../community/CommentListItem";
+import RoundFilter from "../../ui/RoundFilter";
+
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
 `;
+
+const mannerTemp = {
+  worst: { min: 0, max: 12.5, label: 'worst' },
+  bad: { min: 12.5, max: 30, label: 'bad' },
+  defTemp: { min: 30, max: 37.5, label: 'defTemp' },
+  warm: { min: 37.5, max: 42, label: 'warm' },
+  good: { min: 42, max: 50, label: 'good' },
+  hot: { min: 50, max: 99, label: 'hot' },
+}
 
 export const ButtonContainer = styled.div`
   display: flex;
@@ -190,6 +201,21 @@ export default function CommunityViewPage(props) {
     }
   }
   
+  const getMannerTemp = (temp) => {
+    if (temp >= mannerTemp.worst.min && temp < mannerTemp.worst.max) {
+        return 'worst';
+    } else if (temp >= mannerTemp.bad.min && temp < mannerTemp.bad.max) {
+        return 'bad';
+    } else if (temp >= mannerTemp.defTemp.min && temp < mannerTemp.defTemp.max) {
+        return 'defTemp';
+    } else if (temp >= mannerTemp.warm.min && temp < mannerTemp.warm.max) {
+        return 'warm';
+    } else if (temp >= mannerTemp.good.min && temp < mannerTemp.good.max) {
+        return 'good';
+    } else if (temp >= mannerTemp.hot.min && temp < mannerTemp.hot.max) {
+        return 'hot';
+    }
+  }
 
   useEffect(() => {
     if (!communityId) return;
@@ -330,6 +356,9 @@ export default function CommunityViewPage(props) {
                   <MemberInfo>
                     <div className="name-wrap">
                       <div className="name">{member?.username ?? ''}</div>
+                      <div className="mannerTemp">
+                        <RoundFilter variant={getMannerTemp(member?.mannerTemp ?? 36.5)} title={`${member?.mannerTemp ?? '36.5'}℃`} />
+                      </div>
                     </div>
                     <TagContainer>
                       <span>
