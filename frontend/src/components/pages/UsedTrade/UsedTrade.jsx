@@ -238,7 +238,7 @@ export default function UsedTrade(props) {
         const locationFilters = busanJusoResponse.data.locationFilters;
         setBusanJuso(locationFilters);
 
-        if (area.sigungu) {
+        if (area && area.sigungu) {
           setSearchFilter(prev => ({
             ...prev,
             sido: "부산광역시",
@@ -262,7 +262,7 @@ export default function UsedTrade(props) {
       .finally(() => {
         setLoading(false);
       });
-  }, [area.sigungu, area.emd]); 
+  }, [area.sigungu, area.emd]);
 
   const resetFilter = () => {
     setLoading(true);

@@ -344,7 +344,8 @@ const UsedTradeUpdate = () => {
     
     return (
         <Container>
-            <Breadcrumb routes={routes} />
+            {/* <Breadcrumb routes={routes} /> */}
+            <h2>중고거래 수정</h2>
             <Form>
                 <ImageUpload img={uploadedImages} onImageChange={handleImageChange} />
                 <InputContainer>
