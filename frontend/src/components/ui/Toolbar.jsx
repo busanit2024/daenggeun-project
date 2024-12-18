@@ -60,7 +60,8 @@ const Toolbar = ({ scrolled }) => {
                             style={{ cursor: 'pointer' }}>동네생활</a>
                     </li>
                     <li>
-                        <a href="/group">모임</a>
+                    <a onClick={() => handleNavigation('/group', '모임')}
+                            style={{ cursor: 'pointer' }}>모임</a>
                     </li>
                 </ul>
             </nav>

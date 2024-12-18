@@ -7,7 +7,6 @@ import Button from "../../ui/Button";
 import GroupListItem from "../../group/GroupListItem";
 import RoundFilter from "../../ui/RoundFilter";
 import Radio from "../../ui/Radio";
-import { useJsApiLoader } from "@react-google-maps/api";
 import Breadcrumb from "../../ui/Breadcrumb";
 import Modal from "../../ui/Modal";
 import SearchBar from "../../ui/SearchBar";
@@ -116,13 +115,13 @@ const MoreFilterButton = styled.div`
 
 export default function GroupPage(props) {
   const navigate = useNavigate();
-  const { area, setArea } = useArea();
+  const { area, setArea, areaLoaded } = useArea();
   const [groupList, setGroupList] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [searchFilter, setSearchFilter] = useState({
     sido: "부산광역시",
-    sigungu: "",
-    emd: "",
+    sigungu: '',
+    emd: '',
     category: "all",
     sort: "",
     uid: '',
@@ -150,38 +149,29 @@ export default function GroupPage(props) {
     }).catch((error) => {
       console.error("부산 주소를 불러오는데 실패했습니다." + error);
     });
-    
+
   }, []);
 
   useEffect(() => {
-    if (area.sigungu) {
       const emdText = area.emd ?? '';
       setSearchFilter((prev) => ({ ...prev, sigungu: area.sigungu, emd: emdText }));
-    }
   }, [area]);
 
   useEffect(() => {
-    setLoading(true);
     if (categoryData.length > 0 && busanJuso.length > 0) {
-      fetchGroupList(0);
+    fetchGroupList(0);
     }
   }, [searchFilter, categoryData, busanJuso]);
 
   useEffect(() => {
-    setLoading(true);
-    setSearchFilter((prev) => {
-      if (prev.sigungu !== area.sigungu) {
-        return {...prev, emd: ''}
-      } else {
-        return prev;
-      }
-    });
-    getEmdList(searchFilter.sigungu);
-    setIsFilterOpen(false);
-  }, [searchFilter.sigungu, busanJuso]);
+    if (!busanJuso) return;
+    if (searchFilter.emd === '') {
+      getEmdList(searchFilter.sigungu);
+      setIsFilterOpen(false);
+    }
+  }, [searchFilter.sigungu, searchFilter.emd, busanJuso]);
 
   const resetFilter = () => {
-    setLoading(true);
     setSearchFilter((prev) => ({ ...prev, sigungu: area.sigungu, emd: area.emd, category: 'all', sort: '', uid: '' }));
     setIsFilterOpen(false);
     setPage(0);
@@ -195,6 +185,7 @@ export default function GroupPage(props) {
 
 
   const fetchGroupList = async (page) => {
+    setLoading(true);
     try {
       const response = await axios.get(`api/group/search`, {
         params: {
@@ -210,9 +201,9 @@ export default function GroupPage(props) {
       const newGroupList = response.data.content;
       setGroupList((prevGroups) => (page === 0 ? newGroupList : [...prevGroups, ...newGroupList]));
       setHasNext(!response.data.last);
-      setLoading(false);
     } catch (error) {
       console.error("모임 리스트를 불러오는데 실패했습니다." + error);
+    } finally {
       setLoading(false);
     }
   };
@@ -248,15 +239,15 @@ export default function GroupPage(props) {
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
     setArea({ sigungu, emd });
     setSearchFilter(prevFilter => ({
-        ...prevFilter,
-        sigungu: sigungu,
-        emd: emd ?? '',
+      ...prevFilter,
+      sigungu: sigungu,
+      emd: emd ?? '',
     }));
-};
+  };
 
-const handleSearch = (searchTerm) => {
-  console.log("검색어:", searchTerm);
-};
+  const handleSearch = (searchTerm) => {
+    console.log("검색어:", searchTerm);
+  };
 
 
   const routes = [
@@ -266,13 +257,6 @@ const handleSearch = (searchTerm) => {
 
   return (
     <>
-      <SearchBar 
-      searchTerm={searchTerm} 
-      setSearchTerm={setSearchTerm}
-      selectedCategory={selectedCategory} 
-      setSelectedCategory={setSelectedCategory}
-      onSelect={handleLocationSelect}
-      onSearch={handleSearch} />
       <Breadcrumb routes={routes} />
       <Container>
         <HeadContainer>
@@ -290,9 +274,9 @@ const handleSearch = (searchTerm) => {
             </div>
             <div className="filterItem">
               <h4 className="title" style={{ display: 'flex', width: '100%', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>지역
-                <div className="switchWrap" style={{display: 'flex', gap: '4px', alignItems: 'center', fontWeight: 'normal'}}>
-                <Switch id="all" checked={searchFilter.sigungu === ''} value={searchFilter.sigungu === ''} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.checked ? '' : area.sigungu })} />
-                <label htmlFor="all">전지역</label>
+                <div className="switchWrap" style={{ display: 'flex', gap: '4px', alignItems: 'center', fontWeight: 'normal' }}>
+                  <Switch id="all" checked={searchFilter.sigungu === ''} value={searchFilter.sigungu === ''} onChange={(e) => setSearchFilter({ ...searchFilter, sigungu: e.target.checked ? '' : area.sigungu, emd: '' })} />
+                  <label htmlFor="all">전지역</label>
                 </div>
               </h4>
 

@@ -86,60 +86,34 @@ export default function CommunityPage(props) {
   const { area, setArea } = useArea();
   const [communityList, setCommunityList] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [searchFilter, setSearchFilter] = useState({ sido: "부산광역시", sigungu: "", emd: "", category: "all", sort: "" });
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(true);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState('');
 
-  const [ selectedCategory, setSelectedCategory]= useState("동네생활");
-
   // URL의 쿼리 파라미터에서 검색어 가져오기
   useEffect(() => {
     const query = new URLSearchParams(routerLocation.search);
     const term = query.get('search');
     console.log("가져온 searchTerm", term)
-    if (term) {
-      setSearchTerm(term);
-      handleSearch(term);
-    } else {
-      fetchCommunityList(0);
-    }
+    setSearchFilter((prev) => ({ ...prev, searchTerm: term || '' }));
   }, [routerLocation.search]);
-
-  // 초기 데이터 로딩을 위한 useEffect 추가
-  useEffect(() => {
-    const loadInitialData = async () => {
-      setLoading(true);
-      try {
-        await fetchCommunityList(0);
-      } catch (error) {
-        console.error("초기 데이터 로딩 실패:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadInitialData();
-  }, []); // 컴포넌트 마운트 시 한 번만 실행
 
   // 지역 변경 감지 useEffect
   useEffect(() => {
     if (area.sigungu || area.emd) {
-      const loadData = async () => {
-        setLoading(true);
-        try {
-          await fetchCommunityList(0);
-        } catch (error) {
-          console.error("데이터 로딩 실패:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      loadData();
+      setSearchFilter({ ...searchFilter, sigungu: area.sigungu, emd: area.emd });
     }
   }, [area]);
+
+  useEffect(() => {
+    if (!searchFilter.sigungu) return;
+    setLoading(true);
+    setPage(0);
+    fetchCommunityList(searchFilter.searchTerm, page);
+    console.log("검색 필터 변경", searchFilter);
+  }, [searchFilter]);
 
   // 카테고리 데이터 불러오기
   useEffect(() => {
@@ -151,17 +125,14 @@ export default function CommunityPage(props) {
     });
   }, []);
 
-  const fetchCommunityList = async (page) => {
+  const fetchCommunityList = async (searchTerm, page) => {
     try {
-        const sigungu = area.sigungu || '';
-        const emd = area.emd || '';
-        const category = searchFilter.category || 'all';
-
         const response = await axios.get(`/api/community/search`, {
             params: {
-                sigungu,
-                emd: emd || undefined,
-                category,
+                sigungu: area.sigungu ?? searchFilter.sigungu,
+                emd: area.emd ?? searchFilter.emd ?? undefined,
+                category: searchFilter.category ?? 'all',
+                searchTerm: searchTerm,
                 page: page,
                 size: 10,
             }
@@ -180,32 +151,10 @@ export default function CommunityPage(props) {
     } catch (error) {
         console.error("동네생활 리스트를 불러오는데 실패했습니다.", error.response ? error.response.data : error.message);
         throw error;
-    }
-  };
-
-  const handleLocationSelect = async (selectedLocation) => {
-    console.log("선택된 위치 :", selectedLocation);
-    const [sigungu, emd] = selectedLocation.split(", ");
-
-    setArea({ sigungu, emd });
-    setSearchFilter(prev => ({
-        ...prev,
-        sigungu,
-        emd
-    }));
-
-    setLoading(true);
-    
-    try {
-        await fetchCommunityList(0);
-    } catch (error) {
-        console.error("데이터 로딩 실패:", error);
     } finally {
         setLoading(false);
     }
   };
-
-
 
   const handleMoreButton = () => {
     fetchCommunityList(page + 1);
@@ -249,9 +198,9 @@ export default function CommunityPage(props) {
 
   return (
     <>
-    <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
+    {/* <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
         selectedCategory={selectedCategory}  setSelectedCategory={setSelectedCategory} onSelect={handleLocationSelect}
-        onSearch={handleSearch} />
+        onSearch={handleSearch} /> */}
     <Breadcrumb routes={routes} />
       <Container>
         <HeadContainer>

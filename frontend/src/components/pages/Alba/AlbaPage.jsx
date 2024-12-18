@@ -229,10 +229,11 @@ export default function AlbaPage(props) {
         setAlbaList(filteredList);
         console.log("albalistlength", albaList.length);
         console.log("filteredList length after",filteredList.length);
-
       } catch (error) {
         console.error("알바 리스트를 불러오는데 실패했습니다:", error);
-      } 
+      } finally {
+        setLoading(false);
+      }
     };
     
     // selectedRegion이나 selectedDong이 변경될 때마다 fetchData 실행
@@ -255,12 +256,15 @@ export default function AlbaPage(props) {
     
     if (searchQuery) {
       setSearchTerm(searchQuery);
-      handleSearch(searchQuery);
     } else {
-      // 검색어 없이 초기 검색
-      handleSearch('');
+      setSearchTerm("");
     }
-  }, []); 
+  }, [location.search]); 
+
+  useEffect(() => {
+      setSelectedRegion(area.sigungu);
+      setSelectedDong(area.emd);
+  }, [area]);
 
   
 
@@ -340,8 +344,9 @@ export default function AlbaPage(props) {
   });
   
 
-  const handleSearch = async (searchTerm) => {
+  const handleSearch = async (searchText) => {
     setLoading(true);
+    setSearchTerm(searchText);
     try {
       // API 호출용 파라미터
       const params = {
@@ -351,8 +356,8 @@ export default function AlbaPage(props) {
       };
   
       // 검색어가 있는 경우에만 searchTerm 추가
-      if (searchTerm && searchTerm.trim()) {
-        params.searchTerm = searchTerm;
+      if (searchText && searchText.trim()) {
+        params.searchTerm = searchText;
       }
   
       // 지역 정보가 있는 경우에만 추가
@@ -369,9 +374,9 @@ export default function AlbaPage(props) {
       console.log("dfkjkdfa",albaList.length);
       
       // URL 업데이트는 실제 검색어가 있을 때만
-      if (searchTerm && searchTerm.trim() && !searchTerm.includes('구')) {
-        navigate(`/alba?search=${searchTerm}`, { replace: true });
-      } else if (!searchTerm || !searchTerm.trim()) {
+      if (searchText && searchText.trim() && !searchText.includes('구')) {
+        navigate(`/alba?search=${searchText}`, { replace: true });
+      } else if (!searchText || !searchText.trim()) {
         // 검색어가 없을 때는 search 파라미터 제거
         const newUrl = new URL(window.location.href);
         newUrl.searchParams.delete('search');
@@ -413,16 +418,16 @@ export default function AlbaPage(props) {
   return (
     <>
     <Container>
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
+      {/* <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} 
           selectedCategory={selectedCategory}  setSelectedCategory={setSelectedCategory} 
-          onSelect={handleLocationSelect} onSearch={handleSearch} />
+          onSelect={handleLocationSelect} onSearch={handleSearch} /> */}
 
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <LocationSearchModal 
           onSelect={handleLocationSelect}
           onClose={() => setIsModalOpen(false)}
         />
-      )}
+      )} */}
 
 <Breadcrumb routes={routes} />
 <br/>

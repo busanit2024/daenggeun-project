@@ -84,7 +84,6 @@ export default function MemberListItem(props) {
           </div>
           <div className="location">{member?.location?.[0]?.emd ?? '지역'}</div>
         </div>
-        <div className="desc">소개</div>
       </MemberInfo>
 
 

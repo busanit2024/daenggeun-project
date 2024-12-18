@@ -203,9 +203,7 @@ export default function MemberProfile() {
         </RecordContainer>
 
         <DescContainer>
-          <div className="desc">소개글</div>
           <div className="moreinfo">
-            <div>본인인증 완료</div>
             <div>{getPosition(member?.position)}</div>
             <div>{calculateDate(member?.registeredDate)} 전에 가입</div>
             <div>{member?.location?.[0]?.emd ?? '지역'}</div>

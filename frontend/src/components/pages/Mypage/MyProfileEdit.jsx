@@ -141,7 +141,7 @@ export default function MyProfileEdit(props) {
                     uid: user.uid,
                     username: user.username,
                     email: user.email,
-                    userLocation: user.location,
+                    userLocation: user.location ?? [],
                     profileImage: newProfileImage,
                 }
             ).then((response) => {

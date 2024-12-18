@@ -60,7 +60,7 @@ export default function GroupView() {
     axios.get(`/api/group/board/${group.id}`, {params: {
       boardName: selectedBoard,
       page: 0,
-      size: 4,
+      size: 3,
     }}).then((response) => {
       const newPosts = response.data.content;
       const postsWithUser = newPosts.map((post) => {
