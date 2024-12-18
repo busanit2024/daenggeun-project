@@ -67,7 +67,8 @@ export default function MyTrade() {
                 title={trade.name}
                 price={`${formattedPrice(trade.price)} 원`}
                 location={trade.location}
-                onClick={() => navigate(`/usedTrade/used-trade-view/${trade.id}`,
+                imageUrl={trade.images[0]?.url}
+                onClick={() => navigate(`/usedTradeView/${trade.id}`,
                   {
                     state:
                     {
@@ -76,7 +77,8 @@ export default function MyTrade() {
                       tradeable: trade.tradeable,
                       isNegotiable: trade.isNegotiable,
                       isGiveable: trade.selectedTradeType,
-                      isGived: trade.isGived
+                      isGived: trade.isGived,
+                      images: trade.images,
                     }
                   })}
                 style={{ cursor: "pointer" }}

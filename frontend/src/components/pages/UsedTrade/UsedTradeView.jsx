@@ -6,9 +6,11 @@ import imageData from "../../../asset/imageData";
 import categoryData from "../../../asset/categoryData";
 
 const Container = styled.div`
-  width: 90%;
-  margin: 0 auto;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 36px 0px;
+
 `;
 
 const Header = styled.div`
@@ -53,6 +55,8 @@ const ProductImage = styled.div`
   align-items: center;
   font-size: 24px;
   overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 `;
 
 const StyledImage = styled.img`
@@ -84,31 +88,19 @@ const Location = styled.p`
 const Description = styled.p`
   font-size: 16px;
   color: #555;
-  border-left: 1px solid #ccc;
-  border-right: 1px solid #ccc;
+  white-space: pre-wrap;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 24px 10px;
+  border-radius: 5px;
+
+  min-height: 200px;
 `;
 
 const CategoryAndTime = styled.p`
   font-size: 14px;
   color: #888;
   margin-bottom: 10px;
-`;
-
-const MoreProducts = styled.div`
-  margin-top: 40px;
-`;
-
-const ProductGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 20px;
-`;
-
-const ProductCard = styled.div`
-  background: #eaeaea;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
 `;
 
 const UsedTradeView = () => {
@@ -195,7 +187,7 @@ const UsedTradeView = () => {
       <Header>
         <h2>상품 상세 페이지</h2>
         <ButtonGroup>
-          <BackButton onClick={() => navigate("/usedTrade")}>뒤로 가기</BackButton>
+          <Button title="뒤로가기" onClick={() => navigate("/usedTrade")} />
           {product.userId && userId && product.userId[0].toLowerCase() === userId[0].toLowerCase() && ( // 작성자 ID와 현재 사용자 ID를 비교
             <>
               <Button onClick={() => navigate(`/usedTradeUpdate/${id}`, { state: product })} title="수정하기" variant="primary" />
@@ -219,7 +211,7 @@ const UsedTradeView = () => {
           <ProductInfo>
             <Title>{product.name}</Title>
             <CategoryAndTime>
-              {product.category} | {timeAgo(product.createdDate)} | {product.isNegotiable ? "네고 가능" : product.price === 0 ? "나눔" : "네고 불가능"}
+              {product.category} · {timeAgo(product.createdDate)} · {product.isNegotiable ? "네고 가능" : product.price === 0 ? "나눔" : "네고 불가능"}
             </CategoryAndTime>
             <Price>{formattedPrice} 원</Price>
             <Location>{product.location}</Location>
