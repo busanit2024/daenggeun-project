@@ -316,9 +316,7 @@ function MainPage(props) {
                         </ArrowButton>
                         <CategoryContainer className="category-container" ref={categoryContainerRef} start={isAtStart} end={isAtEnd}>
                             {categoryData.map(category => (
-                                <Category onClick={() => navigate("/usedTrade", {
-                                    state: { category: category.name }
-                                })}>
+                                <Category onClick={() => navigate(`/usedTrade?category=${category.name}`)}>
                                     <div className="category-image">
                                         <img src={category.image} alt={category.name} />
                                     </div>
