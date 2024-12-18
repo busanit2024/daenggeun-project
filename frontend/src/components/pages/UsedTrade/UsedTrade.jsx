@@ -204,16 +204,23 @@ export default function UsedTrade(props) {
 
   const [modalOpen, setModalOpen] = useState(false);
 
+
   // URL의 쿼리 파라미터에서 검색어 가져오기
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const term = query.get('search');
+    const category = query.get('category');
     if (term) {
       setSearchTerm(term);
     }
+    if (category) {
+      setSearchFilter(prev => ({ ...prev, category: category }));
+    }
   }, [location.search]);
 
+
   useEffect(() => {
+    setSelectedFilters({...selectedFilters, category: searchFilter.category !== "all" ? [searchFilter.category] : []});
     setLoading(true);
     fetchTradeList(0);
   }, [searchFilter]);
