@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
@@ -114,6 +114,11 @@ const MainSearchBox = ({ searchTerm, setSearchTerm, selectedCategory, setSelecte
         }
     }
 
+    useEffect(() => {
+        setCategory(selectedCategory);
+    }, [selectedCategory]);
+
+    
     return (
         <SearchBoxWrapper>
             <FilterSection>

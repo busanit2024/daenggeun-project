@@ -70,12 +70,14 @@ public class UserRestController {
 
         // userLocation 변환
         List<Location> locations = new ArrayList<>();
-        for (LocationDTO locationDTO : request.getUserLocation()) {
-            Location location = new Location();
-            location.setSido(locationDTO.getSido());
-            location.setSigungu(locationDTO.getSigungu());
-            location.setEmd(locationDTO.getEmd());
-            locations.add(location);
+        if (request.getUserLocation() != null) {
+            for (LocationDTO locationDTO : request.getUserLocation()) {
+                Location location = new Location();
+                location.setSido(locationDTO.getSido());
+                location.setSigungu(locationDTO.getSigungu());
+                location.setEmd(locationDTO.getEmd());
+                locations.add(location);
+            }
         }
 
         // id를 사용하여 사용자 프로필 저장

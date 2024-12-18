@@ -160,7 +160,7 @@ export default function MyPageMain(props) {
                         {/* <span className="regDate">{calculateDate(user?.registeredDate) ?? ''} 전 가입</span> */}
                     </div>
                     {user?.location && (
-                        <span className="location">{user.location[0].sigungu} {user.location[0].emd} </span>
+                        <span className="location">{user.location[0]?.sigungu} {user.location[0]?.emd} </span>
                     )}
                     <Button title="프로필 수정" onClick={() => navigate('edit')} />
                 </div>

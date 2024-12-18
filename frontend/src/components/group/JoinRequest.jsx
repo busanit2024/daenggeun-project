@@ -127,7 +127,7 @@ export default function JoinRequest() {
             <RequestItem key={request.userId + request.requestDate}>
               <div className="profile">
                 <div className="profile-image">
-                  <img src={request.profileImage?.url ?? '/images/default/defaultProfileImage.png'} alt="프로필 이미지" />
+                  <img src={request.profileImage?.url ?? '/images/default/defaultProfileImage.png'} onError={(e) => e.target.src = '/images/default/defaultProfileImage.png'} alt="프로필 이미지" />
                 </div>
                 <div className="info">
                   <div className="profile-container">
