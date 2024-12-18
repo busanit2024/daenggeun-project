@@ -66,21 +66,21 @@ public class UsedTradeService {
         // 지역과 카테고리, 거래 가능 여부를 함께 필터링
         if (sigungu != null && !sigungu.isEmpty()) {
             if (emd != null && !emd.isEmpty()) {
-                // 구와 동이 모두 지정된 경우
+                // 구와 동이 모두 지정된 경���
                 if (category != null && !category.isEmpty() && !category.equals("all")) {
                     if (tradeable != null) {
-                        return usedTradeRepository.findByLocationContainingAndLocationContainingAndTradeableAndCategory(
+                        return usedTradeRepository.findByLocationAndTradeableAndCategory(
                             sigungu, emd, tradeable, category, sortOrder);
                     } else {
-                        return usedTradeRepository.findByLocationContainingAndLocationContainingAndCategory(
+                        return usedTradeRepository.findByLocationAndCategory(
                             sigungu, emd, category, sortOrder);
                     }
                 } else {
                     if (tradeable != null) {
-                        return usedTradeRepository.findByLocationContainingAndLocationContainingAndTradeable(
+                        return usedTradeRepository.findByLocationAndTradeable(
                             sigungu, emd, tradeable, sortOrder);
                     } else {
-                        return usedTradeRepository.findByLocationContainingAndLocationContaining(
+                        return usedTradeRepository.findByLocation(
                             sigungu, emd, sortOrder);
                     }
                 }
@@ -88,18 +88,18 @@ public class UsedTradeService {
                 // 구만 지정된 경우
                 if (category != null && !category.isEmpty() && !category.equals("all")) {
                     if (tradeable != null) {
-                        return usedTradeRepository.findByLocationContainingAndTradeableAndCategory(
+                        return usedTradeRepository.findBySigunguAndTradeableAndCategory(
                             sigungu, tradeable, category, sortOrder);
                     } else {
-                        return usedTradeRepository.findByLocationContainingAndCategory(
+                        return usedTradeRepository.findBySigunguAndCategory(
                             sigungu, category, sortOrder);
                     }
                 } else {
                     if (tradeable != null) {
-                        return usedTradeRepository.findByLocationContainingAndTradeable(
+                        return usedTradeRepository.findBySigunguAndTradeable(
                             sigungu, tradeable, sortOrder);
                     } else {
-                        return usedTradeRepository.findByLocationContaining(sigungu, sortOrder);
+                        return usedTradeRepository.findBySigungu(sigungu, sortOrder);
                     }
                 }
             }
