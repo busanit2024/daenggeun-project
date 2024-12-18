@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Button from "../../ui/Button";
 import imageData from "../../../asset/imageData";
 import categoryData from "../../../asset/categoryData";
+import Breadcrumb from "../../ui/Breadcrumb";
 
 const Container = styled.div`
   display: flex;
@@ -182,7 +183,16 @@ const UsedTradeView = () => {
     return `${years}년 전`;
 };
 
+  const routes = [
+    { path: "/", name: "홈" },
+    { path: "/usedTradeView/:id", name: "상품 상세 페이지" },
+];
+
+
   return (
+    <>
+    <Breadcrumb routes={routes}/>
+
     <Container>
       <Header>
         <h2>상품 상세 페이지</h2>
@@ -244,6 +254,7 @@ const UsedTradeView = () => {
 
       </MoreProducts> */}
     </Container>
+    </>
   );
 };
 

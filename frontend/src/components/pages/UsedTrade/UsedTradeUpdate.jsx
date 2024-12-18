@@ -363,9 +363,14 @@ const UsedTradeUpdate = () => {
         // setUploadedImages(uploadedFiles); // 상태 업데이트
     };
 
+    const routes = [
+        { path: "/", name: "홈" },
+        { path: "/usedTradeUpdate/:id", name: "상품 수정하기" },
+    ];
 
     return (
         <>
+        <Breadcrumb routes={routes} />
         <Container>
             <Form>
                 <ImageUpload img={uploadedImages} onImageChange={handleImageChange} />

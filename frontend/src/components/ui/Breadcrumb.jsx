@@ -43,7 +43,7 @@ const Breadcrumb = ({ routes }) => {
       const regex = new RegExp(`^${routePath}$`);
       return regex.test(path);
     });
-    return route ? route.name : path;
+    return route ? route.name : null;
   };
 
 
