@@ -342,17 +342,19 @@ export default function UsedTrade(props) {
   // 필터 제거 함수
   const handleRemoveFilter = (filter) => {
     setSelectedFilters((prev) => {
+      let newFilters = { ...prev };
+  
       if (prev.category.includes(filter)) {
-        return {
-          ...prev,
-          category: prev.category.filter(c => c !== filter), // 카테고리 필터에서 제거
-        };
+        newFilters.category = prev.category.filter(c => c !== filter); // 카테고리 필터에서 제거
+        setSearchFilter(prev => ({ ...prev, category: newFilters.category.length > 0 ? newFilters.category[0] : 'all' })); // searchFilter에서도 제거
       } else if (filter === prev.sort) {
-        return { ...prev, sort: null }; // 정렬 필터 제거
+        newFilters.sort = null; // 정렬 필터 제거
+        setSearchFilter(prev => ({ ...prev, sort: '' }));
       } else if (filter === prev.price) {
-        return { ...prev, price: null }; // 가격 필터 제거
+        newFilters.price = null; // 가격 필터 제거
+        setSearchFilter(prev => ({ ...prev, priceRange: { min: 0, max: 999999999999 } })); // 가격 필터 초기화
       }
-      return prev; // 변경 사항이 없으면 그대로 반환
+      return newFilters; // 변경 사항 저장
     });
   };
 
@@ -436,24 +438,32 @@ export default function UsedTrade(props) {
 
 
   useEffect(() => {
-    const filteredTradesList =  searchTerm ? tradeList.filter(trade => 
+    const filteredTradesList = searchTerm ? tradeList.filter(trade => 
       trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
     ) : tradeList;
 
     const locationFilteredTrades = filteredTradesList.filter(trade => {
-      const tradeableMatches = searchFilter.tradeble ? trade.tradeable === true : true;
-      const priceMatches = trade.price >= searchFilter.priceRange.min && trade.price <= searchFilter.priceRange.max;
-  
-      // 전지역 선택 시 모든 거래 보여주기
-      if (searchFilter.sigungu === '' && searchFilter.emd === '') {
-        return tradeableMatches && priceMatches;
-      }
-  
-      // 특정 구와 동이 선택된 경우
-      const locationMatches = trade.location.includes(searchFilter.sigungu);
-      const emdMatches = searchFilter.emd === '' || trade.location.includes(searchFilter.emd);
-  
-      return locationMatches && emdMatches && tradeableMatches && priceMatches;
+        const tradeableMatches = searchFilter.tradeble ? trade.tradeable === true : true;
+
+        // 가격 필터링
+        const priceMatches = trade.price >= searchFilter.priceRange.min && trade.price <= searchFilter.priceRange.max;
+
+        // 전지역 선택 시 모든 거래 보여주기
+        if (searchFilter.sigungu === '' && searchFilter.emd === '') {
+            return tradeableMatches && priceMatches;
+        }
+
+        // 특정 구와 동이 선택된 경우
+        const locationMatches = searchFilter.sigungu === '' || trade.location.includes(searchFilter.sigungu);
+        const emdMatches = searchFilter.emd === '' || trade.location.includes(searchFilter.emd);
+        
+        // 동 필터링
+        const dongMatches = searchFilter.emd === '' || trade.location.includes(searchFilter.emd);
+
+        // 카테고리 필터링
+        const categoryMatches = searchFilter.category === 'all' || trade.category === searchFilter.category;
+
+        return locationMatches && emdMatches && tradeableMatches && priceMatches && dongMatches && categoryMatches; // 모든 필터링 조건 추가
     });
 
     setFilteredTrades(locationFilteredTrades);
