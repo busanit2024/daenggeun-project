@@ -21,10 +21,13 @@ const Main = styled.div`
   margin: 100px 0;
 `;
 
+const hiddenSearchBar = ["/usedTradeWrite", "/usedTradeUpdate", "/mypage", "/create", "/edit", "/write", "/communityEdit", "/group/" ];
+
 export default function Layout() {
   const [scrolled, setScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [hidden, setHidden] = useState(false);
   const { area, setArea } = useArea();
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,6 +61,11 @@ export default function Layout() {
     }
   }, [location.pathname, location.search]);
 
+  useEffect(() => {
+    const isHidden = hiddenSearchBar.some((path) => location.pathname.includes(path));
+    setHidden(isHidden);
+  }, [location.pathname]);
+
   const handleLocationSelect = (selectedLocation) => {
     const [sigungu, emd] = selectedLocation.split(",").map(loc => loc.trim());
     setArea({ sigungu, emd });
@@ -79,13 +87,13 @@ export default function Layout() {
     <Container>
       <Toolbar scrolled={scrolled} />
       <Main>
-      <SearchBar
+      {!hidden && <SearchBar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
         onSelect={handleLocationSelect}
-        onSearch={onSearch} />
+        onSearch={onSearch} /> }
         <Outlet />
       </Main>
       <Footer />

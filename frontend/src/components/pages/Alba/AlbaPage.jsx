@@ -153,22 +153,22 @@ export default function AlbaPage(props) {
       });
   }, []);
 
-  useEffect(() => {
-      const fetchMemberInfo = async (userId) => {
-        try {
-          const response = await axios.get(`/user/find?uid=${userId}`);
-          setSelectedRegion(response.data.location[0].sigungu);
-          setSelectedDong(response.data.location[0].emd);
+  // useEffect(() => {
+  //     const fetchMemberInfo = async (userId) => {
+  //       try {
+  //         const response = await axios.get(`/user/find?uid=${userId}`);
+  //         setSelectedRegion(response.data.location[0].sigungu);
+  //         setSelectedDong(response.data.location[0].emd);
           
-        } catch (error) {
-          console.error("사용자 정보 불러오기 실패:", error);
-        }
-      };
+  //       } catch (error) {
+  //         console.error("사용자 정보 불러오기 실패:", error);
+  //       }
+  //     };
   
-      if (sessionId) {
-        fetchMemberInfo(sessionId);
-      }      
-  }, []);
+  //     if (sessionId) {
+  //       fetchMemberInfo(sessionId);
+  //     }      
+  // }, []);
 
 
   // 근무 요일 데이터를 가져오기 위한 useEffect
