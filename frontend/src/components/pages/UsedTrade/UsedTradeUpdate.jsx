@@ -18,9 +18,7 @@ const ButtonContainer = styled.div`
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    max-width: 800px;
-    margin: auto;
+    padding: 36px 20px;
 `;
 
 const Form = styled.form`
@@ -34,6 +32,7 @@ const InputContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
+    gap: 12px;
 `;
 
 const TextArea = styled.textarea`
@@ -70,25 +69,37 @@ const Checkbox = styled.input`
 
 const CategoryToggle = styled.div`
     display: flex;
+    gap: 12px;
     align-items: center;
+    justify-content: space-between;
     cursor: pointer;
     position: relative;
+    cursor: pointer;
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #f1f1f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
 `;
 
 const CategoryList = styled.div`
     position: absolute;
     top: 100%;
-    left: 0;
+    right: 0;
     background: #f9f9f9;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     z-index: 10;
     padding: 5px;
-    display: ${props => (props.show ? "block" : "none")};
-    min-width: 100%;
-    max-width: 100%;
+    display: ${props => (props.show ? "block" : "none")}; /* 드롭다운 토글 */
     margin-top: 5px;
+    width: fit-content;
+    white-space: nowrap;
+font-weight: normal;
 `;
 
 const CategoryItem = styled.div`
@@ -106,6 +117,21 @@ const TradeButton = styled(Button)`
     color: ${props => (props.active ? "#ffffff" : "#000000")};
     border-radius: 30px;
     transition: all 0.3s ease;
+`;
+
+const Title = styled.div`
+    display: flex;
+    gap: 36px;
+    font-size: 16px;
+    align-items: center;
+
+
+    & .title-wrap {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-grow: 1;
+    }
 `;
 
 const UsedTradeUpdate = () => {
@@ -304,7 +330,7 @@ const UsedTradeUpdate = () => {
 
     const handleImageChange = async (newImages) => {
         console.log("newImages: ", newImages);
-        
+
         // 이전 파일 삭제 처리
         const removedImages = newImages.filter(
             (image) => !newImages.some((newImage) => newImage.filename === image.filename)
@@ -323,9 +349,9 @@ const UsedTradeUpdate = () => {
         // const uploadedFiles = await Promise.all(
         //     newImages.map((file) => singleFileUpload(file.file))
         // );
-        
+
         setUploadedImages(newImages); // 상태 업데이트
-        
+
         // let imageInfo = newImages;
         // if (newImages?.filename !== imageInfo.filename) {
         //     await deleteFile(newImages?.filename);
@@ -339,176 +365,178 @@ const UsedTradeUpdate = () => {
 
     const routes = [
         { path: "/", name: "홈" },
-        { path: `/usedTradeUpdate/${id}`, name: "중고거래 수정" },
+        { path: "/usedTradeUpdate/:id", name: "상품 수정하기" },
     ];
-    
+
     return (
+        <>
+        <Breadcrumb routes={routes} />
         <Container>
-            {/* <Breadcrumb routes={routes} /> */}
-            <h2>중고거래 수정</h2>
             <Form>
                 <ImageUpload img={uploadedImages} onImageChange={handleImageChange} />
                 <InputContainer>
-                <Form>
-                    <CategoryToggle>
-                    <h3>제목</h3>
-                    <span 
-                        style={{
-                            cursor: "pointer", 
-                            marginLeft: "200px",
-                            padding: "8px 16px",
-                            border: "1px solid #ccc",
-                            borderRadius: "5px",
-                            background: "#f1f1f1",
+                    <Title>
+                        <div className="title-wrap">
+                            <h3>제목</h3>
+                            <InputText
+                                placeholder="제목"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                style={{ borderColor: nameError ? 'red' : '#ccc' }}
+                            />
+                        </div>
+                        <CategoryToggle>
+
+                            <span
+                                onClick={toggleCategory}
+                            >
+                                {selectedCategory ? selectedCategory : (isCategoryOpen ? "카테고리 -" : "카테고리 +")}
+                            </span>
+                            <CategoryList show={isCategoryOpen}>
+                                <CategoryItem onClick={() => {
+                                    setSelectedCategory(null);
+                                    setIsCategoryOpen(false);
+                                }}>
+                                    None
+                                </CategoryItem>
+                                {categoryData.map(category => (
+                                    <CategoryItem key={category.name} onClick={() => selectCategory(category.name)}>
+                                        {category.name}
+                                    </CategoryItem>
+                                ))}
+                            </CategoryList>
+                        </CategoryToggle>
+                    </Title>
+                    {nameError && <ErrorText>{nameError}</ErrorText>}
+
+
+
+                    <InputContainer>
+                        <div style={{
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center"
-
-                        }}
-                        onClick={toggleCategory}
-                    >
-                        {selectedCategory ? selectedCategory : (isCategoryOpen ? "카테고리 -" : "카테고리 +")}
-                    </span>
-                    <CategoryList show={isCategoryOpen}>
-                        <CategoryItem onClick={() => {
-                            setSelectedCategory(null);
-                            setIsCategoryOpen(false);
+                            gap: "12px",
                         }}>
-                            None
-                        </CategoryItem>
-                        {categoryData.map(category => (
-                            <CategoryItem key={category.name} onClick={() => selectCategory(category.name)}>
-                                {category.name}
-                            </CategoryItem>
-                        ))}
-                    </CategoryList>
-                    </CategoryToggle>
-                </Form>
-                <InputText 
-                    placeholder="제목"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    style={{ borderColor: nameError ? 'red' : '#ccc' }}
-                />
-                {nameError && <ErrorText>{nameError}</ErrorText>}
+                            <h3>거래 방식</h3>
+                            <ButtonContainer>
+                                <TradeButton
+                                    key={`판매하기-${selectedTradeType === "판매하기"}`}
+                                    active={selectedTradeType === "판매하기"}
+                                    onClick={() => handleTradeTypeChange("판매하기")}
+                                    title="판매하기"
+                                    variant="gray"
+                                    borderRadius="30px"
+                                >
+                                    판매하기
+                                </TradeButton>
+                                <TradeButton
+                                    key={`나눔하기-${selectedTradeType === "나눔하기"}`}
+                                    active={selectedTradeType === "나눔하기"}
+                                    onClick={() => handleTradeTypeChange("나눔하기")}
+                                    title="나눔하기"
+                                    variant="gray"
+                                    borderRadius="30px"
+                                >
+                                    나눔하기
+                                </TradeButton>
+                            </ButtonContainer>
 
-                <div style={{ marginTop: "30px" }}>
-                    <h3 style={{ marginBottom: "10px" }}>거래 방식</h3>
-                    <ButtonContainer>
-                    <TradeButton
-                        key={`판매하기-${selectedTradeType === "판매하기"}`}
-                        active={selectedTradeType === "판매하기"}
-                        onClick={() => handleTradeTypeChange("판매하기")}
-                        title="판매하기"
-                        variant="gray"
-                        borderRadius="30px"
-                    >
-                        판매하기
-                    </TradeButton>
-                    <TradeButton
-                        key={`나눔하기-${selectedTradeType === "나눔하기"}`}
-                        active={selectedTradeType === "나눔하기"}
-                        onClick={() => handleTradeTypeChange("나눔하기")}
-                        title="나눔하기"
-                        variant="gray"
-                        borderRadius="30px"
-                    >
-                        나눔하기
-                    </TradeButton>
-                    </ButtonContainer>
-                </div>
-
-                <Label>
-                    {/* 가격 입력 */}
-                    <InputText 
-                        placeholder="가격을 입력해주세요" 
-                        value={selectedTradeType === "나눔하기" ? "0" : formattedPrice}
-                        onChange={handlePriceChange}
-                        disabled={selectedTradeType === "나눔하기"}
-                        style={{ borderColor: priceError ? 'red' : '#ccc' }}
-                    /> 원
-                    <br/>
-                    {priceError && <ErrorText>{priceError}</ErrorText>}
-                    <br/>
-                    
-                    {/* 체크박스 추가 - 조건부 렌더링 */}
-                    {selectedTradeType === "판매하기" && (
+                        </div>
                         <Label>
-                            <Checkbox
-                                type="checkbox"
-                                checked={isNegotiable}
-                                onChange={(e) => {
-                                    const checked = e.target.checked;
-                                    setIsNegotiable(checked);
-                                    console.log("네고 가능 여부: ", checked);
-                                }}
-                            />
-                            가격 제안 받기
+                            {/* 가격 입력 */}
+                            <InputText
+                                placeholder="가격을 입력해주세요"
+                                value={selectedTradeType === "나눔하기" ? "0" : formattedPrice}
+                                onChange={handlePriceChange}
+                                disabled={selectedTradeType === "나눔하기"}
+                                style={{ borderColor: priceError ? 'red' : '#ccc' }}
+                            /> 원
+                            {priceError && <ErrorText>{priceError}</ErrorText>}
+
+                            {/* 체크박스 추가 - 조건부 렌더링 */}
+                            {selectedTradeType === "판매하기" && (
+                                <Label>
+                                    <Checkbox
+                                        type="checkbox"
+                                        checked={isNegotiable}
+                                        onChange={(e) => {
+                                            const checked = e.target.checked;
+                                            setIsNegotiable(checked);
+                                            console.log("네고 가능 여부: ", checked);
+                                        }}
+                                    />
+                                    가격 제안 받기
+                                </Label>
+                            )}
                         </Label>
-                    )}
-                </Label>
+                    </InputContainer>
+
+                    <InputContainer>
+                        <h3>거래 희망 장소</h3>
+                        <InputText
+                            placeholder="거래 희망 장소"
+                            value={locationInput}
+                            onChange={(e) => setLocationInput(e.target.value)}
+                            readOnly
+                        />
+                    </InputContainer>
+
+                    <InputContainer>
+                        <h3>설명</h3>
+                        <TextArea
+                            placeholder={`${locationInput}에 올릴 게시글 내용을 작성해 주세요.\n(판매 금지 물품은 게시가 제한될 수 있습니다.)`}
+                            rows="5"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                        />
+                    </InputContainer>
                 </InputContainer>
+
             </Form>
 
-            <Form>
-                <InputContainer>
-                    <h3>설명</h3>
-                    <TextArea 
-                        placeholder={`${locationInput}에 올릴 게시글 내용을 작성해 주세요.\n(판매 금지 물품은 게시가 제한될 수 있습니다.)`}
-                        rows="5"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                    />
-                </InputContainer>
-
-                <InputContainer>
-                    <h3>거래 희망 장소</h3>
-                    <InputText 
-                        placeholder="거래 희망 장소" 
-                        value={locationInput}
-                        onChange={(e) => setLocationInput(e.target.value)}
-                        readOnly
-                    />
-                </InputContainer>
-            </Form>
-
-            <Form 
-                style={{ display: "flex", 
-                justifyContent: "space-between", 
-                alignItems: "center", 
-                marginTop: "10px" }}>
-                <Button
+            <form
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginTop: "36px",
+                        width: "100%",
+                    }}>
+                    {/* <Button
                     title="자주 쓰는 문구"
                     onClick={(e) => {
                         e.preventDefault();
                         alert("맥거핀입니다.");
                     }}
-                />
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <Button
-                        title="수정하기"
-                        variant="primary"
-                        type="submit"
-                        onClick={handleSubmit}
-                    />
-                    <Button
-                        title="취소하기"
-                        variant="gray"
-                        onClick={() => {
-                            navigate(`/usedTradeView/${id}`);
-                        }}
-                    />
-                    {tradeable && (
+                /> */}
+                    <div style={{ display: "flex", gap: "10px" }}>
                         <Button
-                        title="거래완료"
-                        variant="white"
-                        type="button"
-                        onClick={handleTradeComplete}
+                            title="수정하기"
+                            variant="primary"
+                            type="submit"
+                            onClick={handleSubmit}
                         />
-                    )}
-                </div>
-            </Form>
+                        <Button
+                            title="취소하기"
+                            variant="gray"
+                            onClick={() => {
+                                navigate(`/usedTradeView/${id}`);
+                            }}
+                        />
+                        {tradeable && (
+                            <Button
+                                title="거래완료"
+                                variant="white"
+                                type="button"
+                                onClick={handleTradeComplete}
+                            />
+                        )}
+                    </div>
+                </form>
+
+
         </Container>
+        </>
     );
 };
 
