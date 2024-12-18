@@ -230,7 +230,7 @@ export default function UsedTrade(props) {
         const locationFilters = busanJusoResponse.data.locationFilters;
         setBusanJuso(locationFilters);
 
-        if (area.sigungu) {
+        if (area && area.sigungu) {
           setSearchFilter(prev => ({
             ...prev,
             sido: "부산광역시",
@@ -252,7 +252,7 @@ export default function UsedTrade(props) {
       .finally(() => {
         setLoading(false);
       });
-  }, [area.sigungu, area.emd]); 
+  }, [area.sigungu, area.emd]);
 
   const resetFilter = () => {
     setLoading(true);
@@ -627,6 +627,8 @@ export default function UsedTrade(props) {
               <option value={30000}>30,000원 이하</option>
               <option value={50000}>50,000원 이하</option>
               <option value={100000}>100,000원 이하</option>
+              <option value={500000}>500,000원 이하</option>
+              <option value={1000000}>1,000,000원 이하</option>
             </CustomSelect>
           </div>
         </FilterBar>

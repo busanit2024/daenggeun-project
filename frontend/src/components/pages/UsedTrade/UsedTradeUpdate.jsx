@@ -187,7 +187,7 @@ const UsedTradeUpdate = () => {
                 setIsNegotiable(data.isNegotiable);
                 setIsGiveable(data.isGiveable || false);
                 setCreatedDate(data.createdDate);
-                setSelectedCategory(data.category);
+                setSelectedCategory(data.category ? data.category.name : null);
                 setUploadedImages(data.images || []);
                 setSelectedTradeType(data.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
             } catch (error) {
@@ -209,7 +209,7 @@ const UsedTradeUpdate = () => {
             setIsNegotiable(product.isNegotiable);
             setIsGiveable(product.isGiveable || false);
             setCreatedDate(product.createdDate);
-            setSelectedCategory(product.category);
+            setSelectedCategory(product.category ? product.category : null);
             setUploadedImages(product.images);
             setSelectedTradeType(product.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
         }
