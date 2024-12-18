@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,33 +24,38 @@ public interface UsedTradeRepository extends MongoRepository<UsedTrade, String> 
     Slice<UsedTrade> findByUserId(String userId, Pageable pageable);
 
     // 구+동+거래가능+카테고리
-    List<UsedTrade> findByLocationContainingAndLocationContainingAndTradeableAndCategory(
+    @Query("{ 'location': { $regex: ?0 }, 'location': { $regex: ?1 }, 'tradeable': ?2, 'category': ?3 }")
+    List<UsedTrade> findByLocationAndTradeableAndCategory(
         String sigungu, String emd, Boolean tradeable, String category, Sort sort);
 
     // 구+동+카테고리
-    List<UsedTrade> findByLocationContainingAndLocationContainingAndCategory(
+    @Query("{ 'location': { $regex: ?0 }, 'location': { $regex: ?1 }, 'category': ?2 }")
+    List<UsedTrade> findByLocationAndCategory(
         String sigungu, String emd, String category, Sort sort);
 
     // 구+동+거래가능
-    List<UsedTrade> findByLocationContainingAndLocationContainingAndTradeable(
+    @Query("{ 'location': { $regex: ?0 }, 'location': { $regex: ?1 }, 'tradeable': ?2 }")
+    List<UsedTrade> findByLocationAndTradeable(
         String sigungu, String emd, Boolean tradeable, Sort sort);
 
     // 구+동
-    List<UsedTrade> findByLocationContainingAndLocationContaining(
-        String sigungu, String emd, Sort sort);
+    @Query("{ 'location': { $regex: ?0 }, 'location': { $regex: ?1 }}")
+    List<UsedTrade> findByLocation(String sigungu, String emd, Sort sort);
 
     // 구+거래가능+카테고리
-    List<UsedTrade> findByLocationContainingAndTradeableAndCategory(
+    @Query("{ 'location': { $regex: ?0 }, 'tradeable': ?1, 'category': ?2 }")
+    List<UsedTrade> findBySigunguAndTradeableAndCategory(
         String sigungu, Boolean tradeable, String category, Sort sort);
 
     // 구+카테고리
-    List<UsedTrade> findByLocationContainingAndCategory(
-        String sigungu, String category, Sort sort);
+    @Query("{ 'location': { $regex: ?0 }, 'category': ?1 }")
+    List<UsedTrade> findBySigunguAndCategory(String sigungu, String category, Sort sort);
 
     // 구+거래가능
-    List<UsedTrade> findByLocationContainingAndTradeable(
-        String sigungu, Boolean tradeable, Sort sort);
+    @Query("{ 'location': { $regex: ?0 }, 'tradeable': ?1 }")
+    List<UsedTrade> findBySigunguAndTradeable(String sigungu, Boolean tradeable, Sort sort);
 
     // 구만
-    List<UsedTrade> findByLocationContaining(String sigungu, Sort sort);
+    @Query("{ 'location': { $regex: ?0 }}")
+    List<UsedTrade> findBySigungu(String sigungu, Sort sort);
 }
