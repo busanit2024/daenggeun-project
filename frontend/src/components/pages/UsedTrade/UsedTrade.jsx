@@ -269,7 +269,7 @@ export default function UsedTrade(props) {
       sido: "부산광역시", 
       sigungu: area.sigungu, 
       emd: area.emd, 
-      sort: '', 
+      sort: 'recent', 
       category: 'all', 
       tradeble: false, 
       priceRange: { min: 0, max: 999999999999 }
@@ -446,7 +446,7 @@ export default function UsedTrade(props) {
 
   useEffect(() => {
     const filteredTradesList = searchTerm ? tradeList.filter(trade => 
-      trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
+        trade.name.includes(searchTerm) || trade.content.includes(searchTerm)
     ) : tradeList;
 
     const locationFilteredTrades = filteredTradesList.filter(trade => {
@@ -473,7 +473,15 @@ export default function UsedTrade(props) {
         return locationMatches && emdMatches && tradeableMatches && priceMatches && dongMatches && categoryMatches; // 모든 필터링 조건 추가
     });
 
-    setFilteredTrades(locationFilteredTrades);
+    // 정렬 로직 추가 (복사본을 만들어서 정렬)
+    const sortedTrades = [...locationFilteredTrades].sort((a, b) => {
+        if (searchFilter.sort === 'price') {
+            return b.price - a.price; // 가격순 정렬
+        }
+        return 0; // 정렬 기준이 없을 경우 원래 순서 유지
+    });
+
+    setFilteredTrades(sortedTrades); // 필터링 및 정렬된 결과 설정
   }, [tradeList, searchFilter, searchTerm]);
 
   const routes = [
