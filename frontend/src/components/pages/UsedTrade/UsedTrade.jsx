@@ -627,6 +627,8 @@ export default function UsedTrade(props) {
               <option value={30000}>30,000원 이하</option>
               <option value={50000}>50,000원 이하</option>
               <option value={100000}>100,000원 이하</option>
+              <option value={500000}>500,000원 이하</option>
+              <option value={1000000}>1,000,000원 이하</option>
             </CustomSelect>
           </div>
         </FilterBar>
