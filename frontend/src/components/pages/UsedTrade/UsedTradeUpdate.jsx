@@ -183,7 +183,7 @@ const UsedTradeUpdate = () => {
             setIsNegotiable(product.isNegotiable);
             setIsGiveable(product.isGiveable || false);
             setCreatedDate(product.createdDate);
-            setSelectedCategory(product.category ? product.category.name : null);
+            setSelectedCategory(product.category ? product.category : null);
             setUploadedImages(product.images);
             setSelectedTradeType(product.isGiveable ? "나눔하기" : "판매하기"); // 거래 방식 유지
         }
