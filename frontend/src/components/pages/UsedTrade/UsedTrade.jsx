@@ -508,7 +508,7 @@ export default function UsedTrade(props) {
 
                   } else {
                     // 기본 지역으로 설정
-                    setSearchFilter(prev => ({ ...prev, sigungu: busanJuso[0].sigungu })); 
+                    setSearchFilter(prev => ({ ...prev, sigungu: area.sigungu, emd: area.emd })); 
                   }
                 }} 
               />
