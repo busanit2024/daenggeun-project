@@ -40,7 +40,7 @@ public class CommentService {
             comments = new ArrayList<>();
           }
           if (!comments.contains(comment.getId())) {
-            comments.add(commentDTO.getId());
+            comments.add(comment.getId());
           }
           community.setComments(comments);
           communityRepository.save(community);
@@ -71,13 +71,14 @@ public class CommentService {
     }
 
     commentRepository.delete(comment);
+
     switch (commentDTO.getBoardType()) {
       case COMMUNITY -> {
         Community community = communityRepository.findById(commentDTO.getPostId()).orElse(null);
         if (community != null) {
           List<String> comments = community.getComments();
-          if (comments != null && comments.contains(comment.getId())) {
-            comments.remove(commentDTO.getId());
+          if (comments != null) {
+            comments.remove(comment.getId());
             community.setComments(comments);
             communityRepository.save(community);
           }
