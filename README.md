@@ -1,4 +1,4 @@
-# 당근 마켓을 웹으로, 당근마켓 클론 코딩 프로젝트 - 댕근
+# 🥕당근 마켓을 웹으로, 당근마켓 클론 코딩 프로젝트 - 댕근
 ![댕근로고](https://github.com/busanit2024/daenggeun-project/blob/main/frontend/src/images/danggnlogo.png)
 
 **댕근**은 당근마켓의 중고거래, 알바, 동네생활, 모임의 모바일에서 한정된 기능을 웹으로 가져와 구현한 서비스 입니다. 
@@ -28,7 +28,7 @@
 - DataBase : MongoDB, Firebase
 - 협업 관리 : Discord, Notion, Figma, Github
 
-## 주요 기능
+## 📟주요 기능
 ### ✔️ 로그인/회원가입
   - 전화번호 인증을 이용하여 로그인, 회원가입 로직을 통합하였음.
   - 기존 회원은 로그인 후 메인화면, 신규 회원은 회원 정보 등록 페이지로 이동함.
