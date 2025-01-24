@@ -26,7 +26,6 @@
 - Frontend : React, JavaScript
 - Backend : Spring, node.js,
 - DataBase : MongoDB, Firebase
-- WAS : Apache Tomcat
 - 협업 관리 : Discord, Notion, Figma, Github
 
 ## 주요 기능
